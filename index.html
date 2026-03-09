@@ -67,7 +67,11 @@
       backdrop-filter: blur(14px);
       font-size: 13px;
     }
-    .grid, .event-box, .battle-panel { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .grid, .event-box, .battle-panel {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
     .card {
       background: linear-gradient(180deg, rgba(23, 32, 57, 0.92) 0%, rgba(17, 24, 43, 0.94) 100%);
       border: 1px solid var(--line);
@@ -970,7 +974,6 @@
     </div>
   </div>
 
-  <!-- 이벤트 -->
   <div class="modal-backdrop" id="eventModalBackdrop">
     <div class="modal">
       <div class="modal-head"><div class="modal-title" id="eventModalTitle">이벤트 확인</div></div>
@@ -1004,7 +1007,6 @@
     </div>
   </div>
 
-  <!-- 영웅 상세 -->
   <div class="modal-backdrop" id="heroStatsBackdrop">
     <div class="modal">
       <div class="modal-head"><div class="modal-title">영웅 상세 정보</div></div>
@@ -1053,7 +1055,6 @@
     </div>
   </div>
 
-  <!-- 스캔 -->
   <div class="modal-backdrop" id="scanModalBackdrop">
     <div class="modal">
       <div class="modal-head"><div class="modal-title">바코드 스캔</div></div>
@@ -1076,7 +1077,6 @@
     </div>
   </div>
 
-  <!-- 위치 기록 -->
   <div class="modal-backdrop" id="mapHistoryBackdrop">
     <div class="modal">
       <div class="modal-head"><div class="modal-title">위치별 탐험 기록</div></div>
@@ -1089,7 +1089,6 @@
     </div>
   </div>
 
-  <!-- 재사용 대기 -->
   <div class="modal-backdrop" id="cooldownBackdrop">
     <div class="modal">
       <div class="modal-head"><div class="modal-title">바코드 재사용 대기</div></div>
@@ -1102,7 +1101,6 @@
     </div>
   </div>
 
-  <!-- 이벤트 해석 -->
   <div class="modal-backdrop" id="decodeBackdrop">
     <div class="modal">
       <div class="modal-head"><div class="modal-title">이벤트 해석</div></div>
@@ -1121,7 +1119,6 @@
     </div>
   </div>
 
-  <!-- 탐험 기록 -->
   <div class="modal-backdrop" id="exploreLogBackdrop">
     <div class="modal">
       <div class="modal-head"><div class="modal-title">탐험 기록</div></div>
@@ -1195,6 +1192,8 @@
         heroExpBarText: document.getElementById('heroExpBarText'),
         heroSpriteWrap: document.getElementById('heroSpriteWrap'),
         soldierFront: document.getElementById('soldierFront'),
+        tacticBadge: document.getElementById('tacticBadge'),
+        soldierBadge: document.getElementById('soldierBadge'),
 
         barcodeInput: document.getElementById('barcodeInput'),
         scanFab: document.getElementById('scanFab'),
@@ -1315,6 +1314,7 @@
       }
 
       function applyAuraClass(target, gradeKey) {
+        if (!target) return;
         target.classList.remove('aura-common', 'aura-uncommon', 'aura-rare', 'aura-epic', 'aura-legend');
         target.classList.add(`aura-${gradeKey}`);
       }
@@ -1369,8 +1369,10 @@
       }
 
       function renderHeroFormation(heroClass, soldierClass, soldierCount) {
-        els.heroSpriteWrap.innerHTML = getHeroSprite(heroClass);
-        els.soldierFront.innerHTML = Array.from({ length: soldierCount }, () => getSoldierSprite(soldierClass)).join('');
+        if (els.heroSpriteWrap) els.heroSpriteWrap.innerHTML = getHeroSprite(heroClass);
+        if (els.soldierFront) {
+          els.soldierFront.innerHTML = Array.from({ length: soldierCount }, () => getSoldierSprite(soldierClass)).join('');
+        }
       }
 
       function renderBattleFormation(targetEl, role, heroClass, soldierClass, soldierCount, enemyName, enemyAmount) {
@@ -1751,10 +1753,15 @@
         els.heroGoldTop.textContent = state.gold;
         els.heroExpBarText.textContent = `${state.exp} / ${expNeed}`;
         els.heroExpFill.style.width = `${expRate}%`;
-        els.tacticBadge.textContent = `전술: ${els.eventTacticSelect.value}`;
-        els.soldierBadge.textContent = `병사 클래스: ${els.eventSoldierClassSelect.value}`;
-        els.heroTitleBtn.textContent = formatHeroTopTitle(stats);
 
+        if (els.tacticBadge) {
+          els.tacticBadge.textContent = `전술: ${els.eventTacticSelect.value}`;
+        }
+        if (els.soldierBadge) {
+          els.soldierBadge.textContent = `병사 클래스: ${els.eventSoldierClassSelect.value}`;
+        }
+
+        els.heroTitleBtn.textContent = formatHeroTopTitle(stats);
         renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
         renderEquipmentPreview();
       }
@@ -2115,6 +2122,10 @@
       renderInventory();
 
       setInterval(renderCooldowns, 30000);
+
+      console.assert(toFiveCode('8801234567890').length === 5, '5자리 코드 생성 실패');
+      console.assert(onlyDigits('88-01A23') === '880123', '숫자 추출 실패');
+      console.assert(decodeEvent('48279').eventType === '몬스터', '이벤트 해석 실패');
     });
   </script>
 </body>
