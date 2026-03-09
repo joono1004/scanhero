@@ -176,6 +176,15 @@
       0%,100% { filter: drop-shadow(0 0 4px rgba(255,207,99,0.5)); }
       50% { filter: drop-shadow(0 0 12px rgba(255,207,99,0.85)); }
     }
+    /* 방패 글로우 */
+    .shield-glow-uncommon path[fill="#4db88a"] { filter: drop-shadow(0 0 4px rgba(99,208,154,0.7)); }
+    .shield-glow-rare     path[fill="#3a7ad8"] { filter: drop-shadow(0 0 6px rgba(99,168,255,0.8)); }
+    .shield-glow-epic     path[fill="#8a4dd8"] { filter: drop-shadow(0 0 8px rgba(178,125,255,0.85)); }
+    .shield-glow-legendary g { animation: shieldLegendaryPulse 1.6s ease-in-out infinite; }
+    @keyframes shieldLegendaryPulse {
+      0%,100% { filter: drop-shadow(0 0 8px rgba(255,207,99,0.8)); }
+      50% { filter: drop-shadow(0 0 20px rgba(255,207,99,1.0)); }
+    }
 
     .soldier-svg .soldier-body { fill: #9db3e8; }
     .soldier-svg .soldier-armor { fill: #3f5d9f; }
@@ -283,43 +292,62 @@
     .hero-start-desc { color: #d6e2ff; font-size: 12px; line-height: 1.6; }
     .hero-start-body { padding: 16px; display: grid; gap: 10px; }
 
-    /* ===== 영웅 상세 ===== */
-    .hero-detail-layout { display: grid; grid-template-columns: 1.05fr .95fr; gap: 10px; align-items: start; }
+    /* ===== 영웅 상세 - 캐릭터 크게, 스탯 작게 ===== */
+    .hero-detail-layout { display: grid; grid-template-columns: 1fr; gap: 8px; align-items: start; }
     .hero-detail-left, .hero-detail-right, .inventory-panel { background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96)); border: 1px solid rgba(110, 139, 204, 0.18); border-radius: 16px; padding: 10px; }
-    .hero-detail-right .stats-modal-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+
+    /* 스탯 - 가로 한 줄로 압축 */
+    .stats-compact-row { display: flex; flex-wrap: wrap; gap: 5px; }
+    .stats-compact-item {
+      display: flex; align-items: center; gap: 4px;
+      background: linear-gradient(180deg, rgba(14,21,36,0.95), rgba(21,31,52,0.96));
+      border: 1px solid rgba(110,139,204,0.12);
+      border-radius: 8px; padding: 5px 8px; flex: 1; min-width: 70px;
+    }
+    .stats-compact-label { color: var(--muted); font-size: 9px; font-weight: 700; white-space: nowrap; }
+    .stats-compact-value { font-size: 12px; font-weight: 900; color: #eef3ff; margin-left: auto; }
+
+    /* 구버전 호환 */
     .stats-modal-item { background: linear-gradient(180deg, rgba(14, 21, 36, 0.95), rgba(21, 31, 52, 0.96)); border: 1px solid rgba(110, 139, 204, 0.12); border-radius: 10px; padding: 8px; text-align: left; }
     .stats-modal-label { color: var(--muted); font-size: 10px; margin-bottom: 4px; font-weight: 700; }
     .stats-modal-value { font-size: 13px; font-weight: 900; color: #eef3ff; }
 
-    .hero-preview-stage { position: relative; min-height: 230px; border-radius: 16px; overflow: hidden; background: radial-gradient(circle at 50% 25%, rgba(255,255,255,0.08), transparent 24%), linear-gradient(180deg, rgba(35,49,86,0.95), rgba(13,19,35,0.98)); border: 1px solid rgba(115,143,210,0.14); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 18px; }
-    .hero-preview-ground { position: absolute; left: -10%; right: -10%; bottom: 8px; height: 72px; border-radius: 50%; background: radial-gradient(circle, rgba(245,201,107,0.20), rgba(55,77,123,0.24) 45%, rgba(7,11,20,0.02) 70%); filter: blur(2px); }
-    .hero-preview-wrap { position: relative; z-index: 2; display: flex; align-items: flex-end; justify-content: center; width: 110px; min-height: 140px; }
-    .hero-preview-wrap .hero-visual-wrap { transform: scale(1.28); transform-origin: bottom center; }
+    /* 캐릭터 장비 장착 영역 - 풀 너비, 크게 */
+    .hero-preview-stage {
+      position: relative; min-height: 360px; border-radius: 16px; overflow: hidden;
+      background: radial-gradient(circle at 50% 25%, rgba(255,255,255,0.08), transparent 24%),
+        linear-gradient(180deg, rgba(35,49,86,0.95), rgba(13,19,35,0.98));
+      border: 1px solid rgba(115,143,210,0.14);
+      display: flex; align-items: flex-end; justify-content: center; padding-bottom: 28px;
+    }
+    .hero-preview-ground { position: absolute; left: -10%; right: -10%; bottom: 8px; height: 90px; border-radius: 50%; background: radial-gradient(circle, rgba(245,201,107,0.22), rgba(55,77,123,0.26) 45%, rgba(7,11,20,0.02) 70%); filter: blur(2px); }
+    .hero-preview-wrap { position: relative; z-index: 2; display: flex; align-items: flex-end; justify-content: center; width: 180px; min-height: 200px; }
+    .hero-preview-wrap .hero-visual-wrap { transform: scale(2.1); transform-origin: bottom center; }
 
-    /* ===== 장비 핀 - 위치 재조정 ===== */
+    /* ===== 장비 핀 - 큰 무대 기준 위치 재조정 ===== */
     .equip-pin {
       position: absolute; z-index: 3;
-      min-width: 52px; max-width: 76px;
-      padding: 4px 5px; border-radius: 9px;
-      background: rgba(8, 12, 24, 0.85);
-      border: 1px solid rgba(149, 173, 233, 0.22);
-      box-shadow: 0 6px 14px rgba(0,0,0,.22);
-      font-size: 9px; line-height: 1.25; text-align: center;
+      min-width: 54px; max-width: 80px;
+      padding: 5px 6px; border-radius: 9px;
+      background: rgba(8, 12, 24, 0.88);
+      border: 1px solid rgba(149, 173, 233, 0.28);
+      box-shadow: 0 6px 14px rgba(0,0,0,.28);
+      font-size: 9px; line-height: 1.3; text-align: center;
       color: #eef3ff; backdrop-filter: blur(8px);
       transition: all 0.2s ease;
     }
-    .equip-pin.empty { opacity: .42; border-style: dashed; }
+    .equip-pin.empty { opacity: .38; border-style: dashed; }
     .equip-pin b { display: block; font-size: 9px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* 핀 위치 - 실제 신체 부위에 맞게 재조정 */
-    .pin-armor    { left: 50%; top: 12px;  transform: translateX(-50%); } /* 상단 중앙 - 갑옷(몸통) */
-    .pin-weapon   { left: 4px;  top: 58px; }                               /* 왼쪽 중간 - 무기(왼손) */
-    .pin-shield   { right: 4px; top: 58px; }                               /* 오른쪽 중간 - 방패(오른손) */
-    .pin-gloves   { left: 4px;  top: 108px; }                              /* 왼쪽 아래 - 장갑 */
-    .pin-boots    { right: 4px; top: 108px; }                              /* 오른쪽 아래 - 장화 */
-    .pin-ring     { left: 4px;  bottom: 14px; }                            /* 왼쪽 하단 - 반지 */
-    .pin-necklace { left: 50%;  top: 38px; transform: translateX(-50%); } /* 상단 중간 - 목걸이(목) */
-    .pin-cloak    { right: 4px; bottom: 14px; }                            /* 오른쪽 하단 - 망토 */
+    /* 핀 위치 - 무대 크기에 맞춰 재배치 */
+    .pin-armor    { left: 50%; top: 10px;  transform: translateX(-50%); }  /* 상단 - 갑옷 */
+    .pin-necklace { left: 50%; top: 48px;  transform: translateX(-50%); }  /* 목 */
+    .pin-weapon   { left: 6px;  top: 110px; }                               /* 왼팔 - 무기 */
+    .pin-shield   { right: 6px; top: 110px; }                               /* 오른팔 - 방패 */
+    .pin-gloves   { left: 6px;  top: 168px; }                               /* 왼손 - 장갑 */
+    .pin-boots    { right: 6px; top: 168px; }                               /* 오른손 - 장화 */
+    .pin-ring     { left: 6px;  bottom: 18px; }                             /* 왼쪽 하단 - 반지 */
+    .pin-cloak    { right: 6px; bottom: 18px; }                             /* 오른쪽 하단 - 망토 */
 
     .equip-summary { margin-top: 8px; display: grid; gap: 6px; }
     .equip-summary-row { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -470,10 +498,46 @@
       font-size: 11px; color: #fff2bf; font-weight: 900; margin-bottom: 2px;
     }
 
-    /* 전투 관련 */
-    .scan-modal-body { padding: 14px; display: grid; gap: 12px; }
-    #scanner { width: 100%; min-height: 138px; height: 138px; border-radius: 16px; overflow: hidden; background: #0b1220; border: 1px solid rgba(110, 139, 204, 0.18); }
-    #scanner video { border-radius: 16px; object-fit: cover !important; }
+    /* ===== 스캔 모달 - 카메라 영역 확대 ===== */
+    .scan-modal-body { padding: 10px 14px 14px; display: grid; gap: 10px; }
+    #scanner {
+      width: 100%;
+      min-height: 280px;
+      height: 280px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0b1220;
+      border: 1px solid rgba(110, 139, 204, 0.18);
+      position: relative;
+    }
+    #scanner video { border-radius: 16px; object-fit: cover !important; width: 100% !important; height: 100% !important; }
+    /* 스캔 가이드 라인 오버레이 */
+    .scan-guide-overlay {
+      position: absolute; inset: 0; z-index: 10; pointer-events: none;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .scan-guide-box {
+      width: 82%; height: 90px;
+      border: 2px solid rgba(99,168,255,0.85);
+      border-radius: 8px;
+      box-shadow: 0 0 0 2000px rgba(0,0,0,0.45);
+      position: relative;
+    }
+    .scan-guide-box::before {
+      content: '';
+      position: absolute; left: 0; right: 0; top: 50%; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(99,168,255,0.9), transparent);
+      animation: scanLine 1.6s ease-in-out infinite;
+    }
+    .scan-guide-corner {
+      position: absolute; width: 14px; height: 14px;
+      border-color: #63a8ff; border-style: solid;
+    }
+    .scan-guide-corner.tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+    .scan-guide-corner.tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+    .scan-guide-corner.bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+    .scan-guide-corner.br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+    @keyframes scanLine { 0%,100% { top: 10%; opacity: 0.6; } 50% { top: 88%; opacity: 1; } }
 
     .mini-current-marker { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #7ea7ff 0%, #557dff 100%); border: 2px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(0,0,0,0.35); font-size: 14px; }
 
@@ -559,7 +623,8 @@
       .battle-stage { height: 244px; }
       #map { height: 285px; }
       .subtitle { font-size: 10px; }
-      #scanner { min-height: 128px; height: 128px; }
+      #scanner { min-height: 220px; height: 220px; }
+      .hero-preview-stage { min-height: 300px; }
     }
   </style>
 </head>
@@ -703,7 +768,17 @@
     <div class="modal">
       <div class="modal-head"><div class="modal-title">영웅 상세 정보</div></div>
       <div class="modal-body">
-        <div style="font-size:16px; font-weight:900; margin-bottom:2px;" id="heroStatsTitle">주인님의 영웅</div>
+        <div style="font-size:15px; font-weight:900; margin-bottom:2px;" id="heroStatsTitle">주인님의 영웅</div>
+        <!-- 스탯 압축 표시 -->
+        <div class="stats-compact-row">
+          <div class="stats-compact-item"><span class="stats-compact-label">⚔️ 공격</span><span class="stats-compact-value" id="heroStatsAtk">0</span></div>
+          <div class="stats-compact-item"><span class="stats-compact-label">🛡️ 방어</span><span class="stats-compact-value" id="heroStatsDef">0</span></div>
+          <div class="stats-compact-item"><span class="stats-compact-label">❤️ 체력</span><span class="stats-compact-value" id="heroStatsHp">0</span></div>
+          <div class="stats-compact-item"><span class="stats-compact-label">💨 속도</span><span class="stats-compact-value" id="heroStatsSpeed">0</span></div>
+          <div class="stats-compact-item"><span class="stats-compact-label">✨ 치명</span><span class="stats-compact-value" id="heroStatsCrit">0%</span></div>
+          <div class="stats-compact-item"><span class="stats-compact-label">🪖 병사</span><span class="stats-compact-value" id="heroStatsSoldiers">0명</span></div>
+        </div>
+        <!-- 캐릭터 장비 장착 뷰 - 풀 너비 -->
         <div class="hero-detail-layout">
           <div class="hero-detail-left">
             <div class="hero-preview-stage">
@@ -718,22 +793,9 @@
               <div class="equip-pin pin-ring"     id="pinRing"></div>
               <div class="equip-pin pin-cloak"    id="pinCloak"></div>
             </div>
-            <div class="equip-summary">
-              <div class="muted" style="font-size:10px;">착용 장비</div>
-              <div class="equip-summary-row" id="heroEquipSummary"></div>
-            </div>
-          </div>
-          <div class="hero-detail-right">
-            <div class="stats-modal-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-              <div class="stats-modal-item"><div class="stats-modal-label">공격력</div><div class="stats-modal-value" id="heroStatsAtk">0</div></div>
-              <div class="stats-modal-item"><div class="stats-modal-label">방어력</div><div class="stats-modal-value" id="heroStatsDef">0</div></div>
-              <div class="stats-modal-item"><div class="stats-modal-label">체력</div><div class="stats-modal-value" id="heroStatsHp">0</div></div>
-              <div class="stats-modal-item"><div class="stats-modal-label">속도</div><div class="stats-modal-value" id="heroStatsSpeed">0</div></div>
-              <div class="stats-modal-item"><div class="stats-modal-label">치명타</div><div class="stats-modal-value" id="heroStatsCrit">0%</div></div>
-              <div class="stats-modal-item"><div class="stats-modal-label">병사 수</div><div class="stats-modal-value" id="heroStatsSoldiers">0명</div></div>
-            </div>
           </div>
         </div>
+        <!-- 인벤토리 -->
         <div class="inventory-panel">
           <div class="inventory-title">인벤토리</div>
           <div class="inventory-grid" id="inventoryGrid"></div>
@@ -768,14 +830,22 @@
   <!-- 스캔 모달 -->
   <div class="modal-backdrop" id="scanModalBackdrop">
     <div class="modal">
-      <div class="modal-head"><div class="modal-title">바코드 스캔</div></div>
+      <div class="modal-head">
+        <div class="modal-title">바코드 스캔</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;" id="scanStatusText">바코드를 아래 박스 안에 맞춰 주세요.</div>
+      </div>
       <div class="scan-modal-body">
-        <div class="modal-hero">
-          <div class="modal-visual" style="font-size:56px;">📷</div>
-          <div class="modal-text" id="scanStatusText">카메라 스캔 또는 바코드 숫자 직접 입력을 사용할 수 있습니다.</div>
+        <div id="scanner">
+          <div class="scan-guide-overlay" id="scanGuideOverlay">
+            <div class="scan-guide-box">
+              <div class="scan-guide-corner tl"></div>
+              <div class="scan-guide-corner tr"></div>
+              <div class="scan-guide-corner bl"></div>
+              <div class="scan-guide-corner br"></div>
+            </div>
+          </div>
         </div>
-        <div id="scanner"></div>
-        <div class="line" style="margin-bottom:0;"><label for="barcodeInput">바코드 숫자 입력</label><input id="barcodeInput" placeholder="예: 8801234567890" value="" inputmode="numeric" /></div>
+        <div class="line" style="margin-bottom:0;"><label for="barcodeInput">바코드 숫자 직접 입력</label><input id="barcodeInput" placeholder="예: 8801234567890" value="" inputmode="numeric" /></div>
       </div>
       <div class="modal-actions two">
         <button id="scanModalCloseBtn">닫기</button>
@@ -858,12 +928,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const slotLabels = { weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑', boots:'장화', ring:'반지', necklace:'목걸이', cloak:'망토' };
   const slotPinMap = { weapon:'pinWeapon', armor:'pinArmor', shield:'pinShield', gloves:'pinGloves', boots:'pinBoots', ring:'pinRing', necklace:'pinNecklace', cloak:'pinCloak' };
 
-  // 등급별 드롭 확률 테이블 (몬스터 등급별)
+  // 등급별 드롭 확률 테이블 (테스트 모드 - 높은 드롭률)
   const monsterDropRarityTable = {
-    일반:  [55, 28, 12, 4,  1 ],   // common~legendary
-    강화:  [35, 32, 20, 10, 3 ],
-    엘리트:[18, 28, 30, 18, 6 ],
-    보스:  [5,  18, 30, 30, 17]
+    일반:  [30, 32, 22, 12, 4 ],   // common~legendary (테스트용 상향)
+    강화:  [18, 28, 28, 18, 8 ],
+    엘리트:[8,  20, 30, 28, 14],
+    보스:  [2,  8,  22, 36, 32]
   };
 
   // ─────────────────────────────────────────
@@ -924,7 +994,7 @@ document.addEventListener('DOMContentLoaded', () => {
     heroStatsDef:q('heroStatsDef'), heroStatsHp:q('heroStatsHp'),
     heroStatsSpeed:q('heroStatsSpeed'), heroStatsCrit:q('heroStatsCrit'),
     heroStatsSoldiers:q('heroStatsSoldiers'), heroPreviewWrap:q('heroPreviewWrap'),
-    heroEquipSummary:q('heroEquipSummary'), inventoryGrid:q('inventoryGrid'),
+    inventoryGrid:q('inventoryGrid'),
     pinWeapon:q('pinWeapon'), pinArmor:q('pinArmor'), pinShield:q('pinShield'),
     pinGloves:q('pinGloves'), pinBoots:q('pinBoots'), pinRing:q('pinRing'),
     pinNecklace:q('pinNecklace'), pinCloak:q('pinCloak'),
@@ -986,18 +1056,47 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!a || a.rarity !== 'legendary') return '';
     return 'armor-glow-legendary';
   }
+  function getShieldGlowClass() {
+    const s = state.equipment.shield;
+    if (!s) return '';
+    return `shield-glow-${s.rarity}`;
+  }
+
+  // 방패 SVG (오른팔 위치, 전사/마법사만)
+  function getShieldSvg(shieldItem) {
+    if (!shieldItem || state.heroClass === '궁사') return '';
+    const rarityColors = {
+      common:   { main:'#8fa8d8', edge:'#c5d5f0', glow:'none' },
+      uncommon: { main:'#4db88a', edge:'#a0f0c8', glow:'rgba(99,208,154,0.5)' },
+      rare:     { main:'#3a7ad8', edge:'#8dc8ff', glow:'rgba(99,168,255,0.6)' },
+      epic:     { main:'#8a4dd8', edge:'#d0a0ff', glow:'rgba(178,125,255,0.7)' },
+      legendary:{ main:'#d4a017', edge:'#ffe77a', glow:'rgba(255,207,99,0.9)' }
+    };
+    const col = rarityColors[shieldItem.rarity] || rarityColors.common;
+    const glowFilter = shieldItem.rarity === 'legendary'
+      ? `<filter id="shieldGlow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`
+      : '';
+    return `<g ${shieldItem.rarity === 'legendary' ? 'filter="url(#shieldGlow)"' : ''}>
+      <defs>${glowFilter}</defs>
+      <!-- 방패 - 오른팔 바깥쪽 -->
+      <path fill="${col.main}" stroke="${col.edge}" stroke-width="1.2"
+        d="M66 38c4 2 6 4 6 4v10c0 8-6 13-6 13s-6-5-6-13V42s2-2 6-4z"/>
+      <line x1="66" y1="42" x2="66" y2="60" stroke="${col.edge}" stroke-width="0.8" opacity="0.6"/>
+    </g>`;
+  }
 
   // ─────────────────────────────────────────
   // 스프라이트 생성
   // ─────────────────────────────────────────
   function getHeroSprite(heroClass) {
     const classMap = {
-      전사: { cls:'class-warrior', weapon:'<path class="hero-weapon" d="M61 10l7 7-16 16-4-4z"/><path class="hero-weapon" d="M46 24l8 8-17 17-8-8z"/><rect class="hero-weapon" x="32" y="46" width="6" height="16" rx="2"/>' },
-      궁사: { cls:'class-archer',  weapon:'<path class="hero-weapon" d="M58 18c-8 8-8 22 0 30" fill="none" stroke="#e7c784" stroke-width="4" stroke-linecap="round"/><path class="hero-weapon" d="M58 18c-5 3-10 8-13 15 3 7 8 12 13 15" fill="none" stroke="#e7c784" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="18" x2="50" y2="48" stroke="#f6e6b0" stroke-width="2"/>' },
-      마법사: { cls:'class-mage', weapon:'<rect class="hero-weapon" x="56" y="18" width="4" height="34" rx="2"/><circle class="hero-weapon" cx="58" cy="14" r="6"/>' }
+      전사: { cls:'class-warrior', weapon:'<path class="hero-weapon" d="M22 38l-7-7 7-7 7 7z"/><rect class="hero-weapon" x="9" y="22" width="5" height="22" rx="2.5"/><rect class="hero-weapon" x="17" y="30" width="14" height="3" rx="1.5"/>' },
+      궁사: { cls:'class-archer',  weapon:'<path class="hero-weapon" d="M20 18c-8 8-8 22 0 30" fill="none" stroke="#e7c784" stroke-width="4" stroke-linecap="round"/><path class="hero-weapon" d="M20 18c-5 3-10 8-13 15 3 7 8 12 13 15" fill="none" stroke="#e7c784" stroke-width="3" stroke-linecap="round"/><line x1="16" y1="18" x2="16" y2="48" stroke="#f6e6b0" stroke-width="2"/>' },
+      마법사: { cls:'class-mage', weapon:'<rect class="hero-weapon" x="14" y="18" width="4" height="34" rx="2"/><circle class="hero-weapon" cx="16" cy="14" r="6"/>' }
     };
     const cfg = classMap[heroClass] || classMap.전사;
-    const extraClass = [getWeaponGlowClass(), getArmorGlowClass()].filter(Boolean).join(' ');
+    const extraClass = [getWeaponGlowClass(), getArmorGlowClass(), getShieldGlowClass()].filter(Boolean).join(' ');
+    const shieldSvgContent = getShieldSvg(state.equipment.shield);
     return `<svg viewBox="0 0 84 98" width="84" height="98" class="${cfg.cls}${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
       <ellipse cx="42" cy="90" rx="18" ry="5" fill="rgba(0,0,0,0.18)"/>
       <path class="hero-cloak" d="M24 43c4-12 12-19 18-19 8 0 16 7 18 19l6 26H18z"/>
@@ -1009,6 +1108,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <rect fill="#f4d1b5" x="44" y="60" width="6" height="20" rx="3"/>
       <path fill="#1b2135" d="M30 16c2-9 22-12 26 0-3-2-7-3-13-3s-10 1-13 3z"/>
       ${cfg.weapon}
+      ${shieldSvgContent}
     </svg>`;
   }
 
@@ -1108,9 +1208,9 @@ document.addEventListener('DOMContentLoaded', () => {
     return false;
   }
 
-  // 몬스터 처치 후 드롭
+  // 몬스터 처치 후 드롭 (테스트 모드 - 드롭 확률 대폭 상향)
   function rollMonsterDrop(enemy) {
-    const dropChance = { 일반:0.35, 강화:0.55, 엘리트:0.72, 보스:0.90 }[enemy.grade] || 0.35;
+    const dropChance = { 일반:0.75, 강화:0.88, 엘리트:0.96, 보스:1.00 }[enemy.grade] || 0.75;
     if (Math.random() > dropChance) return null;
 
     const table = monsterDropRarityTable[enemy.grade] || monsterDropRarityTable.일반;
@@ -1236,7 +1336,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openHeroStatsModal() {
     const stats = getHeroBaseStats();
-    const equippedItems = Object.values(state.equipment).filter(Boolean);
     els.heroStatsTitle.textContent   = formatHeroTopTitle(stats);
     els.heroStatsAtk.textContent     = stats.atk;
     els.heroStatsDef.textContent     = stats.def;
@@ -1246,9 +1345,6 @@ document.addEventListener('DOMContentLoaded', () => {
     els.heroStatsSoldiers.textContent= `${stats.soldiers}명`;
     els.heroPreviewWrap.innerHTML    = getHeroVisualHtml(state.heroClass);
     renderEquipPins();
-    els.heroEquipSummary.innerHTML = equippedItems.length
-      ? equippedItems.map(i=>`<div class="equip-chip rarity-${i.rarity}">${i.icon} ${i.baseName}</div>`).join('')
-      : `<div class="muted" style="font-size:10px;">장착 중인 장비가 없습니다.</div>`;
     renderInventoryGrid();
     openModal(els.heroStatsBackdrop);
   }
@@ -1308,13 +1404,21 @@ document.addEventListener('DOMContentLoaded', () => {
         <button class="modal-primary" id="itemCloseBtn">닫기</button>
       `;
     } else {
-      els.itemDetailActions.className='modal-actions three';
-      els.itemDetailActions.innerHTML=`
-        <button class="modal-primary" id="itemEquipBtn">장착</button>
-        <button class="modal-gold"    id="itemSellBtn">🪙 ${sellPrice}G</button>
-        <button id="itemCloseBtn">닫기</button>
-      `;
-      q('itemEquipBtn').addEventListener('click', () => equipItemFromModal(item));
+      // 궁사 + 방패 = 착용 불가
+      const cantEquip = item.slot === 'shield' && state.heroClass === '궁사';
+      els.itemDetailActions.className = cantEquip ? 'modal-actions two' : 'modal-actions three';
+      els.itemDetailActions.innerHTML = cantEquip
+        ? `<button class="modal-gold" id="itemSellBtn">🪙 ${sellPrice}G</button>
+           <button id="itemCloseBtn">닫기</button>`
+        : `<button class="modal-primary" id="itemEquipBtn">장착</button>
+           <button class="modal-gold"    id="itemSellBtn">🪙 ${sellPrice}G</button>
+           <button id="itemCloseBtn">닫기</button>`;
+      if (cantEquip) {
+        els.itemStatChangeHint.className='stat-change-hint negative';
+        els.itemStatChangeHint.textContent='🚫 궁사는 방패를 착용할 수 없습니다.';
+      } else {
+        q('itemEquipBtn').addEventListener('click', () => equipItemFromModal(item));
+      }
     }
     q('itemSellBtn').addEventListener('click', () => sellItemFromModal(item));
     q('itemCloseBtn').addEventListener('click', () => closeModal(els.itemDetailBackdrop));
@@ -1324,19 +1428,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 장착 처리
   function equipItemFromModal(item) {
-    // 이미 장착된 슬롯 아이템이 있으면 인벤토리로 되돌림 (단, 장착 상태 해제)
-    const prev = state.equipment[item.slot];
-    if (prev) {
-      // prev는 이미 inventory에 있음 (obtainItem으로 들어갔으므로) - 별도 처리 불필요
+    // 궁사는 방패 착용 불가
+    if (item.slot === 'shield' && state.heroClass === '궁사') {
+      showDropNotification('⚠️ 궁사는 방패를 착용할 수 없습니다!', '#ff9b7f');
+      return;
     }
     state.equipment[item.slot] = item;
-
-    // 장착 이펙트
     showEquipEffect(item);
     closeModal(els.itemDetailBackdrop);
-
     renderHero();
-    openHeroStatsModal(); // 상세창 갱신
+    openHeroStatsModal();
   }
 
   function sellItemFromModal(item) {
@@ -1598,16 +1699,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const setup = getBattleSetup(decoded.enemy);
     state.battle = { decoded, setup, heroHp:setup.heroMax, heroMax:setup.heroMax, enemyHp:setup.enemy.hp, enemyMax:setup.enemy.hp, turn:1, totalDmg:0, ended:false, locked:false };
     renderBattleHeroSprite(); renderBattleSoldiers(setup.soldierCount, setup.soldierClass);
-    els.battleEnemyEmoji.textContent = getEnemyVisual(setup.enemy.name);
+
+    // 몬스터 개수에 따라 표시
+    const emoji = getEnemyVisual(setup.enemy.name);
+    const amount = setup.enemy.amount;
+    if (amount === 1) {
+      els.battleEnemyEmoji.style.fontSize = '62px';
+      els.battleEnemyEmoji.style.flexDirection = 'row';
+      els.battleEnemyEmoji.innerHTML = emoji;
+    } else if (amount === 2) {
+      els.battleEnemyEmoji.style.fontSize = '44px';
+      els.battleEnemyEmoji.style.display = 'flex';
+      els.battleEnemyEmoji.style.flexDirection = 'column';
+      els.battleEnemyEmoji.style.gap = '2px';
+      els.battleEnemyEmoji.innerHTML = `<div style="display:flex;gap:4px;justify-content:center">${emoji}${emoji}</div>`;
+    } else if (amount === 3) {
+      els.battleEnemyEmoji.style.fontSize = '36px';
+      els.battleEnemyEmoji.style.display = 'flex';
+      els.battleEnemyEmoji.style.flexDirection = 'column';
+      els.battleEnemyEmoji.style.gap = '2px';
+      els.battleEnemyEmoji.innerHTML = `<div style="display:flex;gap:2px;justify-content:center">${emoji}${emoji}</div><div style="display:flex;justify-content:center">${emoji}</div>`;
+    } else {
+      els.battleEnemyEmoji.style.fontSize = '30px';
+      els.battleEnemyEmoji.style.display = 'flex';
+      els.battleEnemyEmoji.style.flexDirection = 'column';
+      els.battleEnemyEmoji.style.gap = '2px';
+      els.battleEnemyEmoji.innerHTML = `<div style="display:flex;gap:2px;justify-content:center">${emoji}${emoji}</div><div style="display:flex;gap:2px;justify-content:center">${emoji}${emoji}</div>`;
+    }
+
     els.battleHeroName.textContent   = state.heroName;
     els.battleEnemyName.textContent  = `${setup.enemy.grade} ${setup.enemy.name}`;
     els.battleHeroMeta.textContent   = `${state.heroClass} / ${setup.tactic} / ${setup.soldierClass} / 병사 ${setup.soldierCount}`;
-    els.battleEnemyMeta.textContent  = `공격 ${setup.enemy.atk} / 방어 ${setup.enemy.def}`;
+    els.battleEnemyMeta.textContent  = `${amount}마리 · 공격 ${setup.enemy.atk} / 방어 ${setup.enemy.def}`;
     els.battleResultBox.style.display='none'; els.battleResultBox.className='';
     els.battleActions.className='modal-actions two';
     els.battleActions.innerHTML='<button class="modal-primary" id="battleAttackBtn">공격</button><button class="modal-danger" id="battleRunBtn">도망</button>';
     bindBattleActions();
-    updateBattleUI('전투 시작', `${setup.enemy.grade} ${setup.enemy.name}이(가) 나타났습니다.\n공격 또는 도망을 선택하세요.`);
+    updateBattleUI('전투 시작', `${setup.enemy.grade} ${setup.enemy.name} ${amount}마리가 나타났습니다!\n공격 또는 도망을 선택하세요.`);
     openModal(els.battleBackdrop);
   }
 
@@ -1744,18 +1872,49 @@ document.addEventListener('DOMContentLoaded', () => {
   async function startCameraScanner() {
     if (typeof Html5Qrcode==='undefined') { els.scanStatusText.textContent='스캐너 라이브러리를 불러오지 못했습니다.'; return; }
     await stopCameraScanner();
+    // 가이드 오버레이 유지
+    const guideEl = document.getElementById('scanGuideOverlay');
     state.html5QrCode = new Html5Qrcode('scanner');
     els.scanStatusText.textContent='카메라를 준비 중입니다...';
-    const formats=[Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,Html5QrcodeSupportedFormats.ITF];
+    const formats = [
+      Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
+      Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.ITF, Html5QrcodeSupportedFormats.CODABAR,
+      Html5QrcodeSupportedFormats.CODE_93
+    ];
     try {
-      await state.html5QrCode.start({facingMode:'environment'},{fps:10,qrbox:{width:220,height:72},aspectRatio:1.7778,formatsToSupport:formats},
+      // 스캔 박스를 뷰포트 너비의 80% × 90px 으로 바코드에 최적화
+      const scannerWidth = document.getElementById('scanner').offsetWidth || 320;
+      const qrboxW = Math.round(scannerWidth * 0.82);
+
+      await state.html5QrCode.start(
+        { facingMode: 'environment' },
+        {
+          fps: 20,                              // 인식률 향상: 10→20fps
+          qrbox: { width: qrboxW, height: 90 }, // 바코드 전용 직사각형
+          aspectRatio: 1.5,
+          formatsToSupport: formats,
+          experimentalFeatures: { useBarCodeDetectorIfSupported: true } // 네이티브 API 우선
+        },
         async decodedText => {
-          const barcode=onlyDigits(decodedText); if (!barcode) return;
-          els.barcodeInput.value=barcode; els.scanStatusText.textContent=`인식 성공: ${barcode}`;
-          await stopCameraScanner(); closeModal(els.scanModalBackdrop); handleScan();
-        }, ()=>{});
-      state.scannerRunning=true; els.scanStatusText.textContent='바코드를 화면 중앙에 맞추거나 아래에 숫자를 직접 입력해 주세요.';
-    } catch(err) { console.error(err); els.scanStatusText.textContent='카메라 실행에 실패했습니다. 숫자를 직접 입력해 주세요.'; }
+          const barcode = onlyDigits(decodedText); if (!barcode) return;
+          els.barcodeInput.value = barcode;
+          els.scanStatusText.textContent = `✅ 인식 성공: ${barcode}`;
+          await stopCameraScanner();
+          closeModal(els.scanModalBackdrop); handleScan();
+        },
+        () => {}
+      );
+      state.scannerRunning = true;
+      // 가이드 오버레이 다시 붙이기 (html5-qrcode가 scanner div를 조작하므로)
+      const scannerEl = document.getElementById('scanner');
+      if (guideEl && scannerEl && !scannerEl.contains(guideEl)) scannerEl.appendChild(guideEl);
+      els.scanStatusText.textContent = '📦 바코드를 파란 박스 안에 맞추세요.';
+    } catch(err) {
+      console.error(err);
+      els.scanStatusText.textContent = '카메라 실행 실패. 아래에 바코드 숫자를 직접 입력해 주세요.';
+    }
   }
 
   function handleScan() {
