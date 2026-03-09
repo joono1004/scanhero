@@ -6,32 +6,28 @@
   <title>ScanHero MVP</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     * { box-sizing: border-box; }
-
     :root {
       --line: rgba(120, 149, 220, 0.22);
       --text: #eef3ff;
       --muted: #a4b4db;
       --shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+      --radius: 20px;
       --blue: #4f7cff;
       --blue-2: #6b92ff;
     }
-
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
+      min-height: 100%;
       background:
         radial-gradient(circle at top left, rgba(90, 124, 255, 0.18), transparent 28%),
         radial-gradient(circle at top right, rgba(255, 211, 120, 0.12), transparent 22%),
         linear-gradient(180deg, #0a0f1d 0%, #101729 52%, #0b1020 100%);
       color: var(--text);
       font-family: Arial, sans-serif;
-      overflow-x: hidden;
     }
-
     body::before {
       content: '';
       position: fixed;
@@ -43,60 +39,45 @@
       background-size: 28px 28px;
       mask-image: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.8));
     }
-
     .wrap {
-      max-width: 430px;
+      max-width: 440px;
       margin: 0 auto;
-      padding: 10px 10px 14px;
+      padding: 14px 12px 26px;
       position: relative;
       z-index: 1;
-      min-height: 100dvh;
     }
-
     .title {
-      font-size: 24px;
+      font-size: 28px;
       font-weight: 900;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
-      gap: 8px;
-    }
-
-    .title::before {
-      content: '⚔️';
-      font-size: 24px;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      margin-bottom: 10px;
-      line-height: 1.45;
-      background: rgba(18, 26, 48, 0.58);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 9px 10px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      font-size: 11px;
-    }
-
-    .grid, .event-box {
-      display: grid;
-      grid-template-columns: 1fr;
       gap: 10px;
     }
-
+    .title::before { content: '⚔️'; font-size: 28px; }
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.6;
+      background: rgba(18, 26, 48, 0.58);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      font-size: 13px;
+    }
+    .grid, .event-box, .battle-panel { display: grid; grid-template-columns: 1fr; gap: 12px; }
     .card {
       background: linear-gradient(180deg, rgba(23, 32, 57, 0.92) 0%, rgba(17, 24, 43, 0.94) 100%);
       border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 12px;
+      border-radius: var(--radius);
+      padding: 16px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(14px);
       position: relative;
       overflow: hidden;
     }
-
     .card::before {
       content: '';
       position: absolute;
@@ -105,31 +86,27 @@
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
       opacity: 0.65;
     }
-
     .section-title {
-      font-size: 15px;
+      font-size: 17px;
       font-weight: 900;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
     }
 
     .hero-panel { display: grid; gap: 10px; }
-
     .hero-avatar {
-      border-radius: 20px;
+      border-radius: 22px;
       background:
         radial-gradient(circle at 30% 25%, rgba(255,255,255,0.18), transparent 22%),
         linear-gradient(180deg, rgba(88,118,212,0.95), rgba(39,57,102,0.95));
       border: 1px solid rgba(163,188,255,0.28);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 16px 28px rgba(0,0,0,0.25);
-      min-height: 292px;
+      min-height: 268px;
       position: relative;
       overflow: hidden;
-      padding-top: 48px;
     }
-
     .hero-avatar::after {
       content: '';
       position: absolute;
@@ -137,6 +114,11 @@
       height: 55%;
       background: radial-gradient(circle, rgba(245,201,107,0.28), transparent 62%);
     }
+    .hero-avatar.aura-common .formation-stage { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+    .hero-avatar.aura-uncommon .formation-stage { box-shadow: inset 0 0 24px rgba(98,255,177,0.18); }
+    .hero-avatar.aura-rare .formation-stage { box-shadow: inset 0 0 30px rgba(99,183,255,0.22), 0 0 14px rgba(99,183,255,0.14); }
+    .hero-avatar.aura-epic .formation-stage { box-shadow: inset 0 0 34px rgba(192,125,255,0.24), 0 0 16px rgba(192,125,255,0.18); }
+    .hero-avatar.aura-legend .formation-stage { box-shadow: inset 0 0 40px rgba(255,210,90,0.3), 0 0 18px rgba(255,210,90,0.22); }
 
     .hero-avatar-top {
       position: absolute;
@@ -149,114 +131,106 @@
       gap: 10px;
       z-index: 6;
     }
-
     .hero-title-btn {
       flex: 1;
       text-align: left;
       background: rgba(10,15,27,0.62);
       border: 1px solid rgba(151,175,235,0.18);
-      border-radius: 12px;
-      padding: 7px 10px;
+      border-radius: 14px;
+      padding: 8px 12px;
       color: #eef3ff;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 900;
-      line-height: 1.4;
+      line-height: 1.45;
       cursor: pointer;
       box-shadow: 0 8px 20px rgba(0,0,0,0.18);
     }
-
+    .hero-title-btn:hover { border-color: rgba(170,194,255,0.36); transform: translateY(-1px); }
     .hero-gold-box {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 6px 9px;
+      gap: 6px;
+      padding: 7px 10px;
       border-radius: 999px;
       background: rgba(10,15,27,0.62);
       border: 1px solid rgba(255,214,120,0.24);
       color: #fff2bf;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 900;
       white-space: nowrap;
       box-shadow: 0 8px 20px rgba(0,0,0,0.18);
     }
+    .gold-icon { font-size: 14px; filter: drop-shadow(0 0 6px rgba(255, 207, 90, 0.35)); }
 
     .formation-stage {
       position: relative;
       width: 100%;
-      height: 192px;
-      border-radius: 18px;
+      height: 190px;
+      border-radius: 20px;
       overflow: hidden;
       background: radial-gradient(circle at 50% 25%, rgba(255,255,255,0.08), transparent 24%), linear-gradient(180deg, rgba(16,24,43,0.15), rgba(6,10,18,0.24));
     }
-
     .formation-ground {
       position: absolute;
       left: -10%;
       right: -10%;
-      bottom: 10px;
-      height: 70px;
+      bottom: 12px;
+      height: 78px;
       border-radius: 50%;
       background: radial-gradient(circle, rgba(245,201,107,0.20), rgba(55,77,123,0.26) 45%, rgba(7,11,20,0.02) 70%);
       filter: blur(2px);
     }
-
     .hero-unit {
       position: absolute;
-      left: 56px;
-      bottom: 20px;
+      left: 72px;
+      bottom: 26px;
       display: flex;
       flex-direction: column;
       align-items: center;
       z-index: 2;
       animation: heroFloat 2.6s ease-in-out infinite;
     }
-
     .hero-sprite {
-      width: 78px;
-      height: 90px;
-      filter: drop-shadow(0 12px 16px rgba(0,0,0,0.35));
+      width: 84px;
+      height: 98px;
+      filter: drop-shadow(0 14px 18px rgba(0,0,0,0.35));
     }
-
     .hero-shadow {
-      width: 68px;
-      height: 12px;
+      width: 74px;
+      height: 14px;
       background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0));
       margin-top: 4px;
       border-radius: 50%;
       animation: shadowPulse 2.6s ease-in-out infinite;
     }
-
     .soldier-row {
       position: absolute;
-      left: 128px;
-      right: 10px;
-      bottom: 14px;
+      left: 150px;
+      right: 12px;
+      bottom: 16px;
       display: flex;
-      gap: 3px;
+      gap: 4px;
       align-items: flex-end;
       justify-content: flex-start;
       flex-wrap: wrap;
       z-index: 3;
     }
-
     .soldier {
-      width: 26px;
-      height: 34px;
+      width: 30px;
+      height: 38px;
       position: relative;
-      filter: drop-shadow(0 7px 10px rgba(0,0,0,0.32));
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.32));
       animation: soldierBounce 2.2s ease-in-out infinite;
     }
-
     .soldier:nth-child(2n) { animation-delay: .18s; }
     .soldier:nth-child(3n) { animation-delay: .34s; }
-
     .soldier-small-shadow {
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      bottom: -4px;
-      width: 22px;
-      height: 7px;
+      bottom: -5px;
+      width: 24px;
+      height: 8px;
       background: radial-gradient(circle, rgba(0,0,0,0.32), rgba(0,0,0,0));
       border-radius: 50%;
     }
@@ -270,43 +244,39 @@
     .class-mage .hero-body { fill: #c29dff; }
     .class-mage .hero-cloak { fill: #6944b7; }
     .class-mage .hero-weapon { fill: #ffd77c; }
-
     .soldier-svg .soldier-body { fill: #9db3e8; }
     .soldier-svg .soldier-armor { fill: #3f5d9f; }
     .soldier-svg .soldier-weapon { fill: #d8e4ff; }
 
     .hero-exp-wrap {
       position: absolute;
-      left: 10px;
-      right: 50px;
+      left: 12px;
+      right: 12px;
       bottom: 10px;
       z-index: 5;
       background: rgba(10,15,27,0.62);
       border: 1px solid rgba(151,175,235,0.18);
-      border-radius: 12px;
-      padding: 7px 9px 8px;
+      border-radius: 14px;
+      padding: 8px 10px 9px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.18);
     }
-
     .hero-exp-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 5px;
-      font-size: 10px;
+      margin-bottom: 6px;
+      font-size: 11px;
       font-weight: 800;
       color: #d8e4ff;
     }
-
     .hero-exp-bar {
       width: 100%;
-      height: 9px;
+      height: 10px;
       background: rgba(8, 12, 22, 0.9);
       border-radius: 999px;
       border: 1px solid rgba(73, 94, 143, 0.4);
       overflow: hidden;
     }
-
     .hero-exp-fill {
       height: 100%;
       width: 0%;
@@ -315,45 +285,33 @@
       border-radius: 999px;
     }
 
-    .hero-map-btn {
-      position: absolute;
-      right: 10px;
-      bottom: 10px;
-      width: 32px;
-      height: 32px;
-      min-width: 32px;
-      border-radius: 10px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      background: linear-gradient(180deg, rgba(80,101,154,0.95), rgba(45,60,99,0.95));
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .badge, .pill {
+      background: linear-gradient(180deg, rgba(55, 72, 118, 0.9), rgba(39, 51, 84, 0.9));
+      color: #e8efff;
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-size: 12px;
       border: 1px solid rgba(140, 170, 255, 0.24);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
-      z-index: 6;
+      font-weight: 800;
     }
-
-    .line { display: grid; gap: 6px; margin-bottom: 10px; }
-    label { font-size: 12px; color: #c9d6f6; font-weight: 800; }
-
+    .line { display: grid; gap: 8px; margin-bottom: 14px; }
+    label { font-size: 13px; color: #c9d6f6; font-weight: 800; }
     input, select, button {
       width: 100%;
-      border-radius: 12px;
+      border-radius: 14px;
       border: 1px solid rgba(107, 131, 194, 0.3);
       background: rgba(12, 18, 33, 0.95);
       color: var(--text);
-      padding: 10px 12px;
-      font-size: 13px;
+      padding: 12px 14px;
+      font-size: 14px;
       outline: none;
       transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.08s ease;
     }
-
     input:focus, select:focus {
       border-color: rgba(131, 165, 255, 0.55);
       box-shadow: 0 0 0 4px rgba(79, 124, 255, 0.12);
     }
-
     button {
       background: linear-gradient(180deg, var(--blue-2) 0%, var(--blue) 100%);
       border: 1px solid rgba(168, 191, 255, 0.3);
@@ -362,316 +320,265 @@
       color: #f7faff;
       box-shadow: 0 10px 20px rgba(48, 84, 180, 0.25), inset 0 1px 0 rgba(255,255,255,0.18);
     }
-
     button:hover { filter: brightness(1.03); transform: translateY(-1px); }
     button:active { transform: scale(0.985); }
 
-    .tactic-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+    .result-hero {
+      padding: 12px 14px;
+      background: linear-gradient(180deg, rgba(12, 18, 33, 0.95), rgba(18, 25, 42, 0.95));
+      border: 1px solid rgba(118, 146, 212, 0.18);
+      border-radius: 18px;
+      min-height: 72px;
+      position: relative;
     }
-
-    .scan-wide-btn {
-      margin-top: 2px;
+    .result-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .result-head-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      min-width: 34px;
+      padding: 0;
+      border-radius: 12px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 9px;
-      font-size: 14px;
-      padding: 12px 14px;
+      font-size: 16px;
+      background: linear-gradient(180deg, rgba(80,101,154,0.95), rgba(45,60,99,0.95));
+      border: 1px solid rgba(140, 170, 255, 0.24);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
     }
+    .icon-btn.small {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    .big-code {
+      font-size: 24px;
+      letter-spacing: 2px;
+      font-weight: 900;
+      color: #9fc0ff;
+      margin-bottom: 6px;
+    }
+    .event-title {
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+    .event-desc {
+      color: #d9e3fa;
+      line-height: 1.55;
+      min-height: 38px;
+      font-size: 12px;
+    }
+    .muted { color: var(--muted); font-size: 12px; }
 
-    .scan-wide-icon {
-      width: 14px;
-      height: 14px;
+    .battle-char {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .battle-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(82,112,208,0.95), rgba(38,54,101,0.95));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      border: 1px solid rgba(158,183,255,0.24);
+    }
+    .battle-icon.enemy {
+      background: linear-gradient(180deg, rgba(194,78,93,0.95), rgba(92,35,44,0.95));
+      border-color: rgba(255,170,180,0.2);
+    }
+    .battle-formation {
+      margin-top: 10px;
+      background: linear-gradient(180deg, rgba(13,19,34,0.95), rgba(18,25,42,0.95));
+      border: 1px solid rgba(118,146,212,0.18);
+      border-radius: 18px;
+      padding: 10px;
+    }
+    .vs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 900;
+      color: #8fb2ff;
+      padding: 2px 0;
+    }
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #0b1220;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(73, 94, 143, 0.4);
+      margin-top: 8px;
+    }
+    .bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #68a2ff, #8dd8ff);
+      transition: width 0.35s ease;
+    }
+    .bar.enemy { background: linear-gradient(90deg, #ff6b6b, #ff9b7f); }
+
+    #mapWrapBox { position: relative; }
+    #map {
+      width: 100%;
+      min-height: 175px;
+      height: 175px;
+      border-radius: 20px;
+      border: 1px solid rgba(123, 151, 219, 0.22);
+      overflow: hidden;
+      background: #0c1322;
+    }
+    .map-note, .empty-box {
+      background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96));
+      border: 1px solid rgba(110, 139, 204, 0.18);
+      border-radius: 14px;
+      padding: 14px;
+      line-height: 1.7;
+      color: #d3dcf5;
+      font-size: 13px;
+    }
+    .empty-box { border-style: dashed; color: var(--muted); }
+
+    .map-floating-btn {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid rgba(168, 191, 255, 0.34);
+      background: linear-gradient(180deg, rgba(110,145,255,0.98), rgba(72,111,255,0.98));
+      box-shadow: 0 12px 22px rgba(31, 56, 130, 0.42), inset 0 1px 0 rgba(255,255,255,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      cursor: pointer;
+      user-select: none;
+      padding: 0;
+    }
+    .map-floating-btn.left-bottom { left: 10px; bottom: 10px; }
+    .map-floating-btn.right-top { right: 10px; top: 10px; }
+    .map-floating-btn.right-bottom { right: 10px; bottom: 10px; }
+    .map-floating-btn:hover { transform: translateY(-1px); }
+
+    .scan-mini {
+      width: 18px;
+      height: 18px;
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 1px;
       align-items: end;
     }
-
-    .scan-wide-icon span {
-      display: block;
-      background: #fff;
-      border-radius: 1px;
-    }
-
-    .scan-wide-icon span:nth-child(1){ height:12px; }
-    .scan-wide-icon span:nth-child(2){ height:7px; }
-    .scan-wide-icon span:nth-child(3){ height:11px; }
-    .scan-wide-icon span:nth-child(4){ height:5px; }
-    .scan-wide-icon span:nth-child(5){ height:12px; }
-    .scan-wide-icon span:nth-child(6){ height:8px; }
-    .scan-wide-icon span:nth-child(7){ height:10px; }
-
-    .result-hero {
-      padding: 9px 10px;
-      background: linear-gradient(180deg, rgba(12, 18, 33, 0.95), rgba(18, 25, 42, 0.95));
-      border: 1px solid rgba(118, 146, 212, 0.18);
-      border-radius: 16px;
-      min-height: 52px;
-      position: relative;
-    }
-
-    .result-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 3px;
-    }
-
-    .result-head-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .event-main-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 3px;
-    }
-
-    .event-title-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: nowrap;
-      min-width: 0;
-      width: 100%;
-    }
-
-    .event-title {
-      font-size: 15px;
-      font-weight: 900;
-      line-height: 1.3;
-      min-width: 0;
-      flex: 1;
-    }
-
-    .small-code {
-      font-size: 10px;
-      color: #9fc0ff;
-      font-weight: 800;
-      letter-spacing: 1px;
-      opacity: 0.9;
-      flex-shrink: 0;
-    }
-
-    .event-desc {
-      color: #d9e3fa;
-      line-height: 1.45;
-      min-height: 18px;
-      font-size: 11px;
-      margin-top: 2px;
-    }
-
-    .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .badge, .pill {
-      background: linear-gradient(180deg, rgba(55, 72, 118, 0.9), rgba(39, 51, 84, 0.9));
-      color: #e8efff;
-      border-radius: 999px;
-      padding: 5px 9px;
-      font-size: 11px;
-      border: 1px solid rgba(140, 170, 255, 0.24);
-      font-weight: 800;
-    }
-
-    .icon-btn {
-      width: 32px;
-      height: 32px;
-      min-width: 32px;
-      padding: 0;
-      border-radius: 11px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      background: linear-gradient(180deg, rgba(80,101,154,0.95), rgba(45,60,99,0.95));
-      border: 1px solid rgba(140, 170, 255, 0.24);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
-    }
-
-    .icon-btn.small {
-      width: 24px;
-      height: 24px;
-      min-width: 24px;
-      border-radius: 8px;
-      font-size: 12px;
-    }
-
-    .muted {
-      color: var(--muted);
-      font-size: 11px;
-    }
-
-    #mapWrapBox {
-      position: relative;
-    }
-
-    #map {
-      width: 100%;
-      height: 320px;
-      border-radius: 18px;
-      border: 1px solid rgba(123, 151, 219, 0.22);
-      overflow: hidden;
-      background: #0c1322;
-    }
-
-    .map-top-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 600;
-      width: 34px;
-      height: 34px;
-      min-width: 34px;
-      border-radius: 10px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      background: linear-gradient(180deg, rgba(80,101,154,0.95), rgba(45,60,99,0.95));
-      border: 1px solid rgba(140, 170, 255, 0.24);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
-    }
-
-    .map-note, .empty-box {
-      background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96));
-      border: 1px solid rgba(110, 139, 204, 0.18);
-      border-radius: 12px;
-      padding: 11px;
-      line-height: 1.6;
-      color: #d3dcf5;
-      font-size: 12px;
-    }
-
-    .empty-box {
-      border-style: dashed;
-      color: var(--muted);
-    }
+    .scan-mini span { display: block; background: #fff; border-radius: 1px; }
+    .scan-mini span:nth-child(1){ height:15px; }
+    .scan-mini span:nth-child(2){ height:9px; }
+    .scan-mini span:nth-child(3){ height:14px; }
+    .scan-mini span:nth-child(4){ height:7px; }
+    .scan-mini span:nth-child(5){ height:15px; }
+    .scan-mini span:nth-child(6){ height:10px; }
+    .scan-mini span:nth-child(7){ height:13px; }
 
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(3, 7, 16, 0.78);
+      background: rgba(3, 7, 16, 0.72);
       backdrop-filter: blur(8px);
       display: none;
       align-items: center;
       justify-content: center;
       z-index: 999;
-      padding: 12px;
+      padding: 18px;
     }
-
     .modal-backdrop.show { display: flex; }
-
     .modal {
       width: min(390px, 100%);
-      max-height: calc(100dvh - 24px);
+      max-height: 88vh;
       overflow: auto;
       background: linear-gradient(180deg, rgba(24, 33, 57, 0.98), rgba(14, 21, 37, 0.98));
       border: 1px solid rgba(134, 164, 235, 0.24);
-      border-radius: 22px;
+      border-radius: 26px;
       box-shadow: 0 24px 60px rgba(0,0,0,0.45);
       transform: translateY(10px) scale(0.98);
       opacity: 0;
       transition: all 0.25s ease;
     }
-
     .modal-backdrop.show .modal {
       transform: translateY(0) scale(1);
       opacity: 1;
     }
-
     .modal-head {
-      padding: 14px 16px 10px;
+      padding: 16px 18px 12px;
       border-bottom: 1px solid rgba(112, 138, 203, 0.16);
       background: linear-gradient(180deg, rgba(49, 71, 133, 0.35), rgba(0,0,0,0));
     }
-
     .modal-title {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 900;
     }
-
     .modal-body {
-      padding: 14px;
+      padding: 18px;
       display: grid;
-      gap: 12px;
+      gap: 14px;
     }
-
     .modal-hero {
       background: linear-gradient(180deg, rgba(14,21,36,0.96), rgba(18,27,45,0.96));
       border: 1px solid rgba(115,143,210,0.16);
-      border-radius: 16px;
-      padding: 14px;
+      border-radius: 18px;
+      padding: 16px;
       text-align: center;
     }
-
     .modal-visual {
-      font-size: 62px;
+      font-size: 76px;
       line-height: 1;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       animation: pulseGlow 1.6s ease-in-out infinite;
     }
-
     .modal-text {
       color: #dce5fb;
-      line-height: 1.6;
-      min-height: 40px;
+      line-height: 1.7;
+      min-height: 56px;
       text-align: center;
-      font-size: 12px;
+      font-size: 13px;
     }
-
     .modal-actions {
       display: grid;
-      grid-template-columns: 1fr;
-      justify-content: center;
-      gap: 10px;
-      padding: 0 14px 14px;
-    }
-
-    .modal-actions.two {
       grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 18px 18px;
     }
-
-    .modal-actions.center-single {
-      grid-template-columns: minmax(140px, 220px);
-      justify-content: center;
-    }
-
-    .modal-primary {
-      background: linear-gradient(180deg, #7ea7ff 0%, #5b84ff 100%);
-    }
-
-    .modal-danger {
-      background: linear-gradient(180deg, #ff8b8b 0%, #e85f5f 100%);
-    }
-
+    .modal-primary { background: linear-gradient(180deg, #7ea7ff 0%, #5b84ff 100%); }
     .modal-list {
-      max-height: 46vh;
+      max-height: 50vh;
       overflow: auto;
       display: grid;
-      gap: 8px;
+      gap: 10px;
     }
-
     .list-item {
       background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96));
       border: 1px solid rgba(110, 139, 204, 0.18);
-      border-radius: 12px;
-      padding: 11px;
-      cursor: pointer;
+      border-radius: 14px;
+      padding: 12px;
     }
 
     .hero-start-backdrop {
@@ -683,92 +590,200 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 12px;
+      padding: 18px;
     }
-
     .hero-start-modal {
-      width: min(390px, 100%);
+      width: min(400px, 100%);
       background: linear-gradient(180deg, rgba(24, 33, 57, 0.98), rgba(14, 21, 37, 0.98));
       border: 1px solid rgba(134, 164, 235, 0.24);
-      border-radius: 22px;
+      border-radius: 26px;
       box-shadow: 0 24px 60px rgba(0,0,0,0.45);
       overflow: hidden;
     }
-
     .hero-start-head {
-      padding: 16px 16px 10px;
+      padding: 18px 18px 12px;
       border-bottom: 1px solid rgba(112, 138, 203, 0.16);
       background: linear-gradient(180deg, rgba(49, 71, 133, 0.35), rgba(0,0,0,0));
     }
+    .hero-start-title { font-size: 24px; font-weight: 900; margin-bottom: 6px; }
+    .hero-start-desc { color: #d6e2ff; font-size: 13px; line-height: 1.7; }
+    .hero-start-body { padding: 18px; display: grid; gap: 12px; }
 
-    .hero-start-title {
-      font-size: 22px;
-      font-weight: 900;
-      margin-bottom: 5px;
-    }
-
-    .hero-start-desc {
-      color: #d6e2ff;
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
-    .hero-start-body {
-      padding: 16px;
+    .stats-modal-wrap { display: grid; gap: 14px; }
+    .hero-detail-top {
       display: grid;
-      gap: 10px;
+      grid-template-columns: 132px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .equip-preview {
+      position: relative;
+      min-height: 180px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(17,24,40,0.98), rgba(21,30,52,0.98));
+      border: 1px solid rgba(115,143,210,0.16);
+      padding: 8px;
+      overflow: hidden;
+    }
+    .equip-preview.aura-common { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+    .equip-preview.aura-uncommon { box-shadow: inset 0 0 20px rgba(98,255,177,0.18); }
+    .equip-preview.aura-rare { box-shadow: inset 0 0 24px rgba(99,183,255,0.22); }
+    .equip-preview.aura-epic { box-shadow: inset 0 0 26px rgba(192,125,255,0.24); }
+    .equip-preview.aura-legend { box-shadow: inset 0 0 28px rgba(255,210,90,0.28); }
+
+    .equip-hero-stage {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .equip-hero-sprite {
+      width: 90px;
+      height: 110px;
+      position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 10px 16px rgba(0,0,0,0.28));
+    }
+    .equip-slot {
+      position: absolute;
+      min-width: 34px;
+      min-height: 34px;
+      padding: 4px 6px;
+      border-radius: 12px;
+      background: rgba(9,14,26,0.72);
+      border: 1px solid rgba(148,173,238,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #edf3ff;
+      z-index: 3;
+    }
+    .equip-slot.weapon { top: 24px; left: 4px; }
+    .equip-slot.armor { top: 58px; right: 2px; }
+    .equip-slot.accessory { bottom: 18px; left: 6px; }
+    .equip-slot-label {
+      position: absolute;
+      bottom: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      color: #cfd9f7;
+      white-space: nowrap;
+      opacity: 0.8;
     }
 
-    .stats-modal-grid {
+    .stats-compact-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
     }
-
     .stats-modal-item {
       background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96));
       border: 1px solid rgba(110, 139, 204, 0.18);
       border-radius: 12px;
-      padding: 10px;
+      padding: 8px 10px;
       text-align: left;
     }
-
     .stats-modal-label {
       color: var(--muted);
       font-size: 11px;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
       font-weight: 700;
     }
-
     .stats-modal-value {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 900;
       color: #eef3ff;
     }
 
-    .scan-modal-body {
-      padding: 14px;
+    .inventory-box {
+      background: linear-gradient(180deg, rgba(11,17,30,0.96), rgba(17,25,42,0.96));
+      border: 1px solid rgba(110,139,204,0.18);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .inventory-title {
+      font-size: 13px;
+      font-weight: 900;
+      margin-bottom: 10px;
+      color: #eaf1ff;
+    }
+    .inventory-grid {
       display: grid;
-      gap: 12px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
     }
+    .inventory-item {
+      min-height: 58px;
+      border-radius: 12px;
+      padding: 8px 6px;
+      border: 1px solid rgba(141,168,235,0.2);
+      background: linear-gradient(180deg, rgba(18,26,45,0.96), rgba(13,19,34,0.96));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      text-align: center;
+    }
+    .inventory-item .inv-icon { font-size: 18px; }
+    .inventory-item .inv-name {
+      font-size: 10px;
+      line-height: 1.25;
+      color: #eef3ff;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+    .inventory-item .inv-grade {
+      font-size: 9px;
+      opacity: 0.9;
+      font-weight: 700;
+    }
+    .grade-common { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+    .grade-uncommon { box-shadow: inset 0 0 0 1px rgba(98,255,177,0.22); }
+    .grade-rare { box-shadow: inset 0 0 0 1px rgba(99,183,255,0.25); }
+    .grade-epic { box-shadow: inset 0 0 0 1px rgba(192,125,255,0.28); }
+    .grade-legend { box-shadow: inset 0 0 0 1px rgba(255,210,90,0.32); }
 
-    #scanner {
+    .scan-modal-body {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+    .scan-camera-box {
+      height: 96px;
+      min-height: 96px;
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(14,21,36,0.96), rgba(18,27,45,0.96)),
+        radial-gradient(circle at center, rgba(100,144,255,0.08), transparent 60%);
+      border: 1px solid rgba(115,143,210,0.16);
+      padding: 12px;
+      display: grid;
+      place-items: center;
+    }
+    .scan-camera-inner {
       width: 100%;
-      min-height: 260px;
-      border-radius: 16px;
-      overflow: hidden;
-      background: #0b1220;
-      border: 1px solid rgba(110, 139, 204, 0.18);
-    }
-
-    #scanner video {
-      border-radius: 16px;
-      object-fit: cover !important;
+      height: 100%;
+      border-radius: 14px;
+      border: 1px dashed rgba(146,173,238,0.28);
+      display: grid;
+      place-items: center;
+      color: #dce6ff;
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(17,24,40,0.45), rgba(10,15,28,0.45));
     }
 
     .mini-current-marker {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: linear-gradient(180deg, #7ea7ff 0%, #557dff 100%);
       border: 2px solid white;
@@ -776,274 +791,31 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 6px 16px rgba(0,0,0,0.35);
-      font-size: 14px;
-    }
-
-    .battle-stage {
-      position: relative;
-      width: 100%;
-      height: 270px;
-      border-radius: 18px;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.12), transparent 24%),
-        linear-gradient(180deg, rgba(34,46,85,0.95), rgba(16,22,38,0.98));
-      border: 1px solid rgba(115,143,210,0.16);
-    }
-
-    .battle-stage-ground {
-      position: absolute;
-      left: -10%;
-      right: -10%;
-      bottom: 10px;
-      height: 82px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(245,201,107,0.22), rgba(55,77,123,0.26) 45%, rgba(7,11,20,0.04) 70%);
-      filter: blur(2px);
-    }
-
-    .battle-unit {
-      position: absolute;
-      bottom: 38px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 3;
-      transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease;
-    }
-
-    .battle-hero-unit { left: 18px; }
-    .battle-enemy-unit { right: 24px; }
-
-    .battle-sprite-wrap {
-      width: 108px;
-      height: 116px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      filter: drop-shadow(0 18px 18px rgba(0,0,0,0.35));
-      position: relative;
-      z-index: 2;
-    }
-
-    .battle-hero-sprite,
-    .battle-enemy-sprite {
-      width: 100px;
-      height: 112px;
-      transition: transform 0.28s ease, filter 0.28s ease;
-    }
-
-    .battle-shadow {
-      width: 78px;
-      height: 12px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0));
-      margin-top: 3px;
-    }
-
-    .battle-enemy-emoji {
-      width: 100px;
-      height: 112px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 62px;
-      line-height: 1;
-      transition: transform 0.28s ease, filter 0.28s ease;
-      text-shadow: 0 10px 14px rgba(0,0,0,0.28);
-    }
-
-    .battle-soldier-group {
-      position: absolute;
-      left: 96px;
-      bottom: 28px;
-      display: flex;
-      gap: 2px;
-      flex-wrap: wrap;
-      max-width: 96px;
-      z-index: 1;
-    }
-
-    .battle-soldier {
-      width: 22px;
-      height: 28px;
-      transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease;
-    }
-
-    .battle-nameplates {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .battle-nameplate {
-      background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96));
-      border: 1px solid rgba(110, 139, 204, 0.18);
-      border-radius: 12px;
-      padding: 10px;
-    }
-
-    .battle-nameplate .name {
-      font-size: 13px;
-      font-weight: 900;
-      margin-bottom: 4px;
-    }
-
-    .battle-nameplate .meta {
-      font-size: 10px;
-      color: var(--muted);
-      margin-bottom: 5px;
-      line-height: 1.45;
-    }
-
-    .battle-popup-bar {
-      width: 100%;
-      height: 10px;
-      background: #0b1220;
-      border-radius: 999px;
-      overflow: hidden;
-      border: 1px solid rgba(73, 94, 143, 0.4);
-      margin-top: 5px;
-    }
-
-    .battle-popup-bar-fill {
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(90deg, #68a2ff, #8dd8ff);
-      transition: width 0.35s ease;
-    }
-
-    .battle-popup-bar-fill.enemy {
-      background: linear-gradient(90deg, #ff6b6b, #ff9b7f);
-    }
-
-    .battle-turn-box {
-      background: linear-gradient(180deg, rgba(12, 18, 33, 0.95), rgba(18, 25, 42, 0.95));
-      border: 1px solid rgba(118, 146, 212, 0.18);
-      border-radius: 14px;
-      padding: 12px;
-    }
-
-    .battle-turn-title {
-      font-size: 14px;
-      font-weight: 900;
-      margin-bottom: 8px;
-      color: #dce7ff;
-    }
-
-    .battle-turn-log {
-      font-size: 12px;
-      line-height: 1.65;
-      color: #dbe5fb;
-      min-height: 58px;
-      white-space: pre-line;
-    }
-
-    .battle-result-box {
-      border-radius: 14px;
-      padding: 12px;
-      font-size: 13px;
-      line-height: 1.6;
-      font-weight: 800;
-      text-align: center;
-      background: linear-gradient(180deg, rgba(17, 31, 25, 0.95), rgba(19, 43, 31, 0.95));
-      border: 1px solid rgba(95, 206, 141, 0.24);
-      color: #dffbe9;
-    }
-
-    .battle-result-box.fail {
-      background: linear-gradient(180deg, rgba(43, 20, 22, 0.95), rgba(54, 20, 23, 0.95));
-      border: 1px solid rgba(255, 120, 120, 0.24);
-      color: #ffe3e3;
-    }
-
-    .anim-attack-left {
-      animation: attackLeft 0.42s ease;
-    }
-
-    .anim-attack-right {
-      animation: attackRight 0.42s ease;
-    }
-
-    .anim-hit {
-      animation: hitShake 0.42s ease;
-      filter: brightness(1.3) saturate(1.15);
-    }
-
-    .anim-run {
-      animation: runAway 0.8s ease forwards;
-    }
-
-    .anim-fade {
-      animation: fadeFlash 0.5s ease;
-    }
-
-    @keyframes attackLeft {
-      0% { transform: translateX(0) scale(1); }
-      40% { transform: translateX(24px) scale(1.04); }
-      100% { transform: translateX(0) scale(1); }
-    }
-
-    @keyframes attackRight {
-      0% { transform: translateX(0) scale(1); }
-      40% { transform: translateX(-24px) scale(1.04); }
-      100% { transform: translateX(0) scale(1); }
-    }
-
-    @keyframes hitShake {
-      0% { transform: translateX(0); }
-      20% { transform: translateX(-6px); }
-      40% { transform: translateX(6px); }
-      60% { transform: translateX(-5px); }
-      80% { transform: translateX(5px); }
-      100% { transform: translateX(0); }
-    }
-
-    @keyframes runAway {
-      0% { transform: translateX(0) scale(1); opacity: 1; }
-      100% { transform: translateX(-120px) scale(0.86); opacity: 0.15; }
-    }
-
-    @keyframes fadeFlash {
-      0% { opacity: 1; }
-      50% { opacity: 0.35; }
-      100% { opacity: 1; }
+      font-size: 16px;
     }
 
     @keyframes pulseGlow {
       0%,100% { transform: scale(1); }
       50% { transform: scale(1.06); }
     }
-
     @keyframes heroFloat {
       0%,100% { transform: translateY(0); }
       50% { transform: translateY(-5px); }
     }
-
     @keyframes soldierBounce {
       0%,100% { transform: translateY(0); }
       50% { transform: translateY(-3px); }
     }
-
     @keyframes shadowPulse {
       0%,100% { transform: scale(1); opacity: .58; }
       50% { transform: scale(.92); opacity: .36; }
     }
-
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
     ::-webkit-scrollbar-thumb {
       background: rgba(112, 135, 194, 0.42);
       border-radius: 999px;
       border: 2px solid transparent;
       background-clip: padding-box;
-    }
-
-    @media (max-height: 780px) {
-      .hero-avatar { min-height: 262px; }
-      .formation-stage { height: 176px; }
-      .battle-stage { height: 244px; }
-      #map { height: 285px; }
-      .subtitle { font-size: 10px; }
     }
   </style>
 </head>
@@ -1076,17 +848,42 @@
     <div class="title">ScanHero MVP</div>
     <div class="subtitle">
       초기 버전은 <b>영웅 성장</b>과 <b>바코드 탐험의 재미</b>에 집중했습니다.<br />
-      전술과 병사 클래스를 먼저 고른 뒤, 바코드 탐험을 진행할 수 있습니다.
+      바코드 숫자에 따라 이벤트가 결정되며, 같은 바코드는 이벤트 등급에 따라 재사용 대기시간이 적용됩니다.
+      지도에는 <b>바코드를 스캔한 실제 위치와 획득 결과</b>가 기록됩니다.
     </div>
 
     <div class="grid">
       <div class="card">
+        <div class="section-title">탐험 지도</div>
+        <div id="mapWrapBox">
+          <div id="map"></div>
+
+          <button class="map-floating-btn right-bottom" id="scanFab" type="button" title="바코드 스캔">
+            <div class="scan-mini">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </button>
+
+          <button class="map-floating-btn right-top" id="mapHistoryBtn" type="button" title="위치 기록">🗺️</button>
+          <button class="map-floating-btn left-bottom" id="cooldownBtn" type="button" title="재사용 대기">⏳</button>
+        </div>
+
+        <div class="map-note" id="mapSelectionInfo" style="margin-top:12px;">
+          지도 마커를 클릭하면 해당 위치에서 스캔한 바코드와 획득 결과를 확인할 수 있습니다.
+        </div>
+        <div class="map-note" id="locationStatus" style="margin-top:12px;">
+          위치 확인 전입니다. 모험 시작 시 자동으로 현재 위치를 확인합니다.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">영웅 정보</div>
         <div class="hero-panel">
-          <div class="hero-avatar">
+          <div class="hero-avatar aura-common" id="heroAvatar">
             <div class="hero-avatar-top">
               <button type="button" class="hero-title-btn" id="heroTitleBtn">주인님의 영웅 (전사-견습) Lv 1</button>
               <div class="hero-gold-box">
-                <span>🪙</span>
+                <span class="gold-icon">🪙</span>
                 <span id="heroGoldTop">0</span>
               </div>
             </div>
@@ -1109,38 +906,14 @@
                 <div class="hero-exp-fill" id="heroExpFill"></div>
               </div>
             </div>
-
-            <button class="hero-map-btn" id="heroMapBtn" type="button" title="지도 보기">🗺️</button>
           </div>
 
           <div>
-            <div class="section-title" style="margin-bottom:8px;">지휘 전술 선택</div>
-            <div class="tactic-grid" style="margin-bottom:10px;">
-              <div class="line" style="margin-bottom:0;">
-                <label for="eventTacticSelect">전술</label>
-                <select id="eventTacticSelect">
-                  <option value="공격 중심">공격 중심</option>
-                  <option value="균형">균형</option>
-                  <option value="방어 중심">방어 중심</option>
-                </select>
-              </div>
-              <div class="line" style="margin-bottom:0;">
-                <label for="eventSoldierClassSelect">병사 클래스</label>
-                <select id="eventSoldierClassSelect">
-                  <option value="검병">검병</option>
-                  <option value="방패병">방패병</option>
-                  <option value="궁병">궁병</option>
-                  <option value="창병">창병</option>
-                </select>
-              </div>
+            <div class="stats-modal-label" style="margin-bottom:8px;">지휘 전술</div>
+            <div class="badge-row">
+              <div class="badge" id="tacticBadge">전술: 공격 중심</div>
+              <div class="badge" id="soldierBadge">병사 클래스: 검병</div>
             </div>
-
-            <button class="scan-wide-btn" id="scanFab" type="button">
-              <div class="scan-wide-icon">
-                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-              </div>
-              <span>바코드 스캔 시작</span>
-            </button>
           </div>
         </div>
       </div>
@@ -1150,29 +923,54 @@
         <div class="event-box">
           <div class="result-hero">
             <div class="result-head">
-              <div class="muted">탐험 결과</div>
+              <div class="muted">생성된 5자리 코드</div>
               <div class="result-head-actions">
+                <button class="icon-btn small" id="decodeInfoBtn" type="button" title="이벤트 해석">?</button>
                 <button class="icon-btn small" id="exploreLogBtn" type="button" title="탐험 기록">📜</button>
               </div>
             </div>
+            <div class="big-code" id="codeOutput">-----</div>
+            <div class="event-title" id="eventTitle">아직 탐험 전입니다.</div>
+            <div class="event-desc" id="eventDesc">지도 우측 하단의 바코드 아이콘을 눌러 탐험을 시작해 주세요.</div>
+            <div class="badge-row" id="eventBadges"></div>
+          </div>
+        </div>
 
-            <div class="event-main-head">
-              <div class="event-title-row">
-                <div class="event-title" id="eventTitle">아직 탐험 전입니다.</div>
-                <div class="small-code" id="codeOutput">-----</div>
-                <button class="icon-btn small" id="decodeInfoBtn" type="button" title="이벤트 해석">?</button>
+        <div id="battleArea" style="display:none; margin-top:12px;">
+          <div class="section-title" style="margin-top:0;">자동 전투</div>
+          <div class="battle-panel">
+            <div class="fighter">
+              <div class="battle-char">
+                <div class="battle-icon" id="battleHeroIcon">🗡️</div>
+                <div><b id="battleHeroName">영웅</b></div>
               </div>
+              <div class="battle-formation" id="battleHeroFormation"></div>
+              <div class="muted" id="battleHeroMeta">전투 준비 중</div>
+              <div class="progress"><div class="bar" id="heroHpBar"></div></div>
+              <div class="muted" id="heroHpText">HP</div>
             </div>
-
-            <div class="event-desc" id="eventDesc">영웅 정보 아래의 바코드 스캔 버튼을 눌러 탐험을 시작해 주세요.</div>
-            <div class="badge-row" id="eventBadges" style="margin-top:8px;"></div>
+            <div class="vs">VS</div>
+            <div class="fighter">
+              <div class="battle-char">
+                <div class="battle-icon enemy" id="battleEnemyIcon">👹</div>
+                <div><b id="battleEnemyName">몬스터</b></div>
+              </div>
+              <div class="battle-formation" id="battleEnemyFormation"></div>
+              <div class="muted" id="battleEnemyMeta">전투 준비 중</div>
+              <div class="progress"><div class="bar enemy" id="enemyHpBar"></div></div>
+              <div class="muted" id="enemyHpText">HP</div>
+            </div>
+          </div>
+          <div class="result-hero" style="margin-top:12px;">
+            <div class="muted" style="margin-bottom:8px;">전투 로그</div>
+            <div id="battleLog" class="event-desc">전투 전입니다.</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 이벤트 모달 -->
+  <!-- 이벤트 -->
   <div class="modal-backdrop" id="eventModalBackdrop">
     <div class="modal">
       <div class="modal-head"><div class="modal-title" id="eventModalTitle">이벤트 확인</div></div>
@@ -1180,62 +978,29 @@
         <div class="modal-hero">
           <div class="modal-visual" id="eventModalVisual">✨</div>
           <div class="modal-text" id="eventModalText">이벤트가 준비 중입니다.</div>
-          <div class="badge-row" id="eventModalBadges" style="justify-content:center; margin-top:10px;"></div>
+          <div class="badge-row" id="eventModalBadges" style="justify-content:center; margin-top:12px;"></div>
+        </div>
+        <div id="eventModalBattleSetup" style="display:none;">
+          <div class="line" style="margin-bottom:10px;">
+            <label for="eventTacticSelect">전술</label>
+            <select id="eventTacticSelect">
+              <option value="공격 중심">공격 중심</option>
+              <option value="균형">균형</option>
+              <option value="방어 중심">방어 중심</option>
+            </select>
+          </div>
+          <div class="line" style="margin-bottom:0;">
+            <label for="eventSoldierClassSelect">병사 클래스</label>
+            <select id="eventSoldierClassSelect">
+              <option value="검병">검병</option>
+              <option value="방패병">방패병</option>
+              <option value="궁병">궁병</option>
+              <option value="창병">창병</option>
+            </select>
+          </div>
         </div>
       </div>
-      <div class="modal-actions center-single" id="eventModalActions"></div>
-    </div>
-  </div>
-
-  <!-- 전투 모달 -->
-  <div class="modal-backdrop" id="battleBackdrop">
-    <div class="modal">
-      <div class="modal-head"><div class="modal-title">전투</div></div>
-      <div class="modal-body">
-        <div class="battle-stage">
-          <div class="battle-unit battle-hero-unit" id="battleHeroUnit">
-            <div class="battle-sprite-wrap" id="battleHeroSpriteWrap"></div>
-            <div class="battle-shadow"></div>
-          </div>
-
-          <div class="battle-soldier-group" id="battleSoldierGroup"></div>
-
-          <div class="battle-unit battle-enemy-unit" id="battleEnemyUnit">
-            <div class="battle-sprite-wrap">
-              <div class="battle-enemy-emoji" id="battleEnemyEmoji">👹</div>
-            </div>
-            <div class="battle-shadow"></div>
-          </div>
-
-          <div class="battle-stage-ground"></div>
-        </div>
-
-        <div class="battle-nameplates">
-          <div class="battle-nameplate">
-            <div class="name" id="battleHeroName">영웅</div>
-            <div class="meta" id="battleHeroMeta">전사 / 검병</div>
-            <div class="muted" id="battleHeroHpText">HP 0 / 0</div>
-            <div class="battle-popup-bar"><div class="battle-popup-bar-fill" id="heroHpBar"></div></div>
-          </div>
-          <div class="battle-nameplate">
-            <div class="name" id="battleEnemyName">몬스터</div>
-            <div class="meta" id="battleEnemyMeta">일반</div>
-            <div class="muted" id="battleEnemyHpText">HP 0 / 0</div>
-            <div class="battle-popup-bar"><div class="battle-popup-bar-fill enemy" id="enemyHpBar"></div></div>
-          </div>
-        </div>
-
-        <div class="battle-turn-box">
-          <div class="battle-turn-title" id="battleTurnTitle">전투 시작</div>
-          <div class="battle-turn-log" id="battleLog">전투를 시작합니다.</div>
-        </div>
-
-        <div id="battleResultBox" style="display:none;"></div>
-      </div>
-      <div class="modal-actions two" id="battleActions">
-        <button class="modal-primary" id="battleAttackBtn">공격</button>
-        <button class="modal-danger" id="battleRunBtn">도망</button>
-      </div>
+      <div class="modal-actions" id="eventModalActions"></div>
     </div>
   </div>
 
@@ -1244,19 +1009,45 @@
     <div class="modal">
       <div class="modal-head"><div class="modal-title">영웅 상세 정보</div></div>
       <div class="modal-body">
-        <div class="modal-hero" style="text-align:left;">
-          <div style="font-size:17px; font-weight:900; margin-bottom:10px;" id="heroStatsTitle">주인님의 영웅</div>
-          <div class="stats-modal-grid">
-            <div class="stats-modal-item"><div class="stats-modal-label">공격력</div><div class="stats-modal-value" id="heroStatsAtk">0</div></div>
-            <div class="stats-modal-item"><div class="stats-modal-label">방어력</div><div class="stats-modal-value" id="heroStatsDef">0</div></div>
-            <div class="stats-modal-item"><div class="stats-modal-label">체력</div><div class="stats-modal-value" id="heroStatsHp">0</div></div>
-            <div class="stats-modal-item"><div class="stats-modal-label">속도</div><div class="stats-modal-value" id="heroStatsSpeed">0</div></div>
-            <div class="stats-modal-item"><div class="stats-modal-label">치명타</div><div class="stats-modal-value" id="heroStatsCrit">0%</div></div>
-            <div class="stats-modal-item"><div class="stats-modal-label">지휘 병사 수</div><div class="stats-modal-value" id="heroStatsSoldiers">0명</div></div>
+        <div class="stats-modal-wrap">
+          <div style="font-size:17px; font-weight:900;" id="heroStatsTitle">주인님의 영웅</div>
+
+          <div class="hero-detail-top">
+            <div class="equip-preview aura-common" id="heroEquipPreview">
+              <div class="equip-hero-stage">
+                <div class="equip-slot weapon grade-common" id="equipWeaponSlot">
+                  <span id="equipWeaponIcon">⚔️</span>
+                  <span class="equip-slot-label">무기</span>
+                </div>
+                <div class="equip-slot armor grade-common" id="equipArmorSlot">
+                  <span id="equipArmorIcon">🛡️</span>
+                  <span class="equip-slot-label">방어구</span>
+                </div>
+                <div class="equip-slot accessory grade-common" id="equipAccessorySlot">
+                  <span id="equipAccessoryIcon">💍</span>
+                  <span class="equip-slot-label">장신구</span>
+                </div>
+                <div class="equip-hero-sprite" id="heroStatsSprite"></div>
+              </div>
+            </div>
+
+            <div class="stats-compact-grid">
+              <div class="stats-modal-item"><div class="stats-modal-label">공격력</div><div class="stats-modal-value" id="heroStatsAtk">0</div></div>
+              <div class="stats-modal-item"><div class="stats-modal-label">방어력</div><div class="stats-modal-value" id="heroStatsDef">0</div></div>
+              <div class="stats-modal-item"><div class="stats-modal-label">체력</div><div class="stats-modal-value" id="heroStatsHp">0</div></div>
+              <div class="stats-modal-item"><div class="stats-modal-label">속도</div><div class="stats-modal-value" id="heroStatsSpeed">0</div></div>
+              <div class="stats-modal-item"><div class="stats-modal-label">치명타</div><div class="stats-modal-value" id="heroStatsCrit">0%</div></div>
+              <div class="stats-modal-item"><div class="stats-modal-label">지휘 병사</div><div class="stats-modal-value" id="heroStatsSoldiers">0명</div></div>
+            </div>
+          </div>
+
+          <div class="inventory-box">
+            <div class="inventory-title">인벤토리</div>
+            <div class="inventory-grid" id="inventoryGrid"></div>
           </div>
         </div>
       </div>
-      <div class="modal-actions center-single">
+      <div class="modal-actions" style="grid-template-columns:1fr;">
         <button class="modal-primary" id="heroStatsCloseBtn">닫기</button>
       </div>
     </div>
@@ -1267,45 +1058,20 @@
     <div class="modal">
       <div class="modal-head"><div class="modal-title">바코드 스캔</div></div>
       <div class="scan-modal-body">
-        <div class="modal-hero">
-          <div class="modal-visual" style="font-size:56px;">📷</div>
-          <div class="modal-text" id="scanStatusText">
-            카메라 스캔 또는 바코드 숫자 직접 입력을 사용할 수 있습니다.
+        <div class="scan-camera-box">
+          <div class="scan-camera-inner">
+            카메라 미리보기 영역<br />
+            초기 MVP에서는 숫자 입력 방식으로 테스트합니다.
           </div>
         </div>
-
-        <div id="scanner"></div>
-
         <div class="line" style="margin-bottom:0;">
           <label for="barcodeInput">바코드 숫자 입력</label>
-          <input id="barcodeInput" placeholder="예: 8801234567890" value="" inputmode="numeric" />
+          <input id="barcodeInput" placeholder="예: 8801234567890" value="8801234567890" />
         </div>
       </div>
-      <div class="modal-actions two">
+      <div class="modal-actions" style="grid-template-columns:1fr 1fr;">
         <button id="scanModalCloseBtn">닫기</button>
         <button class="modal-primary" id="scanStartBtn">탐험 시작</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 지도 팝업 -->
-  <div class="modal-backdrop" id="mapBackdrop">
-    <div class="modal" style="width:min(400px,100%);">
-      <div class="modal-head"><div class="modal-title">탐험 지도</div></div>
-      <div class="modal-body">
-        <div id="mapWrapBox">
-          <div id="map"></div>
-          <button class="map-top-btn" id="mapHistoryBtn" type="button" title="이벤트 기록">📜</button>
-        </div>
-        <div class="map-note" id="mapSelectionInfo">
-          지도 마커를 클릭하면 해당 위치의 이벤트 결과를 확인할 수 있습니다.
-        </div>
-        <div class="map-note" id="locationStatus">
-          위치 확인 전입니다. 모험 시작 시 자동으로 현재 위치를 확인합니다.
-        </div>
-      </div>
-      <div class="modal-actions center-single">
-        <button class="modal-primary" id="mapCloseBtn">닫기</button>
       </div>
     </div>
   </div>
@@ -1317,8 +1083,21 @@
       <div class="modal-body">
         <div class="modal-list" id="mapHistoryList"></div>
       </div>
-      <div class="modal-actions center-single">
+      <div class="modal-actions" style="grid-template-columns:1fr;">
         <button class="modal-primary" id="mapHistoryCloseBtn">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 재사용 대기 -->
+  <div class="modal-backdrop" id="cooldownBackdrop">
+    <div class="modal">
+      <div class="modal-head"><div class="modal-title">바코드 재사용 대기</div></div>
+      <div class="modal-body">
+        <div class="modal-list" id="cooldownList"></div>
+      </div>
+      <div class="modal-actions" style="grid-template-columns:1fr;">
+        <button class="modal-primary" id="cooldownCloseBtn">닫기</button>
       </div>
     </div>
   </div>
@@ -1336,7 +1115,7 @@
           5번째 자리 = 특수 효과
         </div>
       </div>
-      <div class="modal-actions center-single">
+      <div class="modal-actions" style="grid-template-columns:1fr;">
         <button class="modal-primary" id="decodeCloseBtn">닫기</button>
       </div>
     </div>
@@ -1349,7 +1128,7 @@
       <div class="modal-body">
         <div class="modal-list" id="exploreLog"></div>
       </div>
-      <div class="modal-actions center-single">
+      <div class="modal-actions" style="grid-template-columns:1fr;">
         <button class="modal-primary" id="exploreLogCloseBtn">닫기</button>
       </div>
     </div>
@@ -1364,10 +1143,31 @@
         { minLevel: 8, rank: '영웅', soldiers: 5 },
         { minLevel: 12, rank: '전설', soldiers: 6 }
       ];
-
+      const cooldownHoursByGrade = { 일반: 6, 강화: 24, 엘리트: 48, 보스: 72, 보물: 12, 장비: 24, 특수: 48 };
       const monsterTypes = ['슬라임', '늑대', '고블린', '해골', '오크', '거미', '좀비', '도적', '트롤', '악마'];
       const specialTypes = ['고대 유적', '숨겨진 제단', '길 잃은 상인', '빛의 축복', '어둠의 저주', '용사의 흔적', '전장의 잔해', '수상한 포탈', '비밀 금고', '미스터리 균열'];
       const markerIcons = { 몬스터: '⚔️', 보물: '🎁', 장비: '🧰', 특수: '✨' };
+
+      const gearCatalog = [
+        { name: '낡은 검', slot: 'weapon', icon: '⚔️' },
+        { name: '튼튼한 갑옷', slot: 'armor', icon: '🛡️' },
+        { name: '가벼운 장화', slot: 'armor', icon: '👢' },
+        { name: '철 장갑', slot: 'armor', icon: '🧤' },
+        { name: '전투 반지', slot: 'accessory', icon: '💍' },
+        { name: '강화 망토', slot: 'armor', icon: '🧥' },
+        { name: '사냥 활', slot: 'weapon', icon: '🏹' },
+        { name: '기사 방패', slot: 'armor', icon: '🛡️' },
+        { name: '집중 목걸이', slot: 'accessory', icon: '📿' },
+        { name: '용사의 문장', slot: 'accessory', icon: '🏅' }
+      ];
+
+      const gradeTable = [
+        { key: 'common', name: '일반', value: 1 },
+        { key: 'uncommon', name: '고급', value: 2 },
+        { key: 'rare', name: '희귀', value: 3 },
+        { key: 'epic', name: '영웅', value: 4 },
+        { key: 'legend', name: '전설', value: 5 }
+      ];
 
       const state = {
         heroName: '주인님의 영웅',
@@ -1375,6 +1175,7 @@
         level: 1,
         exp: 0,
         gold: 0,
+        cooldowns: {},
         logs: [],
         mapHistory: [],
         currentLocation: null,
@@ -1382,32 +1183,31 @@
         markers: [],
         currentLocationMarker: null,
         pendingDecoded: null,
-        battle: null,
-        html5QrCode: null,
-        scannerRunning: false
+        inventory: [],
+        equipment: { weapon: null, armor: null, accessory: null }
       };
 
       const els = {
+        heroAvatar: document.getElementById('heroAvatar'),
         heroTitleBtn: document.getElementById('heroTitleBtn'),
         heroGoldTop: document.getElementById('heroGoldTop'),
         heroExpFill: document.getElementById('heroExpFill'),
         heroExpBarText: document.getElementById('heroExpBarText'),
         heroSpriteWrap: document.getElementById('heroSpriteWrap'),
         soldierFront: document.getElementById('soldierFront'),
-        heroMapBtn: document.getElementById('heroMapBtn'),
 
         barcodeInput: document.getElementById('barcodeInput'),
         scanFab: document.getElementById('scanFab'),
         scanModalBackdrop: document.getElementById('scanModalBackdrop'),
         scanModalCloseBtn: document.getElementById('scanModalCloseBtn'),
         scanStartBtn: document.getElementById('scanStartBtn'),
-        scanStatusText: document.getElementById('scanStatusText'),
 
-        mapBackdrop: document.getElementById('mapBackdrop'),
-        mapCloseBtn: document.getElementById('mapCloseBtn'),
-        mapSelectionInfo: document.getElementById('mapSelectionInfo'),
+        cooldownBtn: document.getElementById('cooldownBtn'),
+        cooldownBackdrop: document.getElementById('cooldownBackdrop'),
+        cooldownList: document.getElementById('cooldownList'),
+        cooldownCloseBtn: document.getElementById('cooldownCloseBtn'),
+
         mapHistoryBtn: document.getElementById('mapHistoryBtn'),
-
         mapHistoryBackdrop: document.getElementById('mapHistoryBackdrop'),
         mapHistoryList: document.getElementById('mapHistoryList'),
         mapHistoryCloseBtn: document.getElementById('mapHistoryCloseBtn'),
@@ -1430,7 +1230,23 @@
         eventDesc: document.getElementById('eventDesc'),
         eventBadges: document.getElementById('eventBadges'),
 
+        battleArea: document.getElementById('battleArea'),
+        battleHeroName: document.getElementById('battleHeroName'),
+        battleHeroMeta: document.getElementById('battleHeroMeta'),
+        battleEnemyName: document.getElementById('battleEnemyName'),
+        battleEnemyMeta: document.getElementById('battleEnemyMeta'),
+        battleHeroIcon: document.getElementById('battleHeroIcon'),
+        battleEnemyIcon: document.getElementById('battleEnemyIcon'),
+        battleHeroFormation: document.getElementById('battleHeroFormation'),
+        battleEnemyFormation: document.getElementById('battleEnemyFormation'),
+        heroHpBar: document.getElementById('heroHpBar'),
+        enemyHpBar: document.getElementById('enemyHpBar'),
+        heroHpText: document.getElementById('heroHpText'),
+        enemyHpText: document.getElementById('enemyHpText'),
+        battleLog: document.getElementById('battleLog'),
+
         locationStatus: document.getElementById('locationStatus'),
+        mapSelectionInfo: document.getElementById('mapSelectionInfo'),
 
         eventModalBackdrop: document.getElementById('eventModalBackdrop'),
         eventModalTitle: document.getElementById('eventModalTitle'),
@@ -1438,25 +1254,7 @@
         eventModalText: document.getElementById('eventModalText'),
         eventModalBadges: document.getElementById('eventModalBadges'),
         eventModalActions: document.getElementById('eventModalActions'),
-
-        battleBackdrop: document.getElementById('battleBackdrop'),
-        battleHeroUnit: document.getElementById('battleHeroUnit'),
-        battleEnemyUnit: document.getElementById('battleEnemyUnit'),
-        battleHeroSpriteWrap: document.getElementById('battleHeroSpriteWrap'),
-        battleEnemyEmoji: document.getElementById('battleEnemyEmoji'),
-        battleHeroName: document.getElementById('battleHeroName'),
-        battleEnemyName: document.getElementById('battleEnemyName'),
-        battleHeroMeta: document.getElementById('battleHeroMeta'),
-        battleEnemyMeta: document.getElementById('battleEnemyMeta'),
-        battleHeroHpText: document.getElementById('battleHeroHpText'),
-        battleEnemyHpText: document.getElementById('battleEnemyHpText'),
-        heroHpBar: document.getElementById('heroHpBar'),
-        enemyHpBar: document.getElementById('enemyHpBar'),
-        battleTurnTitle: document.getElementById('battleTurnTitle'),
-        battleLog: document.getElementById('battleLog'),
-        battleActions: document.getElementById('battleActions'),
-        battleResultBox: document.getElementById('battleResultBox'),
-        battleSoldierGroup: document.getElementById('battleSoldierGroup'),
+        eventModalBattleSetup: document.getElementById('eventModalBattleSetup'),
 
         startHeroBackdrop: document.getElementById('heroStartBackdrop'),
         startHeroName: document.getElementById('startHeroName'),
@@ -1471,12 +1269,55 @@
         heroStatsHp: document.getElementById('heroStatsHp'),
         heroStatsSpeed: document.getElementById('heroStatsSpeed'),
         heroStatsCrit: document.getElementById('heroStatsCrit'),
-        heroStatsSoldiers: document.getElementById('heroStatsSoldiers')
+        heroStatsSoldiers: document.getElementById('heroStatsSoldiers'),
+        heroStatsSprite: document.getElementById('heroStatsSprite'),
+        heroEquipPreview: document.getElementById('heroEquipPreview'),
+        equipWeaponSlot: document.getElementById('equipWeaponSlot'),
+        equipArmorSlot: document.getElementById('equipArmorSlot'),
+        equipAccessorySlot: document.getElementById('equipAccessorySlot'),
+        equipWeaponIcon: document.getElementById('equipWeaponIcon'),
+        equipArmorIcon: document.getElementById('equipArmorIcon'),
+        equipAccessoryIcon: document.getElementById('equipAccessoryIcon'),
+        inventoryGrid: document.getElementById('inventoryGrid')
       };
 
       function openModal(el) { el.classList.add('show'); }
       function closeModal(el) { el.classList.remove('show'); }
-      function wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+      function getHeroVisual(heroClass) {
+        return { 전사: '🗡️', 궁사: '🏹', 마법사: '🔮' }[heroClass] || '🗡️';
+      }
+
+      function getEnemyVisual(name) {
+        return {
+          슬라임: '🟢', 늑대: '🐺', 고블린: '👺', 해골: '💀', 오크: '👹',
+          거미: '🕷️', 좀비: '🧟', 도적: '🥷', 트롤: '🪨', 악마: '😈'
+        }[name] || '👹';
+      }
+
+      function getGradeInfoByDigit(digit) {
+        if (digit <= 3) return gradeTable[0];
+        if (digit <= 5) return gradeTable[1];
+        if (digit <= 7) return gradeTable[2];
+        if (digit <= 8) return gradeTable[3];
+        return gradeTable[4];
+      }
+
+      function getGradeInfoByKey(key) {
+        return gradeTable.find(g => g.key === key) || gradeTable[0];
+      }
+
+      function getHighestEquipGradeKey() {
+        const equipped = Object.values(state.equipment).filter(Boolean);
+        if (!equipped.length) return 'common';
+        const best = equipped.sort((a, b) => getGradeInfoByKey(b.grade).value - getGradeInfoByKey(a.grade).value)[0];
+        return best.grade;
+      }
+
+      function applyAuraClass(target, gradeKey) {
+        target.classList.remove('aura-common', 'aura-uncommon', 'aura-rare', 'aura-epic', 'aura-legend');
+        target.classList.add(`aura-${gradeKey}`);
+      }
 
       function getHeroRankInfo(level) {
         const eligible = rankTable.filter(v => level >= v.minLevel);
@@ -1495,13 +1336,6 @@
         const N = Number(barcodeDigits);
         if (!Number.isFinite(N)) return '00000';
         return String((N + Math.floor(N / 7) + Math.floor(N / 13)) % 100000).padStart(5, '0');
-      }
-
-      function getEnemyVisual(name) {
-        return {
-          슬라임: '🟢', 늑대: '🐺', 고블린: '👺', 해골: '💀', 오크: '👹',
-          거미: '🕷️', 좀비: '🧟', 도적: '🥷', 트롤: '🪨', 악마: '😈'
-        }[name] || '👹';
       }
 
       function getHeroSprite(heroClass) {
@@ -1523,7 +1357,7 @@
         return `<svg viewBox="0 0 84 98" width="84" height="98" class="${config.cls}" aria-hidden="true"><ellipse cx="42" cy="90" rx="18" ry="5" fill="rgba(0,0,0,0.18)"/><path class="hero-cloak" d="M24 43c4-12 12-19 18-19 8 0 16 7 18 19l6 26H18z"/><circle cx="42" cy="20" r="12" fill="#f4d1b5"/><rect class="hero-body" x="30" y="34" width="24" height="27" rx="10"/><rect fill="#f4d1b5" x="24" y="41" width="8" height="18" rx="4"/><rect fill="#f4d1b5" x="52" y="41" width="8" height="18" rx="4"/><rect fill="#f4d1b5" x="34" y="60" width="6" height="20" rx="3"/><rect fill="#f4d1b5" x="44" y="60" width="6" height="20" rx="3"/><path fill="#1b2135" d="M30 16c2-9 22-12 26 0-3-2-7-3-13-3s-10 1-13 3z"/>${config.weapon}</svg>`;
       }
 
-      function getSoldierSprite(soldierClass, size = 'normal') {
+      function getSoldierSprite(soldierClass) {
         const soldierMap = {
           검병: { weapon: '<rect class="soldier-weapon" x="24" y="4" width="3" height="18" rx="1.5"/><rect class="soldier-weapon" x="22" y="18" width="7" height="3" rx="1.5"/>' },
           방패병: { weapon: '<path class="soldier-weapon" d="M24 9c5 1 8 2 8 2v7c0 7-8 11-8 11s-8-4-8-11v-7s3-1 8-2z"/>' },
@@ -1531,10 +1365,21 @@
           창병: { weapon: '<rect class="soldier-weapon" x="24" y="4" width="2.5" height="24" rx="1.2"/><path class="soldier-weapon" d="M25 2l4 6h-8z"/>' }
         };
         const config = soldierMap[soldierClass] || soldierMap.검병;
-        if (size === 'battle') {
-          return `<div class="battle-soldier"><svg viewBox="0 0 36 44" width="22" height="28" class="soldier-svg" aria-hidden="true"><circle cx="18" cy="8" r="5" fill="#f3cfb0"/><rect class="soldier-body" x="12" y="13" width="12" height="12" rx="5"/><path class="soldier-armor" d="M10 25h16l4 12H6z"/><rect fill="#f3cfb0" x="12" y="24" width="4" height="10" rx="2"/><rect fill="#f3cfb0" x="20" y="24" width="4" height="10" rx="2"/>${config.weapon}</svg></div>`;
+        return `<div class="soldier"><svg viewBox="0 0 36 44" width="30" height="38" class="soldier-svg" aria-hidden="true"><circle cx="18" cy="8" r="5" fill="#f3cfb0"/><rect class="soldier-body" x="12" y="13" width="12" height="12" rx="5"/><path class="soldier-armor" d="M10 25h16l4 12H6z"/><rect fill="#f3cfb0" x="12" y="24" width="4" height="10" rx="2"/><rect fill="#f3cfb0" x="20" y="24" width="4" height="10" rx="2"/>${config.weapon}</svg><div class="soldier-small-shadow"></div></div>`;
+      }
+
+      function renderHeroFormation(heroClass, soldierClass, soldierCount) {
+        els.heroSpriteWrap.innerHTML = getHeroSprite(heroClass);
+        els.soldierFront.innerHTML = Array.from({ length: soldierCount }, () => getSoldierSprite(soldierClass)).join('');
+      }
+
+      function renderBattleFormation(targetEl, role, heroClass, soldierClass, soldierCount, enemyName, enemyAmount) {
+        if (!targetEl) return;
+        if (role === 'hero') {
+          targetEl.innerHTML = `<div class="formation-stage" style="height:112px; min-height:112px;"><div class="hero-unit" style="left:52px; bottom:28px;"><div class="hero-sprite">${getHeroSprite(heroClass)}</div><div class="hero-shadow"></div></div><div class="soldier-row" style="left:108px; right:8px; bottom:18px; gap:3px;">${Array.from({ length: soldierCount }, () => getSoldierSprite(soldierClass)).join('')}</div><div class="formation-ground"></div></div>`;
+        } else {
+          targetEl.innerHTML = `<div class="formation-stage" style="height:112px; min-height:112px;"><div class="soldier-row" style="left:12px; right:12px; bottom:18px; gap:6px; justify-content:center;">${Array.from({ length: enemyAmount || 1 }, () => `<div class="battle-icon enemy" style="width:36px;height:36px;border-radius:12px;font-size:18px;">${getEnemyVisual(enemyName)}</div>`).join('')}</div><div class="formation-ground"></div></div>`;
         }
-        return `<div class="soldier"><svg viewBox="0 0 36 44" width="26" height="34" class="soldier-svg" aria-hidden="true"><circle cx="18" cy="8" r="5" fill="#f3cfb0"/><rect class="soldier-body" x="12" y="13" width="12" height="12" rx="5"/><path class="soldier-armor" d="M10 25h16l4 12H6z"/><rect fill="#f3cfb0" x="12" y="24" width="4" height="10" rx="2"/><rect fill="#f3cfb0" x="20" y="24" width="4" height="10" rx="2"/>${config.weapon}</svg><div class="soldier-small-shadow"></div></div>`;
       }
 
       function getClassBonus(heroClass) {
@@ -1545,15 +1390,35 @@
         }[heroClass] || { atk: 4, def: 3, hp: 22, spd: 0, crit: 1 };
       }
 
+      function getEquipmentBonus() {
+        const equipped = Object.values(state.equipment).filter(Boolean);
+        return equipped.reduce((acc, item) => {
+          const gradeValue = getGradeInfoByKey(item.grade).value;
+          if (item.slot === 'weapon') {
+            acc.atk += gradeValue * 3;
+            acc.crit += gradeValue;
+          } else if (item.slot === 'armor') {
+            acc.def += gradeValue * 3;
+            acc.hp += gradeValue * 12;
+          } else if (item.slot === 'accessory') {
+            acc.spd += gradeValue;
+            acc.crit += gradeValue;
+            acc.atk += gradeValue;
+          }
+          return acc;
+        }, { atk: 0, def: 0, hp: 0, spd: 0, crit: 0 });
+      }
+
       function getHeroBaseStats() {
         const bonus = getClassBonus(state.heroClass);
         const rankInfo = getHeroRankInfo(state.level);
+        const equip = getEquipmentBonus();
         return {
-          atk: 14 + (state.level * 2) + bonus.atk + (rankInfo.soldiers - 2) * 2,
-          def: 10 + Math.floor(state.level * 1.6) + bonus.def + (rankInfo.soldiers - 2) * 2,
-          hp: 100 + (state.level * 18) + bonus.hp + (rankInfo.soldiers - 2) * 12,
-          speed: 5 + Math.floor(state.level * 0.6) + bonus.spd,
-          crit: 5 + Math.floor(state.level * 0.3) + bonus.crit,
+          atk: 14 + (state.level * 2) + bonus.atk + (rankInfo.soldiers - 2) * 2 + equip.atk,
+          def: 10 + Math.floor(state.level * 1.6) + bonus.def + (rankInfo.soldiers - 2) * 2 + equip.def,
+          hp: 100 + (state.level * 18) + bonus.hp + (rankInfo.soldiers - 2) * 12 + equip.hp,
+          speed: 5 + Math.floor(state.level * 0.6) + bonus.spd + equip.spd,
+          crit: 5 + Math.floor(state.level * 0.3) + bonus.crit + equip.crit,
           soldiers: rankInfo.soldiers,
           rank: rankInfo.rank
         };
@@ -1573,26 +1438,40 @@
           { atk: 20, def: 14, hp: 80, speed: 7, crit: 12 }
         ][d4];
 
-        const gradeMult = grade === '일반' ? 1 : grade === '강화' ? 1.2 : grade === '엘리트' ? 1.5 : 2.0;
-        let atk = Math.round(baseStats.atk * gradeMult);
-        let def = Math.round(baseStats.def * gradeMult);
-        let hp = Math.round((baseStats.hp + amount * 8) * gradeMult);
+        const gradeMult = grade === '일반' ? 1.08 : grade === '강화' ? 1.30 : grade === '엘리트' ? 1.62 : 2.18;
+        let atk = Math.round(baseStats.atk * gradeMult * 1.06);
+        let def = Math.round(baseStats.def * gradeMult * 1.05);
+        let hp = Math.round((baseStats.hp + amount * 10) * gradeMult * 1.10);
         let speed = Math.round(baseStats.speed * gradeMult);
-        let crit = baseStats.crit + (grade === '강화' ? 2 : grade === '엘리트' ? 4 : grade === '보스' ? 6 : 0);
+        let crit = baseStats.crit + (grade === '강화' ? 3 : grade === '엘리트' ? 5 : grade === '보스' ? 7 : 1);
 
-        if (special === '공격 증가') atk = Math.round(atk * 1.15);
-        if (special === '방어 증가') def = Math.round(def * 1.15);
-        if (special === '속도 증가') speed = Math.round(speed * 1.2);
+        if (special === '공격 증가') atk = Math.round(atk * 1.16);
+        if (special === '방어 증가') def = Math.round(def * 1.16);
+        if (special === '속도 증가') speed = Math.round(speed * 1.22);
         if (special === '희귀 보상') crit += 8;
 
         return { name, grade, amount, atk, def, hp, speed, crit, special };
+      }
+
+      function buildGearItem(d2, d4, d5) {
+        const gearBase = gearCatalog[d4];
+        const gradeInfo = getGradeInfoByDigit(d2);
+        return {
+          id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+          name: gearBase.name,
+          slot: gearBase.slot,
+          icon: gearBase.icon,
+          grade: gradeInfo.key,
+          gradeName: gradeInfo.name,
+          power: gradeInfo.value,
+          bonusSeed: d5
+        };
       }
 
       function decodeEvent(code) {
         const [d1, d2, d3, d4, d5] = code.split('').map(Number);
         const eventType = d1 <= 5 ? '몬스터' : d1 <= 7 ? '보물' : d1 === 8 ? '장비' : '특수';
         let grade = '일반';
-
         if (eventType === '몬스터') {
           grade = d2 <= 5 ? '일반' : d2 <= 7 ? '강화' : d2 === 8 ? '엘리트' : '보스';
         } else if (eventType === '보물') {
@@ -1611,11 +1490,12 @@
         let badges = [];
         let enemy = null;
         let reward = null;
+        let item = null;
 
         if (eventType === '몬스터') {
           const monsterName = monsterTypes[d4];
           title = `${grade} ${monsterName} 출현`;
-          desc = `${monsterName} ${amount}마리가 나타났습니다. 특수 효과: ${special}.`;
+          desc = `${monsterName} ${amount}마리가 나타났습니다. 특수 효과: ${special}. 전술과 병사 클래스를 선택한 뒤 자동 전투를 시작합니다.`;
           badges = [eventType, grade, `${amount}마리`, special];
           enemy = makeEnemy(monsterName, grade, amount, special, d4);
         } else if (eventType === '보물') {
@@ -1625,13 +1505,12 @@
           badges = [eventType, `골드 +${gold}`, special];
           reward = { exp: 8 + d2, gold };
         } else if (eventType === '장비') {
-          const gearTypes = ['낡은 검', '튼튼한 갑옷', '가벼운 장화', '철 장갑', '전투 반지', '강화 망토', '사냥 활', '기사 방패', '집중 목걸이', '용사의 문장'];
-          const gearName = gearTypes[d4];
-          const exp = 12 + d2 * 2 + d5;
+          item = buildGearItem(d2, d4, d5);
+          const exp = 8 + Math.floor(d2 / 2) + d5;
           title = '장비 발견';
-          desc = `${gearName}을(를) 획득했습니다. 초기 MVP에서는 장비를 즉시 성장 보너스로 환산합니다.`;
-          badges = [eventType, gearName, `경험치 +${exp}`];
-          reward = { exp, gold: 10 + d3 * 3 };
+          desc = `${item.gradeName} 등급의 ${item.name}을(를) 획득했습니다. 더 좋은 장비라면 자동으로 장착됩니다.`;
+          badges = [eventType, item.gradeName, item.name];
+          reward = { exp, gold: 8 + d3 * 2 };
         } else {
           const sp = specialTypes[d4];
           const exp = 15 + d2 * 2 + d5;
@@ -1641,31 +1520,31 @@
           reward = { exp, gold: 15 + d3 * 4 };
         }
 
-        return { code, d1, d2, d3, d4, d5, eventType, grade, amount, special, title, desc, badges, enemy, reward };
+        return { code, d1, d2, d3, d4, d5, eventType, grade, amount, special, title, desc, badges, enemy, reward, item };
       }
 
       function getTacticMod(tactic) {
         return tactic === '공격 중심'
-          ? { atk: 1.25, def: 0.85, hp: 1.0, speed: 1.05, crit: 1.1 }
+          ? { atk: 1.22, def: 0.84, hp: 0.98, speed: 1.04, crit: 1.08 }
           : tactic === '방어 중심'
-          ? { atk: 0.9, def: 1.25, hp: 1.1, speed: 0.95, crit: 1.0 }
+          ? { atk: 0.92, def: 1.22, hp: 1.08, speed: 0.95, crit: 1.0 }
           : { atk: 1.0, def: 1.0, hp: 1.0, speed: 1.0, crit: 1.0 };
       }
 
       function getSoldierClassMod(soldierClass) {
         return soldierClass === '검병'
-          ? { atk: 1.18, def: 0.95, hp: 1.0, speed: 1.0, crit: 1.05 }
+          ? { atk: 1.16, def: 0.96, hp: 1.0, speed: 1.0, crit: 1.04 }
           : soldierClass === '방패병'
-          ? { atk: 0.92, def: 1.22, hp: 1.12, speed: 0.95, crit: 1.0 }
+          ? { atk: 0.93, def: 1.20, hp: 1.10, speed: 0.95, crit: 1.0 }
           : soldierClass === '궁병'
-          ? { atk: 1.12, def: 0.92, hp: 0.95, speed: 1.15, crit: 1.1 }
-          : { atk: 1.06, def: 1.06, hp: 1.02, speed: 1.02, crit: 1.02 };
+          ? { atk: 1.10, def: 0.93, hp: 0.96, speed: 1.12, crit: 1.08 }
+          : { atk: 1.05, def: 1.05, hp: 1.02, speed: 1.01, crit: 1.01 };
       }
 
       function calcDamage(attackerAtk, defenderDef, critChance) {
-        let value = Math.max(1, attackerAtk - Math.floor(defenderDef * 0.55) + Math.floor(Math.random() * 5));
+        let value = Math.max(1, attackerAtk - Math.floor(defenderDef * 0.58) + Math.floor(Math.random() * 4));
         const critical = Math.random() * 100 < critChance;
-        if (critical) value *= 2;
+        if (critical) value = Math.round(value * 1.9);
         return { value, critical };
       }
 
@@ -1677,27 +1556,191 @@
         return (enemy.grade === '일반' ? 8 : enemy.grade === '강화' ? 15 : enemy.grade === '엘리트' ? 24 : 35) + enemy.amount * 2;
       }
 
+      function runBattle(enemy) {
+        const heroStats = getHeroBaseStats();
+        const tactic = els.eventTacticSelect.value;
+        const soldierClass = els.eventSoldierClassSelect.value;
+        const tacticMod = getTacticMod(tactic);
+        const soldierMod = getSoldierClassMod(soldierClass);
+        const soldierCount = heroStats.soldiers;
+
+        const heroAtk = Math.round(heroStats.atk * tacticMod.atk * soldierMod.atk + soldierCount * 2);
+        const heroDef = Math.round(heroStats.def * tacticMod.def * soldierMod.def + soldierCount * 2);
+        const heroMax = Math.round(heroStats.hp * tacticMod.hp * soldierMod.hp + soldierCount * 10);
+        const heroSpeed = Math.round(heroStats.speed * tacticMod.speed * soldierMod.speed);
+        const heroCrit = Math.round(heroStats.crit * tacticMod.crit * soldierMod.crit);
+
+        let heroHp = heroMax;
+        let enemyHp = enemy.hp;
+        const logs = [];
+        let turn = 1;
+
+        while (heroHp > 0 && enemyHp > 0 && turn <= 12) {
+          const heroFirst = heroSpeed >= enemy.speed;
+          if (heroFirst) {
+            const heroDmg = calcDamage(heroAtk, enemy.def, heroCrit);
+            enemyHp -= heroDmg.value;
+            logs.push(`${turn}턴 - 영웅 부대가 ${enemy.name}에게 ${heroDmg.value} 피해${heroDmg.critical ? ' (치명타)' : ''}를 입혔습니다.`);
+            if (enemyHp <= 0) break;
+
+            const enemyDmg = calcDamage(enemy.atk, heroDef, enemy.crit);
+            heroHp -= enemyDmg.value;
+            logs.push(`${turn}턴 - ${enemy.name}이(가) 영웅 부대에 ${enemyDmg.value} 피해${enemyDmg.critical ? ' (치명타)' : ''}를 입혔습니다.`);
+          } else {
+            const enemyDmg = calcDamage(enemy.atk, heroDef, enemy.crit);
+            heroHp -= enemyDmg.value;
+            logs.push(`${turn}턴 - ${enemy.name}이(가) 영웅 부대에 ${enemyDmg.value} 피해${enemyDmg.critical ? ' (치명타)' : ''}를 입혔습니다.`);
+            if (heroHp <= 0) break;
+
+            const heroDmg = calcDamage(heroAtk, enemy.def, heroCrit);
+            enemyHp -= heroDmg.value;
+            logs.push(`${turn}턴 - 영웅 부대가 ${enemy.name}에게 ${heroDmg.value} 피해${heroDmg.critical ? ' (치명타)' : ''}를 입혔습니다.`);
+          }
+          turn += 1;
+        }
+
+        const win = heroHp > 0 && enemyHp <= 0;
+        const exp = win ? getBattleExp(enemy) : Math.max(3, Math.floor(getBattleExp(enemy) / 3));
+        const gold = win ? getBattleGold(enemy) : 0;
+        logs.push(win ? `승리! 경험치 ${exp}, 골드 ${gold} 획득` : `패배... 경험치 ${exp}만 획득`);
+
+        updateBattleUI({
+          heroHp: Math.max(0, heroHp),
+          heroMax,
+          enemyHp: Math.max(0, enemyHp),
+          enemyMax: enemy.hp,
+          enemy,
+          logs,
+          tactic,
+          soldierClass,
+          soldierCount,
+          heroSpeed,
+          heroCrit
+        });
+
+        return { win, exp, gold };
+      }
+
       function addReward(exp, gold) {
         state.exp += exp;
-        state.gold = Math.max(0, state.gold + gold);
+        state.gold += gold;
         let leveled = false;
-
         while (state.exp >= getExpNeed(state.level)) {
           state.exp -= getExpNeed(state.level);
           state.level += 1;
           leveled = true;
         }
-
         return leveled;
+      }
+
+      function addItemToInventory(item) {
+        state.inventory.unshift(item);
+        state.inventory = state.inventory.slice(0, 24);
+      }
+
+      function tryAutoEquip(item) {
+        const current = state.equipment[item.slot];
+        if (!current) {
+          state.equipment[item.slot] = item;
+          return true;
+        }
+        if (getGradeInfoByKey(item.grade).value > getGradeInfoByKey(current.grade).value) {
+          state.equipment[item.slot] = item;
+          return true;
+        }
+        return false;
+      }
+
+      function updateBattleUI(data) {
+        els.battleArea.style.display = 'block';
+        els.battleHeroName.textContent = state.heroName;
+        els.battleHeroMeta.textContent = `${state.heroClass} / ${data.tactic} / ${data.soldierClass} / 병사 ${data.soldierCount} / 속도 ${data.heroSpeed} / 치명 ${data.heroCrit}%`;
+        els.battleEnemyName.textContent = `${data.enemy.grade} ${data.enemy.name}`;
+        els.battleEnemyMeta.textContent = `공격 ${data.enemy.atk} / 방어 ${data.enemy.def} / 체력 ${data.enemy.hp} / 속도 ${data.enemy.speed} / 치명 ${data.enemy.crit}%`;
+        els.battleHeroIcon.textContent = getHeroVisual(state.heroClass);
+        els.battleEnemyIcon.textContent = getEnemyVisual(data.enemy.name);
+        renderBattleFormation(els.battleHeroFormation, 'hero', state.heroClass, data.soldierClass, data.soldierCount);
+        renderBattleFormation(els.battleEnemyFormation, 'enemy', null, null, 0, data.enemy.name, data.enemy.amount);
+        els.heroHpBar.style.width = `${(data.heroHp / data.heroMax) * 100}%`;
+        els.enemyHpBar.style.width = `${(data.enemyHp / data.enemyMax) * 100}%`;
+        els.heroHpText.textContent = `HP ${data.heroHp} / ${data.heroMax}`;
+        els.enemyHpText.textContent = `HP ${data.enemyHp} / ${data.enemyMax}`;
+        els.battleLog.innerHTML = data.logs.join('<br>');
+      }
+
+      function applyCooldown(barcode, grade) {
+        state.cooldowns[barcode] = Date.now() + (cooldownHoursByGrade[grade] || 6) * 60 * 60 * 1000;
+      }
+
+      function isOnCooldown(barcode) {
+        return Boolean(state.cooldowns[barcode] && Date.now() < state.cooldowns[barcode]);
+      }
+
+      function cooldownRemainText(barcode) {
+        const until = state.cooldowns[barcode];
+        if (!until) return '';
+        const ms = until - Date.now();
+        if (ms <= 0) return '사용 가능';
+        const totalMin = Math.ceil(ms / 60000);
+        return `${Math.floor(totalMin / 60)}시간 ${totalMin % 60}분`;
+      }
+
+      function addLog(title, detail, code) {
+        state.logs.unshift({ time: new Date().toLocaleString('ko-KR'), title, detail, code });
+        state.logs = state.logs.slice(0, 50);
+        renderLogs();
+      }
+
+      function renderLogs() {
+        els.exploreLog.innerHTML = state.logs.length
+          ? state.logs.map(item => `<div class="list-item"><div class="muted">${item.time}</div><div><b>${item.title}</b> <span class="pill">${item.code}</span></div><div class="muted" style="margin-top:6px;">${item.detail}</div></div>`).join('')
+          : '<div class="empty-box">아직 탐험 기록이 없습니다.</div>';
+      }
+
+      function renderCooldowns() {
+        const entries = Object.entries(state.cooldowns)
+          .filter(([, until]) => until > Date.now())
+          .sort((a, b) => a[1] - b[1]);
+
+        els.cooldownList.innerHTML = entries.length
+          ? entries.map(([barcode]) => `<div class="list-item"><div><b>${barcode}</b></div><div class="muted" style="margin-top:6px;">남은 시간: ${cooldownRemainText(barcode)}</div></div>`).join('')
+          : '<div class="empty-box">현재 재사용 대기 중인 바코드가 없습니다.</div>';
       }
 
       function formatHeroTopTitle(stats) {
         return `${state.heroName} (${state.heroClass}-${stats.rank}) Lv ${state.level}`;
       }
 
-      function renderHeroFormation(heroClass, soldierClass, soldierCount) {
-        els.heroSpriteWrap.innerHTML = getHeroSprite(heroClass);
-        els.soldierFront.innerHTML = Array.from({ length: soldierCount }, () => getSoldierSprite(soldierClass)).join('');
+      function renderEquipmentPreview() {
+        const weapon = state.equipment.weapon;
+        const armor = state.equipment.armor;
+        const accessory = state.equipment.accessory;
+        const auraKey = getHighestEquipGradeKey();
+
+        applyAuraClass(els.heroAvatar, auraKey);
+        applyAuraClass(els.heroEquipPreview, auraKey);
+
+        const setSlot = (el, iconEl, item, emptyIcon, gradeKey) => {
+          el.classList.remove('grade-common', 'grade-uncommon', 'grade-rare', 'grade-epic', 'grade-legend');
+          el.classList.add(`grade-${gradeKey}`);
+          iconEl.textContent = item ? item.icon : emptyIcon;
+        };
+
+        setSlot(els.equipWeaponSlot, els.equipWeaponIcon, weapon, '⚔️', weapon ? weapon.grade : 'common');
+        setSlot(els.equipArmorSlot, els.equipArmorIcon, armor, '🛡️', armor ? armor.grade : 'common');
+        setSlot(els.equipAccessorySlot, els.equipAccessoryIcon, accessory, '💍', accessory ? accessory.grade : 'common');
+      }
+
+      function renderInventory() {
+        els.inventoryGrid.innerHTML = state.inventory.length
+          ? state.inventory.map(item => `
+              <div class="inventory-item grade-${item.grade}">
+                <div class="inv-icon">${item.icon}</div>
+                <div class="inv-name">${item.name}</div>
+                <div class="inv-grade">${item.gradeName}</div>
+              </div>
+            `).join('')
+          : `<div class="empty-box" style="grid-column:1 / -1;">아직 획득한 장비가 없습니다.</div>`;
       }
 
       function renderHero() {
@@ -1708,8 +1751,12 @@
         els.heroGoldTop.textContent = state.gold;
         els.heroExpBarText.textContent = `${state.exp} / ${expNeed}`;
         els.heroExpFill.style.width = `${expRate}%`;
+        els.tacticBadge.textContent = `전술: ${els.eventTacticSelect.value}`;
+        els.soldierBadge.textContent = `병사 클래스: ${els.eventSoldierClassSelect.value}`;
         els.heroTitleBtn.textContent = formatHeroTopTitle(stats);
+
         renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
+        renderEquipmentPreview();
       }
 
       function openHeroStatsModal() {
@@ -1721,6 +1768,9 @@
         els.heroStatsSpeed.textContent = stats.speed;
         els.heroStatsCrit.textContent = `${stats.crit}%`;
         els.heroStatsSoldiers.textContent = `${stats.soldiers}명`;
+        els.heroStatsSprite.innerHTML = getHeroSprite(state.heroClass);
+        renderEquipmentPreview();
+        renderInventory();
         openModal(els.heroStatsBackdrop);
       }
 
@@ -1737,44 +1787,14 @@
           `5번째 자리 <b>${decoded.d5}</b> = ${decoded.special}`;
       }
 
-      function addLog(title, detail, code) {
-        state.logs.unshift({ time: new Date().toLocaleString('ko-KR'), title, detail, code });
-        state.logs = state.logs.slice(0, 50);
-        renderLogs();
-      }
-
-      function renderLogs() {
-        els.exploreLog.innerHTML = state.logs.length
-          ? state.logs.map(item => `<div class="list-item" style="cursor:default;"><div class="muted">${item.time}</div><div><b>${item.title}</b></div><div class="muted" style="margin-top:6px;">${item.detail}</div></div>`).join('')
-          : '<div class="empty-box">아직 탐험 기록이 없습니다.</div>';
-      }
-
-      async function reverseGeocode(lat, lng) {
-        try {
-          const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
-          const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-          if (!res.ok) throw new Error('reverse geocode failed');
-          const data = await res.json();
-          return data.display_name || '주소 확인 불가';
-        } catch {
-          return '주소 확인 불가';
-        }
-      }
-
-      function shortAddress(fullAddress) {
-        if (!fullAddress || fullAddress === '주소 확인 불가') return fullAddress || '-';
-        const parts = fullAddress.split(',').map(v => v.trim()).filter(Boolean);
-        return parts.slice(0, 3).join(', ');
-      }
-
-      function saveMapHistory() {
-        localStorage.setItem('scanhero_map_history', JSON.stringify(state.mapHistory.map(({ __marker, ...rest }) => rest)));
-      }
-
       function sanitizeHistory(history) {
         return Array.isArray(history)
           ? history.filter(item => item && typeof item.lat === 'number' && typeof item.lng === 'number' && typeof item.id === 'string')
           : [];
+      }
+
+      function saveMapHistory() {
+        localStorage.setItem('scanhero_map_history', JSON.stringify(state.mapHistory.map(({ __marker, ...rest }) => rest)));
       }
 
       function loadMapHistory() {
@@ -1787,11 +1807,7 @@
         }
       }
 
-      async function addMapHistory({ barcode, decoded, detail, exp, gold }) {
-        const lat = state.currentLocation.lat;
-        const lng = state.currentLocation.lng;
-        const address = await reverseGeocode(lat, lng);
-
+      function addMapHistory({ barcode, decoded, detail, exp, gold }) {
         state.mapHistory.unshift({
           id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
           barcode,
@@ -1802,34 +1818,32 @@
           exp,
           gold,
           icon: markerIcons[decoded.eventType] || '📍',
-          lat,
-          lng,
-          address,
+          lat: state.currentLocation.lat,
+          lng: state.currentLocation.lng,
           time: new Date().toLocaleString('ko-KR')
         });
-
         state.mapHistory = state.mapHistory.slice(0, 100);
         saveMapHistory();
-        renderMapHistoryList();
-        renderMapMarkers();
       }
 
       function makeInfoWindowHtml(item) {
-        return `
-          <div style="min-width:180px; max-width:220px; color:#111827; font-size:12px; line-height:1.5;">
-            <div style="font-weight:900; font-size:13px; margin-bottom:6px;">${item.icon} ${item.title}</div>
-            <div style="color:#374151; margin-bottom:4px;">${item.detail}</div>
-            <div style="font-size:11px; color:#6b7280;">📍 ${shortAddress(item.address || '')}</div>
-          </div>
-        `;
+        return `<div style="max-width:260px; color:#111827; line-height:1.55; font-size:13px;">
+          <div style="font-weight:800; margin-bottom:6px;">${item.icon} ${item.title}</div>
+          <div>시간: ${item.time}</div>
+          <div>바코드: ${item.barcode}</div>
+          <div>생성 코드: ${item.code}</div>
+          <div>결과: ${item.detail}</div>
+        </div>`;
       }
 
       function focusMapHistory(item) {
         els.mapSelectionInfo.innerHTML =
           `<b>${item.icon} ${item.title}</b><br>` +
-          `${item.detail}<br>` +
-          `주소: ${shortAddress(item.address || '주소 확인 불가')}<br>` +
-          `위치: ${item.lat.toFixed(1)}, ${item.lng.toFixed(1)}`;
+          `시간: ${item.time}<br>` +
+          `바코드: ${item.barcode}<br>` +
+          `생성 코드: ${item.code}<br>` +
+          `결과: ${item.detail}<br>` +
+          `위치: ${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}`;
 
         if (state.map) state.map.setView([item.lat, item.lng], 18);
         if (item.__marker) {
@@ -1837,7 +1851,6 @@
           item.__marker.openPopup();
         }
         closeModal(els.mapHistoryBackdrop);
-        openModal(els.mapBackdrop);
       }
 
       function renderMapHistoryList() {
@@ -1845,8 +1858,9 @@
           ? state.mapHistory.map(item =>
               `<div class="list-item" data-id="${item.id}">
                 <div><b>${item.icon} ${item.title}</b></div>
-                <div class="muted" style="margin-top:4px;">${item.detail}</div>
-                <div class="muted" style="margin-top:4px;">${shortAddress(item.address || '')}</div>
+                <div class="muted">${item.time}</div>
+                <div class="muted">바코드: ${item.barcode}</div>
+                <div class="muted">위치: ${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}</div>
               </div>`
             ).join('')
           : '<div class="empty-box">아직 지도에 기록된 탐험 위치가 없습니다.</div>';
@@ -1864,24 +1878,17 @@
           document.getElementById('map').innerHTML = '<div style="padding:18px; color:#cdd7f2; line-height:1.6;">Leaflet 지도를 불러오지 못했습니다.</div>';
           return;
         }
-
         state.map = L.map('map', { center: [37.5665, 126.9780], zoom: 18, zoomControl: true });
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
           attribution: '&copy; OpenStreetMap contributors'
         }).addTo(state.map);
-
         renderMapMarkers();
         if (state.currentLocation) updateCurrentLocationMarker();
-
-        setTimeout(() => {
-          state.map.invalidateSize();
-        }, 200);
       }
 
       function renderMapMarkers() {
         if (!state.map || typeof L === 'undefined') return;
-
         state.markers.forEach(marker => state.map.removeLayer(marker));
         state.markers = [];
 
@@ -1901,8 +1908,8 @@
         const icon = L.divIcon({
           className: '',
           html: '<div class="mini-current-marker">🧙</div>',
-          iconSize: [28, 28],
-          iconAnchor: [14, 14]
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
         });
 
         state.currentLocationMarker = L.marker([state.currentLocation.lat, state.currentLocation.lng], { icon })
@@ -1917,20 +1924,11 @@
           els.locationStatus.textContent = '이 브라우저는 위치 정보를 지원하지 않습니다.';
           return;
         }
-
         els.locationStatus.textContent = '현재 위치를 확인 중입니다...';
         navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            const address = await reverseGeocode(lat, lng);
-
-            state.currentLocation = { lat, lng, address };
-            els.locationStatus.innerHTML =
-              `현재 위치 확인 완료<br>` +
-              `주소: ${shortAddress(address)}<br>` +
-              `위치: ${lat.toFixed(1)}, ${lng.toFixed(1)}`;
-
+          (position) => {
+            state.currentLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+            els.locationStatus.innerHTML = `현재 위치 확인 완료<br>위도: ${state.currentLocation.lat.toFixed(6)} / 경도: ${state.currentLocation.lng.toFixed(6)}`;
             if (state.map) updateCurrentLocationMarker();
           },
           (error) => {
@@ -1953,8 +1951,10 @@
         els.eventModalBadges.innerHTML = (decoded.badges || []).map(b => `<div class="badge">${b}</div>`).join('');
 
         if (decoded.eventType === '몬스터') {
-          els.eventModalActions.innerHTML = `<button class="modal-primary" id="eventPrimaryBtn">전투 준비 완료</button>`;
+          els.eventModalBattleSetup.style.display = 'block';
+          els.eventModalActions.innerHTML = `<button class="modal-primary" id="eventPrimaryBtn">전투 시작</button>`;
         } else {
+          els.eventModalBattleSetup.style.display = 'none';
           els.eventModalActions.innerHTML = `<button class="modal-primary" id="eventPrimaryBtn">결과 보기</button>`;
         }
 
@@ -1967,406 +1967,60 @@
         closeModal(els.eventModalBackdrop);
       }
 
-      function getBattleSetup(enemy) {
-        const heroStats = getHeroBaseStats();
-        const tactic = els.eventTacticSelect.value;
-        const soldierClass = els.eventSoldierClassSelect.value;
-        const tacticMod = getTacticMod(tactic);
-        const soldierMod = getSoldierClassMod(soldierClass);
-        const soldierCount = heroStats.soldiers;
-
-        const heroAtk = Math.round(heroStats.atk * tacticMod.atk * soldierMod.atk + soldierCount * 2);
-        const heroDef = Math.round(heroStats.def * tacticMod.def * soldierMod.def + soldierCount * 2);
-        const heroMax = Math.round(heroStats.hp * tacticMod.hp * soldierMod.hp + soldierCount * 10);
-        const heroSpeed = Math.round(heroStats.speed * tacticMod.speed * soldierMod.speed);
-        const heroCrit = Math.round(heroStats.crit * tacticMod.crit * soldierMod.crit);
-
-        return {
-          tactic,
-          soldierClass,
-          soldierCount,
-          heroAtk,
-          heroDef,
-          heroMax,
-          heroSpeed,
-          heroCrit,
-          enemy
-        };
-      }
-
-      function resetBattleAnimations() {
-        [els.battleHeroUnit, els.battleEnemyUnit, els.battleHeroSpriteWrap, els.battleEnemyEmoji, els.battleSoldierGroup].forEach(el => {
-          if (!el) return;
-          el.classList.remove('anim-attack-left', 'anim-attack-right', 'anim-hit', 'anim-run', 'anim-fade');
-          void el.offsetWidth;
-        });
-        document.querySelectorAll('.battle-soldier').forEach(el => {
-          el.classList.remove('anim-attack-left', 'anim-hit', 'anim-run');
-          void el.offsetWidth;
-        });
-      }
-
-      function updateBattleModalUI(title, log) {
-        const b = state.battle;
-        if (!b) return;
-
-        els.battleTurnTitle.textContent = title;
-        els.battleLog.textContent = log;
-        els.battleHeroHpText.textContent = `HP ${Math.max(0, b.heroHp)} / ${b.heroMax}`;
-        els.battleEnemyHpText.textContent = `HP ${Math.max(0, b.enemyHp)} / ${b.enemyMax}`;
-        els.heroHpBar.style.width = `${Math.max(0, (b.heroHp / b.heroMax) * 100)}%`;
-        els.enemyHpBar.style.width = `${Math.max(0, (b.enemyHp / b.enemyMax) * 100)}%`;
-      }
-
-      function calcPartialExpFromDamage(totalDamage, enemyMaxHp, enemy) {
-        const fullExp = getBattleExp(enemy);
-        const ratio = Math.max(0, Math.min(1, totalDamage / enemyMaxHp));
-        return Math.max(1, Math.floor(fullExp * ratio));
-      }
-
-      function decodedSafeTitle(decoded) {
-        return decoded?.title || '전투';
-      }
-
-      function renderBattleHeroSprite() {
-        els.battleHeroSpriteWrap.innerHTML = `<div class="battle-hero-sprite">${getHeroSprite(state.heroClass)}</div>`;
-      }
-
-      function renderBattleSoldiers(count, soldierClass) {
-        els.battleSoldierGroup.innerHTML = Array.from({ length: count }, () => getSoldierSprite(soldierClass, 'battle')).join('');
-      }
-
-      function openBattleModal(decoded) {
-        const setup = getBattleSetup(decoded.enemy);
-
-        state.battle = {
-          decoded,
-          setup,
-          heroHp: setup.heroMax,
-          heroMax: setup.heroMax,
-          enemyHp: setup.enemy.hp,
-          enemyMax: setup.enemy.hp,
-          turn: 1,
-          totalDamageToEnemy: 0,
-          ended: false,
-          locked: false
-        };
-
-        renderBattleHeroSprite();
-        renderBattleSoldiers(setup.soldierCount, setup.soldierClass);
-        els.battleEnemyEmoji.textContent = getEnemyVisual(setup.enemy.name);
-        els.battleHeroName.textContent = state.heroName;
-        els.battleEnemyName.textContent = `${setup.enemy.grade} ${setup.enemy.name}`;
-        els.battleHeroMeta.textContent = `${state.heroClass} / ${setup.tactic} / ${setup.soldierClass} / 병사 ${setup.soldierCount}`;
-        els.battleEnemyMeta.textContent = `공격 ${setup.enemy.atk} / 방어 ${setup.enemy.def}`;
-
-        els.battleResultBox.style.display = 'none';
-        els.battleResultBox.className = '';
-        els.battleActions.className = 'modal-actions two';
-        els.battleActions.innerHTML = `
-          <button class="modal-primary" id="battleAttackBtn">공격</button>
-          <button class="modal-danger" id="battleRunBtn">도망</button>
-        `;
-        bindBattleActionButtons();
-        updateBattleModalUI('전투 시작', `${setup.enemy.grade} ${setup.enemy.name}이(가) 나타났습니다.\n공격 또는 도망을 선택하세요.`);
-        openModal(els.battleBackdrop);
-      }
-
-      async function endBattleAndShowResult({ title, desc, exp = 0, gold = 0, resultType = 'success', logTitle = '', logDetail = '' }) {
-        const decoded = state.battle.decoded;
-        const leveled = addReward(exp, gold);
-
-        if (logTitle) {
-          addLog(logTitle, `${logDetail}${leveled ? ' / 레벨업!' : ''}`, decoded.code);
-        }
-
-        await addMapHistory({
-          barcode: onlyDigits(els.barcodeInput.value),
-          decoded,
-          detail: logDetail || desc,
-          exp,
-          gold
-        });
-
-        renderHero();
-        renderLogs();
-
-        if (leveled) {
-          els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
-        }
-
-        els.battleActions.className = 'modal-actions center-single';
-        els.battleActions.innerHTML = `<button class="modal-primary" id="battleCloseBtn">확인</button>`;
-        document.getElementById('battleCloseBtn').addEventListener('click', () => {
-          closeModal(els.battleBackdrop);
-          state.battle = null;
-        });
-
-        els.battleResultBox.style.display = 'block';
-        els.battleResultBox.className = resultType === 'fail' ? 'battle-result-box fail' : 'battle-result-box';
-        els.battleResultBox.innerHTML = `<b>${title}</b><br>${desc}`;
-      }
-
-      async function animateHeroAttackAndEnemyHit() {
-        resetBattleAnimations();
-        els.battleHeroUnit.classList.add('anim-attack-left');
-        els.battleSoldierGroup.classList.add('anim-attack-left');
-        await wait(180);
-        els.battleEnemyUnit.classList.add('anim-hit');
-        els.battleEnemyEmoji.classList.add('anim-fade');
-        await wait(280);
-        resetBattleAnimations();
-      }
-
-      async function animateEnemyAttackAndHeroHit() {
-        resetBattleAnimations();
-        els.battleEnemyUnit.classList.add('anim-attack-right');
-        await wait(180);
-        els.battleHeroUnit.classList.add('anim-hit');
-        els.battleHeroSpriteWrap.classList.add('anim-fade');
-        els.battleSoldierGroup.classList.add('anim-hit');
-        await wait(280);
-        resetBattleAnimations();
-      }
-
-      async function animateRunAway() {
-        resetBattleAnimations();
-        els.battleTurnTitle.textContent = '도망 시도';
-        els.battleLog.textContent = '영웅과 병사들이 전열을 무너뜨리며 급히 후퇴합니다...';
-        els.battleHeroUnit.classList.add('anim-run');
-        els.battleSoldierGroup.classList.add('anim-run');
-        await wait(780);
-        resetBattleAnimations();
-      }
-
-      async function battleAttackTurn() {
-        const b = state.battle;
-        if (!b || b.ended || b.locked) return;
-        b.locked = true;
-
-        const enemy = b.setup.enemy;
-        const heroFirst = b.setup.heroSpeed >= enemy.speed;
-        const lines = [];
-        const currentTurn = b.turn;
-
-        async function heroAttack() {
-          const dmg = calcDamage(b.setup.heroAtk, enemy.def, b.setup.heroCrit);
-          await animateHeroAttackAndEnemyHit();
-          b.enemyHp -= dmg.value;
-          b.totalDamageToEnemy += dmg.value;
-          lines.push(`${currentTurn}턴 - 영웅 부대가 ${enemy.name}에게 ${dmg.value} 피해${dmg.critical ? ' (치명타)' : ''}를 입혔습니다.`);
-          updateBattleModalUI(`${currentTurn}턴 진행 중`, lines.join('\n'));
-        }
-
-        async function enemyAttack() {
-          const dmg = calcDamage(enemy.atk, b.setup.heroDef, enemy.crit);
-          await animateEnemyAttackAndHeroHit();
-          b.heroHp -= dmg.value;
-          lines.push(`${currentTurn}턴 - ${enemy.name}이(가) 영웅 부대에 ${dmg.value} 피해${dmg.critical ? ' (치명타)' : ''}를 입혔습니다.`);
-          updateBattleModalUI(`${currentTurn}턴 진행 중`, lines.join('\n'));
-        }
-
-        if (heroFirst) {
-          await heroAttack();
-          if (b.enemyHp > 0) await enemyAttack();
-        } else {
-          await enemyAttack();
-          if (b.heroHp > 0) await heroAttack();
-        }
-
-        if (b.enemyHp <= 0) {
-          b.ended = true;
-          const exp = getBattleExp(enemy);
-          const gold = getBattleGold(enemy);
-          updateBattleModalUI(`${currentTurn}턴 종료`, lines.join('\n'));
-          await endBattleAndShowResult({
-            title: '승리',
-            desc: `전투에서 승리했습니다.<br>경험치 ${exp}, 골드 ${gold} 획득`,
-            exp,
-            gold,
-            resultType: 'success',
-            logTitle: decodedSafeTitle(b.decoded),
-            logDetail: `${b.decoded.title} / 승리 / 경험치 ${exp} / 골드 ${gold}`
-          });
-          b.locked = false;
-          return;
-        }
-
-        if (b.heroHp <= 0) {
-          b.ended = true;
-          const exp = calcPartialExpFromDamage(b.totalDamageToEnemy, b.enemyMax, enemy);
-          updateBattleModalUI(`${currentTurn}턴 종료`, lines.join('\n'));
-          await endBattleAndShowResult({
-            title: '패배',
-            desc: `전투에서 패배했습니다.<br>경험치 ${exp} 획득`,
-            exp,
-            gold: 0,
-            resultType: 'fail',
-            logTitle: decodedSafeTitle(b.decoded),
-            logDetail: `${b.decoded.title} / 패배 / 경험치 ${exp}`
-          });
-          b.locked = false;
-          return;
-        }
-
-        updateBattleModalUI(`${currentTurn}턴 종료`, lines.join('\n'));
-        b.turn += 1;
-        b.locked = false;
-      }
-
-      async function battleRunAway() {
-        const b = state.battle;
-        if (!b || b.ended || b.locked) return;
-        b.locked = true;
-        b.ended = true;
-
-        const enemy = b.setup.enemy;
-        await animateRunAway();
-
-        const exp = calcPartialExpFromDamage(b.totalDamageToEnemy, b.enemyMax, enemy);
-        let lostGold = 0;
-        let lostText = '다행히 골드는 지켜냈습니다.';
-        const loseGold = Math.random() < 0.5;
-
-        if (loseGold && state.gold > 0) {
-          const maxLoss = Math.max(1, Math.floor(state.gold * 0.05));
-          const enemyFactor = Math.max(1, Math.floor(enemy.hp / 10));
-          lostGold = Math.min(state.gold, Math.max(1, Math.floor(Math.random() * Math.min(maxLoss, enemyFactor)) + 1));
-          lostText = `혼란 속에서 골드 ${lostGold}를 잃었습니다.`;
-        }
-
-        updateBattleModalUI(`${b.turn}턴 종료`, `영웅 부대가 아슬아슬하게 전장에서 이탈했습니다.\n${lostText}`);
-
-        await endBattleAndShowResult({
-          title: '도망 성공',
-          desc: `전투에서 이탈했습니다.<br>경험치 ${exp} 획득<br>${lostText}`,
-          exp,
-          gold: -lostGold,
-          resultType: 'fail',
-          logTitle: decodedSafeTitle(b.decoded),
-          logDetail: `${b.decoded.title} / 도망 / 경험치 ${exp}${lostGold ? ` / 골드 -${lostGold}` : ''}`
-        });
-
-        b.locked = false;
-      }
-
-      function bindBattleActionButtons() {
-        const attackBtn = document.getElementById('battleAttackBtn');
-        const runBtn = document.getElementById('battleRunBtn');
-
-        if (attackBtn) attackBtn.addEventListener('click', battleAttackTurn);
-        if (runBtn) runBtn.addEventListener('click', battleRunAway);
-      }
-
       function handleEventConfirm() {
         const decoded = state.pendingDecoded;
         if (!decoded) return;
-
         closeEventModal();
-
-        if (decoded.eventType === '몬스터') {
-          renderEvent(decoded);
-          openBattleModal(decoded);
-        } else {
-          processNonBattleResult(decoded);
-        }
+        processEventResult(decoded);
       }
 
-      async function processNonBattleResult(decoded) {
-        els.codeOutput.textContent = decoded.code;
-        els.eventTitle.textContent = decoded.title;
-        els.eventDesc.textContent = decoded.desc;
-        els.eventBadges.innerHTML = decoded.badges.map(b => `<div class="badge">${b}</div>`).join('');
+      function processEventResult(decoded) {
+        let finalDetail = decoded.desc;
+        let leveled = false;
+        let rewardExp = 0;
+        let rewardGold = 0;
+        let equipText = '';
 
-        const reward = decoded.reward || { exp: 5, gold: 0 };
-        const leveled = addReward(reward.exp, reward.gold);
-        const detail = `${decoded.title} / 경험치 ${reward.exp}${reward.gold ? ` / 골드 ${reward.gold}` : ''}`;
+        if (decoded.eventType === '몬스터') {
+          const battleResult = runBattle(decoded.enemy);
+          rewardExp = battleResult.exp;
+          rewardGold = battleResult.gold;
+          leveled = addReward(rewardExp, rewardGold);
+          finalDetail = `${decoded.title} / ${battleResult.win ? '승리' : '패배'} / 경험치 ${rewardExp}${rewardGold ? ` / 골드 ${rewardGold}` : ''}`;
+        } else {
+          els.battleArea.style.display = 'none';
+          const reward = decoded.reward || { exp: 5, gold: 0 };
+          rewardExp = reward.exp;
+          rewardGold = reward.gold;
 
-        addLog(decoded.title, `${detail}${leveled ? ' / 레벨업!' : ''}`, decoded.code);
-        await addMapHistory({
+          if (decoded.item) {
+            addItemToInventory(decoded.item);
+            const equipped = tryAutoEquip(decoded.item);
+            equipText = equipped ? ` / 자동장착: ${decoded.item.name}` : ` / 인벤토리 저장: ${decoded.item.name}`;
+          }
+
+          leveled = addReward(rewardExp, rewardGold);
+          finalDetail = `${decoded.title} / 경험치 ${rewardExp}${rewardGold ? ` / 골드 ${rewardGold}` : ''}${equipText}`;
+        }
+
+        applyCooldown(onlyDigits(els.barcodeInput.value), decoded.grade);
+        addLog(decoded.title, `${finalDetail}${leveled ? ' / 레벨업!' : ''}`, decoded.code);
+        addMapHistory({
           barcode: onlyDigits(els.barcodeInput.value),
           decoded,
-          detail,
-          exp: reward.exp,
-          gold: reward.gold
+          detail: finalDetail,
+          exp: rewardExp,
+          gold: rewardGold
         });
 
         renderHero();
+        renderCooldowns();
         renderLogs();
+        renderMapHistoryList();
+        renderMapMarkers();
+        renderInventory();
 
         if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
-      }
-
-      async function stopCameraScanner() {
-        try {
-          if (state.html5QrCode && state.scannerRunning) {
-            await state.html5QrCode.stop();
-            await state.html5QrCode.clear();
-          } else if (state.html5QrCode) {
-            await state.html5QrCode.clear();
-          }
-        } catch (e) {
-          console.warn('scanner stop error', e);
-        } finally {
-          state.scannerRunning = false;
-          const scannerEl = document.getElementById('scanner');
-          if (scannerEl) scannerEl.innerHTML = '';
-        }
-      }
-
-      async function startCameraScanner() {
-        if (typeof Html5Qrcode === 'undefined') {
-          els.scanStatusText.textContent = '스캐너 라이브러리를 불러오지 못했습니다. 숫자를 직접 입력해 주세요.';
-          return;
-        }
-
-        await stopCameraScanner();
-
-        state.html5QrCode = new Html5Qrcode('scanner');
-        els.scanStatusText.textContent = '카메라를 준비 중입니다...';
-
-        const formats = [
-          Html5QrcodeSupportedFormats.EAN_13,
-          Html5QrcodeSupportedFormats.EAN_8,
-          Html5QrcodeSupportedFormats.CODE_128,
-          Html5QrcodeSupportedFormats.CODE_39,
-          Html5QrcodeSupportedFormats.UPC_A,
-          Html5QrcodeSupportedFormats.UPC_E,
-          Html5QrcodeSupportedFormats.ITF
-        ];
-
-        try {
-          await state.html5QrCode.start(
-            { facingMode: 'environment' },
-            {
-              fps: 10,
-              qrbox: { width: 240, height: 120 },
-              aspectRatio: 1.7778,
-              formatsToSupport: formats
-            },
-            async (decodedText) => {
-              const barcode = onlyDigits(decodedText);
-              if (!barcode) return;
-
-              els.barcodeInput.value = barcode;
-              els.scanStatusText.textContent = `인식 성공: ${barcode}`;
-
-              await stopCameraScanner();
-              closeModal(els.scanModalBackdrop);
-              handleScan();
-            },
-            () => {
-              // 스캔 중 반복 오류는 표시하지 않음
-            }
-          );
-
-          state.scannerRunning = true;
-          els.scanStatusText.textContent = '바코드를 화면 중앙에 맞추거나 아래에 숫자를 직접 입력해 주세요.';
-        } catch (err) {
-          console.error(err);
-          els.scanStatusText.textContent =
-            '카메라 실행에 실패했습니다. 아래 입력칸에 바코드 숫자를 직접 입력해 주세요.';
-        }
       }
 
       function handleScan() {
@@ -2374,11 +2028,16 @@
         const barcode = onlyDigits(els.barcodeInput.value);
 
         if (!barcode) {
-          alert('바코드 숫자를 입력하거나 카메라로 스캔해 주세요.');
+          alert('숫자형 바코드를 입력해 주세요.');
           return;
         }
         if (!state.currentLocation) {
           alert('현재 위치 확인 후 다시 시도해 주세요.');
+          return;
+        }
+        if (isOnCooldown(barcode)) {
+          alert(`이 바코드는 아직 재사용 대기 중입니다.\n남은 시간: ${cooldownRemainText(barcode)}`);
+          renderCooldowns();
           return;
         }
 
@@ -2398,31 +2057,16 @@
         requestCurrentLocation();
       }
 
-      els.scanFab.addEventListener('click', async () => {
-        els.scanStatusText.textContent = '카메라 스캔 또는 바코드 숫자 직접 입력을 사용할 수 있습니다.';
-        els.barcodeInput.value = '';
-        openModal(els.scanModalBackdrop);
-        await startCameraScanner();
-      });
+      els.scanFab.addEventListener('click', () => openModal(els.scanModalBackdrop));
+      els.scanModalCloseBtn.addEventListener('click', () => closeModal(els.scanModalBackdrop));
+      els.scanStartBtn.addEventListener('click', handleScan);
 
-      els.scanModalCloseBtn.addEventListener('click', async () => {
-        await stopCameraScanner();
-        closeModal(els.scanModalBackdrop);
+      els.cooldownBtn.addEventListener('click', () => {
+        renderCooldowns();
+        openModal(els.cooldownBackdrop);
       });
+      els.cooldownCloseBtn.addEventListener('click', () => closeModal(els.cooldownBackdrop));
 
-      els.scanStartBtn.addEventListener('click', async () => {
-        await stopCameraScanner();
-        handleScan();
-      });
-
-      els.heroMapBtn.addEventListener('click', () => {
-        openModal(els.mapBackdrop);
-        setTimeout(() => {
-          if (state.map) state.map.invalidateSize();
-        }, 200);
-      });
-
-      els.mapCloseBtn.addEventListener('click', () => closeModal(els.mapBackdrop));
       els.mapHistoryBtn.addEventListener('click', () => {
         renderMapHistoryList();
         openModal(els.mapHistoryBackdrop);
@@ -2441,10 +2085,6 @@
       els.eventTacticSelect.addEventListener('change', renderHero);
       els.eventSoldierClassSelect.addEventListener('change', renderHero);
 
-      els.barcodeInput.addEventListener('input', () => {
-        els.barcodeInput.value = onlyDigits(els.barcodeInput.value);
-      });
-
       els.startGameBtn.addEventListener('click', applyStartHero);
       els.startHeroName.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') applyStartHero();
@@ -2455,33 +2095,26 @@
 
       [
         els.scanModalBackdrop,
-        els.mapBackdrop,
+        els.cooldownBackdrop,
         els.mapHistoryBackdrop,
         els.decodeBackdrop,
         els.exploreLogBackdrop,
         els.heroStatsBackdrop,
-        els.eventModalBackdrop,
-        els.battleBackdrop
+        els.eventModalBackdrop
       ].forEach(backdrop => {
-        backdrop.addEventListener('click', async (e) => {
-          if (e.target === backdrop && backdrop !== els.eventModalBackdrop && backdrop !== els.battleBackdrop) {
-            if (backdrop === els.scanModalBackdrop) {
-              await stopCameraScanner();
-            }
-            closeModal(backdrop);
-          }
+        backdrop.addEventListener('click', (e) => {
+          if (e.target === backdrop && backdrop !== els.eventModalBackdrop) closeModal(backdrop);
         });
       });
 
-      loadMapHistory();
+      initMap();
       renderHero();
       renderLogs();
+      renderCooldowns();
       renderMapHistoryList();
-      initMap();
+      renderInventory();
 
-      console.assert(toFiveCode('8801234567890').length === 5, '5자리 코드 생성 실패');
-      console.assert(onlyDigits('88-01A23') === '880123', '숫자 추출 실패');
-      console.assert(decodeEvent('48279').eventType === '몬스터', '이벤트 해석 실패');
+      setInterval(renderCooldowns, 30000);
     });
   </script>
 </body>
