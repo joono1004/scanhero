@@ -25,9 +25,7 @@
     }
 
     html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+      margin: 0; padding: 0; height: 100%;
       background:
         radial-gradient(circle at top left, rgba(90, 124, 255, 0.18), transparent 28%),
         radial-gradient(circle at top right, rgba(255, 211, 120, 0.12), transparent 22%),
@@ -39,9 +37,7 @@
 
     body::before {
       content: '';
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
+      position: fixed; inset: 0; pointer-events: none;
       background:
         linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
@@ -49,77 +45,29 @@
       mask-image: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.8));
     }
 
-    .wrap {
-      max-width: 430px;
-      margin: 0 auto;
-      padding: 10px 10px 14px;
-      position: relative;
-      z-index: 1;
-      min-height: 100dvh;
-    }
-
-    .title {
-      font-size: 24px;
-      font-weight: 900;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .title::before {
-      content: '⚔️';
-      font-size: 24px;
-    }
+    .wrap { max-width: 430px; margin: 0 auto; padding: 10px 10px 14px; position: relative; z-index: 1; min-height: 100dvh; }
+    .title { font-size: 24px; font-weight: 900; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .title::before { content: '⚔️'; font-size: 24px; }
 
     .subtitle {
-      color: var(--muted);
-      margin-bottom: 10px;
-      line-height: 1.45;
-      background: rgba(18, 26, 48, 0.58);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 9px 10px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      font-size: 11px;
+      color: var(--muted); margin-bottom: 10px; line-height: 1.45;
+      background: rgba(18, 26, 48, 0.58); border: 1px solid var(--line); border-radius: 14px;
+      padding: 9px 10px; box-shadow: var(--shadow); backdrop-filter: blur(14px); font-size: 11px;
     }
 
-    .grid, .event-box {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
+    .grid, .event-box { display: grid; grid-template-columns: 1fr; gap: 10px; }
 
     .card {
       background: linear-gradient(180deg, rgba(23, 32, 57, 0.92) 0%, rgba(17, 24, 43, 0.94) 100%);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 12px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      position: relative;
-      overflow: hidden;
+      border: 1px solid var(--line); border-radius: 18px; padding: 12px;
+      box-shadow: var(--shadow); backdrop-filter: blur(14px); position: relative; overflow: hidden;
     }
-
     .card::before {
-      content: '';
-      position: absolute;
-      inset: 0 0 auto 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
-      opacity: 0.65;
+      content: ''; position: absolute; inset: 0 0 auto 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent); opacity: 0.65;
     }
 
-    .section-title {
-      font-size: 15px;
-      font-weight: 900;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-
+    .section-title { font-size: 15px; font-weight: 900; margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
     .hero-panel { display: grid; gap: 10px; }
 
     .hero-avatar {
@@ -129,208 +77,79 @@
         linear-gradient(180deg, rgba(88,118,212,0.95), rgba(39,57,102,0.95));
       border: 1px solid rgba(163,188,255,0.28);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 16px 28px rgba(0,0,0,0.25);
-      min-height: 292px;
-      position: relative;
-      overflow: hidden;
-      padding-top: 48px;
+      min-height: 292px; position: relative; overflow: hidden; padding-top: 48px;
     }
-
     .hero-avatar::after {
-      content: '';
-      position: absolute;
-      inset: auto -25% -30% -25%;
-      height: 55%;
+      content: ''; position: absolute; inset: auto -25% -30% -25%; height: 55%;
       background: radial-gradient(circle, rgba(245,201,107,0.28), transparent 62%);
     }
 
     .hero-avatar-top {
-      position: absolute;
-      left: 10px;
-      top: 10px;
-      right: 10px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      z-index: 6;
+      position: absolute; left: 10px; top: 10px; right: 10px;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; z-index: 6;
     }
 
     .hero-title-btn {
-      flex: 1;
-      text-align: left;
-      background: rgba(10,15,27,0.62);
-      border: 1px solid rgba(151,175,235,0.18);
-      border-radius: 12px;
-      padding: 7px 10px;
-      color: #eef3ff;
-      font-size: 11px;
-      font-weight: 900;
-      line-height: 1.4;
-      cursor: pointer;
+      flex: 1; text-align: left;
+      background: rgba(10,15,27,0.62); border: 1px solid rgba(151,175,235,0.18);
+      border-radius: 12px; padding: 7px 10px; color: #eef3ff;
+      font-size: 11px; font-weight: 900; line-height: 1.4; cursor: pointer;
       box-shadow: 0 8px 20px rgba(0,0,0,0.18);
     }
 
     .hero-gold-box {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 6px 9px;
-      border-radius: 999px;
-      background: rgba(10,15,27,0.62);
-      border: 1px solid rgba(255,214,120,0.24);
-      color: #fff2bf;
-      font-size: 11px;
-      font-weight: 900;
-      white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px;
+      border-radius: 999px; background: rgba(10,15,27,0.62); border: 1px solid rgba(255,214,120,0.24);
+      color: #fff2bf; font-size: 11px; font-weight: 900; white-space: nowrap;
       box-shadow: 0 8px 20px rgba(0,0,0,0.18);
     }
 
     .formation-stage {
-      position: relative;
-      width: 100%;
-      height: 192px;
-      border-radius: 18px;
-      overflow: hidden;
-      background: radial-gradient(circle at 50% 25%, rgba(255,255,255,0.08), transparent 24%), linear-gradient(180deg, rgba(16,24,43,0.15), rgba(6,10,18,0.24));
+      position: relative; width: 100%; height: 192px; border-radius: 18px; overflow: hidden;
+      background: radial-gradient(circle at 50% 25%, rgba(255,255,255,0.08), transparent 24%),
+        linear-gradient(180deg, rgba(16,24,43,0.15), rgba(6,10,18,0.24));
     }
-
     .formation-ground {
-      position: absolute;
-      left: -10%;
-      right: -10%;
-      bottom: 10px;
-      height: 70px;
-      border-radius: 50%;
+      position: absolute; left: -10%; right: -10%; bottom: 10px; height: 70px; border-radius: 50%;
       background: radial-gradient(circle, rgba(245,201,107,0.20), rgba(55,77,123,0.26) 45%, rgba(7,11,20,0.02) 70%);
       filter: blur(2px);
     }
 
     .hero-unit {
-      position: absolute;
-      left: 56px;
-      bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 2;
+      position: absolute; left: 56px; bottom: 20px;
+      display: flex; flex-direction: column; align-items: center; z-index: 2;
       animation: heroFloat 2.6s ease-in-out infinite;
     }
-
-    .hero-sprite {
-      width: 78px;
-      height: 90px;
-      filter: drop-shadow(0 12px 16px rgba(0,0,0,0.35));
-      position: relative;
-    }
+    .hero-sprite { width: 78px; height: 90px; filter: drop-shadow(0 12px 16px rgba(0,0,0,0.35)); position: relative; }
 
     .hero-visual-wrap {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 84px;
-      min-height: 98px;
+      position: relative; display: inline-flex; align-items: center; justify-content: center;
+      min-width: 84px; min-height: 98px;
     }
-
     .hero-visual-wrap::before {
-      content: '';
-      position: absolute;
-      inset: 6px;
-      border-radius: 50%;
-      opacity: 0;
-      transform: scale(0.85);
-      transition: all .25s ease;
-      z-index: 0;
-      filter: blur(10px);
+      content: ''; position: absolute; inset: 6px; border-radius: 50%;
+      opacity: 0; transform: scale(0.85); transition: all .25s ease; z-index: 0; filter: blur(10px);
     }
-
-    .hero-visual-wrap.aura-common::before {
-      opacity: .35;
-      background: radial-gradient(circle, rgba(169,182,214,.65), transparent 65%);
-    }
-
-    .hero-visual-wrap.aura-uncommon::before {
-      opacity: .45;
-      background: radial-gradient(circle, rgba(99,208,154,.7), transparent 65%);
-    }
-
-    .hero-visual-wrap.aura-rare::before {
-      opacity: .52;
-      background: radial-gradient(circle, rgba(99,168,255,.78), transparent 68%);
-    }
-
-    .hero-visual-wrap.aura-epic::before {
-      opacity: .58;
-      background: radial-gradient(circle, rgba(178,125,255,.82), transparent 68%);
-    }
-
+    .hero-visual-wrap.aura-common::before { opacity: .35; background: radial-gradient(circle, rgba(169,182,214,.65), transparent 65%); }
+    .hero-visual-wrap.aura-uncommon::before { opacity: .45; background: radial-gradient(circle, rgba(99,208,154,.7), transparent 65%); }
+    .hero-visual-wrap.aura-rare::before { opacity: .52; background: radial-gradient(circle, rgba(99,168,255,.78), transparent 68%); }
+    .hero-visual-wrap.aura-epic::before { opacity: .58; background: radial-gradient(circle, rgba(178,125,255,.82), transparent 68%); }
     .hero-visual-wrap.aura-legendary::before {
-      opacity: .68;
-      background: radial-gradient(circle, rgba(255,207,99,.92), transparent 70%);
+      opacity: .68; background: radial-gradient(circle, rgba(255,207,99,.92), transparent 70%);
       animation: pulseGlow 1.8s ease-in-out infinite;
     }
-
     .hero-visual-wrap.aura-legendary::after {
-      content: '✦ ✦';
-      position: absolute;
-      top: 4px;
-      right: -2px;
-      font-size: 11px;
-      color: #ffe39c;
-      text-shadow: 0 0 8px rgba(255, 217, 111, 0.7);
-      animation: sparkleMove 1.6s ease-in-out infinite;
-      z-index: 2;
-      pointer-events: none;
+      content: '✦ ✦'; position: absolute; top: 4px; right: -2px; font-size: 11px;
+      color: #ffe39c; text-shadow: 0 0 8px rgba(255, 217, 111, 0.7);
+      animation: sparkleMove 1.6s ease-in-out infinite; z-index: 2; pointer-events: none;
     }
 
-    @keyframes sparkleMove {
-      0%,100% { transform: translateY(0); opacity: .85; }
-      50% { transform: translateY(-4px); opacity: 1; }
-    }
-
-    .hero-shadow {
-      width: 68px;
-      height: 12px;
-      background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0));
-      margin-top: 4px;
-      border-radius: 50%;
-      animation: shadowPulse 2.6s ease-in-out infinite;
-    }
-
-    .soldier-row {
-      position: absolute;
-      left: 128px;
-      right: 10px;
-      bottom: 14px;
-      display: flex;
-      gap: 3px;
-      align-items: flex-end;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-      z-index: 3;
-    }
-
-    .soldier {
-      width: 26px;
-      height: 34px;
-      position: relative;
-      filter: drop-shadow(0 7px 10px rgba(0,0,0,0.32));
-      animation: soldierBounce 2.2s ease-in-out infinite;
-    }
-
+    .hero-shadow { width: 68px; height: 12px; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 4px; border-radius: 50%; animation: shadowPulse 2.6s ease-in-out infinite; }
+    .soldier-row { position: absolute; left: 128px; right: 10px; bottom: 14px; display: flex; gap: 3px; align-items: flex-end; justify-content: flex-start; flex-wrap: wrap; z-index: 3; }
+    .soldier { width: 26px; height: 34px; position: relative; filter: drop-shadow(0 7px 10px rgba(0,0,0,0.32)); animation: soldierBounce 2.2s ease-in-out infinite; }
     .soldier:nth-child(2n) { animation-delay: .18s; }
     .soldier:nth-child(3n) { animation-delay: .34s; }
-
-    .soldier-small-shadow {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: -4px;
-      width: 22px;
-      height: 7px;
-      background: radial-gradient(circle, rgba(0,0,0,0.32), rgba(0,0,0,0));
-      border-radius: 50%;
-    }
+    .soldier-small-shadow { position: absolute; left: 50%; transform: translateX(-50%); bottom: -4px; width: 22px; height: 7px; background: radial-gradient(circle, rgba(0,0,0,0.32), rgba(0,0,0,0)); border-radius: 50%; }
 
     .class-warrior .hero-body { fill: #7fa3ff; }
     .class-warrior .hero-cloak { fill: #3756a3; }
@@ -342,132 +161,63 @@
     .class-mage .hero-cloak { fill: #6944b7; }
     .class-mage .hero-weapon { fill: #ffd77c; }
 
+    /* 장비 오라 효과 - 무기에 색상 오버라이드 */
+    .weapon-glow-uncommon .hero-weapon { fill: #63d09a !important; filter: drop-shadow(0 0 4px rgba(99,208,154,0.8)); }
+    .weapon-glow-rare .hero-weapon { fill: #63a8ff !important; filter: drop-shadow(0 0 6px rgba(99,168,255,0.9)); }
+    .weapon-glow-epic .hero-weapon { fill: #b27dff !important; filter: drop-shadow(0 0 8px rgba(178,125,255,0.9)); }
+    .weapon-glow-legendary .hero-weapon { fill: #ffcf63 !important; filter: drop-shadow(0 0 12px rgba(255,207,99,1.0)); animation: weaponGoldPulse 1.4s ease-in-out infinite; }
+    .armor-glow-legendary .hero-body, .armor-glow-legendary .hero-cloak { filter: drop-shadow(0 0 8px rgba(255,207,99,0.7)); animation: armorGoldPulse 2s ease-in-out infinite; }
+
+    @keyframes weaponGoldPulse {
+      0%,100% { filter: drop-shadow(0 0 8px rgba(255,207,99,0.9)); }
+      50% { filter: drop-shadow(0 0 18px rgba(255,207,99,1.0)) brightness(1.3); }
+    }
+    @keyframes armorGoldPulse {
+      0%,100% { filter: drop-shadow(0 0 4px rgba(255,207,99,0.5)); }
+      50% { filter: drop-shadow(0 0 12px rgba(255,207,99,0.85)); }
+    }
+
     .soldier-svg .soldier-body { fill: #9db3e8; }
     .soldier-svg .soldier-armor { fill: #3f5d9f; }
     .soldier-svg .soldier-weapon { fill: #d8e4ff; }
 
     .hero-exp-wrap {
-      position: absolute;
-      left: 10px;
-      right: 50px;
-      bottom: 10px;
-      z-index: 5;
-      background: rgba(10,15,27,0.62);
-      border: 1px solid rgba(151,175,235,0.18);
-      border-radius: 12px;
-      padding: 7px 9px 8px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+      position: absolute; left: 10px; right: 50px; bottom: 10px; z-index: 5;
+      background: rgba(10,15,27,0.62); border: 1px solid rgba(151,175,235,0.18);
+      border-radius: 12px; padding: 7px 9px 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.18);
     }
-
-    .hero-exp-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 5px;
-      font-size: 10px;
-      font-weight: 800;
-      color: #d8e4ff;
-    }
-
-    .hero-exp-bar {
-      width: 100%;
-      height: 9px;
-      background: rgba(8, 12, 22, 0.9);
-      border-radius: 999px;
-      border: 1px solid rgba(73, 94, 143, 0.4);
-      overflow: hidden;
-    }
-
-    .hero-exp-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #6ea6ff, #88d8ff);
-      transition: width 0.35s ease;
-      border-radius: 999px;
-    }
+    .hero-exp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; font-size: 10px; font-weight: 800; color: #d8e4ff; }
+    .hero-exp-bar { width: 100%; height: 9px; background: rgba(8, 12, 22, 0.9); border-radius: 999px; border: 1px solid rgba(73, 94, 143, 0.4); overflow: hidden; }
+    .hero-exp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #6ea6ff, #88d8ff); transition: width 0.35s ease; border-radius: 999px; }
 
     .hero-map-btn {
-      position: absolute;
-      right: 10px;
-      bottom: 10px;
-      width: 32px;
-      height: 32px;
-      min-width: 32px;
-      border-radius: 10px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      background: linear-gradient(180deg, rgba(80,101,154,0.95), rgba(45,60,99,0.95));
-      border: 1px solid rgba(140, 170, 255, 0.24);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
-      z-index: 6;
+      position: absolute; right: 10px; bottom: 10px; width: 32px; height: 32px; min-width: 32px;
+      border-radius: 10px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+      font-size: 15px; background: linear-gradient(180deg, rgba(80,101,154,0.95), rgba(45,60,99,0.95));
+      border: 1px solid rgba(140, 170, 255, 0.24); box-shadow: 0 8px 18px rgba(0,0,0,0.18); z-index: 6;
     }
 
     .line { display: grid; gap: 6px; margin-bottom: 10px; }
     label { font-size: 12px; color: #c9d6f6; font-weight: 800; }
 
     input, select, button {
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid rgba(107, 131, 194, 0.3);
-      background: rgba(12, 18, 33, 0.95);
-      color: var(--text);
-      padding: 10px 12px;
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.08s ease;
+      width: 100%; border-radius: 12px; border: 1px solid rgba(107, 131, 194, 0.3);
+      background: rgba(12, 18, 33, 0.95); color: var(--text); padding: 10px 12px;
+      font-size: 13px; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.08s ease;
     }
-
-    input:focus, select:focus {
-      border-color: rgba(131, 165, 255, 0.55);
-      box-shadow: 0 0 0 4px rgba(79, 124, 255, 0.12);
-    }
-
+    input:focus, select:focus { border-color: rgba(131, 165, 255, 0.55); box-shadow: 0 0 0 4px rgba(79, 124, 255, 0.12); }
     button {
       background: linear-gradient(180deg, var(--blue-2) 0%, var(--blue) 100%);
-      border: 1px solid rgba(168, 191, 255, 0.3);
-      cursor: pointer;
-      font-weight: 900;
-      color: #f7faff;
-      box-shadow: 0 10px 20px rgba(48, 84, 180, 0.25), inset 0 1px 0 rgba(255,255,255,0.18);
+      border: 1px solid rgba(168, 191, 255, 0.3); cursor: pointer; font-weight: 900;
+      color: #f7faff; box-shadow: 0 10px 20px rgba(48, 84, 180, 0.25), inset 0 1px 0 rgba(255,255,255,0.18);
     }
-
     button:hover { filter: brightness(1.03); transform: translateY(-1px); }
     button:active { transform: scale(0.985); }
 
-    .tactic-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .scan-wide-btn {
-      margin-top: 2px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      font-size: 14px;
-      padding: 12px 14px;
-    }
-
-    .scan-wide-icon {
-      width: 14px;
-      height: 14px;
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 1px;
-      align-items: end;
-    }
-
-    .scan-wide-icon span {
-      display: block;
-      background: #fff;
-      border-radius: 1px;
-    }
-
+    .tactic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .scan-wide-btn { margin-top: 2px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; font-size: 14px; padding: 12px 14px; }
+    .scan-wide-icon { width: 14px; height: 14px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; align-items: end; }
+    .scan-wide-icon span { display: block; background: #fff; border-radius: 1px; }
     .scan-wide-icon span:nth-child(1){ height:12px; }
     .scan-wide-icon span:nth-child(2){ height:7px; }
     .scan-wide-icon span:nth-child(3){ height:11px; }
@@ -476,833 +226,332 @@
     .scan-wide-icon span:nth-child(6){ height:8px; }
     .scan-wide-icon span:nth-child(7){ height:10px; }
 
-    .result-hero {
-      padding: 9px 10px;
-      background: linear-gradient(180deg, rgba(12, 18, 33, 0.95), rgba(18, 25, 42, 0.95));
-      border: 1px solid rgba(118, 146, 212, 0.18);
-      border-radius: 16px;
-      min-height: 52px;
-      position: relative;
-    }
-
-    .result-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 3px;
-    }
-
-    .result-head-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .event-main-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 3px;
-    }
-
-    .event-title-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: nowrap;
-      min-width: 0;
-      width: 100%;
-    }
-
-    .event-title {
-      font-size: 15px;
-      font-weight: 900;
-      line-height: 1.3;
-      min-width: 0;
-      flex: 1;
-    }
-
-    .small-code {
-      font-size: 10px;
-      color: #9fc0ff;
-      font-weight: 800;
-      letter-spacing: 1px;
-      opacity: 0.9;
-      flex-shrink: 0;
-    }
-
-    .event-desc {
-      color: #d9e3fa;
-      line-height: 1.45;
-      min-height: 18px;
-      font-size: 11px;
-      margin-top: 2px;
-    }
-
-    .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
+    .result-hero { padding: 9px 10px; background: linear-gradient(180deg, rgba(12, 18, 33, 0.95), rgba(18, 25, 42, 0.95)); border: 1px solid rgba(118, 146, 212, 0.18); border-radius: 16px; min-height: 52px; position: relative; }
+    .result-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
+    .result-head-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .event-main-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
+    .event-title-row { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; min-width: 0; width: 100%; }
+    .event-title { font-size: 15px; font-weight: 900; line-height: 1.3; min-width: 0; flex: 1; }
+    .small-code { font-size: 10px; color: #9fc0ff; font-weight: 800; letter-spacing: 1px; opacity: 0.9; flex-shrink: 0; }
+    .event-desc { color: #d9e3fa; line-height: 1.45; min-height: 18px; font-size: 11px; margin-top: 2px; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
     .badge, .pill {
       background: linear-gradient(180deg, rgba(55, 72, 118, 0.9), rgba(39, 51, 84, 0.9));
-      color: #e8efff;
-      border-radius: 999px;
-      padding: 5px 9px;
-      font-size: 11px;
-      border: 1px solid rgba(140, 170, 255, 0.24);
-      font-weight: 800;
+      color: #e8efff; border-radius: 999px; padding: 5px 9px; font-size: 11px;
+      border: 1px solid rgba(140, 170, 255, 0.24); font-weight: 800;
     }
-
     .icon-btn {
-      width: 32px;
-      height: 32px;
-      min-width: 32px;
-      padding: 0;
-      border-radius: 11px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
+      width: 32px; height: 32px; min-width: 32px; padding: 0; border-radius: 11px;
+      display: inline-flex; align-items: center; justify-content: center; font-size: 15px;
       background: linear-gradient(180deg, rgba(80,101,154,0.95), rgba(45,60,99,0.95));
-      border: 1px solid rgba(140, 170, 255, 0.24);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+      border: 1px solid rgba(140, 170, 255, 0.24); box-shadow: 0 8px 18px rgba(0,0,0,0.18);
     }
+    .icon-btn.small { width: 24px; height: 24px; min-width: 24px; border-radius: 8px; font-size: 12px; }
+    .muted { color: var(--muted); font-size: 11px; }
 
-    .icon-btn.small {
-      width: 24px;
-      height: 24px;
-      min-width: 24px;
-      border-radius: 8px;
-      font-size: 12px;
-    }
+    #mapWrapBox { position: relative; }
+    #map { width: 100%; height: 320px; border-radius: 18px; border: 1px solid rgba(123, 151, 219, 0.22); overflow: hidden; background: #0c1322; }
+    .map-top-btn { position: absolute; top: 10px; right: 10px; z-index: 600; width: 34px; height: 34px; min-width: 34px; border-radius: 10px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; background: linear-gradient(180deg, rgba(80,101,154,0.95), rgba(45,60,99,0.95)); border: 1px solid rgba(140, 170, 255, 0.24); box-shadow: 0 8px 18px rgba(0,0,0,0.18); }
+    .map-note, .empty-box { background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96)); border: 1px solid rgba(110, 139, 204, 0.18); border-radius: 12px; padding: 11px; line-height: 1.6; color: #d3dcf5; font-size: 12px; }
+    .empty-box { border-style: dashed; color: var(--muted); }
 
-    .muted {
-      color: var(--muted);
-      font-size: 11px;
-    }
-
-    #mapWrapBox {
-      position: relative;
-    }
-
-    #map {
-      width: 100%;
-      height: 320px;
-      border-radius: 18px;
-      border: 1px solid rgba(123, 151, 219, 0.22);
-      overflow: hidden;
-      background: #0c1322;
-    }
-
-    .map-top-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 600;
-      width: 34px;
-      height: 34px;
-      min-width: 34px;
-      border-radius: 10px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      background: linear-gradient(180deg, rgba(80,101,154,0.95), rgba(45,60,99,0.95));
-      border: 1px solid rgba(140, 170, 255, 0.24);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
-    }
-
-    .map-note, .empty-box {
-      background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96));
-      border: 1px solid rgba(110, 139, 204, 0.18);
-      border-radius: 12px;
-      padding: 11px;
-      line-height: 1.6;
-      color: #d3dcf5;
-      font-size: 12px;
-    }
-
-    .empty-box {
-      border-style: dashed;
-      color: var(--muted);
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(3, 7, 16, 0.78);
-      backdrop-filter: blur(8px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      padding: 12px;
-    }
-
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(3, 7, 16, 0.78); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 999; padding: 12px; }
     .modal-backdrop.show { display: flex; }
+    .modal { width: min(390px, 100%); max-height: calc(100dvh - 24px); overflow: auto; background: linear-gradient(180deg, rgba(24, 33, 57, 0.98), rgba(14, 21, 37, 0.98)); border: 1px solid rgba(134, 164, 235, 0.24); border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.45); transform: translateY(10px) scale(0.98); opacity: 0; transition: all 0.25s ease; }
+    .modal-backdrop.show .modal { transform: translateY(0) scale(1); opacity: 1; }
+    .modal-head { padding: 14px 16px 10px; border-bottom: 1px solid rgba(112, 138, 203, 0.16); background: linear-gradient(180deg, rgba(49, 71, 133, 0.35), rgba(0,0,0,0)); }
+    .modal-title { font-size: 20px; font-weight: 900; }
+    .modal-body { padding: 14px; display: grid; gap: 12px; }
+    .modal-hero { background: linear-gradient(180deg, rgba(14,21,36,0.96), rgba(18,27,45,0.96)); border: 1px solid rgba(115,143,210,0.16); border-radius: 16px; padding: 14px; text-align: center; }
+    .modal-visual { font-size: 62px; line-height: 1; margin-bottom: 8px; animation: pulseGlow 1.6s ease-in-out infinite; }
+    .modal-text { color: #dce5fb; line-height: 1.6; min-height: 40px; text-align: center; font-size: 12px; }
+    .modal-actions { display: grid; grid-template-columns: 1fr; justify-content: center; gap: 10px; padding: 0 14px 14px; }
+    .modal-actions.two { grid-template-columns: 1fr 1fr; }
+    .modal-actions.three { grid-template-columns: 1fr 1fr 1fr; }
+    .modal-actions.center-single { grid-template-columns: minmax(140px, 220px); justify-content: center; }
+    .modal-primary { background: linear-gradient(180deg, #7ea7ff 0%, #5b84ff 100%); }
+    .modal-danger { background: linear-gradient(180deg, #ff8b8b 0%, #e85f5f 100%); }
+    .modal-gold { background: linear-gradient(180deg, #ffd966 0%, #e5a800 100%); color: #1a1000; }
+    .modal-list { max-height: 46vh; overflow: auto; display: grid; gap: 8px; }
+    .list-item { background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96)); border: 1px solid rgba(110, 139, 204, 0.18); border-radius: 12px; padding: 11px; cursor: pointer; }
 
-    .modal {
-      width: min(390px, 100%);
-      max-height: calc(100dvh - 24px);
-      overflow: auto;
-      background: linear-gradient(180deg, rgba(24, 33, 57, 0.98), rgba(14, 21, 37, 0.98));
-      border: 1px solid rgba(134, 164, 235, 0.24);
-      border-radius: 22px;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.45);
-      transform: translateY(10px) scale(0.98);
-      opacity: 0;
-      transition: all 0.25s ease;
-    }
+    /* ===== 영웅 시작 모달 ===== */
+    .hero-start-backdrop { position: fixed; inset: 0; z-index: 1200; background: rgba(4, 8, 18, 0.82); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; padding: 12px; }
+    .hero-start-modal { width: min(390px, 100%); background: linear-gradient(180deg, rgba(24, 33, 57, 0.98), rgba(14, 21, 37, 0.98)); border: 1px solid rgba(134, 164, 235, 0.24); border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.45); overflow: hidden; }
+    .hero-start-head { padding: 16px 16px 10px; border-bottom: 1px solid rgba(112, 138, 203, 0.16); background: linear-gradient(180deg, rgba(49, 71, 133, 0.35), rgba(0,0,0,0)); }
+    .hero-start-title { font-size: 22px; font-weight: 900; margin-bottom: 5px; }
+    .hero-start-desc { color: #d6e2ff; font-size: 12px; line-height: 1.6; }
+    .hero-start-body { padding: 16px; display: grid; gap: 10px; }
 
-    .modal-backdrop.show .modal {
-      transform: translateY(0) scale(1);
-      opacity: 1;
-    }
+    /* ===== 영웅 상세 ===== */
+    .hero-detail-layout { display: grid; grid-template-columns: 1.05fr .95fr; gap: 10px; align-items: start; }
+    .hero-detail-left, .hero-detail-right, .inventory-panel { background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96)); border: 1px solid rgba(110, 139, 204, 0.18); border-radius: 16px; padding: 10px; }
+    .hero-detail-right .stats-modal-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .stats-modal-item { background: linear-gradient(180deg, rgba(14, 21, 36, 0.95), rgba(21, 31, 52, 0.96)); border: 1px solid rgba(110, 139, 204, 0.12); border-radius: 10px; padding: 8px; text-align: left; }
+    .stats-modal-label { color: var(--muted); font-size: 10px; margin-bottom: 4px; font-weight: 700; }
+    .stats-modal-value { font-size: 13px; font-weight: 900; color: #eef3ff; }
 
-    .modal-head {
-      padding: 14px 16px 10px;
-      border-bottom: 1px solid rgba(112, 138, 203, 0.16);
-      background: linear-gradient(180deg, rgba(49, 71, 133, 0.35), rgba(0,0,0,0));
-    }
+    .hero-preview-stage { position: relative; min-height: 230px; border-radius: 16px; overflow: hidden; background: radial-gradient(circle at 50% 25%, rgba(255,255,255,0.08), transparent 24%), linear-gradient(180deg, rgba(35,49,86,0.95), rgba(13,19,35,0.98)); border: 1px solid rgba(115,143,210,0.14); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 18px; }
+    .hero-preview-ground { position: absolute; left: -10%; right: -10%; bottom: 8px; height: 72px; border-radius: 50%; background: radial-gradient(circle, rgba(245,201,107,0.20), rgba(55,77,123,0.24) 45%, rgba(7,11,20,0.02) 70%); filter: blur(2px); }
+    .hero-preview-wrap { position: relative; z-index: 2; display: flex; align-items: flex-end; justify-content: center; width: 110px; min-height: 140px; }
+    .hero-preview-wrap .hero-visual-wrap { transform: scale(1.28); transform-origin: bottom center; }
 
-    .modal-title {
-      font-size: 20px;
-      font-weight: 900;
-    }
-
-    .modal-body {
-      padding: 14px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .modal-hero {
-      background: linear-gradient(180deg, rgba(14,21,36,0.96), rgba(18,27,45,0.96));
-      border: 1px solid rgba(115,143,210,0.16);
-      border-radius: 16px;
-      padding: 14px;
-      text-align: center;
-    }
-
-    .modal-visual {
-      font-size: 62px;
-      line-height: 1;
-      margin-bottom: 8px;
-      animation: pulseGlow 1.6s ease-in-out infinite;
-    }
-
-    .modal-text {
-      color: #dce5fb;
-      line-height: 1.6;
-      min-height: 40px;
-      text-align: center;
-      font-size: 12px;
-    }
-
-    .modal-actions {
-      display: grid;
-      grid-template-columns: 1fr;
-      justify-content: center;
-      gap: 10px;
-      padding: 0 14px 14px;
-    }
-
-    .modal-actions.two {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .modal-actions.center-single {
-      grid-template-columns: minmax(140px, 220px);
-      justify-content: center;
-    }
-
-    .modal-primary {
-      background: linear-gradient(180deg, #7ea7ff 0%, #5b84ff 100%);
-    }
-
-    .modal-danger {
-      background: linear-gradient(180deg, #ff8b8b 0%, #e85f5f 100%);
-    }
-
-    .modal-list {
-      max-height: 46vh;
-      overflow: auto;
-      display: grid;
-      gap: 8px;
-    }
-
-    .list-item {
-      background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96));
-      border: 1px solid rgba(110, 139, 204, 0.18);
-      border-radius: 12px;
-      padding: 11px;
-      cursor: pointer;
-    }
-
-    .hero-start-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 1200;
-      background: rgba(4, 8, 18, 0.82);
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-    }
-
-    .hero-start-modal {
-      width: min(390px, 100%);
-      background: linear-gradient(180deg, rgba(24, 33, 57, 0.98), rgba(14, 21, 37, 0.98));
-      border: 1px solid rgba(134, 164, 235, 0.24);
-      border-radius: 22px;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.45);
-      overflow: hidden;
-    }
-
-    .hero-start-head {
-      padding: 16px 16px 10px;
-      border-bottom: 1px solid rgba(112, 138, 203, 0.16);
-      background: linear-gradient(180deg, rgba(49, 71, 133, 0.35), rgba(0,0,0,0));
-    }
-
-    .hero-start-title {
-      font-size: 22px;
-      font-weight: 900;
-      margin-bottom: 5px;
-    }
-
-    .hero-start-desc {
-      color: #d6e2ff;
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
-    .hero-start-body {
-      padding: 16px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .hero-detail-layout {
-      display: grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap: 10px;
-      align-items: start;
-    }
-
-    .hero-detail-left,
-    .hero-detail-right,
-    .inventory-panel {
-      background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96));
-      border: 1px solid rgba(110, 139, 204, 0.18);
-      border-radius: 16px;
-      padding: 10px;
-    }
-
-    .hero-detail-right .stats-modal-grid {
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
-
-    .stats-modal-item {
-      background: linear-gradient(180deg, rgba(14, 21, 36, 0.95), rgba(21, 31, 52, 0.96));
-      border: 1px solid rgba(110, 139, 204, 0.12);
-      border-radius: 10px;
-      padding: 8px;
-      text-align: left;
-    }
-
-    .stats-modal-label {
-      color: var(--muted);
-      font-size: 10px;
-      margin-bottom: 4px;
-      font-weight: 700;
-    }
-
-    .stats-modal-value {
-      font-size: 13px;
-      font-weight: 900;
-      color: #eef3ff;
-    }
-
-    .hero-preview-stage {
-      position: relative;
-      min-height: 230px;
-      border-radius: 16px;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 50% 25%, rgba(255,255,255,0.08), transparent 24%),
-        linear-gradient(180deg, rgba(35,49,86,0.95), rgba(13,19,35,0.98));
-      border: 1px solid rgba(115,143,210,0.14);
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding-bottom: 18px;
-    }
-
-    .hero-preview-ground {
-      position: absolute;
-      left: -10%;
-      right: -10%;
-      bottom: 8px;
-      height: 72px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(245,201,107,0.20), rgba(55,77,123,0.24) 45%, rgba(7,11,20,0.02) 70%);
-      filter: blur(2px);
-    }
-
-    .hero-preview-wrap {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      width: 110px;
-      min-height: 140px;
-    }
-
-    .hero-preview-wrap .hero-visual-wrap {
-      transform: scale(1.28);
-      transform-origin: bottom center;
-    }
-
+    /* ===== 장비 핀 - 위치 재조정 ===== */
     .equip-pin {
-      position: absolute;
-      z-index: 3;
-      min-width: 54px;
-      max-width: 82px;
-      padding: 5px 6px;
+      position: absolute; z-index: 3;
+      min-width: 52px; max-width: 76px;
+      padding: 4px 5px; border-radius: 9px;
+      background: rgba(8, 12, 24, 0.85);
+      border: 1px solid rgba(149, 173, 233, 0.22);
+      box-shadow: 0 6px 14px rgba(0,0,0,.22);
+      font-size: 9px; line-height: 1.25; text-align: center;
+      color: #eef3ff; backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+    .equip-pin.empty { opacity: .42; border-style: dashed; }
+    .equip-pin b { display: block; font-size: 9px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* 핀 위치 - 실제 신체 부위에 맞게 재조정 */
+    .pin-armor    { left: 50%; top: 12px;  transform: translateX(-50%); } /* 상단 중앙 - 갑옷(몸통) */
+    .pin-weapon   { left: 4px;  top: 58px; }                               /* 왼쪽 중간 - 무기(왼손) */
+    .pin-shield   { right: 4px; top: 58px; }                               /* 오른쪽 중간 - 방패(오른손) */
+    .pin-gloves   { left: 4px;  top: 108px; }                              /* 왼쪽 아래 - 장갑 */
+    .pin-boots    { right: 4px; top: 108px; }                              /* 오른쪽 아래 - 장화 */
+    .pin-ring     { left: 4px;  bottom: 14px; }                            /* 왼쪽 하단 - 반지 */
+    .pin-necklace { left: 50%;  top: 38px; transform: translateX(-50%); } /* 상단 중간 - 목걸이(목) */
+    .pin-cloak    { right: 4px; bottom: 14px; }                            /* 오른쪽 하단 - 망토 */
+
+    .equip-summary { margin-top: 8px; display: grid; gap: 6px; }
+    .equip-summary-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .equip-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 7px; border-radius: 999px; font-size: 10px; font-weight: 800; background: rgba(33, 46, 75, 0.9); border: 1px solid rgba(122, 148, 212, 0.18); }
+
+    .rarity-common   { color: var(--common);    border-color: rgba(169,182,214,.22); }
+    .rarity-uncommon { color: var(--uncommon);  border-color: rgba(99,208,154,.28); }
+    .rarity-rare     { color: var(--rare);      border-color: rgba(99,168,255,.28); }
+    .rarity-epic     { color: var(--epic);      border-color: rgba(178,125,255,.28); }
+    .rarity-legendary{ color: var(--legendary); border-color: rgba(255,207,99,.34); }
+
+    /* ===== 인벤토리 - 아이콘 그리드 ===== */
+    .inventory-panel { margin-top: 2px; }
+    .inventory-title { font-size: 12px; font-weight: 900; margin-bottom: 8px; color: #eef3ff; }
+
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .inv-icon-slot {
+      aspect-ratio: 1;
       border-radius: 10px;
-      background: rgba(8, 12, 24, 0.82);
-      border: 1px solid rgba(149, 173, 233, 0.18);
-      box-shadow: 0 8px 18px rgba(0,0,0,.18);
-      font-size: 9px;
-      line-height: 1.2;
-      text-align: center;
-      color: #eef3ff;
-      backdrop-filter: blur(8px);
-    }
-
-    .equip-pin.empty {
-      opacity: .45;
-      border-style: dashed;
-    }
-
-    .equip-pin b {
-      display: block;
-      font-size: 9px;
-      margin-top: 1px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .pin-weapon { left: 8px; top: 52px; }
-    .pin-armor { left: 50%; top: 18px; transform: translateX(-50%); }
-    .pin-shield { right: 8px; top: 52px; }
-    .pin-gloves { left: 14px; top: 118px; }
-    .pin-boots { right: 14px; top: 118px; }
-    .pin-ring { left: 8px; bottom: 20px; }
-    .pin-necklace { right: 8px; bottom: 20px; }
-    .pin-cloak { left: 50%; bottom: 10px; transform: translateX(-50%); }
-
-    .equip-summary {
-      margin-top: 8px;
-      display: grid;
-      gap: 6px;
-    }
-
-    .equip-summary-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .equip-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 7px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 800;
-      background: rgba(33, 46, 75, 0.9);
-      border: 1px solid rgba(122, 148, 212, 0.18);
-    }
-
-    .rarity-common { color: var(--common); border-color: rgba(169,182,214,.22); }
-    .rarity-uncommon { color: var(--uncommon); border-color: rgba(99,208,154,.28); }
-    .rarity-rare { color: var(--rare); border-color: rgba(99,168,255,.28); }
-    .rarity-epic { color: var(--epic); border-color: rgba(178,125,255,.28); }
-    .rarity-legendary { color: var(--legendary); border-color: rgba(255,207,99,.34); }
-
-    .inventory-panel {
-      margin-top: 2px;
-    }
-
-    .inventory-title {
-      font-size: 12px;
-      font-weight: 900;
-      margin-bottom: 8px;
-      color: #eef3ff;
-    }
-
-    .inventory-list {
-      display: grid;
-      gap: 7px;
-      max-height: 185px;
-      overflow: auto;
-    }
-
-    .inventory-item {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 8px;
-      align-items: center;
-      padding: 8px 9px;
-      border-radius: 12px;
       background: linear-gradient(180deg, rgba(15,22,39,0.98), rgba(18,27,45,0.98));
-      border: 1px solid rgba(110, 139, 204, 0.14);
-    }
-
-    .inventory-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 10px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(30, 43, 72, 0.88);
-      font-size: 15px;
-    }
-
-    .inventory-main {
-      min-width: 0;
-    }
-
-    .inventory-name {
-      font-size: 11px;
-      font-weight: 900;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .inventory-meta {
-      margin-top: 2px;
-      font-size: 9px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-
-    .inventory-slot {
-      font-size: 9px;
-      color: #d6e2ff;
-      padding: 3px 6px;
-      border-radius: 999px;
-      background: rgba(38, 52, 84, 0.88);
-      white-space: nowrap;
-    }
-
-    .scan-modal-body {
-      padding: 14px;
-      display: grid;
-      gap: 12px;
-    }
-
-    #scanner {
-      width: 100%;
-      min-height: 138px;
-      height: 138px;
-      border-radius: 16px;
-      overflow: hidden;
-      background: #0b1220;
       border: 1px solid rgba(110, 139, 204, 0.18);
-    }
-
-    #scanner video {
-      border-radius: 16px;
-      object-fit: cover !important;
-    }
-
-    .mini-current-marker {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: linear-gradient(180deg, #7ea7ff 0%, #557dff 100%);
-      border: 2px solid white;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
-      font-size: 14px;
-    }
-
-    .battle-stage {
+      font-size: 20px;
+      cursor: pointer;
       position: relative;
-      width: 100%;
-      height: 270px;
-      border-radius: 18px;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.12), transparent 24%),
-        linear-gradient(180deg, rgba(34,46,85,0.95), rgba(16,22,38,0.98));
-      border: 1px solid rgba(115,143,210,0.16);
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .inv-icon-slot:hover {
+      transform: scale(1.08);
+      border-color: rgba(140, 170, 255, 0.5);
+      box-shadow: 0 4px 14px rgba(79,124,255,0.25);
+    }
+    .inv-icon-slot::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      border: 2px solid transparent;
+    }
+    .inv-icon-slot.rarity-uncommon { border-color: rgba(99,208,154,.4); }
+    .inv-icon-slot.rarity-rare     { border-color: rgba(99,168,255,.5); }
+    .inv-icon-slot.rarity-epic     { border-color: rgba(178,125,255,.5); }
+    .inv-icon-slot.rarity-legendary{
+      border-color: rgba(255,207,99,.6);
+      box-shadow: 0 0 10px rgba(255,207,99,0.25), inset 0 0 8px rgba(255,207,99,0.1);
     }
 
-    .battle-stage-ground {
+    .inv-rarity-dot {
       position: absolute;
-      left: -10%;
-      right: -10%;
-      bottom: 10px;
-      height: 82px;
+      bottom: 3px; right: 3px;
+      width: 6px; height: 6px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(245,201,107,0.22), rgba(55,77,123,0.26) 45%, rgba(7,11,20,0.04) 70%);
-      filter: blur(2px);
     }
+    .inv-icon-slot.rarity-common   .inv-rarity-dot { background: var(--common); }
+    .inv-icon-slot.rarity-uncommon .inv-rarity-dot { background: var(--uncommon); }
+    .inv-icon-slot.rarity-rare     .inv-rarity-dot { background: var(--rare); }
+    .inv-icon-slot.rarity-epic     .inv-rarity-dot { background: var(--epic); }
+    .inv-icon-slot.rarity-legendary .inv-rarity-dot { background: var(--legendary); box-shadow: 0 0 4px rgba(255,207,99,0.8); }
 
-    .battle-unit {
-      position: absolute;
-      bottom: 38px;
+    /* ===== 아이템 상세 모달 ===== */
+    .item-detail-card {
+      background: linear-gradient(180deg, rgba(14,21,36,0.98), rgba(18,27,45,0.98));
+      border: 1px solid rgba(115,143,210,0.2);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .item-detail-header {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      z-index: 3;
-      transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .item-detail-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      background: rgba(30,43,72,0.9);
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .item-detail-icon.rarity-legendary {
+      box-shadow: 0 0 18px rgba(255,207,99,0.4), inset 0 0 10px rgba(255,207,99,0.1);
+      border: 1px solid rgba(255,207,99,0.4);
+      animation: legendaryIconPulse 1.8s ease-in-out infinite;
+    }
+    .item-detail-icon.rarity-epic {
+      box-shadow: 0 0 12px rgba(178,125,255,0.35), inset 0 0 8px rgba(178,125,255,0.08);
+      border: 1px solid rgba(178,125,255,0.35);
+    }
+    .item-detail-icon.rarity-rare {
+      box-shadow: 0 0 10px rgba(99,168,255,0.3);
+      border: 1px solid rgba(99,168,255,0.3);
     }
 
+    @keyframes legendaryIconPulse {
+      0%,100% { box-shadow: 0 0 14px rgba(255,207,99,0.4), inset 0 0 8px rgba(255,207,99,0.1); }
+      50% { box-shadow: 0 0 26px rgba(255,207,99,0.7), inset 0 0 14px rgba(255,207,99,0.18); }
+    }
+
+    .item-detail-info { flex: 1; min-width: 0; }
+    .item-detail-name { font-size: 14px; font-weight: 900; margin-bottom: 3px; }
+    .item-detail-meta { font-size: 10px; color: var(--muted); line-height: 1.5; }
+
+    .stat-compare-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .stat-compare-item {
+      background: rgba(12,18,33,0.95);
+      border: 1px solid rgba(110,139,204,0.15);
+      border-radius: 9px;
+      padding: 7px 6px;
+      text-align: center;
+    }
+    .stat-compare-label { font-size: 9px; color: var(--muted); font-weight: 700; margin-bottom: 3px; }
+    .stat-compare-value { font-size: 12px; font-weight: 900; }
+    .stat-up   { color: #63d09a; }
+    .stat-down { color: #ff7b7b; }
+    .stat-same { color: #eef3ff; }
+
+    .stat-change-hint {
+      font-size: 10px;
+      padding: 6px 10px;
+      border-radius: 9px;
+      margin-bottom: 8px;
+      font-weight: 800;
+      text-align: center;
+    }
+    .stat-change-hint.positive { background: rgba(17,31,25,0.95); border: 1px solid rgba(95,206,141,0.24); color: #dffbe9; }
+    .stat-change-hint.negative { background: rgba(43,20,22,0.95); border: 1px solid rgba(255,120,120,0.24); color: #ffe3e3; }
+    .stat-change-hint.neutral  { background: rgba(14,21,36,0.95); border: 1px solid rgba(115,143,210,0.18); color: #dce5fb; }
+
+    .sell-price-row {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 11px; color: #fff2bf; font-weight: 900; margin-bottom: 2px;
+    }
+
+    /* 전투 관련 */
+    .scan-modal-body { padding: 14px; display: grid; gap: 12px; }
+    #scanner { width: 100%; min-height: 138px; height: 138px; border-radius: 16px; overflow: hidden; background: #0b1220; border: 1px solid rgba(110, 139, 204, 0.18); }
+    #scanner video { border-radius: 16px; object-fit: cover !important; }
+
+    .mini-current-marker { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #7ea7ff 0%, #557dff 100%); border: 2px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(0,0,0,0.35); font-size: 14px; }
+
+    .battle-stage { position: relative; width: 100%; height: 270px; border-radius: 18px; overflow: hidden; background: radial-gradient(circle at 50% 18%, rgba(255,255,255,0.12), transparent 24%), linear-gradient(180deg, rgba(34,46,85,0.95), rgba(16,22,38,0.98)); border: 1px solid rgba(115,143,210,0.16); }
+    .battle-stage-ground { position: absolute; left: -10%; right: -10%; bottom: 10px; height: 82px; border-radius: 50%; background: radial-gradient(circle, rgba(245,201,107,0.22), rgba(55,77,123,0.26) 45%, rgba(7,11,20,0.04) 70%); filter: blur(2px); }
+    .battle-unit { position: absolute; bottom: 38px; display: flex; flex-direction: column; align-items: center; z-index: 3; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
     .battle-hero-unit { left: 18px; }
     .battle-enemy-unit { right: 24px; }
+    .battle-sprite-wrap { width: 108px; height: 116px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 18px 18px rgba(0,0,0,0.35)); position: relative; z-index: 2; }
+    .battle-hero-sprite, .battle-enemy-sprite { width: 100px; height: 112px; transition: transform 0.28s ease, filter 0.28s ease; }
+    .battle-shadow { width: 78px; height: 12px; border-radius: 50%; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 3px; }
+    .battle-enemy-emoji { width: 100px; height: 112px; display: flex; align-items: center; justify-content: center; font-size: 62px; line-height: 1; transition: transform 0.28s ease, filter 0.28s ease; text-shadow: 0 10px 14px rgba(0,0,0,0.28); }
+    .battle-soldier-group { position: absolute; left: 96px; bottom: 28px; display: flex; gap: 2px; flex-wrap: wrap; max-width: 96px; z-index: 1; }
+    .battle-soldier { width: 22px; height: 28px; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
+    .battle-nameplates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .battle-nameplate { background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96)); border: 1px solid rgba(110, 139, 204, 0.18); border-radius: 12px; padding: 10px; }
+    .battle-nameplate .name { font-size: 13px; font-weight: 900; margin-bottom: 4px; }
+    .battle-nameplate .meta { font-size: 10px; color: var(--muted); margin-bottom: 5px; line-height: 1.45; }
+    .battle-popup-bar { width: 100%; height: 10px; background: #0b1220; border-radius: 999px; overflow: hidden; border: 1px solid rgba(73, 94, 143, 0.4); margin-top: 5px; }
+    .battle-popup-bar-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #68a2ff, #8dd8ff); transition: width 0.35s ease; }
+    .battle-popup-bar-fill.enemy { background: linear-gradient(90deg, #ff6b6b, #ff9b7f); }
+    .battle-turn-box { background: linear-gradient(180deg, rgba(12, 18, 33, 0.95), rgba(18, 25, 42, 0.95)); border: 1px solid rgba(118, 146, 212, 0.18); border-radius: 14px; padding: 12px; }
+    .battle-turn-title { font-size: 14px; font-weight: 900; margin-bottom: 8px; color: #dce7ff; }
+    .battle-turn-log { font-size: 12px; line-height: 1.65; color: #dbe5fb; min-height: 58px; white-space: pre-line; }
+    .battle-result-box { border-radius: 14px; padding: 12px; font-size: 13px; line-height: 1.6; font-weight: 800; text-align: center; background: linear-gradient(180deg, rgba(17, 31, 25, 0.95), rgba(19, 43, 31, 0.95)); border: 1px solid rgba(95, 206, 141, 0.24); color: #dffbe9; }
+    .battle-result-box.fail { background: linear-gradient(180deg, rgba(43, 20, 22, 0.95), rgba(54, 20, 23, 0.95)); border: 1px solid rgba(255, 120, 120, 0.24); color: #ffe3e3; }
 
-    .battle-sprite-wrap {
-      width: 108px;
-      height: 116px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      filter: drop-shadow(0 18px 18px rgba(0,0,0,0.35));
-      position: relative;
-      z-index: 2;
+    /* 아이템 드롭 알림 */
+    .drop-notification {
+      position: fixed;
+      bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(180deg, rgba(24,33,57,0.98), rgba(14,21,37,0.98));
+      border: 1px solid rgba(134,164,235,0.3);
+      border-radius: 16px; padding: 10px 16px;
+      font-size: 12px; font-weight: 800; color: #eef3ff;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.45);
+      z-index: 1100;
+      display: flex; align-items: center; gap: 8px;
+      animation: dropIn 0.35s ease, dropOut 0.35s ease 2.4s forwards;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    @keyframes dropIn  { from { opacity:0; transform: translateX(-50%) translateY(14px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+    @keyframes dropOut { from { opacity:1; } to { opacity:0; transform: translateX(-50%) translateY(-8px); } }
+
+    /* 장착 이펙트 오버레이 */
+    .equip-flash-overlay {
+      position: fixed; inset: 0; pointer-events: none; z-index: 2000;
+      background: rgba(255,255,255,0);
+      animation: equipFlash 0.5s ease forwards;
+    }
+    @keyframes equipFlash {
+      0%  { background: rgba(255,255,255,0); }
+      20% { background: rgba(255,255,255,0.1); }
+      60% { background: rgba(255,255,255,0.05); }
+      100%{ background: rgba(255,255,255,0); }
     }
 
-    .battle-hero-sprite,
-    .battle-enemy-sprite {
-      width: 100px;
-      height: 112px;
-      transition: transform 0.28s ease, filter 0.28s ease;
-    }
+    /* 애니메이션 */
+    .anim-attack-left  { animation: attackLeft  0.42s ease; }
+    .anim-attack-right { animation: attackRight 0.42s ease; }
+    .anim-hit          { animation: hitShake    0.42s ease; filter: brightness(1.3) saturate(1.15); }
+    .anim-run          { animation: runAway     0.8s ease forwards; }
+    .anim-fade         { animation: fadeFlash   0.5s ease; }
 
-    .battle-shadow {
-      width: 78px;
-      height: 12px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0));
-      margin-top: 3px;
-    }
-
-    .battle-enemy-emoji {
-      width: 100px;
-      height: 112px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 62px;
-      line-height: 1;
-      transition: transform 0.28s ease, filter 0.28s ease;
-      text-shadow: 0 10px 14px rgba(0,0,0,0.28);
-    }
-
-    .battle-soldier-group {
-      position: absolute;
-      left: 96px;
-      bottom: 28px;
-      display: flex;
-      gap: 2px;
-      flex-wrap: wrap;
-      max-width: 96px;
-      z-index: 1;
-    }
-
-    .battle-soldier {
-      width: 22px;
-      height: 28px;
-      transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease;
-    }
-
-    .battle-nameplates {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .battle-nameplate {
-      background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96));
-      border: 1px solid rgba(110, 139, 204, 0.18);
-      border-radius: 12px;
-      padding: 10px;
-    }
-
-    .battle-nameplate .name {
-      font-size: 13px;
-      font-weight: 900;
-      margin-bottom: 4px;
-    }
-
-    .battle-nameplate .meta {
-      font-size: 10px;
-      color: var(--muted);
-      margin-bottom: 5px;
-      line-height: 1.45;
-    }
-
-    .battle-popup-bar {
-      width: 100%;
-      height: 10px;
-      background: #0b1220;
-      border-radius: 999px;
-      overflow: hidden;
-      border: 1px solid rgba(73, 94, 143, 0.4);
-      margin-top: 5px;
-    }
-
-    .battle-popup-bar-fill {
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(90deg, #68a2ff, #8dd8ff);
-      transition: width 0.35s ease;
-    }
-
-    .battle-popup-bar-fill.enemy {
-      background: linear-gradient(90deg, #ff6b6b, #ff9b7f);
-    }
-
-    .battle-turn-box {
-      background: linear-gradient(180deg, rgba(12, 18, 33, 0.95), rgba(18, 25, 42, 0.95));
-      border: 1px solid rgba(118, 146, 212, 0.18);
-      border-radius: 14px;
-      padding: 12px;
-    }
-
-    .battle-turn-title {
-      font-size: 14px;
-      font-weight: 900;
-      margin-bottom: 8px;
-      color: #dce7ff;
-    }
-
-    .battle-turn-log {
-      font-size: 12px;
-      line-height: 1.65;
-      color: #dbe5fb;
-      min-height: 58px;
-      white-space: pre-line;
-    }
-
-    .battle-result-box {
-      border-radius: 14px;
-      padding: 12px;
-      font-size: 13px;
-      line-height: 1.6;
-      font-weight: 800;
-      text-align: center;
-      background: linear-gradient(180deg, rgba(17, 31, 25, 0.95), rgba(19, 43, 31, 0.95));
-      border: 1px solid rgba(95, 206, 141, 0.24);
-      color: #dffbe9;
-    }
-
-    .battle-result-box.fail {
-      background: linear-gradient(180deg, rgba(43, 20, 22, 0.95), rgba(54, 20, 23, 0.95));
-      border: 1px solid rgba(255, 120, 120, 0.24);
-      color: #ffe3e3;
-    }
-
-    .anim-attack-left {
-      animation: attackLeft 0.42s ease;
-    }
-
-    .anim-attack-right {
-      animation: attackRight 0.42s ease;
-    }
-
-    .anim-hit {
-      animation: hitShake 0.42s ease;
-      filter: brightness(1.3) saturate(1.15);
-    }
-
-    .anim-run {
-      animation: runAway 0.8s ease forwards;
-    }
-
-    .anim-fade {
-      animation: fadeFlash 0.5s ease;
-    }
-
-    @keyframes attackLeft {
-      0% { transform: translateX(0) scale(1); }
-      40% { transform: translateX(24px) scale(1.04); }
-      100% { transform: translateX(0) scale(1); }
-    }
-
-    @keyframes attackRight {
-      0% { transform: translateX(0) scale(1); }
-      40% { transform: translateX(-24px) scale(1.04); }
-      100% { transform: translateX(0) scale(1); }
-    }
-
-    @keyframes hitShake {
-      0% { transform: translateX(0); }
-      20% { transform: translateX(-6px); }
-      40% { transform: translateX(6px); }
-      60% { transform: translateX(-5px); }
-      80% { transform: translateX(5px); }
-      100% { transform: translateX(0); }
-    }
-
-    @keyframes runAway {
-      0% { transform: translateX(0) scale(1); opacity: 1; }
-      100% { transform: translateX(-120px) scale(0.86); opacity: 0.15; }
-    }
-
-    @keyframes fadeFlash {
-      0% { opacity: 1; }
-      50% { opacity: 0.35; }
-      100% { opacity: 1; }
-    }
-
-    @keyframes pulseGlow {
-      0%,100% { transform: scale(1); }
-      50% { transform: scale(1.06); }
-    }
-
-    @keyframes heroFloat {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
-
-    @keyframes soldierBounce {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-3px); }
-    }
-
-    @keyframes shadowPulse {
-      0%,100% { transform: scale(1); opacity: .58; }
-      50% { transform: scale(.92); opacity: .36; }
-    }
+    @keyframes attackLeft  { 0%{transform:translateX(0) scale(1);} 40%{transform:translateX(24px) scale(1.04);} 100%{transform:translateX(0) scale(1);} }
+    @keyframes attackRight { 0%{transform:translateX(0) scale(1);} 40%{transform:translateX(-24px) scale(1.04);} 100%{transform:translateX(0) scale(1);} }
+    @keyframes hitShake    { 0%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-5px);} 80%{transform:translateX(5px);} 100%{transform:translateX(0);} }
+    @keyframes runAway     { 0%{transform:translateX(0) scale(1);opacity:1;} 100%{transform:translateX(-120px) scale(0.86);opacity:0.15;} }
+    @keyframes fadeFlash   { 0%{opacity:1;} 50%{opacity:0.35;} 100%{opacity:1;} }
+    @keyframes pulseGlow   { 0%,100%{transform:scale(1);} 50%{transform:scale(1.06);} }
+    @keyframes heroFloat   { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+    @keyframes soldierBounce{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-3px);} }
+    @keyframes shadowPulse { 0%,100%{transform:scale(1);opacity:.58;} 50%{transform:scale(.92);opacity:.36;} }
+    @keyframes sparkleMove { 0%,100%{transform:translateY(0);opacity:.85;} 50%{transform:translateY(-4px);opacity:1;} }
 
     ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(112, 135, 194, 0.42);
-      border-radius: 999px;
-      border: 2px solid transparent;
-      background-clip: padding-box;
-    }
+    ::-webkit-scrollbar-thumb { background: rgba(112, 135, 194, 0.42); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
 
     @media (max-height: 780px) {
       .hero-avatar { min-height: 262px; }
@@ -1322,18 +571,8 @@
         <div class="hero-start-desc">처음 모험을 시작하기 전에 영웅의 이름과 클래스를 선택해 주세요.</div>
       </div>
       <div class="hero-start-body">
-        <div class="line" style="margin-bottom:0;">
-          <label for="startHeroName">영웅 이름</label>
-          <input id="startHeroName" value="주인님의 영웅" />
-        </div>
-        <div class="line" style="margin-bottom:0;">
-          <label for="startHeroClass">클래스</label>
-          <select id="startHeroClass">
-            <option value="전사">전사</option>
-            <option value="궁사">궁사</option>
-            <option value="마법사">마법사</option>
-          </select>
-        </div>
+        <div class="line" style="margin-bottom:0;"><label for="startHeroName">영웅 이름</label><input id="startHeroName" value="주인님의 영웅" /></div>
+        <div class="line" style="margin-bottom:0;"><label for="startHeroClass">클래스</label><select id="startHeroClass"><option value="전사">전사</option><option value="궁사">궁사</option><option value="마법사">마법사</option></select></div>
         <button id="startGameBtn">모험 시작</button>
       </div>
     </div>
@@ -1341,10 +580,7 @@
 
   <div class="wrap">
     <div class="title">ScanHero MVP</div>
-    <div class="subtitle">
-      초기 버전은 <b>영웅 성장</b>과 <b>바코드 탐험의 재미</b>에 집중했습니다.<br />
-      전술과 병사 클래스를 먼저 고른 뒤, 바코드 탐험을 진행할 수 있습니다.
-    </div>
+    <div class="subtitle">초기 버전은 <b>영웅 성장</b>과 <b>바코드 탐험의 재미</b>에 집중했습니다.<br />전술과 병사 클래스를 먼저 고른 뒤, 바코드 탐험을 진행할 수 있습니다.</div>
 
     <div class="grid">
       <div class="card">
@@ -1352,60 +588,28 @@
           <div class="hero-avatar">
             <div class="hero-avatar-top">
               <button type="button" class="hero-title-btn" id="heroTitleBtn">주인님의 영웅 (전사-견습) Lv 1</button>
-              <div class="hero-gold-box">
-                <span>🪙</span>
-                <span id="heroGoldTop">0</span>
-              </div>
+              <div class="hero-gold-box"><span>🪙</span><span id="heroGoldTop">0</span></div>
             </div>
-
             <div class="formation-stage">
-              <div class="hero-unit">
-                <div class="hero-sprite" id="heroSpriteWrap"></div>
-                <div class="hero-shadow"></div>
-              </div>
+              <div class="hero-unit"><div class="hero-sprite" id="heroSpriteWrap"></div><div class="hero-shadow"></div></div>
               <div class="soldier-row" id="soldierFront"></div>
               <div class="formation-ground"></div>
             </div>
-
             <div class="hero-exp-wrap">
-              <div class="hero-exp-head">
-                <span>경험치</span>
-                <span id="heroExpBarText">0 / 20</span>
-              </div>
-              <div class="hero-exp-bar">
-                <div class="hero-exp-fill" id="heroExpFill"></div>
-              </div>
+              <div class="hero-exp-head"><span>경험치</span><span id="heroExpBarText">0 / 20</span></div>
+              <div class="hero-exp-bar"><div class="hero-exp-fill" id="heroExpFill"></div></div>
             </div>
-
             <button class="hero-map-btn" id="heroMapBtn" type="button" title="지도 보기">🗺️</button>
           </div>
 
           <div>
             <div class="section-title" style="margin-bottom:8px;">지휘 전술 선택</div>
             <div class="tactic-grid" style="margin-bottom:10px;">
-              <div class="line" style="margin-bottom:0;">
-                <label for="eventTacticSelect">전술</label>
-                <select id="eventTacticSelect">
-                  <option value="공격 중심">공격 중심</option>
-                  <option value="균형">균형</option>
-                  <option value="방어 중심">방어 중심</option>
-                </select>
-              </div>
-              <div class="line" style="margin-bottom:0;">
-                <label for="eventSoldierClassSelect">병사 클래스</label>
-                <select id="eventSoldierClassSelect">
-                  <option value="검병">검병</option>
-                  <option value="방패병">방패병</option>
-                  <option value="궁병">궁병</option>
-                  <option value="창병">창병</option>
-                </select>
-              </div>
+              <div class="line" style="margin-bottom:0;"><label for="eventTacticSelect">전술</label><select id="eventTacticSelect"><option value="공격 중심">공격 중심</option><option value="균형">균형</option><option value="방어 중심">방어 중심</option></select></div>
+              <div class="line" style="margin-bottom:0;"><label for="eventSoldierClassSelect">병사 클래스</label><select id="eventSoldierClassSelect"><option value="검병">검병</option><option value="방패병">방패병</option><option value="궁병">궁병</option><option value="창병">창병</option></select></div>
             </div>
-
             <button class="scan-wide-btn" id="scanFab" type="button">
-              <div class="scan-wide-icon">
-                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-              </div>
+              <div class="scan-wide-icon"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
               <span>바코드 스캔 시작</span>
             </button>
           </div>
@@ -1418,11 +622,8 @@
           <div class="result-hero">
             <div class="result-head">
               <div class="muted">탐험 결과</div>
-              <div class="result-head-actions">
-                <button class="icon-btn small" id="exploreLogBtn" type="button" title="탐험 기록">📜</button>
-              </div>
+              <div class="result-head-actions"><button class="icon-btn small" id="exploreLogBtn" type="button" title="탐험 기록">📜</button></div>
             </div>
-
             <div class="event-main-head">
               <div class="event-title-row">
                 <div class="event-title" id="eventTitle">아직 탐험 전입니다.</div>
@@ -1430,7 +631,6 @@
                 <button class="icon-btn small" id="decodeInfoBtn" type="button" title="이벤트 해석">?</button>
               </div>
             </div>
-
             <div class="event-desc" id="eventDesc">영웅 정보 아래의 바코드 스캔 버튼을 눌러 탐험을 시작해 주세요.</div>
             <div class="badge-row" id="eventBadges" style="margin-top:8px;"></div>
           </div>
@@ -1464,19 +664,13 @@
             <div class="battle-sprite-wrap" id="battleHeroSpriteWrap"></div>
             <div class="battle-shadow"></div>
           </div>
-
           <div class="battle-soldier-group" id="battleSoldierGroup"></div>
-
           <div class="battle-unit battle-enemy-unit" id="battleEnemyUnit">
-            <div class="battle-sprite-wrap">
-              <div class="battle-enemy-emoji" id="battleEnemyEmoji">👹</div>
-            </div>
+            <div class="battle-sprite-wrap"><div class="battle-enemy-emoji" id="battleEnemyEmoji">👹</div></div>
             <div class="battle-shadow"></div>
           </div>
-
           <div class="battle-stage-ground"></div>
         </div>
-
         <div class="battle-nameplates">
           <div class="battle-nameplate">
             <div class="name" id="battleHeroName">영웅</div>
@@ -1491,12 +685,10 @@
             <div class="battle-popup-bar"><div class="battle-popup-bar-fill enemy" id="enemyHpBar"></div></div>
           </div>
         </div>
-
         <div class="battle-turn-box">
           <div class="battle-turn-title" id="battleTurnTitle">전투 시작</div>
           <div class="battle-turn-log" id="battleLog">전투를 시작합니다.</div>
         </div>
-
         <div id="battleResultBox" style="display:none;"></div>
       </div>
       <div class="modal-actions two" id="battleActions">
@@ -1512,68 +704,78 @@
       <div class="modal-head"><div class="modal-title">영웅 상세 정보</div></div>
       <div class="modal-body">
         <div style="font-size:16px; font-weight:900; margin-bottom:2px;" id="heroStatsTitle">주인님의 영웅</div>
-
         <div class="hero-detail-layout">
           <div class="hero-detail-left">
             <div class="hero-preview-stage">
               <div class="hero-preview-ground"></div>
               <div class="hero-preview-wrap" id="heroPreviewWrap"></div>
-              <div class="equip-pin pin-weapon" id="pinWeapon"></div>
-              <div class="equip-pin pin-armor" id="pinArmor"></div>
-              <div class="equip-pin pin-shield" id="pinShield"></div>
-              <div class="equip-pin pin-gloves" id="pinGloves"></div>
-              <div class="equip-pin pin-boots" id="pinBoots"></div>
-              <div class="equip-pin pin-ring" id="pinRing"></div>
+              <div class="equip-pin pin-armor"    id="pinArmor"></div>
               <div class="equip-pin pin-necklace" id="pinNecklace"></div>
-              <div class="equip-pin pin-cloak" id="pinCloak"></div>
+              <div class="equip-pin pin-weapon"   id="pinWeapon"></div>
+              <div class="equip-pin pin-shield"   id="pinShield"></div>
+              <div class="equip-pin pin-gloves"   id="pinGloves"></div>
+              <div class="equip-pin pin-boots"    id="pinBoots"></div>
+              <div class="equip-pin pin-ring"     id="pinRing"></div>
+              <div class="equip-pin pin-cloak"    id="pinCloak"></div>
             </div>
             <div class="equip-summary">
               <div class="muted" style="font-size:10px;">착용 장비</div>
               <div class="equip-summary-row" id="heroEquipSummary"></div>
             </div>
           </div>
-
           <div class="hero-detail-right">
-            <div class="stats-modal-grid">
+            <div class="stats-modal-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
               <div class="stats-modal-item"><div class="stats-modal-label">공격력</div><div class="stats-modal-value" id="heroStatsAtk">0</div></div>
               <div class="stats-modal-item"><div class="stats-modal-label">방어력</div><div class="stats-modal-value" id="heroStatsDef">0</div></div>
               <div class="stats-modal-item"><div class="stats-modal-label">체력</div><div class="stats-modal-value" id="heroStatsHp">0</div></div>
               <div class="stats-modal-item"><div class="stats-modal-label">속도</div><div class="stats-modal-value" id="heroStatsSpeed">0</div></div>
               <div class="stats-modal-item"><div class="stats-modal-label">치명타</div><div class="stats-modal-value" id="heroStatsCrit">0%</div></div>
-              <div class="stats-modal-item"><div class="stats-modal-label">지휘 병사 수</div><div class="stats-modal-value" id="heroStatsSoldiers">0명</div></div>
+              <div class="stats-modal-item"><div class="stats-modal-label">병사 수</div><div class="stats-modal-value" id="heroStatsSoldiers">0명</div></div>
             </div>
           </div>
         </div>
-
         <div class="inventory-panel">
           <div class="inventory-title">인벤토리</div>
-          <div class="inventory-list" id="inventoryList"></div>
+          <div class="inventory-grid" id="inventoryGrid"></div>
         </div>
       </div>
-      <div class="modal-actions center-single">
-        <button class="modal-primary" id="heroStatsCloseBtn">닫기</button>
-      </div>
+      <div class="modal-actions center-single"><button class="modal-primary" id="heroStatsCloseBtn">닫기</button></div>
     </div>
   </div>
 
-  <!-- 스캔 -->
+  <!-- 아이템 상세 모달 -->
+  <div class="modal-backdrop" id="itemDetailBackdrop">
+    <div class="modal">
+      <div class="modal-head"><div class="modal-title" id="itemDetailTitle">아이템 정보</div></div>
+      <div class="modal-body">
+        <div class="item-detail-card">
+          <div class="item-detail-header">
+            <div class="item-detail-icon" id="itemDetailIcon"></div>
+            <div class="item-detail-info">
+              <div class="item-detail-name" id="itemDetailName"></div>
+              <div class="item-detail-meta" id="itemDetailMeta"></div>
+            </div>
+          </div>
+          <div id="itemStatChangeHint" class="stat-change-hint neutral"></div>
+          <div class="stat-compare-grid" id="itemStatCompareGrid"></div>
+          <div class="sell-price-row" id="itemSellPriceRow"></div>
+        </div>
+      </div>
+      <div class="modal-actions" id="itemDetailActions"></div>
+    </div>
+  </div>
+
+  <!-- 스캔 모달 -->
   <div class="modal-backdrop" id="scanModalBackdrop">
     <div class="modal">
       <div class="modal-head"><div class="modal-title">바코드 스캔</div></div>
       <div class="scan-modal-body">
         <div class="modal-hero">
           <div class="modal-visual" style="font-size:56px;">📷</div>
-          <div class="modal-text" id="scanStatusText">
-            카메라 스캔 또는 바코드 숫자 직접 입력을 사용할 수 있습니다.
-          </div>
+          <div class="modal-text" id="scanStatusText">카메라 스캔 또는 바코드 숫자 직접 입력을 사용할 수 있습니다.</div>
         </div>
-
         <div id="scanner"></div>
-
-        <div class="line" style="margin-bottom:0;">
-          <label for="barcodeInput">바코드 숫자 입력</label>
-          <input id="barcodeInput" placeholder="예: 8801234567890" value="" inputmode="numeric" />
-        </div>
+        <div class="line" style="margin-bottom:0;"><label for="barcodeInput">바코드 숫자 입력</label><input id="barcodeInput" placeholder="예: 8801234567890" value="" inputmode="numeric" /></div>
       </div>
       <div class="modal-actions two">
         <button id="scanModalCloseBtn">닫기</button>
@@ -1587,20 +789,11 @@
     <div class="modal" style="width:min(400px,100%);">
       <div class="modal-head"><div class="modal-title">탐험 지도</div></div>
       <div class="modal-body">
-        <div id="mapWrapBox">
-          <div id="map"></div>
-          <button class="map-top-btn" id="mapHistoryBtn" type="button" title="이벤트 기록">📜</button>
-        </div>
-        <div class="map-note" id="mapSelectionInfo">
-          지도 마커를 클릭하면 해당 위치의 이벤트 결과를 확인할 수 있습니다.
-        </div>
-        <div class="map-note" id="locationStatus">
-          위치 확인 전입니다. 모험 시작 시 자동으로 현재 위치를 확인합니다.
-        </div>
+        <div id="mapWrapBox"><div id="map"></div><button class="map-top-btn" id="mapHistoryBtn" type="button" title="이벤트 기록">📜</button></div>
+        <div class="map-note" id="mapSelectionInfo">지도 마커를 클릭하면 해당 위치의 이벤트 결과를 확인할 수 있습니다.</div>
+        <div class="map-note" id="locationStatus">위치 확인 전입니다. 모험 시작 시 자동으로 현재 위치를 확인합니다.</div>
       </div>
-      <div class="modal-actions center-single">
-        <button class="modal-primary" id="mapCloseBtn">닫기</button>
-      </div>
+      <div class="modal-actions center-single"><button class="modal-primary" id="mapCloseBtn">닫기</button></div>
     </div>
   </div>
 
@@ -1608,12 +801,8 @@
   <div class="modal-backdrop" id="mapHistoryBackdrop">
     <div class="modal">
       <div class="modal-head"><div class="modal-title">위치별 탐험 기록</div></div>
-      <div class="modal-body">
-        <div class="modal-list" id="mapHistoryList"></div>
-      </div>
-      <div class="modal-actions center-single">
-        <button class="modal-primary" id="mapHistoryCloseBtn">닫기</button>
-      </div>
+      <div class="modal-body"><div class="modal-list" id="mapHistoryList"></div></div>
+      <div class="modal-actions center-single"><button class="modal-primary" id="mapHistoryCloseBtn">닫기</button></div>
     </div>
   </div>
 
@@ -1621,18 +810,8 @@
   <div class="modal-backdrop" id="decodeBackdrop">
     <div class="modal">
       <div class="modal-head"><div class="modal-title">이벤트 해석</div></div>
-      <div class="modal-body">
-        <div class="map-note" id="decodeBox">
-          1번째 자리 = 이벤트 종류<br />
-          2번째 자리 = 등급<br />
-          3번째 자리 = 수량/전투 규모<br />
-          4번째 자리 = 대상 종류<br />
-          5번째 자리 = 특수 효과
-        </div>
-      </div>
-      <div class="modal-actions center-single">
-        <button class="modal-primary" id="decodeCloseBtn">닫기</button>
-      </div>
+      <div class="modal-body"><div class="map-note" id="decodeBox">1번째 자리 = 이벤트 종류<br/>2번째 자리 = 등급<br/>3번째 자리 = 수량/전투 규모<br/>4번째 자리 = 대상 종류<br/>5번째 자리 = 특수 효과</div></div>
+      <div class="modal-actions center-single"><button class="modal-primary" id="decodeCloseBtn">닫기</button></div>
     </div>
   </div>
 
@@ -1640,1357 +819,994 @@
   <div class="modal-backdrop" id="exploreLogBackdrop">
     <div class="modal">
       <div class="modal-head"><div class="modal-title">탐험 기록</div></div>
-      <div class="modal-body">
-        <div class="modal-list" id="exploreLog"></div>
-      </div>
-      <div class="modal-actions center-single">
-        <button class="modal-primary" id="exploreLogCloseBtn">닫기</button>
-      </div>
+      <div class="modal-body"><div class="modal-list" id="exploreLog"></div></div>
+      <div class="modal-actions center-single"><button class="modal-primary" id="exploreLogCloseBtn">닫기</button></div>
     </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const rankTable = [
-        { minLevel: 1, rank: '견습', soldiers: 2 },
-        { minLevel: 3, rank: '전사', soldiers: 3 },
-        { minLevel: 5, rank: '기사', soldiers: 4 },
-        { minLevel: 8, rank: '영웅', soldiers: 5 },
-        { minLevel: 12, rank: '전설', soldiers: 6 }
-      ];
-
-      const monsterTypes = ['슬라임', '늑대', '고블린', '해골', '오크', '거미', '좀비', '도적', '트롤', '악마'];
-      const specialTypes = ['고대 유적', '숨겨진 제단', '길 잃은 상인', '빛의 축복', '어둠의 저주', '용사의 흔적', '전장의 잔해', '수상한 포탈', '비밀 금고', '미스터리 균열'];
-      const markerIcons = { 몬스터: '⚔️', 보물: '🎁', 장비: '🧰', 특수: '✨' };
-      const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
-
-      const gearCatalog = [
-        { name: '낡은 검', slot: 'weapon', icon: '🗡️', stats: { atk: 3, crit: 1 } },
-        { name: '튼튼한 갑옷', slot: 'armor', icon: '🛡️', stats: { def: 4, hp: 10 } },
-        { name: '가벼운 장화', slot: 'boots', icon: '🥾', stats: { speed: 2, hp: 4 } },
-        { name: '철 장갑', slot: 'gloves', icon: '🧤', stats: { atk: 2, def: 2 } },
-        { name: '전투 반지', slot: 'ring', icon: '💍', stats: { crit: 3, atk: 1 } },
-        { name: '강화 망토', slot: 'cloak', icon: '🧥', stats: { hp: 8, def: 2 } },
-        { name: '사냥 활', slot: 'weapon', icon: '🏹', stats: { atk: 3, speed: 1, crit: 1 } },
-        { name: '기사 방패', slot: 'shield', icon: '🛡️', stats: { def: 5, hp: 8 } },
-        { name: '집중 목걸이', slot: 'necklace', icon: '📿', stats: { crit: 2, speed: 1 } },
-        { name: '용사의 문장', slot: 'cloak', icon: '🏅', stats: { atk: 2, def: 2, hp: 6 } }
-      ];
-
-      const slotLabels = {
-        weapon: '무기',
-        armor: '갑옷',
-        shield: '방패',
-        gloves: '장갑',
-        boots: '장화',
-        ring: '반지',
-        necklace: '목걸이',
-        cloak: '망토'
-      };
-
-      const slotPinMap = {
-        weapon: 'pinWeapon',
-        armor: 'pinArmor',
-        shield: 'pinShield',
-        gloves: 'pinGloves',
-        boots: 'pinBoots',
-        ring: 'pinRing',
-        necklace: 'pinNecklace',
-        cloak: 'pinCloak'
-      };
-
-      const state = {
-        heroName: '주인님의 영웅',
-        heroClass: '전사',
-        level: 1,
-        exp: 0,
-        gold: 0,
-        logs: [],
-        mapHistory: [],
-        currentLocation: null,
-        map: null,
-        markers: [],
-        currentLocationMarker: null,
-        pendingDecoded: null,
-        battle: null,
-        html5QrCode: null,
-        scannerRunning: false,
-        inventory: [],
-        equipment: {
-          weapon: null,
-          armor: null,
-          shield: null,
-          gloves: null,
-          boots: null,
-          ring: null,
-          necklace: null,
-          cloak: null
-        }
-      };
-
-      const els = {
-        heroTitleBtn: document.getElementById('heroTitleBtn'),
-        heroGoldTop: document.getElementById('heroGoldTop'),
-        heroExpFill: document.getElementById('heroExpFill'),
-        heroExpBarText: document.getElementById('heroExpBarText'),
-        heroSpriteWrap: document.getElementById('heroSpriteWrap'),
-        soldierFront: document.getElementById('soldierFront'),
-        heroMapBtn: document.getElementById('heroMapBtn'),
-
-        barcodeInput: document.getElementById('barcodeInput'),
-        scanFab: document.getElementById('scanFab'),
-        scanModalBackdrop: document.getElementById('scanModalBackdrop'),
-        scanModalCloseBtn: document.getElementById('scanModalCloseBtn'),
-        scanStartBtn: document.getElementById('scanStartBtn'),
-        scanStatusText: document.getElementById('scanStatusText'),
-
-        mapBackdrop: document.getElementById('mapBackdrop'),
-        mapCloseBtn: document.getElementById('mapCloseBtn'),
-        mapSelectionInfo: document.getElementById('mapSelectionInfo'),
-        mapHistoryBtn: document.getElementById('mapHistoryBtn'),
-
-        mapHistoryBackdrop: document.getElementById('mapHistoryBackdrop'),
-        mapHistoryList: document.getElementById('mapHistoryList'),
-        mapHistoryCloseBtn: document.getElementById('mapHistoryCloseBtn'),
-
-        decodeInfoBtn: document.getElementById('decodeInfoBtn'),
-        decodeBackdrop: document.getElementById('decodeBackdrop'),
-        decodeBox: document.getElementById('decodeBox'),
-        decodeCloseBtn: document.getElementById('decodeCloseBtn'),
-
-        exploreLogBtn: document.getElementById('exploreLogBtn'),
-        exploreLogBackdrop: document.getElementById('exploreLogBackdrop'),
-        exploreLog: document.getElementById('exploreLog'),
-        exploreLogCloseBtn: document.getElementById('exploreLogCloseBtn'),
-
-        eventTacticSelect: document.getElementById('eventTacticSelect'),
-        eventSoldierClassSelect: document.getElementById('eventSoldierClassSelect'),
-
-        codeOutput: document.getElementById('codeOutput'),
-        eventTitle: document.getElementById('eventTitle'),
-        eventDesc: document.getElementById('eventDesc'),
-        eventBadges: document.getElementById('eventBadges'),
-
-        locationStatus: document.getElementById('locationStatus'),
-
-        eventModalBackdrop: document.getElementById('eventModalBackdrop'),
-        eventModalTitle: document.getElementById('eventModalTitle'),
-        eventModalVisual: document.getElementById('eventModalVisual'),
-        eventModalText: document.getElementById('eventModalText'),
-        eventModalBadges: document.getElementById('eventModalBadges'),
-        eventModalActions: document.getElementById('eventModalActions'),
-
-        battleBackdrop: document.getElementById('battleBackdrop'),
-        battleHeroUnit: document.getElementById('battleHeroUnit'),
-        battleEnemyUnit: document.getElementById('battleEnemyUnit'),
-        battleHeroSpriteWrap: document.getElementById('battleHeroSpriteWrap'),
-        battleEnemyEmoji: document.getElementById('battleEnemyEmoji'),
-        battleHeroName: document.getElementById('battleHeroName'),
-        battleEnemyName: document.getElementById('battleEnemyName'),
-        battleHeroMeta: document.getElementById('battleHeroMeta'),
-        battleEnemyMeta: document.getElementById('battleEnemyMeta'),
-        battleHeroHpText: document.getElementById('battleHeroHpText'),
-        battleEnemyHpText: document.getElementById('battleEnemyHpText'),
-        heroHpBar: document.getElementById('heroHpBar'),
-        enemyHpBar: document.getElementById('enemyHpBar'),
-        battleTurnTitle: document.getElementById('battleTurnTitle'),
-        battleLog: document.getElementById('battleLog'),
-        battleActions: document.getElementById('battleActions'),
-        battleResultBox: document.getElementById('battleResultBox'),
-        battleSoldierGroup: document.getElementById('battleSoldierGroup'),
-
-        startHeroBackdrop: document.getElementById('heroStartBackdrop'),
-        startHeroName: document.getElementById('startHeroName'),
-        startHeroClass: document.getElementById('startHeroClass'),
-        startGameBtn: document.getElementById('startGameBtn'),
-
-        heroStatsBackdrop: document.getElementById('heroStatsBackdrop'),
-        heroStatsCloseBtn: document.getElementById('heroStatsCloseBtn'),
-        heroStatsTitle: document.getElementById('heroStatsTitle'),
-        heroStatsAtk: document.getElementById('heroStatsAtk'),
-        heroStatsDef: document.getElementById('heroStatsDef'),
-        heroStatsHp: document.getElementById('heroStatsHp'),
-        heroStatsSpeed: document.getElementById('heroStatsSpeed'),
-        heroStatsCrit: document.getElementById('heroStatsCrit'),
-        heroStatsSoldiers: document.getElementById('heroStatsSoldiers'),
-        heroPreviewWrap: document.getElementById('heroPreviewWrap'),
-        heroEquipSummary: document.getElementById('heroEquipSummary'),
-        inventoryList: document.getElementById('inventoryList'),
-        pinWeapon: document.getElementById('pinWeapon'),
-        pinArmor: document.getElementById('pinArmor'),
-        pinShield: document.getElementById('pinShield'),
-        pinGloves: document.getElementById('pinGloves'),
-        pinBoots: document.getElementById('pinBoots'),
-        pinRing: document.getElementById('pinRing'),
-        pinNecklace: document.getElementById('pinNecklace'),
-        pinCloak: document.getElementById('pinCloak')
-      };
-
-      function openModal(el) { el.classList.add('show'); }
-      function closeModal(el) { el.classList.remove('show'); }
-      function wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-
-      function getHeroRankInfo(level) {
-        const eligible = rankTable.filter(v => level >= v.minLevel);
-        return eligible[eligible.length - 1] || rankTable[0];
-      }
-
-      function getExpNeed(level) {
-        return 20 + (level - 1) * 15;
-      }
-
-      function onlyDigits(value) {
-        return String(value).replace(/\D/g, '');
-      }
-
-      function toFiveCode(barcodeDigits) {
-        const N = Number(barcodeDigits);
-        if (!Number.isFinite(N)) return '00000';
-        return String((N + Math.floor(N / 7) + Math.floor(N / 13)) % 100000).padStart(5, '0');
-      }
-
-      function getEnemyVisual(name) {
-        return {
-          슬라임: '🟢', 늑대: '🐺', 고블린: '👺', 해골: '💀', 오크: '👹',
-          거미: '🕷️', 좀비: '🧟', 도적: '🥷', 트롤: '🪨', 악마: '😈'
-        }[name] || '👹';
-      }
-
-      function getRarityFromDigit(d2) {
-        if (d2 <= 2) return 'common';
-        if (d2 <= 4) return 'uncommon';
-        if (d2 <= 6) return 'rare';
-        if (d2 <= 8) return 'epic';
-        return 'legendary';
-      }
-
-      function getRarityLabel(rarity) {
-        return {
-          common: '일반',
-          uncommon: '고급',
-          rare: '희귀',
-          epic: '영웅',
-          legendary: '전설'
-        }[rarity] || '일반';
-      }
-
-      function getRarityMultiplier(rarity) {
-        return {
-          common: 1,
-          uncommon: 1.12,
-          rare: 1.26,
-          epic: 1.45,
-          legendary: 1.7
-        }[rarity] || 1;
-      }
-
-      function getRarityIndex(rarity) {
-        return rarityOrder.indexOf(rarity);
-      }
-
-      function getHighestEquippedRarity() {
-        const items = Object.values(state.equipment).filter(Boolean);
-        if (!items.length) return 'common';
-        return items.sort((a, b) => getRarityIndex(b.rarity) - getRarityIndex(a.rarity))[0].rarity;
-      }
-
-      function getHeroAuraClass() {
-        return `aura-${getHighestEquippedRarity()}`;
-      }
-
-      function getHeroSprite(heroClass) {
-        const classMap = {
-          전사: {
-            cls: 'class-warrior',
-            weapon: '<path class="hero-weapon" d="M61 10l7 7-16 16-4-4z"/><path class="hero-weapon" d="M46 24l8 8-17 17-8-8z"/><rect class="hero-weapon" x="32" y="46" width="6" height="16" rx="2"/>'
-          },
-          궁사: {
-            cls: 'class-archer',
-            weapon: '<path class="hero-weapon" d="M58 18c-8 8-8 22 0 30" fill="none" stroke="#e7c784" stroke-width="4" stroke-linecap="round"/><path class="hero-weapon" d="M58 18c-5 3-10 8-13 15 3 7 8 12 13 15" fill="none" stroke="#e7c784" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="18" x2="50" y2="48" stroke="#f6e6b0" stroke-width="2"/>'
-          },
-          마법사: {
-            cls: 'class-mage',
-            weapon: '<rect class="hero-weapon" x="56" y="18" width="4" height="34" rx="2"/><circle class="hero-weapon" cx="58" cy="14" r="6"/>'
-          }
-        };
-        const config = classMap[heroClass] || classMap.전사;
-        return `<svg viewBox="0 0 84 98" width="84" height="98" class="${config.cls}" aria-hidden="true"><ellipse cx="42" cy="90" rx="18" ry="5" fill="rgba(0,0,0,0.18)"/><path class="hero-cloak" d="M24 43c4-12 12-19 18-19 8 0 16 7 18 19l6 26H18z"/><circle cx="42" cy="20" r="12" fill="#f4d1b5"/><rect class="hero-body" x="30" y="34" width="24" height="27" rx="10"/><rect fill="#f4d1b5" x="24" y="41" width="8" height="18" rx="4"/><rect fill="#f4d1b5" x="52" y="41" width="8" height="18" rx="4"/><rect fill="#f4d1b5" x="34" y="60" width="6" height="20" rx="3"/><rect fill="#f4d1b5" x="44" y="60" width="6" height="20" rx="3"/><path fill="#1b2135" d="M30 16c2-9 22-12 26 0-3-2-7-3-13-3s-10 1-13 3z"/>${config.weapon}</svg>`;
-      }
-
-      function getHeroVisualHtml(heroClass) {
-        return `<div class="hero-visual-wrap ${getHeroAuraClass()}">${getHeroSprite(heroClass)}</div>`;
-      }
-
-      function getSoldierSprite(soldierClass, size = 'normal') {
-        const soldierMap = {
-          검병: { weapon: '<rect class="soldier-weapon" x="24" y="4" width="3" height="18" rx="1.5"/><rect class="soldier-weapon" x="22" y="18" width="7" height="3" rx="1.5"/>' },
-          방패병: { weapon: '<path class="soldier-weapon" d="M24 9c5 1 8 2 8 2v7c0 7-8 11-8 11s-8-4-8-11v-7s3-1 8-2z"/>' },
-          궁병: { weapon: '<path class="soldier-weapon" d="M26 7c-5 5-5 13 0 18" fill="none" stroke="#d8e4ff" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="8" x2="22" y2="24" stroke="#f6e6b0" stroke-width="1.5"/>' },
-          창병: { weapon: '<rect class="soldier-weapon" x="24" y="4" width="2.5" height="24" rx="1.2"/><path class="soldier-weapon" d="M25 2l4 6h-8z"/>' }
-        };
-        const config = soldierMap[soldierClass] || soldierMap.검병;
-        if (size === 'battle') {
-          return `<div class="battle-soldier"><svg viewBox="0 0 36 44" width="22" height="28" class="soldier-svg" aria-hidden="true"><circle cx="18" cy="8" r="5" fill="#f3cfb0"/><rect class="soldier-body" x="12" y="13" width="12" height="12" rx="5"/><path class="soldier-armor" d="M10 25h16l4 12H6z"/><rect fill="#f3cfb0" x="12" y="24" width="4" height="10" rx="2"/><rect fill="#f3cfb0" x="20" y="24" width="4" height="10" rx="2"/>${config.weapon}</svg></div>`;
-        }
-        return `<div class="soldier"><svg viewBox="0 0 36 44" width="26" height="34" class="soldier-svg" aria-hidden="true"><circle cx="18" cy="8" r="5" fill="#f3cfb0"/><rect class="soldier-body" x="12" y="13" width="12" height="12" rx="5"/><path class="soldier-armor" d="M10 25h16l4 12H6z"/><rect fill="#f3cfb0" x="12" y="24" width="4" height="10" rx="2"/><rect fill="#f3cfb0" x="20" y="24" width="4" height="10" rx="2"/>${config.weapon}</svg><div class="soldier-small-shadow"></div></div>`;
-      }
-
-      function getClassBonus(heroClass) {
-        return {
-          전사: { atk: 4, def: 3, hp: 22, spd: 0, crit: 1 },
-          궁사: { atk: 5, def: 1, hp: 12, spd: 3, crit: 3 },
-          마법사: { atk: 6, def: 0, hp: 10, spd: 1, crit: 4 }
-        }[heroClass] || { atk: 4, def: 3, hp: 22, spd: 0, crit: 1 };
-      }
-
-      function getEquipmentBonus() {
-        const total = { atk: 0, def: 0, hp: 0, speed: 0, crit: 0 };
-        Object.values(state.equipment).filter(Boolean).forEach(item => {
-          const mul = getRarityMultiplier(item.rarity);
-          total.atk += Math.round((item.stats.atk || 0) * mul);
-          total.def += Math.round((item.stats.def || 0) * mul);
-          total.hp += Math.round((item.stats.hp || 0) * mul);
-          total.speed += Math.round((item.stats.speed || 0) * mul);
-          total.crit += Math.round((item.stats.crit || 0) * mul);
-        });
-        return total;
-      }
-
-      function getHeroBaseStats() {
-        const bonus = getClassBonus(state.heroClass);
-        const rankInfo = getHeroRankInfo(state.level);
-        const equip = getEquipmentBonus();
-        return {
-          atk: 14 + (state.level * 2) + bonus.atk + (rankInfo.soldiers - 2) * 2 + equip.atk,
-          def: 10 + Math.floor(state.level * 1.6) + bonus.def + (rankInfo.soldiers - 2) * 2 + equip.def,
-          hp: 100 + (state.level * 18) + bonus.hp + (rankInfo.soldiers - 2) * 12 + equip.hp,
-          speed: 5 + Math.floor(state.level * 0.6) + bonus.spd + equip.speed,
-          crit: 5 + Math.floor(state.level * 0.3) + bonus.crit + equip.crit,
-          soldiers: rankInfo.soldiers,
-          rank: rankInfo.rank
-        };
-      }
-
-      function makeEnemy(name, grade, amount, special, d4) {
-        const baseStats = [
-          { atk: 6, def: 4, hp: 20, speed: 3, crit: 3 },
-          { atk: 9, def: 5, hp: 25, speed: 8, crit: 6 },
-          { atk: 8, def: 6, hp: 30, speed: 6, crit: 5 },
-          { atk: 10, def: 7, hp: 35, speed: 5, crit: 4 },
-          { atk: 14, def: 10, hp: 45, speed: 4, crit: 6 },
-          { atk: 8, def: 5, hp: 24, speed: 10, crit: 7 },
-          { atk: 11, def: 8, hp: 42, speed: 2, crit: 3 },
-          { atk: 12, def: 6, hp: 28, speed: 11, crit: 10 },
-          { atk: 18, def: 12, hp: 70, speed: 2, crit: 4 },
-          { atk: 20, def: 14, hp: 80, speed: 7, crit: 12 }
-        ][d4];
-
-        const gradeMult = grade === '일반' ? 1.12 : grade === '강화' ? 1.34 : grade === '엘리트' ? 1.62 : 2.12;
-        let atk = Math.round(baseStats.atk * gradeMult);
-        let def = Math.round(baseStats.def * gradeMult);
-        let hp = Math.round((baseStats.hp + amount * 10) * gradeMult);
-        let speed = Math.round(baseStats.speed * gradeMult);
-        let crit = baseStats.crit + (grade === '강화' ? 3 : grade === '엘리트' ? 5 : grade === '보스' ? 8 : 1);
-
-        if (special === '공격 증가') atk = Math.round(atk * 1.18);
-        if (special === '방어 증가') def = Math.round(def * 1.18);
-        if (special === '속도 증가') speed = Math.round(speed * 1.22);
-        if (special === '희귀 보상') crit += 10;
-
-        return { name, grade, amount, atk, def, hp, speed, crit, special };
-      }
-
-      function createEquipmentItem(d2, d4) {
-        const gear = gearCatalog[d4];
-        const rarity = getRarityFromDigit(d2);
-        const rarityLabel = getRarityLabel(rarity);
-        const item = {
-          id: `${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-          name: `${rarityLabel} ${gear.name}`,
-          baseName: gear.name,
-          slot: gear.slot,
-          slotLabel: slotLabels[gear.slot],
-          icon: gear.icon,
-          rarity,
-          rarityLabel,
-          stats: { ...gear.stats },
-          score:
-            (gear.stats.atk || 0) * 2.0 +
-            (gear.stats.def || 0) * 1.8 +
-            (gear.stats.hp || 0) * 0.28 +
-            (gear.stats.speed || 0) * 2.2 +
-            (gear.stats.crit || 0) * 2.4
-        };
-        item.power = Math.round(item.score * getRarityMultiplier(rarity) * 10);
-        return item;
-      }
-
-      function getItemStatText(item) {
-        const parts = [];
-        if (item.stats.atk) parts.push(`공${item.stats.atk}`);
-        if (item.stats.def) parts.push(`방${item.stats.def}`);
-        if (item.stats.hp) parts.push(`HP+${item.stats.hp}`);
-        if (item.stats.speed) parts.push(`속${item.stats.speed}`);
-        if (item.stats.crit) parts.push(`치${item.stats.crit}`);
-        return parts.join(' / ');
-      }
-
-      function obtainItem(item) {
-        state.inventory.unshift(item);
-        state.inventory = state.inventory.slice(0, 60);
-
-        const current = state.equipment[item.slot];
-        if (!current || item.power > current.power) {
-          state.equipment[item.slot] = item;
-          return true;
-        }
-        return false;
-      }
-
-      function decodeEvent(code) {
-        const [d1, d2, d3, d4, d5] = code.split('').map(Number);
-        const eventType = d1 <= 5 ? '몬스터' : d1 <= 7 ? '보물' : d1 === 8 ? '장비' : '특수';
-        let grade = '일반';
-
-        if (eventType === '몬스터') {
-          grade = d2 <= 5 ? '일반' : d2 <= 7 ? '강화' : d2 === 8 ? '엘리트' : '보스';
-        } else if (eventType === '보물') {
-          grade = '보물';
-        } else if (eventType === '장비') {
-          grade = '장비';
-        } else {
-          grade = '특수';
-        }
-
-        const amount = d3 <= 3 ? 1 : d3 <= 6 ? 2 : d3 <= 8 ? 3 : 4;
-        const special = d5 <= 5 ? '없음' : d5 === 6 ? '공격 증가' : d5 === 7 ? '방어 증가' : d5 === 8 ? '속도 증가' : '희귀 보상';
-
-        let title = '';
-        let desc = '';
-        let badges = [];
-        let enemy = null;
-        let reward = null;
-        let item = null;
-
-        if (eventType === '몬스터') {
-          const monsterName = monsterTypes[d4];
-          title = `${grade} ${monsterName} 출현`;
-          desc = `${monsterName} ${amount}마리가 나타났습니다. 특수 효과: ${special}.`;
-          badges = [eventType, grade, `${amount}마리`, special];
-          enemy = makeEnemy(monsterName, grade, amount, special, d4);
-        } else if (eventType === '보물') {
-          const gold = 20 + d2 * 8 + d3 * 5 + d5 * 3;
-          title = '보물 발견';
-          desc = `숨겨진 보물상자를 발견했습니다. 골드 ${gold}를 획득합니다.`;
-          badges = [eventType, `골드 +${gold}`, special];
-          reward = { exp: 8 + d2, gold };
-        } else if (eventType === '장비') {
-          item = createEquipmentItem(d2, d4);
-          const exp = 12 + d2 * 2 + d5;
-          title = '장비 발견';
-          desc = `${item.name}을(를) 획득했습니다. ${item.slotLabel} 슬롯 장비입니다.`;
-          badges = [eventType, item.rarityLabel, item.slotLabel, item.baseName];
-          reward = { exp, gold: 10 + d3 * 3 };
-        } else {
-          const sp = specialTypes[d4];
-          const exp = 15 + d2 * 2 + d5;
-          title = '특수 이벤트';
-          desc = `${sp}을(를) 발견했습니다. 탐험의 기운으로 영웅이 크게 성장합니다.`;
-          badges = [eventType, sp, `경험치 +${exp}`];
-          reward = { exp, gold: 15 + d3 * 4 };
-        }
-
-        return { code, d1, d2, d3, d4, d5, eventType, grade, amount, special, title, desc, badges, enemy, reward, item };
-      }
-
-      function getTacticMod(tactic) {
-        return tactic === '공격 중심'
-          ? { atk: 1.22, def: 0.84, hp: 1.0, speed: 1.04, crit: 1.08 }
-          : tactic === '방어 중심'
-          ? { atk: 0.9, def: 1.22, hp: 1.08, speed: 0.95, crit: 1.0 }
-          : { atk: 1.0, def: 1.0, hp: 1.0, speed: 1.0, crit: 1.0 };
-      }
-
-      function getSoldierClassMod(soldierClass) {
-        return soldierClass === '검병'
-          ? { atk: 1.15, def: 0.94, hp: 1.0, speed: 1.0, crit: 1.04 }
-          : soldierClass === '방패병'
-          ? { atk: 0.92, def: 1.2, hp: 1.1, speed: 0.94, crit: 1.0 }
-          : soldierClass === '궁병'
-          ? { atk: 1.1, def: 0.92, hp: 0.94, speed: 1.12, crit: 1.08 }
-          : { atk: 1.05, def: 1.05, hp: 1.02, speed: 1.0, crit: 1.02 };
-      }
-
-      function calcDamage(attackerAtk, defenderDef, critChance) {
-        let value = Math.max(1, attackerAtk - Math.floor(defenderDef * 0.62) + Math.floor(Math.random() * 5));
-        const critical = Math.random() * 100 < critChance;
-        if (critical) value *= 2;
-        return { value, critical };
-      }
-
-      function getBattleExp(enemy) {
-        return (enemy.grade === '일반' ? 11 : enemy.grade === '강화' ? 19 : enemy.grade === '엘리트' ? 30 : 43) + enemy.amount * 3;
-      }
-
-      function getBattleGold(enemy) {
-        return (enemy.grade === '일반' ? 8 : enemy.grade === '강화' ? 15 : enemy.grade === '엘리트' ? 24 : 35) + enemy.amount * 2;
-      }
-
-      function addReward(exp, gold) {
-        state.exp += exp;
-        state.gold = Math.max(0, state.gold + gold);
-        let leveled = false;
-
-        while (state.exp >= getExpNeed(state.level)) {
-          state.exp -= getExpNeed(state.level);
-          state.level += 1;
-          leveled = true;
-        }
-
-        return leveled;
-      }
-
-      function formatHeroTopTitle(stats) {
-        return `${state.heroName} (${state.heroClass}-${stats.rank}) Lv ${state.level}`;
-      }
-
-      function renderHeroFormation(heroClass, soldierClass, soldierCount) {
-        els.heroSpriteWrap.innerHTML = getHeroVisualHtml(heroClass);
-        els.soldierFront.innerHTML = Array.from({ length: soldierCount }, () => getSoldierSprite(soldierClass)).join('');
-      }
-
-      function renderHero() {
-        const stats = getHeroBaseStats();
-        const expNeed = getExpNeed(state.level);
-        const expRate = Math.max(0, Math.min(100, (state.exp / expNeed) * 100));
-
-        els.heroGoldTop.textContent = state.gold;
-        els.heroExpBarText.textContent = `${state.exp} / ${expNeed}`;
-        els.heroExpFill.style.width = `${expRate}%`;
-        els.heroTitleBtn.textContent = formatHeroTopTitle(stats);
-        renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
-      }
-
-      function renderEquipPins() {
-        Object.entries(slotPinMap).forEach(([slot, pinId]) => {
-          const pinEl = els[pinId];
-          const item = state.equipment[slot];
-          if (!item) {
-            pinEl.className = `equip-pin ${pinEl.className.split(' ').find(v => v.startsWith('pin-')) || ''} empty`;
-            pinEl.innerHTML = `${slotLabels[slot]}`;
-            return;
-          }
-          const pinClass = pinEl.className.split(' ').find(v => v.startsWith('pin-')) || '';
-          pinEl.className = `equip-pin ${pinClass} rarity-${item.rarity}`;
-          pinEl.innerHTML = `${item.icon}<b>${item.baseName}</b>`;
-        });
-      }
-
-      function renderInventory() {
-        els.inventoryList.innerHTML = state.inventory.length
-          ? state.inventory.map(item => `
-              <div class="inventory-item">
-                <div class="inventory-icon">${item.icon}</div>
-                <div class="inventory-main">
-                  <div class="inventory-name rarity-${item.rarity}">${item.name}</div>
-                  <div class="inventory-meta">${getItemStatText(item)}</div>
-                </div>
-                <div class="inventory-slot">${item.slotLabel}</div>
-              </div>
-            `).join('')
-          : `<div class="empty-box">아직 획득한 아이템이 없습니다.</div>`;
-      }
-
-      function openHeroStatsModal() {
-        const stats = getHeroBaseStats();
-        const equippedItems = Object.values(state.equipment).filter(Boolean);
-
-        els.heroStatsTitle.textContent = formatHeroTopTitle(stats);
-        els.heroStatsAtk.textContent = stats.atk;
-        els.heroStatsDef.textContent = stats.def;
-        els.heroStatsHp.textContent = stats.hp;
-        els.heroStatsSpeed.textContent = stats.speed;
-        els.heroStatsCrit.textContent = `${stats.crit}%`;
-        els.heroStatsSoldiers.textContent = `${stats.soldiers}명`;
-        els.heroPreviewWrap.innerHTML = getHeroVisualHtml(state.heroClass);
-        renderEquipPins();
-
-        els.heroEquipSummary.innerHTML = equippedItems.length
-          ? equippedItems.map(item => `<div class="equip-chip rarity-${item.rarity}">${item.icon} ${item.baseName}</div>`).join('')
-          : `<div class="muted" style="font-size:10px;">장착 중인 장비가 없습니다.</div>`;
-
-        renderInventory();
-        openModal(els.heroStatsBackdrop);
-      }
-
-      function renderEvent(decoded) {
-        els.codeOutput.textContent = decoded.code;
-        els.eventTitle.textContent = decoded.title;
-        els.eventDesc.textContent = decoded.desc;
-        els.eventBadges.innerHTML = decoded.badges.map(b => `<div class="badge">${b}</div>`).join('');
-        els.decodeBox.innerHTML =
-          `1번째 자리 <b>${decoded.d1}</b> = ${decoded.eventType}<br>` +
-          `2번째 자리 <b>${decoded.d2}</b> = ${decoded.grade}${decoded.item ? ` / ${decoded.item.rarityLabel}` : ''}<br>` +
-          `3번째 자리 <b>${decoded.d3}</b> = ${decoded.amount}${decoded.eventType === '몬스터' ? '마리 규모' : '단계'}<br>` +
-          `4번째 자리 <b>${decoded.d4}</b> = ${decoded.eventType === '몬스터' ? monsterTypes[decoded.d4] : decoded.eventType === '특수' ? specialTypes[decoded.d4] : decoded.item ? decoded.item.baseName : '세부 타입'}<br>` +
-          `5번째 자리 <b>${decoded.d5}</b> = ${decoded.special}`;
-      }
-
-      function addLog(title, detail) {
-        state.logs.unshift({ time: new Date().toLocaleString('ko-KR'), title, detail });
-        state.logs = state.logs.slice(0, 50);
-        renderLogs();
-      }
-
-      function renderLogs() {
-        els.exploreLog.innerHTML = state.logs.length
-          ? state.logs.map(item => `<div class="list-item" style="cursor:default;"><div class="muted">${item.time}</div><div><b>${item.title}</b></div><div class="muted" style="margin-top:6px;">${item.detail}</div></div>`).join('')
-          : '<div class="empty-box">아직 탐험 기록이 없습니다.</div>';
-      }
-
-      async function reverseGeocode(lat, lng) {
-        try {
-          const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
-          const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-          if (!res.ok) throw new Error('reverse geocode failed');
-          const data = await res.json();
-          return data.display_name || '주소 확인 불가';
-        } catch {
-          return '주소 확인 불가';
-        }
-      }
-
-      function shortAddress(fullAddress) {
-        if (!fullAddress || fullAddress === '주소 확인 불가') return fullAddress || '-';
-        const parts = fullAddress.split(',').map(v => v.trim()).filter(Boolean);
-        return parts.slice(0, 3).join(', ');
-      }
-
-      function saveMapHistory() {
-        localStorage.setItem('scanhero_map_history', JSON.stringify(state.mapHistory.map(({ __marker, ...rest }) => rest)));
-      }
-
-      function sanitizeHistory(history) {
-        return Array.isArray(history)
-          ? history.filter(item => item && typeof item.lat === 'number' && typeof item.lng === 'number' && typeof item.id === 'string')
-          : [];
-      }
-
-      function loadMapHistory() {
-        const raw = localStorage.getItem('scanhero_map_history');
-        if (!raw) return;
-        try {
-          state.mapHistory = sanitizeHistory(JSON.parse(raw));
-        } catch {
-          state.mapHistory = [];
-        }
-      }
-
-      async function addMapHistory({ barcode, decoded, detail, exp, gold }) {
-        const lat = state.currentLocation.lat;
-        const lng = state.currentLocation.lng;
-        const address = await reverseGeocode(lat, lng);
-
-        state.mapHistory.unshift({
-          id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-          barcode,
-          code: decoded.code,
-          eventType: decoded.eventType,
-          title: decoded.title,
-          detail,
-          exp,
-          gold,
-          icon: markerIcons[decoded.eventType] || '📍',
-          lat,
-          lng,
-          address,
-          time: new Date().toLocaleString('ko-KR')
-        });
-
-        state.mapHistory = state.mapHistory.slice(0, 100);
-        saveMapHistory();
-        renderMapHistoryList();
-        renderMapMarkers();
-      }
-
-      function makeInfoWindowHtml(item) {
-        return `
-          <div style="min-width:180px; max-width:220px; color:#111827; font-size:12px; line-height:1.5;">
-            <div style="font-weight:900; font-size:13px; margin-bottom:6px;">${item.icon} ${item.title}</div>
-            <div style="color:#374151; margin-bottom:4px;">${item.detail}</div>
-            <div style="font-size:11px; color:#6b7280;">📍 ${shortAddress(item.address || '')}</div>
-          </div>
-        `;
-      }
-
-      function focusMapHistory(item) {
-        els.mapSelectionInfo.innerHTML =
-          `<b>${item.icon} ${item.title}</b><br>` +
-          `${item.detail}<br>` +
-          `주소: ${shortAddress(item.address || '주소 확인 불가')}<br>` +
-          `위치: ${item.lat.toFixed(1)}, ${item.lng.toFixed(1)}`;
-
-        if (state.map) state.map.setView([item.lat, item.lng], 18);
-        if (item.__marker) {
-          item.__marker.setPopupContent(makeInfoWindowHtml(item));
-          item.__marker.openPopup();
-        }
-        closeModal(els.mapHistoryBackdrop);
-        openModal(els.mapBackdrop);
-      }
-
-      function renderMapHistoryList() {
-        els.mapHistoryList.innerHTML = state.mapHistory.length
-          ? state.mapHistory.map(item =>
-              `<div class="list-item" data-id="${item.id}">
-                <div><b>${item.icon} ${item.title}</b></div>
-                <div class="muted" style="margin-top:4px;">${item.detail}</div>
-                <div class="muted" style="margin-top:4px;">${shortAddress(item.address || '')}</div>
-              </div>`
-            ).join('')
-          : '<div class="empty-box">아직 지도에 기록된 탐험 위치가 없습니다.</div>';
-
-        document.querySelectorAll('#mapHistoryList .list-item[data-id]').forEach(node => {
-          node.addEventListener('click', () => {
-            const target = state.mapHistory.find(v => v.id === node.dataset.id);
-            if (target) focusMapHistory(target);
-          });
-        });
-      }
-
-      function initMap() {
-        if (typeof L === 'undefined') {
-          document.getElementById('map').innerHTML = '<div style="padding:18px; color:#cdd7f2; line-height:1.6;">Leaflet 지도를 불러오지 못했습니다.</div>';
-          return;
-        }
-
-        state.map = L.map('map', { center: [37.5665, 126.9780], zoom: 18, zoomControl: true });
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(state.map);
-
-        renderMapMarkers();
-        if (state.currentLocation) updateCurrentLocationMarker();
-
-        setTimeout(() => {
-          state.map.invalidateSize();
-        }, 200);
-      }
-
-      function renderMapMarkers() {
-        if (!state.map || typeof L === 'undefined') return;
-
-        state.markers.forEach(marker => state.map.removeLayer(marker));
-        state.markers = [];
-
-        state.mapHistory.forEach(item => {
-          const marker = L.marker([item.lat, item.lng]).addTo(state.map);
-          marker.bindPopup(makeInfoWindowHtml(item));
-          item.__marker = marker;
-          marker.on('click', () => focusMapHistory(item));
-          state.markers.push(marker);
-        });
-      }
-
-      function updateCurrentLocationMarker() {
-        if (!state.map || typeof L === 'undefined' || !state.currentLocation) return;
-        if (state.currentLocationMarker) state.map.removeLayer(state.currentLocationMarker);
-
-        const icon = L.divIcon({
-          className: '',
-          html: '<div class="mini-current-marker">🧙</div>',
-          iconSize: [28, 28],
-          iconAnchor: [14, 14]
-        });
-
-        state.currentLocationMarker = L.marker([state.currentLocation.lat, state.currentLocation.lng], { icon })
-          .addTo(state.map)
-          .bindPopup('현재 위치');
-
-        state.map.setView([state.currentLocation.lat, state.currentLocation.lng], 18);
-      }
-
-      function requestCurrentLocation() {
-        if (!navigator.geolocation) {
-          els.locationStatus.textContent = '이 브라우저는 위치 정보를 지원하지 않습니다.';
-          return;
-        }
-
-        els.locationStatus.textContent = '현재 위치를 확인 중입니다...';
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            const address = await reverseGeocode(lat, lng);
-
-            state.currentLocation = { lat, lng, address };
-            els.locationStatus.innerHTML =
-              `현재 위치 확인 완료<br>` +
-              `주소: ${shortAddress(address)}<br>` +
-              `위치: ${lat.toFixed(1)}, ${lng.toFixed(1)}`;
-
-            if (state.map) updateCurrentLocationMarker();
-          },
-          (error) => {
-            els.locationStatus.textContent = `위치 확인 실패: ${error.message}`;
-          },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-      }
-
-      function showEventModal(decoded) {
-        state.pendingDecoded = decoded;
-        els.eventModalTitle.textContent = '이벤트 확인';
-        els.eventModalVisual.textContent =
-          decoded.eventType === '몬스터' ? getEnemyVisual(decoded.enemy?.name || '악마')
-          : decoded.eventType === '보물' ? '🎁'
-          : decoded.eventType === '장비' ? decoded.item?.icon || '🧰'
-          : '✨';
-
-        els.eventModalText.innerHTML = decoded.desc;
-        els.eventModalBadges.innerHTML = (decoded.badges || []).map(b => `<div class="badge">${b}</div>`).join('');
-
-        if (decoded.eventType === '몬스터') {
-          els.eventModalActions.innerHTML = `<button class="modal-primary" id="eventPrimaryBtn">전투 준비 완료</button>`;
-        } else {
-          els.eventModalActions.innerHTML = `<button class="modal-primary" id="eventPrimaryBtn">결과 보기</button>`;
-        }
-
-        document.getElementById('eventPrimaryBtn').addEventListener('click', handleEventConfirm);
-        openModal(els.eventModalBackdrop);
-      }
-
-      function closeEventModal() {
-        state.pendingDecoded = null;
-        closeModal(els.eventModalBackdrop);
-      }
-
-      function getBattleSetup(enemy) {
-        const heroStats = getHeroBaseStats();
-        const tactic = els.eventTacticSelect.value;
-        const soldierClass = els.eventSoldierClassSelect.value;
-        const tacticMod = getTacticMod(tactic);
-        const soldierMod = getSoldierClassMod(soldierClass);
-        const soldierCount = heroStats.soldiers;
-
-        const heroAtk = Math.round(heroStats.atk * tacticMod.atk * soldierMod.atk + soldierCount * 1);
-        const heroDef = Math.round(heroStats.def * tacticMod.def * soldierMod.def + soldierCount * 1);
-        const heroMax = Math.round(heroStats.hp * tacticMod.hp * soldierMod.hp + soldierCount * 8);
-        const heroSpeed = Math.round(heroStats.speed * tacticMod.speed * soldierMod.speed);
-        const heroCrit = Math.round(heroStats.crit * tacticMod.crit * soldierMod.crit);
-
-        return {
-          tactic,
-          soldierClass,
-          soldierCount,
-          heroAtk,
-          heroDef,
-          heroMax,
-          heroSpeed,
-          heroCrit,
-          enemy
-        };
-      }
-
-      function resetBattleAnimations() {
-        [els.battleHeroUnit, els.battleEnemyUnit, els.battleHeroSpriteWrap, els.battleEnemyEmoji, els.battleSoldierGroup].forEach(el => {
-          if (!el) return;
-          el.classList.remove('anim-attack-left', 'anim-attack-right', 'anim-hit', 'anim-run', 'anim-fade');
-          void el.offsetWidth;
-        });
-        document.querySelectorAll('.battle-soldier').forEach(el => {
-          el.classList.remove('anim-attack-left', 'anim-hit', 'anim-run');
-          void el.offsetWidth;
-        });
-      }
-
-      function updateBattleModalUI(title, log) {
-        const b = state.battle;
-        if (!b) return;
-
-        els.battleTurnTitle.textContent = title;
-        els.battleLog.textContent = log;
-        els.battleHeroHpText.textContent = `HP ${Math.max(0, b.heroHp)} / ${b.heroMax}`;
-        els.battleEnemyHpText.textContent = `HP ${Math.max(0, b.enemyHp)} / ${b.enemyMax}`;
-        els.heroHpBar.style.width = `${Math.max(0, (b.heroHp / b.heroMax) * 100)}%`;
-        els.enemyHpBar.style.width = `${Math.max(0, (b.enemyHp / b.enemyMax) * 100)}%`;
-      }
-
-      function calcPartialExpFromDamage(totalDamage, enemyMaxHp, enemy) {
-        const fullExp = getBattleExp(enemy);
-        const ratio = Math.max(0, Math.min(1, totalDamage / enemyMaxHp));
-        return Math.max(1, Math.floor(fullExp * ratio));
-      }
-
-      function decodedSafeTitle(decoded) {
-        return decoded?.title || '전투';
-      }
-
-      function renderBattleHeroSprite() {
-        els.battleHeroSpriteWrap.innerHTML = `<div class="battle-hero-sprite">${getHeroVisualHtml(state.heroClass)}</div>`;
-      }
-
-      function renderBattleSoldiers(count, soldierClass) {
-        els.battleSoldierGroup.innerHTML = Array.from({ length: count }, () => getSoldierSprite(soldierClass, 'battle')).join('');
-      }
-
-      function openBattleModal(decoded) {
-        const setup = getBattleSetup(decoded.enemy);
-
-        state.battle = {
-          decoded,
-          setup,
-          heroHp: setup.heroMax,
-          heroMax: setup.heroMax,
-          enemyHp: setup.enemy.hp,
-          enemyMax: setup.enemy.hp,
-          turn: 1,
-          totalDamageToEnemy: 0,
-          ended: false,
-          locked: false
-        };
-
-        renderBattleHeroSprite();
-        renderBattleSoldiers(setup.soldierCount, setup.soldierClass);
-        els.battleEnemyEmoji.textContent = getEnemyVisual(setup.enemy.name);
-        els.battleHeroName.textContent = state.heroName;
-        els.battleEnemyName.textContent = `${setup.enemy.grade} ${setup.enemy.name}`;
-        els.battleHeroMeta.textContent = `${state.heroClass} / ${setup.tactic} / ${setup.soldierClass} / 병사 ${setup.soldierCount}`;
-        els.battleEnemyMeta.textContent = `공격 ${setup.enemy.atk} / 방어 ${setup.enemy.def}`;
-
-        els.battleResultBox.style.display = 'none';
-        els.battleResultBox.className = '';
-        els.battleActions.className = 'modal-actions two';
-        els.battleActions.innerHTML = `
-          <button class="modal-primary" id="battleAttackBtn">공격</button>
-          <button class="modal-danger" id="battleRunBtn">도망</button>
-        `;
-        bindBattleActionButtons();
-        updateBattleModalUI('전투 시작', `${setup.enemy.grade} ${setup.enemy.name}이(가) 나타났습니다.\n공격 또는 도망을 선택하세요.`);
-        openModal(els.battleBackdrop);
-      }
-
-      async function endBattleAndShowResult({ title, desc, exp = 0, gold = 0, resultType = 'success', logTitle = '', logDetail = '' }) {
-        const decoded = state.battle.decoded;
-        const leveled = addReward(exp, gold);
-
-        if (logTitle) {
-          addLog(logTitle, `${logDetail}${leveled ? ' / 레벨업!' : ''}`);
-        }
-
-        await addMapHistory({
-          barcode: onlyDigits(els.barcodeInput.value),
-          decoded,
-          detail: logDetail || desc,
-          exp,
-          gold
-        });
-
-        renderHero();
-        renderLogs();
-
-        if (leveled) {
-          els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
-        }
-
-        els.battleActions.className = 'modal-actions center-single';
-        els.battleActions.innerHTML = `<button class="modal-primary" id="battleCloseBtn">확인</button>`;
-        document.getElementById('battleCloseBtn').addEventListener('click', () => {
-          closeModal(els.battleBackdrop);
-          state.battle = null;
-        });
-
-        els.battleResultBox.style.display = 'block';
-        els.battleResultBox.className = resultType === 'fail' ? 'battle-result-box fail' : 'battle-result-box';
-        els.battleResultBox.innerHTML = `<b>${title}</b><br>${desc}`;
-      }
-
-      async function animateHeroAttackAndEnemyHit() {
-        resetBattleAnimations();
-        els.battleHeroUnit.classList.add('anim-attack-left');
-        els.battleSoldierGroup.classList.add('anim-attack-left');
-        await wait(180);
-        els.battleEnemyUnit.classList.add('anim-hit');
-        els.battleEnemyEmoji.classList.add('anim-fade');
-        await wait(280);
-        resetBattleAnimations();
-      }
-
-      async function animateEnemyAttackAndHeroHit() {
-        resetBattleAnimations();
-        els.battleEnemyUnit.classList.add('anim-attack-right');
-        await wait(180);
-        els.battleHeroUnit.classList.add('anim-hit');
-        els.battleHeroSpriteWrap.classList.add('anim-fade');
-        els.battleSoldierGroup.classList.add('anim-hit');
-        await wait(280);
-        resetBattleAnimations();
-      }
-
-      async function animateRunAway() {
-        resetBattleAnimations();
-        els.battleTurnTitle.textContent = '도망 시도';
-        els.battleLog.textContent = '영웅과 병사들이 전열을 무너뜨리며 급히 후퇴합니다...';
-        els.battleHeroUnit.classList.add('anim-run');
-        els.battleSoldierGroup.classList.add('anim-run');
-        await wait(780);
-        resetBattleAnimations();
-      }
-
-      async function battleAttackTurn() {
-        const b = state.battle;
-        if (!b || b.ended || b.locked) return;
-        b.locked = true;
-
-        const enemy = b.setup.enemy;
-        const heroFirst = b.setup.heroSpeed >= enemy.speed;
-        const lines = [];
-        const currentTurn = b.turn;
-
-        async function heroAttack() {
-          const dmg = calcDamage(b.setup.heroAtk, enemy.def, b.setup.heroCrit);
-          await animateHeroAttackAndEnemyHit();
-          b.enemyHp -= dmg.value;
-          b.totalDamageToEnemy += dmg.value;
-          lines.push(`${currentTurn}턴 - 영웅 부대가 ${enemy.name}에게 ${dmg.value} 피해${dmg.critical ? ' (치명타)' : ''}를 입혔습니다.`);
-          updateBattleModalUI(`${currentTurn}턴 진행 중`, lines.join('\n'));
-        }
-
-        async function enemyAttack() {
-          const dmg = calcDamage(enemy.atk, b.setup.heroDef, enemy.crit);
-          await animateEnemyAttackAndHeroHit();
-          b.heroHp -= dmg.value;
-          lines.push(`${currentTurn}턴 - ${enemy.name}이(가) 영웅 부대에 ${dmg.value} 피해${dmg.critical ? ' (치명타)' : ''}를 입혔습니다.`);
-          updateBattleModalUI(`${currentTurn}턴 진행 중`, lines.join('\n'));
-        }
-
-        if (heroFirst) {
-          await heroAttack();
-          if (b.enemyHp > 0) await enemyAttack();
-        } else {
-          await enemyAttack();
-          if (b.heroHp > 0) await heroAttack();
-        }
-
-        if (b.enemyHp <= 0) {
-          b.ended = true;
-          const exp = getBattleExp(enemy);
-          const gold = getBattleGold(enemy);
-          updateBattleModalUI(`${currentTurn}턴 종료`, lines.join('\n'));
-          await endBattleAndShowResult({
-            title: '승리',
-            desc: `전투에서 승리했습니다.<br>경험치 ${exp}, 골드 ${gold} 획득`,
-            exp,
-            gold,
-            resultType: 'success',
-            logTitle: decodedSafeTitle(b.decoded),
-            logDetail: `${b.decoded.title} / 승리 / 경험치 ${exp} / 골드 ${gold}`
-          });
-          b.locked = false;
-          return;
-        }
-
-        if (b.heroHp <= 0) {
-          b.ended = true;
-          const exp = calcPartialExpFromDamage(b.totalDamageToEnemy, b.enemyMax, enemy);
-          updateBattleModalUI(`${currentTurn}턴 종료`, lines.join('\n'));
-          await endBattleAndShowResult({
-            title: '패배',
-            desc: `전투에서 패배했습니다.<br>경험치 ${exp} 획득`,
-            exp,
-            gold: 0,
-            resultType: 'fail',
-            logTitle: decodedSafeTitle(b.decoded),
-            logDetail: `${b.decoded.title} / 패배 / 경험치 ${exp}`
-          });
-          b.locked = false;
-          return;
-        }
-
-        updateBattleModalUI(`${currentTurn}턴 종료`, lines.join('\n'));
-        b.turn += 1;
-        b.locked = false;
-      }
-
-      async function battleRunAway() {
-        const b = state.battle;
-        if (!b || b.ended || b.locked) return;
-        b.locked = true;
-        b.ended = true;
-
-        const enemy = b.setup.enemy;
-        await animateRunAway();
-
-        const exp = calcPartialExpFromDamage(b.totalDamageToEnemy, b.enemyMax, enemy);
-        let lostGold = 0;
-        let lostText = '다행히 골드는 지켜냈습니다.';
-        const loseGold = Math.random() < 0.55;
-
-        if (loseGold && state.gold > 0) {
-          const maxLoss = Math.max(1, Math.floor(state.gold * 0.06));
-          const enemyFactor = Math.max(1, Math.floor(enemy.hp / 10));
-          lostGold = Math.min(state.gold, Math.max(1, Math.floor(Math.random() * Math.min(maxLoss, enemyFactor)) + 1));
-          lostText = `혼란 속에서 골드 ${lostGold}를 잃었습니다.`;
-        }
-
-        updateBattleModalUI(`${b.turn}턴 종료`, `영웅 부대가 아슬아슬하게 전장에서 이탈했습니다.\n${lostText}`);
-
-        await endBattleAndShowResult({
-          title: '도망 성공',
-          desc: `전투에서 이탈했습니다.<br>경험치 ${exp} 획득<br>${lostText}`,
-          exp,
-          gold: -lostGold,
-          resultType: 'fail',
-          logTitle: decodedSafeTitle(b.decoded),
-          logDetail: `${b.decoded.title} / 도망 / 경험치 ${exp}${lostGold ? ` / 골드 -${lostGold}` : ''}`
-        });
-
-        b.locked = false;
-      }
-
-      function bindBattleActionButtons() {
-        const attackBtn = document.getElementById('battleAttackBtn');
-        const runBtn = document.getElementById('battleRunBtn');
-
-        if (attackBtn) attackBtn.addEventListener('click', battleAttackTurn);
-        if (runBtn) runBtn.addEventListener('click', battleRunAway);
-      }
-
-      function handleEventConfirm() {
-        const decoded = state.pendingDecoded;
-        if (!decoded) return;
-
-        closeEventModal();
-
-        if (decoded.eventType === '몬스터') {
-          renderEvent(decoded);
-          openBattleModal(decoded);
-        } else {
-          processNonBattleResult(decoded);
-        }
-      }
-
-      async function processNonBattleResult(decoded) {
-        els.codeOutput.textContent = decoded.code;
-        els.eventTitle.textContent = decoded.title;
-        els.eventDesc.textContent = decoded.desc;
-        els.eventBadges.innerHTML = decoded.badges.map(b => `<div class="badge">${b}</div>`).join('');
-
-        const reward = decoded.reward || { exp: 5, gold: 0 };
-        let itemLog = '';
-        if (decoded.item) {
-          const equipped = obtainItem(decoded.item);
-          itemLog = equipped ? ` / 장착: ${decoded.item.name}` : ` / 획득: ${decoded.item.name}`;
-        }
-
-        const leveled = addReward(reward.exp, reward.gold);
-        const detail = `${decoded.title}${itemLog} / 경험치 ${reward.exp}${reward.gold ? ` / 골드 ${reward.gold}` : ''}`;
-
-        addLog(decoded.title, `${detail}${leveled ? ' / 레벨업!' : ''}`);
-        await addMapHistory({
-          barcode: onlyDigits(els.barcodeInput.value),
-          decoded,
-          detail,
-          exp: reward.exp,
-          gold: reward.gold
-        });
-
-        renderHero();
-        renderLogs();
-
-        if (decoded.item) {
-          els.eventDesc.textContent += state.equipment[decoded.item.slot]?.id === decoded.item.id
-            ? ' 더 강한 장비라 자동 장착되었습니다!'
-            : ' 인벤토리에 보관되었습니다.';
-        }
-        if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
-      }
-
-      async function stopCameraScanner() {
-        try {
-          if (state.html5QrCode && state.scannerRunning) {
-            await state.html5QrCode.stop();
-            await state.html5QrCode.clear();
-          } else if (state.html5QrCode) {
-            await state.html5QrCode.clear();
-          }
-        } catch (e) {
-          console.warn('scanner stop error', e);
-        } finally {
-          state.scannerRunning = false;
-          const scannerEl = document.getElementById('scanner');
-          if (scannerEl) scannerEl.innerHTML = '';
-        }
-      }
-
-      async function startCameraScanner() {
-        if (typeof Html5Qrcode === 'undefined') {
-          els.scanStatusText.textContent = '스캐너 라이브러리를 불러오지 못했습니다. 숫자를 직접 입력해 주세요.';
-          return;
-        }
-
-        await stopCameraScanner();
-
-        state.html5QrCode = new Html5Qrcode('scanner');
-        els.scanStatusText.textContent = '카메라를 준비 중입니다...';
-
-        const formats = [
-          Html5QrcodeSupportedFormats.EAN_13,
-          Html5QrcodeSupportedFormats.EAN_8,
-          Html5QrcodeSupportedFormats.CODE_128,
-          Html5QrcodeSupportedFormats.CODE_39,
-          Html5QrcodeSupportedFormats.UPC_A,
-          Html5QrcodeSupportedFormats.UPC_E,
-          Html5QrcodeSupportedFormats.ITF
-        ];
-
-        try {
-          await state.html5QrCode.start(
-            { facingMode: 'environment' },
-            {
-              fps: 10,
-              qrbox: { width: 220, height: 72 },
-              aspectRatio: 1.7778,
-              formatsToSupport: formats
-            },
-            async (decodedText) => {
-              const barcode = onlyDigits(decodedText);
-              if (!barcode) return;
-
-              els.barcodeInput.value = barcode;
-              els.scanStatusText.textContent = `인식 성공: ${barcode}`;
-
-              await stopCameraScanner();
-              closeModal(els.scanModalBackdrop);
-              handleScan();
-            },
-            () => {}
-          );
-
-          state.scannerRunning = true;
-          els.scanStatusText.textContent = '바코드를 화면 중앙에 맞추거나 아래에 숫자를 직접 입력해 주세요.';
-        } catch (err) {
-          console.error(err);
-          els.scanStatusText.textContent =
-            '카메라 실행에 실패했습니다. 아래 입력칸에 바코드 숫자를 직접 입력해 주세요.';
-        }
-      }
-
-      function handleScan() {
-        renderHero();
-        const barcode = onlyDigits(els.barcodeInput.value);
-
-        if (!barcode) {
-          alert('바코드 숫자를 입력하거나 카메라로 스캔해 주세요.');
-          return;
-        }
-        if (!state.currentLocation) {
-          alert('현재 위치 확인 후 다시 시도해 주세요.');
-          return;
-        }
-
-        closeModal(els.scanModalBackdrop);
-
-        const code = toFiveCode(barcode);
-        const decoded = decodeEvent(code);
-        renderEvent(decoded);
-        showEventModal(decoded);
-      }
-
-      function applyStartHero() {
-        state.heroName = (els.startHeroName.value || '').trim() || '주인님의 영웅';
-        state.heroClass = els.startHeroClass.value || '전사';
-        renderHero();
-        els.startHeroBackdrop.style.display = 'none';
-        requestCurrentLocation();
-      }
-
-      els.scanFab.addEventListener('click', async () => {
-        els.scanStatusText.textContent = '카메라 스캔 또는 바코드 숫자 직접 입력을 사용할 수 있습니다.';
-        els.barcodeInput.value = '';
-        openModal(els.scanModalBackdrop);
-        await startCameraScanner();
-      });
-
-      els.scanModalCloseBtn.addEventListener('click', async () => {
-        await stopCameraScanner();
-        closeModal(els.scanModalBackdrop);
-      });
-
-      els.scanStartBtn.addEventListener('click', async () => {
-        await stopCameraScanner();
-        handleScan();
-      });
-
-      els.heroMapBtn.addEventListener('click', () => {
-        openModal(els.mapBackdrop);
-        setTimeout(() => {
-          if (state.map) state.map.invalidateSize();
-        }, 200);
-      });
-
-      els.mapCloseBtn.addEventListener('click', () => closeModal(els.mapBackdrop));
-      els.mapHistoryBtn.addEventListener('click', () => {
-        renderMapHistoryList();
-        openModal(els.mapHistoryBackdrop);
-      });
-      els.mapHistoryCloseBtn.addEventListener('click', () => closeModal(els.mapHistoryBackdrop));
-
-      els.decodeInfoBtn.addEventListener('click', () => openModal(els.decodeBackdrop));
-      els.decodeCloseBtn.addEventListener('click', () => closeModal(els.decodeBackdrop));
-
-      els.exploreLogBtn.addEventListener('click', () => {
-        renderLogs();
-        openModal(els.exploreLogBackdrop);
-      });
-      els.exploreLogCloseBtn.addEventListener('click', () => closeModal(els.exploreLogBackdrop));
-
-      els.eventTacticSelect.addEventListener('change', renderHero);
-      els.eventSoldierClassSelect.addEventListener('change', renderHero);
-
-      els.barcodeInput.addEventListener('input', () => {
-        els.barcodeInput.value = onlyDigits(els.barcodeInput.value);
-      });
-
-      els.startGameBtn.addEventListener('click', applyStartHero);
-      els.startHeroName.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') applyStartHero();
-      });
-
-      els.heroTitleBtn.addEventListener('click', openHeroStatsModal);
-      els.heroStatsCloseBtn.addEventListener('click', () => closeModal(els.heroStatsBackdrop));
-
-      [
-        els.scanModalBackdrop,
-        els.mapBackdrop,
-        els.mapHistoryBackdrop,
-        els.decodeBackdrop,
-        els.exploreLogBackdrop,
-        els.heroStatsBackdrop,
-        els.eventModalBackdrop,
-        els.battleBackdrop
-      ].forEach(backdrop => {
-        backdrop.addEventListener('click', async (e) => {
-          if (e.target === backdrop && backdrop !== els.eventModalBackdrop && backdrop !== els.battleBackdrop) {
-            if (backdrop === els.scanModalBackdrop) {
-              await stopCameraScanner();
-            }
-            closeModal(backdrop);
-          }
-        });
-      });
-
-      loadMapHistory();
-      renderHero();
-      renderLogs();
-      renderMapHistoryList();
-      initMap();
-
-      console.assert(toFiveCode('8801234567890').length === 5, '5자리 코드 생성 실패');
-      console.assert(onlyDigits('88-01A23') === '880123', '숫자 추출 실패');
-      console.assert(decodeEvent('48279').eventType === '몬스터', '이벤트 해석 실패');
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // ─────────────────────────────────────────
+  // 상수 / 테이블
+  // ─────────────────────────────────────────
+  const rankTable = [
+    { minLevel:1,  rank:'견습',  soldiers:2 },
+    { minLevel:3,  rank:'전사',  soldiers:3 },
+    { minLevel:5,  rank:'기사',  soldiers:4 },
+    { minLevel:8,  rank:'영웅',  soldiers:5 },
+    { minLevel:12, rank:'전설',  soldiers:6 }
+  ];
+
+  const monsterTypes  = ['슬라임','늑대','고블린','해골','오크','거미','좀비','도적','트롤','악마'];
+  const specialTypes  = ['고대 유적','숨겨진 제단','길 잃은 상인','빛의 축복','어둠의 저주','용사의 흔적','전장의 잔해','수상한 포탈','비밀 금고','미스터리 균열'];
+  const markerIcons   = { 몬스터:'⚔️', 보물:'🎁', 장비:'🧰', 특수:'✨' };
+  const rarityOrder   = ['common','uncommon','rare','epic','legendary'];
+
+  const gearCatalog = [
+    { name:'낡은 검',      slot:'weapon',   icon:'🗡️', stats:{atk:3,crit:1} },
+    { name:'튼튼한 갑옷',  slot:'armor',    icon:'🛡️', stats:{def:4,hp:10} },
+    { name:'가벼운 장화',  slot:'boots',    icon:'🥾', stats:{speed:2,hp:4} },
+    { name:'철 장갑',      slot:'gloves',   icon:'🧤', stats:{atk:2,def:2} },
+    { name:'전투 반지',    slot:'ring',     icon:'💍', stats:{crit:3,atk:1} },
+    { name:'강화 망토',    slot:'cloak',    icon:'🧥', stats:{hp:8,def:2} },
+    { name:'사냥 활',      slot:'weapon',   icon:'🏹', stats:{atk:3,speed:1,crit:1} },
+    { name:'기사 방패',    slot:'shield',   icon:'🛡️', stats:{def:5,hp:8} },
+    { name:'집중 목걸이',  slot:'necklace', icon:'📿', stats:{crit:2,speed:1} },
+    { name:'용사의 문장',  slot:'cloak',    icon:'🏅', stats:{atk:2,def:2,hp:6} }
+  ];
+
+  const slotLabels = { weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑', boots:'장화', ring:'반지', necklace:'목걸이', cloak:'망토' };
+  const slotPinMap = { weapon:'pinWeapon', armor:'pinArmor', shield:'pinShield', gloves:'pinGloves', boots:'pinBoots', ring:'pinRing', necklace:'pinNecklace', cloak:'pinCloak' };
+
+  // 등급별 드롭 확률 테이블 (몬스터 등급별)
+  const monsterDropRarityTable = {
+    일반:  [55, 28, 12, 4,  1 ],   // common~legendary
+    강화:  [35, 32, 20, 10, 3 ],
+    엘리트:[18, 28, 30, 18, 6 ],
+    보스:  [5,  18, 30, 30, 17]
+  };
+
+  // ─────────────────────────────────────────
+  // 상태
+  // ─────────────────────────────────────────
+  const state = {
+    heroName:'주인님의 영웅', heroClass:'전사',
+    level:1, exp:0, gold:0,
+    logs:[], mapHistory:[], currentLocation:null,
+    map:null, markers:[], currentLocationMarker:null,
+    pendingDecoded:null, battle:null,
+    html5QrCode:null, scannerRunning:false,
+    inventory:[],
+    equipment:{ weapon:null, armor:null, shield:null, gloves:null, boots:null, ring:null, necklace:null, cloak:null },
+    selectedItemId: null
+  };
+
+  // ─────────────────────────────────────────
+  // DOM 참조
+  // ─────────────────────────────────────────
+  const q = id => document.getElementById(id);
+  const els = {
+    heroTitleBtn:q('heroTitleBtn'), heroGoldTop:q('heroGoldTop'),
+    heroExpFill:q('heroExpFill'), heroExpBarText:q('heroExpBarText'),
+    heroSpriteWrap:q('heroSpriteWrap'), soldierFront:q('soldierFront'),
+    heroMapBtn:q('heroMapBtn'),
+    barcodeInput:q('barcodeInput'), scanFab:q('scanFab'),
+    scanModalBackdrop:q('scanModalBackdrop'), scanModalCloseBtn:q('scanModalCloseBtn'),
+    scanStartBtn:q('scanStartBtn'), scanStatusText:q('scanStatusText'),
+    mapBackdrop:q('mapBackdrop'), mapCloseBtn:q('mapCloseBtn'),
+    mapSelectionInfo:q('mapSelectionInfo'), mapHistoryBtn:q('mapHistoryBtn'),
+    mapHistoryBackdrop:q('mapHistoryBackdrop'), mapHistoryList:q('mapHistoryList'),
+    mapHistoryCloseBtn:q('mapHistoryCloseBtn'),
+    decodeInfoBtn:q('decodeInfoBtn'), decodeBackdrop:q('decodeBackdrop'),
+    decodeBox:q('decodeBox'), decodeCloseBtn:q('decodeCloseBtn'),
+    exploreLogBtn:q('exploreLogBtn'), exploreLogBackdrop:q('exploreLogBackdrop'),
+    exploreLog:q('exploreLog'), exploreLogCloseBtn:q('exploreLogCloseBtn'),
+    eventTacticSelect:q('eventTacticSelect'), eventSoldierClassSelect:q('eventSoldierClassSelect'),
+    codeOutput:q('codeOutput'), eventTitle:q('eventTitle'),
+    eventDesc:q('eventDesc'), eventBadges:q('eventBadges'),
+    locationStatus:q('locationStatus'),
+    eventModalBackdrop:q('eventModalBackdrop'), eventModalTitle:q('eventModalTitle'),
+    eventModalVisual:q('eventModalVisual'), eventModalText:q('eventModalText'),
+    eventModalBadges:q('eventModalBadges'), eventModalActions:q('eventModalActions'),
+    battleBackdrop:q('battleBackdrop'), battleHeroUnit:q('battleHeroUnit'),
+    battleEnemyUnit:q('battleEnemyUnit'), battleHeroSpriteWrap:q('battleHeroSpriteWrap'),
+    battleEnemyEmoji:q('battleEnemyEmoji'), battleHeroName:q('battleHeroName'),
+    battleEnemyName:q('battleEnemyName'), battleHeroMeta:q('battleHeroMeta'),
+    battleEnemyMeta:q('battleEnemyMeta'), battleHeroHpText:q('battleHeroHpText'),
+    battleEnemyHpText:q('battleEnemyHpText'), heroHpBar:q('heroHpBar'),
+    enemyHpBar:q('enemyHpBar'), battleTurnTitle:q('battleTurnTitle'),
+    battleLog:q('battleLog'), battleActions:q('battleActions'),
+    battleResultBox:q('battleResultBox'), battleSoldierGroup:q('battleSoldierGroup'),
+    startHeroBackdrop:q('heroStartBackdrop'), startHeroName:q('startHeroName'),
+    startHeroClass:q('startHeroClass'), startGameBtn:q('startGameBtn'),
+    heroStatsBackdrop:q('heroStatsBackdrop'), heroStatsCloseBtn:q('heroStatsCloseBtn'),
+    heroStatsTitle:q('heroStatsTitle'), heroStatsAtk:q('heroStatsAtk'),
+    heroStatsDef:q('heroStatsDef'), heroStatsHp:q('heroStatsHp'),
+    heroStatsSpeed:q('heroStatsSpeed'), heroStatsCrit:q('heroStatsCrit'),
+    heroStatsSoldiers:q('heroStatsSoldiers'), heroPreviewWrap:q('heroPreviewWrap'),
+    heroEquipSummary:q('heroEquipSummary'), inventoryGrid:q('inventoryGrid'),
+    pinWeapon:q('pinWeapon'), pinArmor:q('pinArmor'), pinShield:q('pinShield'),
+    pinGloves:q('pinGloves'), pinBoots:q('pinBoots'), pinRing:q('pinRing'),
+    pinNecklace:q('pinNecklace'), pinCloak:q('pinCloak'),
+    itemDetailBackdrop:q('itemDetailBackdrop'), itemDetailTitle:q('itemDetailTitle'),
+    itemDetailIcon:q('itemDetailIcon'), itemDetailName:q('itemDetailName'),
+    itemDetailMeta:q('itemDetailMeta'), itemStatChangeHint:q('itemStatChangeHint'),
+    itemStatCompareGrid:q('itemStatCompareGrid'), itemSellPriceRow:q('itemSellPriceRow'),
+    itemDetailActions:q('itemDetailActions')
+  };
+
+  // ─────────────────────────────────────────
+  // 유틸
+  // ─────────────────────────────────────────
+  const openModal  = el => el.classList.add('show');
+  const closeModal = el => el.classList.remove('show');
+  const wait       = ms => new Promise(r => setTimeout(r, ms));
+  const onlyDigits = v => String(v).replace(/\D/g, '');
+
+  function getHeroRankInfo(level) {
+    const e = rankTable.filter(v => level >= v.minLevel);
+    return e[e.length-1] || rankTable[0];
+  }
+  function getExpNeed(level) { return 20 + (level-1)*15; }
+  function toFiveCode(barcodeDigits) {
+    const N = Number(barcodeDigits);
+    if (!Number.isFinite(N)) return '00000';
+    return String((N + Math.floor(N/7) + Math.floor(N/13)) % 100000).padStart(5,'0');
+  }
+  function getEnemyVisual(name) {
+    return { 슬라임:'🟢',늑대:'🐺',고블린:'👺',해골:'💀',오크:'👹',거미:'🕷️',좀비:'🧟',도적:'🥷',트롤:'🪨',악마:'😈' }[name] || '👹';
+  }
+  function getRarityFromDigit(d2) {
+    if (d2<=2) return 'common'; if (d2<=4) return 'uncommon';
+    if (d2<=6) return 'rare';   if (d2<=8) return 'epic'; return 'legendary';
+  }
+  function getRarityLabel(rarity) {
+    return { common:'일반', uncommon:'고급', rare:'희귀', epic:'영웅', legendary:'전설' }[rarity] || '일반';
+  }
+  function getRarityMultiplier(rarity) {
+    return { common:1, uncommon:1.12, rare:1.26, epic:1.45, legendary:1.7 }[rarity] || 1;
+  }
+  function getRarityIndex(rarity) { return rarityOrder.indexOf(rarity); }
+
+  function getHighestEquippedRarity() {
+    const items = Object.values(state.equipment).filter(Boolean);
+    if (!items.length) return 'common';
+    return items.sort((a,b) => getRarityIndex(b.rarity)-getRarityIndex(a.rarity))[0].rarity;
+  }
+  function getHeroAuraClass() { return `aura-${getHighestEquippedRarity()}`; }
+
+  // 장비 오라 클래스 (무기/갑옷 등)
+  function getWeaponGlowClass() {
+    const w = state.equipment.weapon;
+    if (!w) return '';
+    return `weapon-glow-${w.rarity}`;
+  }
+  function getArmorGlowClass() {
+    const a = state.equipment.armor;
+    if (!a || a.rarity !== 'legendary') return '';
+    return 'armor-glow-legendary';
+  }
+
+  // ─────────────────────────────────────────
+  // 스프라이트 생성
+  // ─────────────────────────────────────────
+  function getHeroSprite(heroClass) {
+    const classMap = {
+      전사: { cls:'class-warrior', weapon:'<path class="hero-weapon" d="M61 10l7 7-16 16-4-4z"/><path class="hero-weapon" d="M46 24l8 8-17 17-8-8z"/><rect class="hero-weapon" x="32" y="46" width="6" height="16" rx="2"/>' },
+      궁사: { cls:'class-archer',  weapon:'<path class="hero-weapon" d="M58 18c-8 8-8 22 0 30" fill="none" stroke="#e7c784" stroke-width="4" stroke-linecap="round"/><path class="hero-weapon" d="M58 18c-5 3-10 8-13 15 3 7 8 12 13 15" fill="none" stroke="#e7c784" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="18" x2="50" y2="48" stroke="#f6e6b0" stroke-width="2"/>' },
+      마법사: { cls:'class-mage', weapon:'<rect class="hero-weapon" x="56" y="18" width="4" height="34" rx="2"/><circle class="hero-weapon" cx="58" cy="14" r="6"/>' }
+    };
+    const cfg = classMap[heroClass] || classMap.전사;
+    const extraClass = [getWeaponGlowClass(), getArmorGlowClass()].filter(Boolean).join(' ');
+    return `<svg viewBox="0 0 84 98" width="84" height="98" class="${cfg.cls}${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
+      <ellipse cx="42" cy="90" rx="18" ry="5" fill="rgba(0,0,0,0.18)"/>
+      <path class="hero-cloak" d="M24 43c4-12 12-19 18-19 8 0 16 7 18 19l6 26H18z"/>
+      <circle cx="42" cy="20" r="12" fill="#f4d1b5"/>
+      <rect class="hero-body" x="30" y="34" width="24" height="27" rx="10"/>
+      <rect fill="#f4d1b5" x="24" y="41" width="8" height="18" rx="4"/>
+      <rect fill="#f4d1b5" x="52" y="41" width="8" height="18" rx="4"/>
+      <rect fill="#f4d1b5" x="34" y="60" width="6" height="20" rx="3"/>
+      <rect fill="#f4d1b5" x="44" y="60" width="6" height="20" rx="3"/>
+      <path fill="#1b2135" d="M30 16c2-9 22-12 26 0-3-2-7-3-13-3s-10 1-13 3z"/>
+      ${cfg.weapon}
+    </svg>`;
+  }
+
+  function getHeroVisualHtml(heroClass) {
+    return `<div class="hero-visual-wrap ${getHeroAuraClass()}">${getHeroSprite(heroClass)}</div>`;
+  }
+
+  function getSoldierSprite(soldierClass, size='normal') {
+    const soldierMap = {
+      검병:  { weapon:'<rect class="soldier-weapon" x="24" y="4" width="3" height="18" rx="1.5"/><rect class="soldier-weapon" x="22" y="18" width="7" height="3" rx="1.5"/>' },
+      방패병: { weapon:'<path class="soldier-weapon" d="M24 9c5 1 8 2 8 2v7c0 7-8 11-8 11s-8-4-8-11v-7s3-1 8-2z"/>' },
+      궁병:  { weapon:'<path class="soldier-weapon" d="M26 7c-5 5-5 13 0 18" fill="none" stroke="#d8e4ff" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="8" x2="22" y2="24" stroke="#f6e6b0" stroke-width="1.5"/>' },
+      창병:  { weapon:'<rect class="soldier-weapon" x="24" y="4" width="2.5" height="24" rx="1.2"/><path class="soldier-weapon" d="M25 2l4 6h-8z"/>' }
+    };
+    const cfg = soldierMap[soldierClass] || soldierMap.검병;
+    if (size==='battle') {
+      return `<div class="battle-soldier"><svg viewBox="0 0 36 44" width="22" height="28" class="soldier-svg" aria-hidden="true"><circle cx="18" cy="8" r="5" fill="#f3cfb0"/><rect class="soldier-body" x="12" y="13" width="12" height="12" rx="5"/><path class="soldier-armor" d="M10 25h16l4 12H6z"/><rect fill="#f3cfb0" x="12" y="24" width="4" height="10" rx="2"/><rect fill="#f3cfb0" x="20" y="24" width="4" height="10" rx="2"/>${cfg.weapon}</svg></div>`;
+    }
+    return `<div class="soldier"><svg viewBox="0 0 36 44" width="26" height="34" class="soldier-svg" aria-hidden="true"><circle cx="18" cy="8" r="5" fill="#f3cfb0"/><rect class="soldier-body" x="12" y="13" width="12" height="12" rx="5"/><path class="soldier-armor" d="M10 25h16l4 12H6z"/><rect fill="#f3cfb0" x="12" y="24" width="4" height="10" rx="2"/><rect fill="#f3cfb0" x="20" y="24" width="4" height="10" rx="2"/>${cfg.weapon}</svg><div class="soldier-small-shadow"></div></div>`;
+  }
+
+  // ─────────────────────────────────────────
+  // 스탯 계산
+  // ─────────────────────────────────────────
+  function getClassBonus(heroClass) {
+    return { 전사:{atk:4,def:3,hp:22,spd:0,crit:1}, 궁사:{atk:5,def:1,hp:12,spd:3,crit:3}, 마법사:{atk:6,def:0,hp:10,spd:1,crit:4} }[heroClass] || {atk:4,def:3,hp:22,spd:0,crit:1};
+  }
+  function getEquipmentBonus(equipOverride) {
+    const eq = equipOverride || state.equipment;
+    const total = {atk:0,def:0,hp:0,speed:0,crit:0};
+    Object.values(eq).filter(Boolean).forEach(item => {
+      const mul = getRarityMultiplier(item.rarity);
+      total.atk   += Math.round((item.stats.atk||0)*mul);
+      total.def   += Math.round((item.stats.def||0)*mul);
+      total.hp    += Math.round((item.stats.hp||0)*mul);
+      total.speed += Math.round((item.stats.speed||0)*mul);
+      total.crit  += Math.round((item.stats.crit||0)*mul);
     });
-  </script>
+    return total;
+  }
+  function getHeroBaseStats(equipOverride) {
+    const bonus = getClassBonus(state.heroClass);
+    const rankInfo = getHeroRankInfo(state.level);
+    const equip = getEquipmentBonus(equipOverride);
+    return {
+      atk:     14 + (state.level*2) + bonus.atk + (rankInfo.soldiers-2)*2 + equip.atk,
+      def:     10 + Math.floor(state.level*1.6) + bonus.def + (rankInfo.soldiers-2)*2 + equip.def,
+      hp:      100 + (state.level*18) + bonus.hp + (rankInfo.soldiers-2)*12 + equip.hp,
+      speed:   5 + Math.floor(state.level*0.6) + bonus.spd + equip.speed,
+      crit:    5 + Math.floor(state.level*0.3) + bonus.crit + equip.crit,
+      soldiers: rankInfo.soldiers, rank: rankInfo.rank
+    };
+  }
+
+  // ─────────────────────────────────────────
+  // 아이템 생성 / 관리
+  // ─────────────────────────────────────────
+  function createEquipmentItem(rarityOrDigit, d4, isRarityDirect) {
+    const gear = gearCatalog[d4];
+    const rarity = isRarityDirect ? rarityOrDigit : getRarityFromDigit(rarityOrDigit);
+    const rarityLabel = getRarityLabel(rarity);
+    const item = {
+      id: `${Date.now()}_${Math.random().toString(36).slice(2,7)}`,
+      name: `${rarityLabel} ${gear.name}`,
+      baseName: gear.name,
+      slot: gear.slot, slotLabel: slotLabels[gear.slot],
+      icon: gear.icon, rarity, rarityLabel,
+      stats: {...gear.stats},
+      score: (gear.stats.atk||0)*2.0 + (gear.stats.def||0)*1.8 + (gear.stats.hp||0)*0.28 + (gear.stats.speed||0)*2.2 + (gear.stats.crit||0)*2.4
+    };
+    item.power = Math.round(item.score * getRarityMultiplier(rarity) * 10);
+    return item;
+  }
+
+  // 판매 가격
+  function getSellPrice(item) {
+    const base = item.power || 10;
+    const mult = { common:1, uncommon:2.2, rare:4.5, epic:10, legendary:25 }[item.rarity] || 1;
+    return Math.max(1, Math.round(base * mult * 0.6));
+  }
+
+  function getItemStatText(item) {
+    const p = [];
+    if (item.stats.atk)   p.push(`공${item.stats.atk}`);
+    if (item.stats.def)   p.push(`방${item.stats.def}`);
+    if (item.stats.hp)    p.push(`HP+${item.stats.hp}`);
+    if (item.stats.speed) p.push(`속${item.stats.speed}`);
+    if (item.stats.crit)  p.push(`치${item.stats.crit}`);
+    return p.join(' / ');
+  }
+
+  function obtainItem(item) {
+    state.inventory.unshift(item);
+    state.inventory = state.inventory.slice(0,60);
+    const cur = state.equipment[item.slot];
+    if (!cur || item.power > cur.power) { state.equipment[item.slot] = item; return true; }
+    return false;
+  }
+
+  // 몬스터 처치 후 드롭
+  function rollMonsterDrop(enemy) {
+    const dropChance = { 일반:0.35, 강화:0.55, 엘리트:0.72, 보스:0.90 }[enemy.grade] || 0.35;
+    if (Math.random() > dropChance) return null;
+
+    const table = monsterDropRarityTable[enemy.grade] || monsterDropRarityTable.일반;
+    const roll  = Math.random() * 100;
+    let cum = 0, rarityIdx = 0;
+    for (let i=0; i<table.length; i++) { cum += table[i]; if (roll < cum) { rarityIdx = i; break; } rarityIdx = i; }
+    const rarity = rarityOrder[rarityIdx];
+    const d4 = Math.floor(Math.random() * gearCatalog.length);
+    return createEquipmentItem(rarity, d4, true);
+  }
+
+  // ─────────────────────────────────────────
+  // 적 생성 / 전투
+  // ─────────────────────────────────────────
+  function makeEnemy(name, grade, amount, special, d4) {
+    const baseStats = [
+      {atk:6,def:4,hp:20,speed:3,crit:3},{atk:9,def:5,hp:25,speed:8,crit:6},
+      {atk:8,def:6,hp:30,speed:6,crit:5},{atk:10,def:7,hp:35,speed:5,crit:4},
+      {atk:14,def:10,hp:45,speed:4,crit:6},{atk:8,def:5,hp:24,speed:10,crit:7},
+      {atk:11,def:8,hp:42,speed:2,crit:3},{atk:12,def:6,hp:28,speed:11,crit:10},
+      {atk:18,def:12,hp:70,speed:2,crit:4},{atk:20,def:14,hp:80,speed:7,crit:12}
+    ][d4];
+    const gradeMult = grade==='일반'?1.12: grade==='강화'?1.34: grade==='엘리트'?1.62: 2.12;
+    let atk=Math.round(baseStats.atk*gradeMult), def=Math.round(baseStats.def*gradeMult),
+        hp=Math.round((baseStats.hp+amount*10)*gradeMult), speed=Math.round(baseStats.speed*gradeMult),
+        crit=baseStats.crit+(grade==='강화'?3:grade==='엘리트'?5:grade==='보스'?8:1);
+    if (special==='공격 증가') atk=Math.round(atk*1.18);
+    if (special==='방어 증가') def=Math.round(def*1.18);
+    if (special==='속도 증가') speed=Math.round(speed*1.22);
+    if (special==='희귀 보상') crit+=10;
+    return { name, grade, amount, atk, def, hp, speed, crit, special };
+  }
+
+  function getTacticMod(t) {
+    return t==='공격 중심'?{atk:1.22,def:0.84,hp:1.0,speed:1.04,crit:1.08}:
+           t==='방어 중심'?{atk:0.9,def:1.22,hp:1.08,speed:0.95,crit:1.0}:
+           {atk:1.0,def:1.0,hp:1.0,speed:1.0,crit:1.0};
+  }
+  function getSoldierClassMod(s) {
+    return s==='검병'?{atk:1.15,def:0.94,hp:1.0,speed:1.0,crit:1.04}:
+           s==='방패병'?{atk:0.92,def:1.2,hp:1.1,speed:0.94,crit:1.0}:
+           s==='궁병'?{atk:1.1,def:0.92,hp:0.94,speed:1.12,crit:1.08}:
+           {atk:1.05,def:1.05,hp:1.02,speed:1.0,crit:1.02};
+  }
+  function calcDamage(atk, def, crit) {
+    let v = Math.max(1, atk - Math.floor(def*0.62) + Math.floor(Math.random()*5));
+    const critical = Math.random()*100 < crit;
+    if (critical) v *= 2;
+    return { value:v, critical };
+  }
+  function getBattleExp(enemy) { return (enemy.grade==='일반'?11:enemy.grade==='강화'?19:enemy.grade==='엘리트'?30:43) + enemy.amount*3; }
+  function getBattleGold(enemy) { return (enemy.grade==='일반'?8:enemy.grade==='강화'?15:enemy.grade==='엘리트'?24:35) + enemy.amount*2; }
+
+  function addReward(exp, gold) {
+    state.exp += exp; state.gold = Math.max(0, state.gold+gold);
+    let leveled = false;
+    while (state.exp >= getExpNeed(state.level)) { state.exp -= getExpNeed(state.level); state.level++; leveled=true; }
+    return leveled;
+  }
+
+  // ─────────────────────────────────────────
+  // 렌더링
+  // ─────────────────────────────────────────
+  function formatHeroTopTitle(stats) { return `${state.heroName} (${state.heroClass}-${stats.rank}) Lv ${state.level}`; }
+
+  function renderHeroFormation(heroClass, soldierClass, soldierCount) {
+    els.heroSpriteWrap.innerHTML = getHeroVisualHtml(heroClass);
+    els.soldierFront.innerHTML   = Array.from({length:soldierCount}, ()=>getSoldierSprite(soldierClass)).join('');
+  }
+
+  function renderHero() {
+    const stats = getHeroBaseStats();
+    const expNeed = getExpNeed(state.level);
+    const expRate = Math.max(0, Math.min(100, (state.exp/expNeed)*100));
+    els.heroGoldTop.textContent   = state.gold;
+    els.heroExpBarText.textContent= `${state.exp} / ${expNeed}`;
+    els.heroExpFill.style.width   = `${expRate}%`;
+    els.heroTitleBtn.textContent  = formatHeroTopTitle(stats);
+    renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
+  }
+
+  // 인벤토리 그리드 (아이콘)
+  function renderInventoryGrid() {
+    // 장착된 아이템 id 목록
+    const equippedIds = new Set(Object.values(state.equipment).filter(Boolean).map(i=>i.id));
+    // 장착 안 된 아이템만
+    const unequipped = state.inventory.filter(i => !equippedIds.has(i.id));
+
+    if (!unequipped.length) {
+      els.inventoryGrid.innerHTML = `<div style="grid-column:1/-1;" class="empty-box">인벤토리가 비어 있습니다.</div>`;
+      return;
+    }
+    els.inventoryGrid.innerHTML = unequipped.map(item => `
+      <div class="inv-icon-slot rarity-${item.rarity}" data-id="${item.id}" title="${item.name}">
+        ${item.icon}
+        <div class="inv-rarity-dot"></div>
+      </div>
+    `).join('');
+
+    els.inventoryGrid.querySelectorAll('.inv-icon-slot').forEach(slot => {
+      slot.addEventListener('click', () => {
+        const item = state.inventory.find(i=>i.id===slot.dataset.id);
+        if (item) openItemDetailModal(item);
+      });
+    });
+  }
+
+  // 장비 핀 렌더링
+  function renderEquipPins() {
+    Object.entries(slotPinMap).forEach(([slot, pinId]) => {
+      const pinEl = els[pinId];
+      const item  = state.equipment[slot];
+      const posClass = pinEl.className.split(' ').find(v=>v.startsWith('pin-')) || '';
+      if (!item) {
+        pinEl.className = `equip-pin ${posClass} empty`;
+        pinEl.innerHTML = slotLabels[slot];
+        return;
+      }
+      pinEl.className = `equip-pin ${posClass} rarity-${item.rarity}`;
+      pinEl.innerHTML = `${item.icon}<b>${item.baseName}</b>`;
+    });
+  }
+
+  function openHeroStatsModal() {
+    const stats = getHeroBaseStats();
+    const equippedItems = Object.values(state.equipment).filter(Boolean);
+    els.heroStatsTitle.textContent   = formatHeroTopTitle(stats);
+    els.heroStatsAtk.textContent     = stats.atk;
+    els.heroStatsDef.textContent     = stats.def;
+    els.heroStatsHp.textContent      = stats.hp;
+    els.heroStatsSpeed.textContent   = stats.speed;
+    els.heroStatsCrit.textContent    = `${stats.crit}%`;
+    els.heroStatsSoldiers.textContent= `${stats.soldiers}명`;
+    els.heroPreviewWrap.innerHTML    = getHeroVisualHtml(state.heroClass);
+    renderEquipPins();
+    els.heroEquipSummary.innerHTML = equippedItems.length
+      ? equippedItems.map(i=>`<div class="equip-chip rarity-${i.rarity}">${i.icon} ${i.baseName}</div>`).join('')
+      : `<div class="muted" style="font-size:10px;">장착 중인 장비가 없습니다.</div>`;
+    renderInventoryGrid();
+    openModal(els.heroStatsBackdrop);
+  }
+
+  // ─────────────────────────────────────────
+  // 아이템 상세 모달
+  // ─────────────────────────────────────────
+  function openItemDetailModal(item) {
+    state.selectedItemId = item.id;
+    const equippedIds = new Set(Object.values(state.equipment).filter(Boolean).map(i=>i.id));
+    const isEquipped  = equippedIds.has(item.id);
+
+    els.itemDetailTitle.textContent = item.rarityLabel + ' 등급 아이템';
+    els.itemDetailIcon.className    = `item-detail-icon rarity-${item.rarity}`;
+    els.itemDetailIcon.textContent  = item.icon;
+    els.itemDetailName.className    = `item-detail-name rarity-${item.rarity}`;
+    els.itemDetailName.textContent  = item.name;
+    els.itemDetailMeta.textContent  = `슬롯: ${item.slotLabel} · 전투력 ${item.power} · ${getItemStatText(item)}`;
+
+    // 스탯 비교
+    const curEquip    = state.equipment[item.slot];
+    const curStats    = getHeroBaseStats();
+    const previewEquip= { ...state.equipment, [item.slot]: item };
+    const newStats    = getHeroBaseStats(previewEquip);
+
+    const statKeys = [{key:'atk',label:'공격'},{key:'def',label:'방어'},{key:'hp',label:'체력'},{key:'speed',label:'속도'},{key:'crit',label:'치명타'}];
+    let totalDiff = 0;
+
+    els.itemStatCompareGrid.innerHTML = statKeys.map(({key,label}) => {
+      const before = curStats[key], after = newStats[key];
+      const diff = after - before; totalDiff += diff;
+      const cls  = diff>0?'stat-up': diff<0?'stat-down':'stat-same';
+      const sign = diff>0?'+':'';
+      return `<div class="stat-compare-item">
+        <div class="stat-compare-label">${label}</div>
+        <div class="stat-compare-value ${cls}">${after}${diff!==0?`<span style="font-size:9px;"> (${sign}${diff})</span>`:''}</div>
+      </div>`;
+    }).join('');
+
+    if (!isEquipped) {
+      if (totalDiff > 0)       { els.itemStatChangeHint.className='stat-change-hint positive'; els.itemStatChangeHint.textContent=`장착 시 전체 스탯 +${totalDiff} 향상!`; }
+      else if (totalDiff < 0)  { els.itemStatChangeHint.className='stat-change-hint negative'; els.itemStatChangeHint.textContent=`장착 시 전체 스탯 ${totalDiff} 하락`; }
+      else                     { els.itemStatChangeHint.className='stat-change-hint neutral';  els.itemStatChangeHint.textContent='현재 장비와 동일한 스탯입니다.'; }
+    } else {
+      els.itemStatChangeHint.className='stat-change-hint neutral';
+      els.itemStatChangeHint.textContent = '✓ 현재 장착 중인 장비입니다.';
+    }
+
+    const sellPrice = getSellPrice(item);
+    els.itemSellPriceRow.innerHTML = `🪙 판매 시 골드 <b>${sellPrice}</b> 획득`;
+
+    // 버튼
+    if (isEquipped) {
+      els.itemDetailActions.className='modal-actions two';
+      els.itemDetailActions.innerHTML=`
+        <button class="modal-gold" id="itemSellBtn">🪙 판매 (${sellPrice}G)</button>
+        <button class="modal-primary" id="itemCloseBtn">닫기</button>
+      `;
+    } else {
+      els.itemDetailActions.className='modal-actions three';
+      els.itemDetailActions.innerHTML=`
+        <button class="modal-primary" id="itemEquipBtn">장착</button>
+        <button class="modal-gold"    id="itemSellBtn">🪙 ${sellPrice}G</button>
+        <button id="itemCloseBtn">닫기</button>
+      `;
+      q('itemEquipBtn').addEventListener('click', () => equipItemFromModal(item));
+    }
+    q('itemSellBtn').addEventListener('click', () => sellItemFromModal(item));
+    q('itemCloseBtn').addEventListener('click', () => closeModal(els.itemDetailBackdrop));
+
+    openModal(els.itemDetailBackdrop);
+  }
+
+  // 장착 처리
+  function equipItemFromModal(item) {
+    // 이미 장착된 슬롯 아이템이 있으면 인벤토리로 되돌림 (단, 장착 상태 해제)
+    const prev = state.equipment[item.slot];
+    if (prev) {
+      // prev는 이미 inventory에 있음 (obtainItem으로 들어갔으므로) - 별도 처리 불필요
+    }
+    state.equipment[item.slot] = item;
+
+    // 장착 이펙트
+    showEquipEffect(item);
+    closeModal(els.itemDetailBackdrop);
+
+    renderHero();
+    openHeroStatsModal(); // 상세창 갱신
+  }
+
+  function sellItemFromModal(item) {
+    const price = getSellPrice(item);
+    // 장착 중이면 해제
+    if (state.equipment[item.slot]?.id === item.id) {
+      state.equipment[item.slot] = null;
+    }
+    state.inventory = state.inventory.filter(i=>i.id!==item.id);
+    state.gold += price;
+    closeModal(els.itemDetailBackdrop);
+    renderHero();
+    showDropNotification(`🪙 ${item.name} 판매 완료! +${price} 골드`);
+    openHeroStatsModal();
+  }
+
+  // 장착 이펙트
+  function showEquipEffect(item) {
+    // 플래시 오버레이
+    const overlay = document.createElement('div');
+    overlay.className = 'equip-flash-overlay';
+    document.body.appendChild(overlay);
+    setTimeout(()=>overlay.remove(), 600);
+
+    // 드롭 알림
+    const rarityColors = { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' };
+    showDropNotification(`✨ ${item.name} 장착! 스탯이 변화했습니다.`, rarityColors[item.rarity]||'#eef3ff');
+  }
+
+  // ─────────────────────────────────────────
+  // 드롭 알림
+  // ─────────────────────────────────────────
+  function showDropNotification(text, color='#eef3ff') {
+    const n = document.createElement('div');
+    n.className = 'drop-notification';
+    n.style.color = color;
+    n.textContent = text;
+    document.body.appendChild(n);
+    setTimeout(()=>n.remove(), 2900);
+  }
+
+  // ─────────────────────────────────────────
+  // 이벤트 디코드
+  // ─────────────────────────────────────────
+  function decodeEvent(code) {
+    const [d1,d2,d3,d4,d5] = code.split('').map(Number);
+    const eventType = d1<=5?'몬스터': d1<=7?'보물': d1===8?'장비':'특수';
+    let grade='일반';
+    if (eventType==='몬스터') grade = d2<=5?'일반':d2<=7?'강화':d2===8?'엘리트':'보스';
+    else if (eventType==='보물') grade='보물';
+    else if (eventType==='장비') grade='장비';
+    else grade='특수';
+
+    const amount  = d3<=3?1: d3<=6?2: d3<=8?3:4;
+    const special = d5<=5?'없음': d5===6?'공격 증가': d5===7?'방어 증가': d5===8?'속도 증가':'희귀 보상';
+
+    let title='', desc='', badges=[], enemy=null, reward=null, item=null;
+
+    if (eventType==='몬스터') {
+      const mn = monsterTypes[d4];
+      title=`${grade} ${mn} 출현`; desc=`${mn} ${amount}마리가 나타났습니다. 특수 효과: ${special}.`;
+      badges=[eventType, grade, `${amount}마리`, special]; enemy=makeEnemy(mn, grade, amount, special, d4);
+    } else if (eventType==='보물') {
+      const gold=20+d2*8+d3*5+d5*3;
+      title='보물 발견'; desc=`숨겨진 보물상자를 발견했습니다. 골드 ${gold}를 획득합니다.`;
+      badges=[eventType, `골드 +${gold}`, special]; reward={exp:8+d2, gold};
+    } else if (eventType==='장비') {
+      item=createEquipmentItem(d2, d4, false); const exp=12+d2*2+d5;
+      title='장비 발견'; desc=`${item.name}을(를) 획득했습니다. ${item.slotLabel} 슬롯 장비입니다.`;
+      badges=[eventType, item.rarityLabel, item.slotLabel, item.baseName]; reward={exp, gold:10+d3*3};
+    } else {
+      const sp=specialTypes[d4]; const exp=15+d2*2+d5;
+      title='특수 이벤트'; desc=`${sp}을(를) 발견했습니다. 탐험의 기운으로 영웅이 크게 성장합니다.`;
+      badges=[eventType, sp, `경험치 +${exp}`]; reward={exp, gold:15+d3*4};
+    }
+    return {code,d1,d2,d3,d4,d5,eventType,grade,amount,special,title,desc,badges,enemy,reward,item};
+  }
+
+  function renderEvent(decoded) {
+    els.codeOutput.textContent = decoded.code;
+    els.eventTitle.textContent = decoded.title;
+    els.eventDesc.textContent  = decoded.desc;
+    els.eventBadges.innerHTML  = decoded.badges.map(b=>`<div class="badge">${b}</div>`).join('');
+    els.decodeBox.innerHTML =
+      `1번째 자리 <b>${decoded.d1}</b> = ${decoded.eventType}<br>`+
+      `2번째 자리 <b>${decoded.d2}</b> = ${decoded.grade}${decoded.item?` / ${decoded.item.rarityLabel}`:''}<br>`+
+      `3번째 자리 <b>${decoded.d3}</b> = ${decoded.amount}${decoded.eventType==='몬스터'?'마리 규모':'단계'}<br>`+
+      `4번째 자리 <b>${decoded.d4}</b> = ${decoded.eventType==='몬스터'?monsterTypes[decoded.d4]:decoded.eventType==='특수'?specialTypes[decoded.d4]:decoded.item?decoded.item.baseName:'세부 타입'}<br>`+
+      `5번째 자리 <b>${decoded.d5}</b> = ${decoded.special}`;
+  }
+
+  // ─────────────────────────────────────────
+  // 로그
+  // ─────────────────────────────────────────
+  function addLog(title, detail) {
+    state.logs.unshift({time:new Date().toLocaleString('ko-KR'), title, detail});
+    state.logs = state.logs.slice(0,50);
+    renderLogs();
+  }
+  function renderLogs() {
+    els.exploreLog.innerHTML = state.logs.length
+      ? state.logs.map(i=>`<div class="list-item" style="cursor:default;"><div class="muted">${i.time}</div><div><b>${i.title}</b></div><div class="muted" style="margin-top:6px;">${i.detail}</div></div>`).join('')
+      : '<div class="empty-box">아직 탐험 기록이 없습니다.</div>';
+  }
+
+  // ─────────────────────────────────────────
+  // 지도
+  // ─────────────────────────────────────────
+  async function reverseGeocode(lat, lng) {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {headers:{'Accept':'application/json'}});
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      return data.display_name || '주소 확인 불가';
+    } catch { return '주소 확인 불가'; }
+  }
+  function shortAddress(addr) {
+    if (!addr || addr==='주소 확인 불가') return addr||'-';
+    return addr.split(',').map(v=>v.trim()).filter(Boolean).slice(0,3).join(', ');
+  }
+  function saveMapHistory() {
+    localStorage.setItem('scanhero_map_history', JSON.stringify(state.mapHistory.map(({__marker,...r})=>r)));
+  }
+  function loadMapHistory() {
+    const raw = localStorage.getItem('scanhero_map_history');
+    if (!raw) return;
+    try { state.mapHistory = JSON.parse(raw).filter(i=>i&&typeof i.lat==='number'); } catch { state.mapHistory=[]; }
+  }
+  async function addMapHistory({barcode,decoded,detail,exp,gold}) {
+    const {lat,lng} = state.currentLocation;
+    const address   = await reverseGeocode(lat, lng);
+    state.mapHistory.unshift({
+      id:`${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+      barcode, code:decoded.code, eventType:decoded.eventType,
+      title:decoded.title, detail, exp, gold,
+      icon:markerIcons[decoded.eventType]||'📍',
+      lat, lng, address, time:new Date().toLocaleString('ko-KR')
+    });
+    state.mapHistory = state.mapHistory.slice(0,100);
+    saveMapHistory(); renderMapHistoryList(); renderMapMarkers();
+  }
+  function makeInfoWindowHtml(item) {
+    return `<div style="min-width:180px;max-width:220px;color:#111827;font-size:12px;line-height:1.5;"><div style="font-weight:900;font-size:13px;margin-bottom:6px;">${item.icon} ${item.title}</div><div style="color:#374151;margin-bottom:4px;">${item.detail}</div><div style="font-size:11px;color:#6b7280;">📍 ${shortAddress(item.address||'')}</div></div>`;
+  }
+  function focusMapHistory(item) {
+    els.mapSelectionInfo.innerHTML = `<b>${item.icon} ${item.title}</b><br>${item.detail}<br>주소: ${shortAddress(item.address||'주소 확인 불가')}<br>위치: ${item.lat.toFixed(1)}, ${item.lng.toFixed(1)}`;
+    if (state.map) state.map.setView([item.lat,item.lng],18);
+    if (item.__marker) { item.__marker.setPopupContent(makeInfoWindowHtml(item)); item.__marker.openPopup(); }
+    closeModal(els.mapHistoryBackdrop); openModal(els.mapBackdrop);
+  }
+  function renderMapHistoryList() {
+    els.mapHistoryList.innerHTML = state.mapHistory.length
+      ? state.mapHistory.map(i=>`<div class="list-item" data-id="${i.id}"><div><b>${i.icon} ${i.title}</b></div><div class="muted" style="margin-top:4px;">${i.detail}</div><div class="muted" style="margin-top:4px;">${shortAddress(i.address||'')}</div></div>`).join('')
+      : '<div class="empty-box">아직 지도에 기록된 탐험 위치가 없습니다.</div>';
+    document.querySelectorAll('#mapHistoryList .list-item[data-id]').forEach(node=>{
+      node.addEventListener('click',()=>{ const t=state.mapHistory.find(v=>v.id===node.dataset.id); if(t) focusMapHistory(t); });
+    });
+  }
+  function initMap() {
+    if (typeof L==='undefined') { document.getElementById('map').innerHTML='<div style="padding:18px;color:#cdd7f2;">Leaflet 지도를 불러오지 못했습니다.</div>'; return; }
+    state.map = L.map('map',{center:[37.5665,126.9780],zoom:18,zoomControl:true});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(state.map);
+    renderMapMarkers();
+    if (state.currentLocation) updateCurrentLocationMarker();
+    setTimeout(()=>state.map.invalidateSize(),200);
+  }
+  function renderMapMarkers() {
+    if (!state.map||typeof L==='undefined') return;
+    state.markers.forEach(m=>state.map.removeLayer(m)); state.markers=[];
+    state.mapHistory.forEach(item=>{
+      const m = L.marker([item.lat,item.lng]).addTo(state.map);
+      m.bindPopup(makeInfoWindowHtml(item)); item.__marker=m;
+      m.on('click',()=>focusMapHistory(item)); state.markers.push(m);
+    });
+  }
+  function updateCurrentLocationMarker() {
+    if (!state.map||typeof L==='undefined'||!state.currentLocation) return;
+    if (state.currentLocationMarker) state.map.removeLayer(state.currentLocationMarker);
+    const icon = L.divIcon({className:'',html:'<div class="mini-current-marker">🧙</div>',iconSize:[28,28],iconAnchor:[14,14]});
+    state.currentLocationMarker = L.marker([state.currentLocation.lat,state.currentLocation.lng],{icon}).addTo(state.map).bindPopup('현재 위치');
+    state.map.setView([state.currentLocation.lat,state.currentLocation.lng],18);
+  }
+  function requestCurrentLocation() {
+    if (!navigator.geolocation) { els.locationStatus.textContent='이 브라우저는 위치 정보를 지원하지 않습니다.'; return; }
+    els.locationStatus.textContent='현재 위치를 확인 중입니다...';
+    navigator.geolocation.getCurrentPosition(
+      async pos => {
+        const {latitude:lat, longitude:lng} = pos.coords;
+        const address = await reverseGeocode(lat,lng);
+        state.currentLocation = {lat,lng,address};
+        els.locationStatus.innerHTML=`현재 위치 확인 완료<br>주소: ${shortAddress(address)}<br>위치: ${lat.toFixed(1)}, ${lng.toFixed(1)}`;
+        if (state.map) updateCurrentLocationMarker();
+      },
+      err => { els.locationStatus.textContent=`위치 확인 실패: ${err.message}`; },
+      {enableHighAccuracy:true, timeout:10000, maximumAge:0}
+    );
+  }
+
+  // ─────────────────────────────────────────
+  // 이벤트 모달
+  // ─────────────────────────────────────────
+  function showEventModal(decoded) {
+    state.pendingDecoded = decoded;
+    els.eventModalTitle.textContent = '이벤트 확인';
+    els.eventModalVisual.textContent = decoded.eventType==='몬스터'?getEnemyVisual(decoded.enemy?.name||'악마'):decoded.eventType==='보물'?'🎁':decoded.eventType==='장비'?decoded.item?.icon||'🧰':'✨';
+    els.eventModalText.innerHTML = decoded.desc;
+    els.eventModalBadges.innerHTML = (decoded.badges||[]).map(b=>`<div class="badge">${b}</div>`).join('');
+    els.eventModalActions.innerHTML = decoded.eventType==='몬스터'
+      ? `<button class="modal-primary" id="eventPrimaryBtn">전투 준비 완료</button>`
+      : `<button class="modal-primary" id="eventPrimaryBtn">결과 보기</button>`;
+    q('eventPrimaryBtn').addEventListener('click', handleEventConfirm);
+    openModal(els.eventModalBackdrop);
+  }
+  function closeEventModal() { state.pendingDecoded=null; closeModal(els.eventModalBackdrop); }
+
+  // ─────────────────────────────────────────
+  // 전투
+  // ─────────────────────────────────────────
+  function getBattleSetup(enemy) {
+    const heroStats = getHeroBaseStats();
+    const tactic = els.eventTacticSelect.value, soldierClass = els.eventSoldierClassSelect.value;
+    const tm = getTacticMod(tactic), sm = getSoldierClassMod(soldierClass);
+    const sc = heroStats.soldiers;
+    return {
+      tactic, soldierClass, soldierCount:sc,
+      heroAtk:   Math.round(heroStats.atk*tm.atk*sm.atk+sc*1),
+      heroDef:   Math.round(heroStats.def*tm.def*sm.def+sc*1),
+      heroMax:   Math.round(heroStats.hp*tm.hp*sm.hp+sc*8),
+      heroSpeed: Math.round(heroStats.speed*tm.speed*sm.speed),
+      heroCrit:  Math.round(heroStats.crit*tm.crit*sm.crit),
+      enemy
+    };
+  }
+
+  function resetBattleAnims() {
+    [els.battleHeroUnit,els.battleEnemyUnit,els.battleHeroSpriteWrap,els.battleEnemyEmoji,els.battleSoldierGroup].forEach(el=>{
+      if (!el) return;
+      el.classList.remove('anim-attack-left','anim-attack-right','anim-hit','anim-run','anim-fade');
+      void el.offsetWidth;
+    });
+    document.querySelectorAll('.battle-soldier').forEach(el=>{el.classList.remove('anim-attack-left','anim-hit','anim-run');void el.offsetWidth;});
+  }
+
+  function updateBattleUI(title, log) {
+    const b = state.battle; if (!b) return;
+    els.battleTurnTitle.textContent = title; els.battleLog.textContent = log;
+    els.battleHeroHpText.textContent  = `HP ${Math.max(0,b.heroHp)} / ${b.heroMax}`;
+    els.battleEnemyHpText.textContent = `HP ${Math.max(0,b.enemyHp)} / ${b.enemyMax}`;
+    els.heroHpBar.style.width   = `${Math.max(0,(b.heroHp/b.heroMax)*100)}%`;
+    els.enemyHpBar.style.width  = `${Math.max(0,(b.enemyHp/b.enemyMax)*100)}%`;
+  }
+
+  function calcPartialExp(totalDmg, maxHp, enemy) { return Math.max(1, Math.floor(getBattleExp(enemy)*(Math.max(0,Math.min(1,totalDmg/maxHp))))); }
+
+  function renderBattleHeroSprite() { els.battleHeroSpriteWrap.innerHTML=`<div class="battle-hero-sprite">${getHeroVisualHtml(state.heroClass)}</div>`; }
+  function renderBattleSoldiers(count, cls) { els.battleSoldierGroup.innerHTML=Array.from({length:count},()=>getSoldierSprite(cls,'battle')).join(''); }
+
+  function openBattleModal(decoded) {
+    const setup = getBattleSetup(decoded.enemy);
+    state.battle = { decoded, setup, heroHp:setup.heroMax, heroMax:setup.heroMax, enemyHp:setup.enemy.hp, enemyMax:setup.enemy.hp, turn:1, totalDmg:0, ended:false, locked:false };
+    renderBattleHeroSprite(); renderBattleSoldiers(setup.soldierCount, setup.soldierClass);
+    els.battleEnemyEmoji.textContent = getEnemyVisual(setup.enemy.name);
+    els.battleHeroName.textContent   = state.heroName;
+    els.battleEnemyName.textContent  = `${setup.enemy.grade} ${setup.enemy.name}`;
+    els.battleHeroMeta.textContent   = `${state.heroClass} / ${setup.tactic} / ${setup.soldierClass} / 병사 ${setup.soldierCount}`;
+    els.battleEnemyMeta.textContent  = `공격 ${setup.enemy.atk} / 방어 ${setup.enemy.def}`;
+    els.battleResultBox.style.display='none'; els.battleResultBox.className='';
+    els.battleActions.className='modal-actions two';
+    els.battleActions.innerHTML='<button class="modal-primary" id="battleAttackBtn">공격</button><button class="modal-danger" id="battleRunBtn">도망</button>';
+    bindBattleActions();
+    updateBattleUI('전투 시작', `${setup.enemy.grade} ${setup.enemy.name}이(가) 나타났습니다.\n공격 또는 도망을 선택하세요.`);
+    openModal(els.battleBackdrop);
+  }
+
+  async function endBattle({title, desc, exp=0, gold=0, resultType='success', logTitle='', logDetail='', dropItem=null}) {
+    const decoded = state.battle.decoded;
+    const leveled = addReward(exp, gold);
+    let dropLog = '';
+
+    if (dropItem) {
+      const equipped = obtainItem(dropItem);
+      dropLog = ` / 드롭: ${dropItem.name}${equipped?' (자동장착)':''}`;
+      showDropNotification(`🎁 ${dropItem.name} 드롭!`, { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' }[dropItem.rarity]||'#eef3ff');
+    }
+
+    if (logTitle) addLog(logTitle, `${logDetail}${dropLog}${leveled?' / 레벨업!':''}`);
+
+    await addMapHistory({ barcode:onlyDigits(els.barcodeInput.value), decoded, detail:logDetail||desc, exp, gold });
+
+    renderHero(); renderLogs();
+    if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
+
+    const dropHtml = dropItem ? `<br>${dropItem.icon} <span style="color:var(--${dropItem.rarity==='legendary'?'legendary':dropItem.rarity==='epic'?'epic':dropItem.rarity==='rare'?'rare':dropItem.rarity==='uncommon'?'uncommon':'common'})">${dropItem.name} 획득!</span>` : '';
+
+    els.battleActions.className='modal-actions center-single';
+    els.battleActions.innerHTML='<button class="modal-primary" id="battleCloseBtn">확인</button>';
+    q('battleCloseBtn').addEventListener('click', ()=>{ closeModal(els.battleBackdrop); state.battle=null; });
+    els.battleResultBox.style.display='block';
+    els.battleResultBox.className = resultType==='fail'?'battle-result-box fail':'battle-result-box';
+    els.battleResultBox.innerHTML = `<b>${title}</b><br>${desc}${dropHtml}`;
+  }
+
+  async function animHeroAtk()  { resetBattleAnims(); els.battleHeroUnit.classList.add('anim-attack-left'); els.battleSoldierGroup.classList.add('anim-attack-left'); await wait(180); els.battleEnemyUnit.classList.add('anim-hit'); els.battleEnemyEmoji.classList.add('anim-fade'); await wait(280); resetBattleAnims(); }
+  async function animEnemyAtk() { resetBattleAnims(); els.battleEnemyUnit.classList.add('anim-attack-right'); await wait(180); els.battleHeroUnit.classList.add('anim-hit'); els.battleHeroSpriteWrap.classList.add('anim-fade'); els.battleSoldierGroup.classList.add('anim-hit'); await wait(280); resetBattleAnims(); }
+  async function animRun()      { resetBattleAnims(); els.battleTurnTitle.textContent='도망 시도'; els.battleLog.textContent='영웅과 병사들이 전열을 무너뜨리며 급히 후퇴합니다...'; els.battleHeroUnit.classList.add('anim-run'); els.battleSoldierGroup.classList.add('anim-run'); await wait(780); resetBattleAnims(); }
+
+  async function battleAttackTurn() {
+    const b = state.battle; if (!b||b.ended||b.locked) return;
+    b.locked = true;
+    const enemy = b.setup.enemy, lines=[], t=b.turn;
+    const heroFirst = b.setup.heroSpeed >= enemy.speed;
+
+    async function heroAtk() {
+      const d=calcDamage(b.setup.heroAtk,enemy.def,b.setup.heroCrit);
+      await animHeroAtk(); b.enemyHp-=d.value; b.totalDmg+=d.value;
+      lines.push(`${t}턴 - 영웅 부대가 ${enemy.name}에게 ${d.value} 피해${d.critical?' (치명타)':''}`);
+      updateBattleUI(`${t}턴 진행 중`, lines.join('\n'));
+    }
+    async function enemyAtk() {
+      const d=calcDamage(enemy.atk,b.setup.heroDef,enemy.crit);
+      await animEnemyAtk(); b.heroHp-=d.value;
+      lines.push(`${t}턴 - ${enemy.name}이(가) 영웅 부대에 ${d.value} 피해${d.critical?' (치명타)':''}`);
+      updateBattleUI(`${t}턴 진행 중`, lines.join('\n'));
+    }
+
+    if (heroFirst) { await heroAtk(); if (b.enemyHp>0) await enemyAtk(); }
+    else           { await enemyAtk(); if (b.heroHp>0) await heroAtk(); }
+
+    if (b.enemyHp<=0) {
+      b.ended=true;
+      const exp=getBattleExp(enemy), gold=getBattleGold(enemy);
+      const dropItem = rollMonsterDrop(enemy); // 아이템 드롭 시도
+      updateBattleUI(`${t}턴 종료`, lines.join('\n'));
+      await endBattle({ title:'승리', desc:`전투 승리!<br>경험치 ${exp}, 골드 ${gold} 획득`, exp, gold, resultType:'success', logTitle:b.decoded?.title||'전투', logDetail:`${b.decoded?.title} / 승리 / 경험치 ${exp} / 골드 ${gold}`, dropItem });
+      b.locked=false; return;
+    }
+    if (b.heroHp<=0) {
+      b.ended=true;
+      const exp=calcPartialExp(b.totalDmg,b.enemyMax,enemy);
+      updateBattleUI(`${t}턴 종료`, lines.join('\n'));
+      await endBattle({ title:'패배', desc:`전투 패배.<br>경험치 ${exp} 획득`, exp, gold:0, resultType:'fail', logTitle:b.decoded?.title||'전투', logDetail:`${b.decoded?.title} / 패배 / 경험치 ${exp}` });
+      b.locked=false; return;
+    }
+
+    updateBattleUI(`${t}턴 종료`, lines.join('\n'));
+    b.turn++; b.locked=false;
+  }
+
+  async function battleRunAway() {
+    const b=state.battle; if (!b||b.ended||b.locked) return;
+    b.locked=true; b.ended=true;
+    const enemy=b.setup.enemy;
+    await animRun();
+    const exp = calcPartialExp(b.totalDmg,b.enemyMax,enemy);
+    let lostGold=0, lostText='다행히 골드는 지켜냈습니다.';
+    if (Math.random()<0.55 && state.gold>0) {
+      lostGold = Math.min(state.gold, Math.max(1, Math.floor(Math.random()*Math.min(Math.max(1,Math.floor(state.gold*0.06)),Math.max(1,Math.floor(enemy.hp/10))))+1));
+      lostText = `혼란 속에서 골드 ${lostGold}를 잃었습니다.`;
+    }
+    updateBattleUI(`${b.turn}턴 종료`,`영웅 부대가 아슬아슬하게 전장에서 이탈했습니다.\n${lostText}`);
+    await endBattle({ title:'도망 성공', desc:`전투 이탈.<br>경험치 ${exp} 획득<br>${lostText}`, exp, gold:-lostGold, resultType:'fail', logTitle:b.decoded?.title||'전투', logDetail:`${b.decoded?.title} / 도망 / 경험치 ${exp}${lostGold?` / 골드 -${lostGold}`:''}` });
+    b.locked=false;
+  }
+
+  function bindBattleActions() {
+    const atk=q('battleAttackBtn'), run=q('battleRunBtn');
+    if (atk) atk.addEventListener('click', battleAttackTurn);
+    if (run) run.addEventListener('click', battleRunAway);
+  }
+
+  function handleEventConfirm() {
+    const decoded = state.pendingDecoded; if (!decoded) return;
+    closeEventModal();
+    if (decoded.eventType==='몬스터') { renderEvent(decoded); openBattleModal(decoded); }
+    else processNonBattleResult(decoded);
+  }
+
+  async function processNonBattleResult(decoded) {
+    els.codeOutput.textContent = decoded.code; els.eventTitle.textContent=decoded.title;
+    els.eventDesc.textContent  = decoded.desc; els.eventBadges.innerHTML=decoded.badges.map(b=>`<div class="badge">${b}</div>`).join('');
+    const reward = decoded.reward||{exp:5,gold:0};
+    let itemLog='';
+    if (decoded.item) { const eq=obtainItem(decoded.item); itemLog=eq?` / 장착: ${decoded.item.name}`:` / 획득: ${decoded.item.name}`; }
+    const leveled = addReward(reward.exp, reward.gold);
+    const detail  = `${decoded.title}${itemLog} / 경험치 ${reward.exp}${reward.gold?` / 골드 ${reward.gold}`:''}`;
+    addLog(decoded.title, `${detail}${leveled?' / 레벨업!':''}`);
+    await addMapHistory({ barcode:onlyDigits(els.barcodeInput.value), decoded, detail, exp:reward.exp, gold:reward.gold });
+    renderHero(); renderLogs();
+    if (decoded.item) els.eventDesc.textContent += state.equipment[decoded.item.slot]?.id===decoded.item.id?' 더 강한 장비라 자동 장착되었습니다!':" 인벤토리에 보관되었습니다.";
+    if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
+  }
+
+  // ─────────────────────────────────────────
+  // 스캐너
+  // ─────────────────────────────────────────
+  async function stopCameraScanner() {
+    try {
+      if (state.html5QrCode && state.scannerRunning) { await state.html5QrCode.stop(); await state.html5QrCode.clear(); }
+      else if (state.html5QrCode) await state.html5QrCode.clear();
+    } catch(e) { console.warn(e); } finally {
+      state.scannerRunning=false;
+      const el=q('scanner'); if (el) el.innerHTML='';
+    }
+  }
+  async function startCameraScanner() {
+    if (typeof Html5Qrcode==='undefined') { els.scanStatusText.textContent='스캐너 라이브러리를 불러오지 못했습니다.'; return; }
+    await stopCameraScanner();
+    state.html5QrCode = new Html5Qrcode('scanner');
+    els.scanStatusText.textContent='카메라를 준비 중입니다...';
+    const formats=[Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,Html5QrcodeSupportedFormats.ITF];
+    try {
+      await state.html5QrCode.start({facingMode:'environment'},{fps:10,qrbox:{width:220,height:72},aspectRatio:1.7778,formatsToSupport:formats},
+        async decodedText => {
+          const barcode=onlyDigits(decodedText); if (!barcode) return;
+          els.barcodeInput.value=barcode; els.scanStatusText.textContent=`인식 성공: ${barcode}`;
+          await stopCameraScanner(); closeModal(els.scanModalBackdrop); handleScan();
+        }, ()=>{});
+      state.scannerRunning=true; els.scanStatusText.textContent='바코드를 화면 중앙에 맞추거나 아래에 숫자를 직접 입력해 주세요.';
+    } catch(err) { console.error(err); els.scanStatusText.textContent='카메라 실행에 실패했습니다. 숫자를 직접 입력해 주세요.'; }
+  }
+
+  function handleScan() {
+    renderHero();
+    const barcode=onlyDigits(els.barcodeInput.value);
+    if (!barcode)                { alert('바코드 숫자를 입력하거나 카메라로 스캔해 주세요.'); return; }
+    if (!state.currentLocation)  { alert('현재 위치 확인 후 다시 시도해 주세요.'); return; }
+    closeModal(els.scanModalBackdrop);
+    const code=toFiveCode(barcode), decoded=decodeEvent(code);
+    renderEvent(decoded); showEventModal(decoded);
+  }
+
+  // ─────────────────────────────────────────
+  // 초기화 / 이벤트 바인딩
+  // ─────────────────────────────────────────
+  function applyStartHero() {
+    state.heroName  = (els.startHeroName.value||'').trim()||'주인님의 영웅';
+    state.heroClass = els.startHeroClass.value||'전사';
+    renderHero(); els.startHeroBackdrop.style.display='none'; requestCurrentLocation();
+  }
+
+  els.scanFab.addEventListener('click', async ()=>{ els.scanStatusText.textContent='카메라 스캔 또는 바코드 숫자 직접 입력을 사용할 수 있습니다.'; els.barcodeInput.value=''; openModal(els.scanModalBackdrop); await startCameraScanner(); });
+  els.scanModalCloseBtn.addEventListener('click', async ()=>{ await stopCameraScanner(); closeModal(els.scanModalBackdrop); });
+  els.scanStartBtn.addEventListener('click', async ()=>{ await stopCameraScanner(); handleScan(); });
+  els.heroMapBtn.addEventListener('click', ()=>{ openModal(els.mapBackdrop); setTimeout(()=>{ if(state.map)state.map.invalidateSize(); },200); });
+  els.mapCloseBtn.addEventListener('click', ()=>closeModal(els.mapBackdrop));
+  els.mapHistoryBtn.addEventListener('click', ()=>{ renderMapHistoryList(); openModal(els.mapHistoryBackdrop); });
+  els.mapHistoryCloseBtn.addEventListener('click', ()=>closeModal(els.mapHistoryBackdrop));
+  els.decodeInfoBtn.addEventListener('click', ()=>openModal(els.decodeBackdrop));
+  els.decodeCloseBtn.addEventListener('click', ()=>closeModal(els.decodeBackdrop));
+  els.exploreLogBtn.addEventListener('click', ()=>{ renderLogs(); openModal(els.exploreLogBackdrop); });
+  els.exploreLogCloseBtn.addEventListener('click', ()=>closeModal(els.exploreLogBackdrop));
+  els.eventTacticSelect.addEventListener('change', renderHero);
+  els.eventSoldierClassSelect.addEventListener('change', renderHero);
+  els.barcodeInput.addEventListener('input', ()=>{ els.barcodeInput.value=onlyDigits(els.barcodeInput.value); });
+  els.startGameBtn.addEventListener('click', applyStartHero);
+  els.startHeroName.addEventListener('keydown', e=>{ if(e.key==='Enter') applyStartHero(); });
+  els.heroTitleBtn.addEventListener('click', openHeroStatsModal);
+  els.heroStatsCloseBtn.addEventListener('click', ()=>closeModal(els.heroStatsBackdrop));
+
+  [els.scanModalBackdrop,els.mapBackdrop,els.mapHistoryBackdrop,els.decodeBackdrop,els.exploreLogBackdrop,els.heroStatsBackdrop,els.eventModalBackdrop,els.battleBackdrop,els.itemDetailBackdrop].forEach(bd=>{
+    bd.addEventListener('click', async e=>{
+      if (e.target===bd && bd!==els.eventModalBackdrop && bd!==els.battleBackdrop) {
+        if (bd===els.scanModalBackdrop) await stopCameraScanner();
+        closeModal(bd);
+      }
+    });
+  });
+
+  loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap();
+});
+</script>
 </body>
 </html>
