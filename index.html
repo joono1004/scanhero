@@ -6,6 +6,7 @@
   <title>ScanHero MVP</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     * { box-sizing: border-box; }
 
@@ -670,6 +671,7 @@
       border: 1px solid rgba(110, 139, 204, 0.18);
       border-radius: 12px;
       padding: 11px;
+      cursor: pointer;
     }
 
     .hero-start-backdrop {
@@ -748,6 +750,20 @@
       padding: 14px;
       display: grid;
       gap: 12px;
+    }
+
+    #scanner {
+      width: 100%;
+      min-height: 260px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0b1220;
+      border: 1px solid rgba(110, 139, 204, 0.18);
+    }
+
+    #scanner video {
+      border-radius: 16px;
+      object-fit: cover !important;
     }
 
     .mini-current-marker {
@@ -1253,11 +1269,16 @@
       <div class="scan-modal-body">
         <div class="modal-hero">
           <div class="modal-visual" style="font-size:56px;">📷</div>
-          <div class="modal-text">초기 MVP에서는 바코드 인식 화면 대신 숫자 입력 방식으로 테스트합니다.</div>
+          <div class="modal-text" id="scanStatusText">
+            카메라 스캔 또는 바코드 숫자 직접 입력을 사용할 수 있습니다.
+          </div>
         </div>
+
+        <div id="scanner"></div>
+
         <div class="line" style="margin-bottom:0;">
           <label for="barcodeInput">바코드 숫자 입력</label>
-          <input id="barcodeInput" placeholder="예: 8801234567890" value="8801234567890" />
+          <input id="barcodeInput" placeholder="예: 8801234567890" value="" inputmode="numeric" />
         </div>
       </div>
       <div class="modal-actions two">
@@ -1361,7 +1382,9 @@
         markers: [],
         currentLocationMarker: null,
         pendingDecoded: null,
-        battle: null
+        battle: null,
+        html5QrCode: null,
+        scannerRunning: false
       };
 
       const els = {
@@ -1378,6 +1401,7 @@
         scanModalBackdrop: document.getElementById('scanModalBackdrop'),
         scanModalCloseBtn: document.getElementById('scanModalCloseBtn'),
         scanStartBtn: document.getElementById('scanStartBtn'),
+        scanStatusText: document.getElementById('scanStatusText'),
 
         mapBackdrop: document.getElementById('mapBackdrop'),
         mapCloseBtn: document.getElementById('mapCloseBtn'),
@@ -1721,16 +1745,14 @@
 
       function renderLogs() {
         els.exploreLog.innerHTML = state.logs.length
-          ? state.logs.map(item => `<div class="list-item"><div class="muted">${item.time}</div><div><b>${item.title}</b></div><div class="muted" style="margin-top:6px;">${item.detail}</div></div>`).join('')
+          ? state.logs.map(item => `<div class="list-item" style="cursor:default;"><div class="muted">${item.time}</div><div><b>${item.title}</b></div><div class="muted" style="margin-top:6px;">${item.detail}</div></div>`).join('')
           : '<div class="empty-box">아직 탐험 기록이 없습니다.</div>';
       }
 
       async function reverseGeocode(lat, lng) {
         try {
           const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
-          const res = await fetch(url, {
-            headers: { 'Accept': 'application/json' }
-          });
+          const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
           if (!res.ok) throw new Error('reverse geocode failed');
           const data = await res.json();
           return data.display_name || '주소 확인 불가';
@@ -2275,12 +2297,84 @@
         if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
       }
 
+      async function stopCameraScanner() {
+        try {
+          if (state.html5QrCode && state.scannerRunning) {
+            await state.html5QrCode.stop();
+            await state.html5QrCode.clear();
+          } else if (state.html5QrCode) {
+            await state.html5QrCode.clear();
+          }
+        } catch (e) {
+          console.warn('scanner stop error', e);
+        } finally {
+          state.scannerRunning = false;
+          const scannerEl = document.getElementById('scanner');
+          if (scannerEl) scannerEl.innerHTML = '';
+        }
+      }
+
+      async function startCameraScanner() {
+        if (typeof Html5Qrcode === 'undefined') {
+          els.scanStatusText.textContent = '스캐너 라이브러리를 불러오지 못했습니다. 숫자를 직접 입력해 주세요.';
+          return;
+        }
+
+        await stopCameraScanner();
+
+        state.html5QrCode = new Html5Qrcode('scanner');
+        els.scanStatusText.textContent = '카메라를 준비 중입니다...';
+
+        const formats = [
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.ITF
+        ];
+
+        try {
+          await state.html5QrCode.start(
+            { facingMode: 'environment' },
+            {
+              fps: 10,
+              qrbox: { width: 240, height: 120 },
+              aspectRatio: 1.7778,
+              formatsToSupport: formats
+            },
+            async (decodedText) => {
+              const barcode = onlyDigits(decodedText);
+              if (!barcode) return;
+
+              els.barcodeInput.value = barcode;
+              els.scanStatusText.textContent = `인식 성공: ${barcode}`;
+
+              await stopCameraScanner();
+              closeModal(els.scanModalBackdrop);
+              handleScan();
+            },
+            () => {
+              // 스캔 중 반복 오류는 표시하지 않음
+            }
+          );
+
+          state.scannerRunning = true;
+          els.scanStatusText.textContent = '바코드를 화면 중앙에 맞추거나 아래에 숫자를 직접 입력해 주세요.';
+        } catch (err) {
+          console.error(err);
+          els.scanStatusText.textContent =
+            '카메라 실행에 실패했습니다. 아래 입력칸에 바코드 숫자를 직접 입력해 주세요.';
+        }
+      }
+
       function handleScan() {
         renderHero();
         const barcode = onlyDigits(els.barcodeInput.value);
 
         if (!barcode) {
-          alert('숫자형 바코드를 입력해 주세요.');
+          alert('바코드 숫자를 입력하거나 카메라로 스캔해 주세요.');
           return;
         }
         if (!state.currentLocation) {
@@ -2304,9 +2398,22 @@
         requestCurrentLocation();
       }
 
-      els.scanFab.addEventListener('click', () => openModal(els.scanModalBackdrop));
-      els.scanModalCloseBtn.addEventListener('click', () => closeModal(els.scanModalBackdrop));
-      els.scanStartBtn.addEventListener('click', handleScan);
+      els.scanFab.addEventListener('click', async () => {
+        els.scanStatusText.textContent = '카메라 스캔 또는 바코드 숫자 직접 입력을 사용할 수 있습니다.';
+        els.barcodeInput.value = '';
+        openModal(els.scanModalBackdrop);
+        await startCameraScanner();
+      });
+
+      els.scanModalCloseBtn.addEventListener('click', async () => {
+        await stopCameraScanner();
+        closeModal(els.scanModalBackdrop);
+      });
+
+      els.scanStartBtn.addEventListener('click', async () => {
+        await stopCameraScanner();
+        handleScan();
+      });
 
       els.heroMapBtn.addEventListener('click', () => {
         openModal(els.mapBackdrop);
@@ -2334,6 +2441,10 @@
       els.eventTacticSelect.addEventListener('change', renderHero);
       els.eventSoldierClassSelect.addEventListener('change', renderHero);
 
+      els.barcodeInput.addEventListener('input', () => {
+        els.barcodeInput.value = onlyDigits(els.barcodeInput.value);
+      });
+
       els.startGameBtn.addEventListener('click', applyStartHero);
       els.startHeroName.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') applyStartHero();
@@ -2352,8 +2463,11 @@
         els.eventModalBackdrop,
         els.battleBackdrop
       ].forEach(backdrop => {
-        backdrop.addEventListener('click', (e) => {
+        backdrop.addEventListener('click', async (e) => {
           if (e.target === backdrop && backdrop !== els.eventModalBackdrop && backdrop !== els.battleBackdrop) {
+            if (backdrop === els.scanModalBackdrop) {
+              await stopCameraScanner();
+            }
             closeModal(backdrop);
           }
         });
