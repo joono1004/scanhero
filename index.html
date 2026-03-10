@@ -129,8 +129,9 @@
 
     .hero-visual-wrap {
       position: relative; display: inline-flex; align-items: center; justify-content: center;
-      min-width: 84px; min-height: 98px;
+      min-width: 84px; min-height: 98px; image-rendering: pixelated;
     }
+    .hero-visual-wrap svg { image-rendering: pixelated; }
     .hero-visual-wrap::before {
       content: ''; position: absolute; inset: 6px; border-radius: 50%;
       opacity: 0; transform: scale(0.85); transition: all .25s ease; z-index: 0; filter: blur(10px);
@@ -520,7 +521,7 @@
     }
     .hero-preview-ground { position: absolute; left: -10%; right: -10%; bottom: 8px; height: 90px; border-radius: 50%; background: radial-gradient(circle, rgba(245,201,107,0.22), rgba(55,77,123,0.26) 45%, rgba(7,11,20,0.02) 70%); filter: blur(2px); }
     .hero-preview-wrap { position: relative; z-index: 4; display: flex; align-items: flex-end; justify-content: center; width: 160px; min-height: 190px; }
-    .hero-preview-wrap .hero-visual-wrap { transform: scale(2.0); transform-origin: bottom center; }
+    .hero-preview-wrap .hero-visual-wrap { transform: scale(2.0); transform-origin: bottom center; image-rendering: pixelated; }
     /* 장비 오버레이 레이어 */
     .equip-overlay-cloak { position:absolute; bottom:80px; left:50%; transform:translateX(-50%); z-index:3; pointer-events:none; filter:drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }
     .equip-overlay-necklace { position:absolute; z-index:6; pointer-events:none; bottom:190px; left:50%; transform:translateX(-50%); }
@@ -560,7 +561,7 @@
       transform: translate(-50%, -50%);
       z-index: 0; pointer-events: none;
     }
-    .equip-doll-hero .hero-visual-wrap { transform: scale(2.6); transform-origin: center center; }
+    .equip-doll-hero .hero-visual-wrap { transform: scale(2.8); transform-origin: center center; image-rendering: pixelated; }
 
     /* 슬롯 버튼 공통 */
     .equip-slot-btn {
@@ -1768,6 +1769,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setAuthLoading('loginBtn', true, '로그인');
     const { data: loginData, error } = await sb.auth.signInWithPassword({ email: input, password: pw });
     setAuthLoading('loginBtn', false, '로그인');
+    // 로그인 성공 시 이메일 기억
+    if (!error) localStorage.setItem('scanhero_last_email', input);
 
     console.log('[로그인 결과] error:', error, '/ user:', loginData?.user?.email, '/ session:', !!loginData?.session);
 
@@ -1836,6 +1839,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+  // 마지막 로그인 이메일 복원
+  const _lastEmail = localStorage.getItem('scanhero_last_email');
+  if (_lastEmail) {
+    const emailEl = document.getElementById('loginEmail');
+    if (emailEl) emailEl.value = _lastEmail;
+  }
+
   // 로그아웃
   let _ignoreAuthChange = false; // 로그아웃 중 이벤트 무시용
 
@@ -1845,7 +1855,8 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('auth');
     const badge = document.getElementById('gmBadge');
     if (badge) badge.remove();
-    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginEmail').value = localStorage.getItem('scanhero_last_email') || '';
+    document.getElementById('loginPw').value = '';
     const pwField = document.getElementById('loginPwField');
     if (pwField) pwField.style.display = '';
     document.getElementById('loginError').textContent = '';
@@ -2088,165 +2099,367 @@ document.addEventListener('DOMContentLoaded', () => {
     const sc = LEGEND_SHIELD;
     const se = '#fff8d0';
 
-    if (heroClass === '전사') {
-      return `<svg viewBox="0 0 96 98" width="86" height="88" aria-hidden="true">
-        <ellipse cx="48" cy="90" rx="20" ry="5" fill="rgba(0,0,0,0.18)"/>
-        <!-- 황금 망토 -->
-        <path d="M28 45c4-12 12-19 20-19 9 0 17 7 20 19l7 26H21z" fill="${wc}" opacity="0.22"/>
-        <!-- 머리 -->
-        <circle cx="48" cy="20" r="12" fill="#f4d1b5"/>
-        <!-- 황금 투구 -->
-        <path d="M36 16c2-9 24-12 28 0-3-2-8-3-14-3s-11 1-14 3z" fill="${wc}"/>
-        <rect x="35" y="13" width="26" height="5" rx="2.5" fill="${wc}" opacity="0.8"/>
-        <!-- 황금 갑옷 몸통 -->
-        <rect x="34" y="34" width="28" height="27" rx="10" fill="${wc}" opacity="0.9"/>
-        <rect x="36" y="36" width="24" height="23" rx="8" fill="rgba(255,200,60,0.3)"/>
-        <!-- 팔 -->
-        <rect fill="#f4d1b5" x="20" y="41" width="8" height="20" rx="4"/>
-        <rect fill="#f4d1b5" x="68" y="41" width="8" height="20" rx="4"/>
-        <!-- 황금 장갑 -->
-        <rect fill="${wc}" x="20" y="55" width="8" height="8" rx="3"/>
-        <rect fill="${wc}" x="68" y="55" width="8" height="8" rx="3"/>
-        <!-- 다리 -->
-        <rect fill="#f4d1b5" x="38" y="60" width="7" height="20" rx="3"/>
-        <rect fill="#f4d1b5" x="51" y="60" width="7" height="20" rx="3"/>
-        <!-- 황금 장화 -->
-        <rect fill="${wc}" x="37" y="72" width="9" height="10" rx="3"/>
-        <rect fill="${wc}" x="50" y="72" width="9" height="10" rx="3"/>
-        <!-- 전투포즈: 검 크게 들어올림 -->
-        <g filter="url(#glow-legend)">
-          <rect fill="${wc}" x="8" y="10" width="6" height="32" rx="3"/>
-          <rect fill="${wc}" x="3" y="36" width="16" height="4" rx="2"/>
-          <rect fill="${wc}" x="10" y="40" width="3" height="10" rx="1.5"/>
-          <polygon fill="${wc}" points="11,7 8,14 14,14"/>
-          <!-- 검 빛 효과 -->
-          <rect fill="rgba(255,255,255,0.5)" x="9" y="12" width="2" height="20" rx="1"/>
-        </g>
-        <!-- 전투포즈: 황금 방패 앞으로 -->
-        <g filter="url(#glow-legend)">
-          <path fill="${sc}" stroke="${se}" stroke-width="1.5"
-            d="M78 30c6 2 9 5 9 5v16c0 11-9 18-9 18s-9-7-9-18V35s3-3 9-5z"/>
-          <line x1="78" y1="37" x2="78" y2="62" stroke="${se}" stroke-width="1" opacity="0.7"/>
-          <line x1="73" y1="46" x2="83" y2="46" stroke="${se}" stroke-width="0.9" opacity="0.6"/>
-          <circle cx="78" cy="46" r="3" fill="rgba(255,255,200,0.4)"/>
-        </g>
-        <!-- 반지 빛 -->
-        <circle cx="24" cy="57" r="3" fill="rgba(255,230,100,0.6)"/>
-        <!-- 목걸이 -->
-        <path d="M40 32 Q48 38 56 32" fill="none" stroke="${wc}" stroke-width="1.5" opacity="0.8"/>
-        <circle cx="48" cy="37" r="2.5" fill="${wc}"/>
-        <defs><filter id="glow-legend"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-      </svg>`;
-    }
-
-    if (heroClass === '궁사') {
-      return `<svg viewBox="0 0 96 98" width="86" height="88" aria-hidden="true">
-        <ellipse cx="48" cy="90" rx="20" ry="5" fill="rgba(0,0,0,0.18)"/>
-        <!-- 에메랄드 망토 -->
-        <path d="M28 45c4-12 12-19 20-19 9 0 17 7 20 19l7 26H21z" fill="${wc}" opacity="0.18"/>
-        <!-- 머리 -->
-        <circle cx="48" cy="20" r="12" fill="#f4d1b5"/>
-        <!-- 황금 헤드밴드 -->
-        <path d="M36 16c2-9 24-12 28 0-3-2-8-3-14-3s-11 1-14 3z" fill="${wc}"/>
-        <!-- 몸통 -->
-        <rect x="34" y="34" width="28" height="27" rx="10" fill="${wc}" opacity="0.85"/>
-        <!-- 팔 — 활쏘기 포즈 (몸 앞으로) -->
-        <rect fill="#f4d1b5" x="18" y="36" width="8" height="22" rx="4" transform="rotate(-15,22,47)"/>
-        <rect fill="#f4d1b5" x="68" y="38" width="8" height="18" rx="4"/>
-        <!-- 황금 장갑 -->
-        <rect fill="${wc}" x="18" y="52" width="9" height="8" rx="3" transform="rotate(-15,22,56)"/>
-        <rect fill="${wc}" x="68" y="50" width="8" height="8" rx="3"/>
-        <!-- 다리 -->
-        <rect fill="#f4d1b5" x="38" y="60" width="7" height="20" rx="3"/>
-        <rect fill="#f4d1b5" x="51" y="60" width="7" height="20" rx="3"/>
-        <!-- 황금 장화 -->
-        <rect fill="${wc}" x="37" y="72" width="9" height="10" rx="3"/>
-        <rect fill="${wc}" x="50" y="72" width="9" height="10" rx="3"/>
-        <!-- 전투포즈: 활 크게 당김 -->
-        <g filter="url(#glow-legend2)">
-          <path fill="none" stroke="${wc}" stroke-width="4" stroke-linecap="round" d="M13 15 Q5 42 13 68"/>
-          <path fill="none" stroke="${wc}" stroke-width="3" stroke-linecap="round" opacity="0.6" d="M13 15 Q19 30 18 42 Q17 56 13 68"/>
-          <!-- 활시위 당김 -->
-          <line x1="13" y1="16" x2="28" y2="38" stroke="#fff8d0" stroke-width="1.5" opacity="0.9"/>
-          <line x1="28" y1="38" x2="13" y2="67" stroke="#fff8d0" stroke-width="1.5" opacity="0.9"/>
-          <!-- 화살 -->
-          <line x1="10" y1="38" x2="62" y2="32" stroke="#fff8d0" stroke-width="2" stroke-linecap="round"/>
-          <polygon fill="${wc}" points="62,32 55,28 56,36"/>
-          <!-- 빛 효과 -->
-          <circle cx="62" cy="32" r="4" fill="rgba(255,230,100,0.5)"/>
-        </g>
-        <!-- 화살통 -->
-        <rect fill="#8b6a2a" x="74" y="30" width="8" height="26" rx="3" opacity="0.9"/>
-        <rect fill="${wc}" x="74" y="30" width="8" height="4" rx="2" opacity="0.8"/>
-        <line x1="76" y1="30" x2="76" y2="14" stroke="${wc}" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="79" y1="30" x2="80" y2="12" stroke="${wc}" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="81" y1="30" x2="82" y2="16" stroke="${wc}" stroke-width="1.5" stroke-linecap="round"/>
-        <polygon fill="${wc}" points="76,14 74,18 78,18"/>
-        <polygon fill="${wc}" points="80,12 78,16 82,16"/>
-        <!-- 목걸이 -->
-        <path d="M40 32 Q48 38 56 32" fill="none" stroke="${wc}" stroke-width="1.5" opacity="0.8"/>
-        <circle cx="48" cy="37" r="2.5" fill="${wc}"/>
-        <defs><filter id="glow-legend2"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-      </svg>`;
-    }
-
-    // 마법사
-    return `<svg viewBox="0 0 96 98" width="86" height="88" aria-hidden="true">
-      <ellipse cx="48" cy="90" rx="20" ry="5" fill="rgba(0,0,0,0.18)"/>
-      <!-- 보라 망토 -->
-      <path d="M26 46c4-13 12-20 22-20 10 0 18 7 22 20l8 28H18z" fill="#b27dff" opacity="0.25"/>
-      <!-- 머리 -->
-      <circle cx="48" cy="20" r="12" fill="#f4d1b5"/>
-      <!-- 마법사 모자 -->
-      <ellipse cx="48" cy="11" rx="16" ry="3.5" fill="${wc}" opacity="0.9"/>
-      <path d="M38 11 L45 -4 L51 -4 L58 11z" fill="${wc}" opacity="0.9"/>
-      <!-- 몸통 로브 -->
-      <rect x="33" y="34" width="30" height="28" rx="12" fill="#4a2a8a" opacity="0.95"/>
-      <rect x="35" y="36" width="26" height="24" rx="10" fill="#6a3aaa" opacity="0.8"/>
-      <!-- 황금 로브 장식 -->
-      <path d="M40 36 Q48 42 56 36" fill="none" stroke="${wc}" stroke-width="1.5" opacity="0.9"/>
-      <!-- 팔 -->
-      <rect fill="#f4d1b5" x="20" y="39" width="8" height="20" rx="4"/>
-      <rect fill="#f4d1b5" x="68" y="39" width="8" height="20" rx="4"/>
-      <!-- 황금 장갑 -->
-      <rect fill="${wc}" x="20" y="53" width="8" height="8" rx="3"/>
-      <rect fill="${wc}" x="68" y="53" width="8" height="8" rx="3"/>
-      <!-- 다리 -->
-      <rect fill="#4a2a8a" x="38" y="60" width="7" height="22" rx="3"/>
-      <rect fill="#4a2a8a" x="51" y="60" width="7" height="22" rx="3"/>
-      <rect fill="${wc}" x="37" y="72" width="9" height="10" rx="3"/>
-      <rect fill="${wc}" x="50" y="72" width="9" height="10" rx="3"/>
-      <!-- 전투포즈: 지팡이 크게 들고 마법 방출 -->
-      <g filter="url(#glow-legend3)">
-        <!-- 지팡이 막대 -->
-        <rect fill="${wc}" x="9" y="18" width="5" height="44" rx="2.5"/>
-        <!-- 오브 (큰 빛나는 구슬) -->
-        <circle fill="${wc}" cx="11.5" cy="11" r="9"/>
-        <circle fill="rgba(255,255,255,0.5)" cx="8.5" cy="8" r="3.5"/>
-        <!-- 마법 방출 파동 -->
-        <circle cx="11.5" cy="11" r="13" fill="none" stroke="${wc}" stroke-width="1.5" opacity="0.4"/>
-        <circle cx="11.5" cy="11" r="18" fill="none" stroke="${wc}" stroke-width="1" opacity="0.2"/>
-        <rect fill="${wc}" x="7" y="54" width="11" height="4" rx="2" opacity="0.8"/>
-      </g>
-      <!-- 마법서 -->
-      <g filter="url(#glow-legend3)">
-        <rect fill="#2a1f4a" x="68" y="38" width="14" height="18" rx="2.5"/>
-        <rect fill="#7a3aff" x="69" y="39" width="12" height="16" rx="2"/>
-        <rect fill="${wc}" x="70" y="41" width="10" height="2" rx="1" opacity="0.9"/>
-        <rect fill="${wc}" x="70" y="44" width="8" height="1.5" rx="0.8" opacity="0.7"/>
-        <rect fill="${wc}" x="70" y="47" width="9" height="1.5" rx="0.8" opacity="0.7"/>
-        <circle fill="none" stroke="${wc}" stroke-width="1" cx="75" cy="52" r="3" opacity="0.9"/>
-        <line x1="75" y1="49" x2="75" y2="55" stroke="${wc}" stroke-width="0.8" opacity="0.8"/>
-        <line x1="72" y1="52" x2="78" y2="52" stroke="${wc}" stroke-width="0.8" opacity="0.8"/>
-      </g>
-      <!-- 반지 빛 -->
-      <circle cx="24" cy="56" r="3.5" fill="rgba(178,125,255,0.7)"/>
-      <circle cx="72" cy="56" r="3.5" fill="rgba(178,125,255,0.7)"/>
-      <!-- 목걸이 -->
-      <path d="M40 32 Q48 38 56 32" fill="none" stroke="${wc}" stroke-width="1.5" opacity="0.8"/>
-      <circle cx="48" cy="37" r="2.5" fill="${wc}"/>
-      <defs><filter id="glow-legend3"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-    </svg>`;
+    if (heroClass === '전사') return `<svg viewBox="0 0 64 80" width="72" height="90" shape-rendering="crispEdges" style="image-rendering:pixelated" aria-hidden="true">
+  <defs><filter id="gw"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <ellipse cx="32" cy="77" rx="14" ry="3" fill="rgba(0,0,0,0.28)"/>
+  <!-- boots gold -->
+  <rect x="20" y="65" width="11" height="10" fill="#0a0a0a"/>
+  <rect x="21" y="66" width="9" height="8" fill="#8a5a00"/>
+  <rect x="21" y="66" width="9" height="3" fill="${wc}" opacity="0.9"/>
+  <rect x="21" y="66" width="4" height="2" fill="rgba(255,255,255,0.3)"/>
+  <rect x="20" y="73" width="11" height="2" fill="#5a3a00"/>
+  <rect x="33" y="65" width="11" height="10" fill="#0a0a0a"/>
+  <rect x="34" y="66" width="9" height="8" fill="#8a5a00"/>
+  <rect x="34" y="66" width="9" height="3" fill="${wc}" opacity="0.9"/>
+  <rect x="34" y="66" width="4" height="2" fill="rgba(255,255,255,0.3)"/>
+  <rect x="33" y="73" width="11" height="2" fill="#5a3a00"/>
+  <!-- legs gold -->
+  <rect x="20" y="51" width="11" height="16" fill="#0a0a0a"/>
+  <rect x="21" y="52" width="9" height="14" fill="#7a5000"/>
+  <rect x="21" y="52" width="4" height="14" fill="${wc}" opacity="0.8"/>
+  <rect x="21" y="52" width="2" height="14" fill="rgba(255,255,255,0.2)"/>
+  <rect x="20" y="57" width="11" height="4" fill="#5a3a00"/>
+  <rect x="21" y="58" width="9" height="2" fill="${wc}" opacity="0.7"/>
+  <rect x="33" y="51" width="11" height="16" fill="#0a0a0a"/>
+  <rect x="34" y="52" width="9" height="14" fill="#7a5000"/>
+  <rect x="34" y="52" width="4" height="14" fill="${wc}" opacity="0.8"/>
+  <rect x="34" y="52" width="2" height="14" fill="rgba(255,255,255,0.2)"/>
+  <rect x="33" y="57" width="11" height="4" fill="#5a3a00"/>
+  <rect x="34" y="58" width="9" height="2" fill="${wc}" opacity="0.7"/>
+  <!-- tasset gold -->
+  <rect x="19" y="47" width="26" height="7" fill="#0a0a0a"/>
+  <rect x="20" y="48" width="24" height="6" fill="#7a5000"/>
+  <rect x="20" y="48" width="24" height="2" fill="${wc}"/>
+  <rect x="20" y="48" width="12" height="1" fill="rgba(255,255,255,0.3)"/>
+  <!-- torso armor gold -->
+  <rect x="18" y="28" width="28" height="21" fill="#0a0a0a"/>
+  <rect x="19" y="29" width="26" height="19" fill="#7a5200"/>
+  <rect x="19" y="29" width="26" height="5" fill="${wc}"/>
+  <rect x="19" y="29" width="13" height="4" fill="rgba(255,255,255,0.3)"/>
+  <rect x="31" y="29" width="2" height="19" fill="#5a3a00"/>
+  <rect x="21" y="35" width="22" height="1" fill="rgba(255,255,255,0.15)"/>
+  <rect x="21" y="39" width="22" height="1" fill="rgba(255,255,255,0.1)"/>
+  <!-- shoulder pads gold -->
+  <rect x="13" y="26" width="8" height="10" fill="#0a0a0a"/>
+  <rect x="14" y="27" width="6" height="9" fill="#8a5a00"/>
+  <rect x="14" y="27" width="6" height="3" fill="${wc}"/>
+  <rect x="14" y="27" width="3" height="2" fill="rgba(255,255,255,0.4)"/>
+  <rect x="12" y="24" width="4" height="4" fill="#0a0a0a"/>
+  <rect x="13" y="25" width="2" height="3" fill="${wc}"/>
+  <rect x="43" y="26" width="8" height="10" fill="#0a0a0a"/>
+  <rect x="44" y="27" width="6" height="9" fill="#8a5a00"/>
+  <rect x="44" y="27" width="6" height="3" fill="${wc}"/>
+  <rect x="47" y="27" width="3" height="2" fill="rgba(255,255,255,0.4)"/>
+  <rect x="48" y="24" width="4" height="4" fill="#0a0a0a"/>
+  <rect x="49" y="25" width="2" height="3" fill="${wc}"/>
+  <!-- arms -->
+  <rect x="10" y="24" width="6" height="16" fill="#0a0a0a"/>
+  <rect x="11" y="25" width="4" height="14" fill="#f0c090"/>
+  <rect x="11" y="25" width="2" height="5" fill="#f8d8b0" opacity="0.7"/>
+  <rect x="10" y="37" width="7" height="5" fill="#0a0a0a"/>
+  <rect x="11" y="38" width="5" height="4" fill="${wc}"/>
+  <rect x="11" y="38" width="5" height="2" fill="rgba(255,255,255,0.3)"/>
+  <rect x="48" y="29" width="6" height="16" fill="#0a0a0a"/>
+  <rect x="49" y="30" width="4" height="14" fill="#f0c090"/>
+  <rect x="49" y="30" width="2" height="5" fill="#f8d8b0" opacity="0.7"/>
+  <rect x="48" y="42" width="7" height="5" fill="#0a0a0a"/>
+  <rect x="49" y="43" width="5" height="4" fill="${wc}"/>
+  <rect x="49" y="43" width="5" height="2" fill="rgba(255,255,255,0.3)"/>
+  <!-- neck/head -->
+  <rect x="28" y="24" width="8" height="6" fill="#0a0a0a"/>
+  <rect x="29" y="25" width="6" height="5" fill="#f0c090"/>
+  <rect x="27" y="27" width="10" height="3" fill="${wc}" opacity="0.8"/>
+  <rect x="22" y="10" width="20" height="16" fill="#0a0a0a"/>
+  <rect x="23" y="11" width="18" height="14" fill="#f0c090"/>
+  <rect x="23" y="11" width="8" height="5" fill="#f8d8b0" opacity="0.6"/>
+  <rect x="25" y="17" width="4" height="3" fill="#1a1a30"/>
+  <rect x="35" y="17" width="4" height="3" fill="#1a1a30"/>
+  <rect x="25" y="17" width="2" height="2" fill="#e8eeff"/>
+  <rect x="35" y="17" width="2" height="2" fill="#e8eeff"/>
+  <rect x="26" y="18" width="2" height="1" fill="#1a1a30"/>
+  <rect x="36" y="18" width="2" height="1" fill="#1a1a30"/>
+  <rect x="25" y="17" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
+  <rect x="35" y="17" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
+  <rect x="27" y="23" width="10" height="1" fill="#b06040"/>
+  <!-- golden helmet -->
+  <rect x="21" y="4" width="22" height="12" fill="#0a0a0a"/>
+  <rect x="22" y="5" width="20" height="11" fill="#8a5a00"/>
+  <rect x="22" y="5" width="20" height="4" fill="${wc}"/>
+  <rect x="22" y="5" width="10" height="3" fill="rgba(255,255,255,0.35)"/>
+  <rect x="23" y="13" width="18" height="5" fill="#5a3a00"/>
+  <rect x="23" y="13" width="18" height="2" fill="#3a2000"/>
+  <rect x="21" y="10" width="4" height="8" fill="#7a5000"/>
+  <rect x="39" y="10" width="4" height="8" fill="#7a5000"/>
+  <rect x="29" y="2" width="6" height="5" fill="#0a0a0a"/>
+  <rect x="30" y="3" width="4" height="4" fill="${wc}"/>
+  <rect x="30" y="0" width="4" height="4" fill="#ff9030"/>
+  <rect x="31" y="0" width="2" height="3" fill="${wc}"/>
+  <!-- legendary sword — glow -->
+  <g filter="url(#gw)">
+    <rect x="3" y="2" width="9" height="38" fill="#0a0a0a"/>
+    <rect x="4" y="3" width="7" height="36" fill="${wc}"/>
+    <rect x="4" y="3" width="2" height="36" fill="rgba(255,255,255,0.55)"/>
+    <rect x="6" y="5" width="2" height="30" fill="rgba(255,255,255,0.3)"/>
+    <rect x="5" y="2" width="5" height="3" fill="${wc}"/>
+    <rect x="6" y="1" width="3" height="2" fill="${wc}"/>
+    <rect x="7" y="0" width="1" height="2" fill="rgba(255,255,255,0.9)"/>
+    <rect x="0" y="37" width="15" height="4" fill="#0a0a0a"/>
+    <rect x="1" y="38" width="13" height="3" fill="${wc}"/>
+    <rect x="1" y="38" width="13" height="1" fill="rgba(255,255,255,0.5)"/>
+    <rect x="5" y="41" width="5" height="9" fill="#0a0a0a"/>
+    <rect x="6" y="42" width="3" height="8" fill="#5a3a1a"/>
+    <rect x="5" y="43" width="5" height="1" fill="#3a2010"/>
+    <rect x="5" y="45" width="5" height="1" fill="#3a2010"/>
+    <rect x="4" y="50" width="7" height="4" fill="#0a0a0a"/>
+    <rect x="5" y="51" width="5" height="3" fill="${wc}"/>
+    <rect x="5" y="51" width="2" height="1" fill="rgba(255,255,255,0.6)"/>
+  </g>
+  <!-- legendary shield — glow -->
+  <g filter="url(#gw)">
+    <rect x="51" y="22" width="13" height="20" fill="#0a0a0a"/>
+    <rect x="52" y="23" width="11" height="18" fill="${sc}"/>
+    <rect x="52" y="23" width="11" height="4" fill="rgba(255,255,255,0.35)"/>
+    <rect x="52" y="23" width="5" height="3" fill="rgba(255,255,255,0.25)"/>
+    <rect x="53" y="24" width="1" height="15" fill="${se}" opacity="0.5"/>
+    <rect x="61" y="24" width="1" height="15" fill="${se}" opacity="0.5"/>
+    <rect x="53" y="24" width="9" height="1" fill="${se}" opacity="0.5"/>
+    <rect x="53" y="38" width="9" height="1" fill="${se}" opacity="0.5"/>
+    <rect x="55" y="29" width="5" height="5" fill="#0a0a0a"/>
+    <rect x="56" y="30" width="3" height="3" fill="${se}"/>
+    <rect x="56" y="30" width="2" height="1" fill="rgba(255,255,255,0.8)"/>
+  </g>
+</svg>`;
+    if (heroClass === '궁사') return `<svg viewBox="0 0 64 80" width="72" height="90" shape-rendering="crispEdges" style="image-rendering:pixelated" aria-hidden="true">
+  <defs><filter id="ga"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <ellipse cx="32" cy="77" rx="14" ry="3" fill="rgba(0,0,0,0.28)"/>
+  <!-- boots gold -->
+  <rect x="20" y="64" width="11" height="11" fill="#0a0a0a"/>
+  <rect x="21" y="65" width="9" height="9" fill="#8a5a00"/>
+  <rect x="21" y="65" width="9" height="3" fill="${wc}" opacity="0.9"/>
+  <rect x="20" y="73" width="12" height="2" fill="#5a3a00"/>
+  <rect x="33" y="64" width="11" height="11" fill="#0a0a0a"/>
+  <rect x="34" y="65" width="9" height="9" fill="#8a5a00"/>
+  <rect x="34" y="65" width="9" height="3" fill="${wc}" opacity="0.9"/>
+  <rect x="33" y="73" width="12" height="2" fill="#5a3a00"/>
+  <!-- legs -->
+  <rect x="20" y="50" width="11" height="16" fill="#0a0a0a"/>
+  <rect x="21" y="51" width="9" height="14" fill="#1e4a30"/>
+  <rect x="21" y="51" width="4" height="14" fill="#2a6040"/>
+  <rect x="33" y="50" width="11" height="16" fill="#0a0a0a"/>
+  <rect x="34" y="51" width="9" height="14" fill="#1e4a30"/>
+  <rect x="34" y="51" width="4" height="14" fill="#2a6040"/>
+  <!-- gold belt -->
+  <rect x="19" y="45" width="26" height="7" fill="#0a0a0a"/>
+  <rect x="20" y="46" width="24" height="6" fill="#1a3a28"/>
+  <rect x="20" y="46" width="24" height="2" fill="#2a5038"/>
+  <rect x="29" y="46" width="6" height="4" fill="#0a0a0a"/>
+  <rect x="30" y="47" width="4" height="2" fill="${wc}"/>
+  <rect x="30" y="47" width="2" height="1" fill="rgba(255,255,255,0.5)"/>
+  <!-- torso gold accent -->
+  <rect x="18" y="27" width="28" height="20" fill="#0a0a0a"/>
+  <rect x="19" y="28" width="26" height="18" fill="#2a5038"/>
+  <rect x="19" y="28" width="26" height="4" fill="#3a6048"/>
+  <rect x="19" y="28" width="13" height="3" fill="#4a7058" opacity="0.6"/>
+  <rect x="19" y="28" width="26" height="2" fill="${wc}" opacity="0.5"/>
+  <rect x="31" y="28" width="2" height="18" fill="#1a3828"/>
+  <!-- arms gold bracer -->
+  <rect x="8" y="28" width="7" height="18" fill="#0a0a0a"/>
+  <rect x="9" y="29" width="5" height="16" fill="#f0c090"/>
+  <rect x="8" y="40" width="7" height="7" fill="#0a0a0a"/>
+  <rect x="9" y="41" width="5" height="6" fill="${wc}"/>
+  <rect x="9" y="41" width="5" height="2" fill="rgba(255,255,255,0.35)"/>
+  <rect x="49" y="30" width="7" height="15" fill="#0a0a0a"/>
+  <rect x="50" y="31" width="5" height="13" fill="#f0c090"/>
+  <rect x="49" y="41" width="7" height="6" fill="#0a0a0a"/>
+  <rect x="50" y="42" width="5" height="5" fill="${wc}"/>
+  <rect x="50" y="42" width="5" height="2" fill="rgba(255,255,255,0.35)"/>
+  <!-- shoulder gold -->
+  <rect x="13" y="26" width="7" height="9" fill="#0a0a0a"/>
+  <rect x="14" y="27" width="5" height="8" fill="#8a5a00"/>
+  <rect x="14" y="27" width="5" height="3" fill="${wc}"/>
+  <rect x="44" y="26" width="7" height="9" fill="#0a0a0a"/>
+  <rect x="45" y="27" width="5" height="8" fill="#8a5a00"/>
+  <rect x="45" y="27" width="5" height="3" fill="${wc}"/>
+  <!-- neck/head -->
+  <rect x="28" y="23" width="8" height="6" fill="#0a0a0a"/>
+  <rect x="29" y="24" width="6" height="5" fill="#f0c090"/>
+  <rect x="22" y="9" width="20" height="16" fill="#0a0a0a"/>
+  <rect x="23" y="10" width="18" height="14" fill="#f0c090"/>
+  <rect x="23" y="10" width="8" height="5" fill="#f8d8b0" opacity="0.6"/>
+  <rect x="25" y="16" width="5" height="2" fill="#1a1a30"/>
+  <rect x="34" y="16" width="5" height="2" fill="#1a1a30"/>
+  <rect x="25" y="16" width="2" height="1" fill="#e8eeff"/>
+  <rect x="34" y="16" width="2" height="1" fill="#e8eeff"/>
+  <rect x="25" y="16" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
+  <rect x="34" y="16" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
+  <rect x="30" y="20" width="4" height="1" fill="#b06040" opacity="0.8"/>
+  <!-- gold hood -->
+  <rect x="20" y="3" width="24" height="12" fill="#0a0a0a"/>
+  <rect x="21" y="4" width="22" height="11" fill="#1a3a28"/>
+  <rect x="21" y="4" width="22" height="3" fill="#2a5038"/>
+  <rect x="20" y="8" width="5" height="10" fill="#1a3a28"/>
+  <rect x="39" y="8" width="5" height="10" fill="#1a3a28"/>
+  <rect x="22" y="13" width="20" height="2" fill="#0e2218"/>
+  <!-- gold headband -->
+  <rect x="21" y="10" width="22" height="3" fill="#0a0a0a"/>
+  <rect x="22" y="11" width="20" height="2" fill="${wc}"/>
+  <rect x="22" y="11" width="10" height="1" fill="rgba(255,255,255,0.35)"/>
+  <rect x="29" y="0" width="6" height="5" fill="#1a3a28"/>
+  <!-- golden bow — glow -->
+  <g filter="url(#ga)">
+    <rect x="2" y="8"  width="4" height="4" fill="${wc}"/>
+    <rect x="1" y="12" width="4" height="5" fill="${wc}"/>
+    <rect x="1" y="17" width="4" height="6" fill="${wc}"/>
+    <rect x="1" y="23" width="4" height="6" fill="${wc}"/>
+    <rect x="1" y="29" width="4" height="6" fill="${wc}"/>
+    <rect x="1" y="35" width="4" height="5" fill="${wc}"/>
+    <rect x="2" y="40" width="4" height="4" fill="${wc}"/>
+    <rect x="2" y="8"  width="2" height="4" fill="rgba(255,255,255,0.45)"/>
+    <rect x="1" y="12" width="2" height="30" fill="rgba(255,255,255,0.25)"/>
+    <rect x="0" y="22" width="5" height="8" fill="#8a5a00"/>
+    <rect x="0" y="22" width="5" height="2" fill="${wc}" opacity="0.8"/>
+    <rect x="4" y="9"  width="1" height="13" fill="#f8e8a0" opacity="0.9"/>
+    <rect x="4" y="30" width="1" height="13" fill="#f8e8a0" opacity="0.9"/>
+    <rect x="4" y="22" width="10" height="1" fill="#f8e8a0" opacity="0.9"/>
+    <rect x="14" y="21" width="1" height="3" fill="#f8e8a0" opacity="0.7"/>
+    <!-- golden arrow -->
+    <rect x="5" y="23" width="30" height="2" fill="${wc}"/>
+    <rect x="5" y="23" width="30" height="1" fill="rgba(255,255,255,0.4)"/>
+    <rect x="33" y="21" width="4" height="4" fill="#0a0a0a"/>
+    <rect x="34" y="22" width="3" height="2" fill="${wc}"/>
+    <rect x="35" y="22" width="2" height="1" fill="rgba(255,255,255,0.6)"/>
+    <rect x="31" y="21" width="4" height="4" fill="rgba(255,220,80,0.4)"/>
+    <rect x="4" y="21" width="3" height="1" fill="#ff5050"/>
+    <rect x="4" y="25" width="3" height="1" fill="#ff5050"/>
+  </g>
+  <!-- quiver gold trim -->
+  <rect x="42" y="20" width="9" height="22" fill="#0a0a0a"/>
+  <rect x="43" y="21" width="7" height="20" fill="#5a3a10"/>
+  <rect x="43" y="21" width="7" height="3" fill="${wc}" opacity="0.9"/>
+  <rect x="44" y="10" width="2" height="12" fill="${wc}"/>
+  <rect x="47" y="8"  width="2" height="14" fill="${wc}"/>
+  <rect x="50" y="11" width="2" height="11" fill="${wc}"/>
+  <rect x="44" y="9"  width="2" height="2" fill="rgba(255,255,255,0.6)"/>
+  <rect x="47" y="7"  width="2" height="2" fill="rgba(255,255,255,0.6)"/>
+  <rect x="50" y="10" width="2" height="2" fill="rgba(255,255,255,0.6)"/>
+</svg>`;
+    return `<svg viewBox="0 0 64 80" width="72" height="90" shape-rendering="crispEdges" style="image-rendering:pixelated" aria-hidden="true">
+  <defs><filter id="gm"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <ellipse cx="32" cy="77" rx="14" ry="3" fill="rgba(0,0,0,0.28)"/>
+  <!-- robe bottom gold trim -->
+  <rect x="16" y="50" width="32" height="18" fill="#0a0a0a"/>
+  <rect x="17" y="51" width="30" height="17" fill="#2a1a5a"/>
+  <rect x="17" y="51" width="30" height="4" fill="#3a2070"/>
+  <rect x="16" y="66" width="32" height="3" fill="#0a0a0a"/>
+  <rect x="17" y="67" width="30" height="2" fill="${wc}"/>
+  <rect x="17" y="67" width="15" height="1" fill="rgba(255,255,255,0.35)"/>
+  <rect x="20" y="56" width="2" height="2" fill="${wc}" opacity="0.6"/>
+  <rect x="42" y="56" width="2" height="2" fill="${wc}" opacity="0.6"/>
+  <rect x="30" y="58" width="4" height="1" fill="${wc}" opacity="0.5"/>
+  <rect x="31" y="57" width="2" height="3" fill="${wc}" opacity="0.4"/>
+  <rect x="20" y="68" width="9" height="7" fill="#0a0a0a"/>
+  <rect x="21" y="69" width="7" height="6" fill="#1a0e3a"/>
+  <rect x="35" y="68" width="9" height="7" fill="#0a0a0a"/>
+  <rect x="36" y="69" width="7" height="6" fill="#1a0e3a"/>
+  <!-- torso -->
+  <rect x="17" y="27" width="30" height="25" fill="#0a0a0a"/>
+  <rect x="18" y="28" width="28" height="23" fill="#3a2080"/>
+  <rect x="18" y="28" width="28" height="5" fill="#5030a0"/>
+  <rect x="18" y="28" width="14" height="4" fill="#6038b0" opacity="0.6"/>
+  <rect x="31" y="28" width="2" height="23" fill="#281860"/>
+  <rect x="25" y="28" width="14" height="3" fill="${wc}" opacity="0.6"/>
+  <rect x="20" y="34" width="24" height="1" fill="${wc}" opacity="0.4"/>
+  <rect x="20" y="38" width="24" height="1" fill="${wc}" opacity="0.3"/>
+  <!-- sleeves gold cuff -->
+  <rect x="11" y="27" width="8" height="20" fill="#0a0a0a"/>
+  <rect x="12" y="28" width="6" height="18" fill="#3a2080"/>
+  <rect x="11" y="44" width="9" height="5" fill="#0a0a0a"/>
+  <rect x="12" y="45" width="7" height="4" fill="${wc}"/>
+  <rect x="12" y="45" width="7" height="2" fill="rgba(255,255,255,0.3)"/>
+  <rect x="12" y="49" width="6" height="5" fill="#0a0a0a"/>
+  <rect x="13" y="50" width="4" height="4" fill="#f0c090"/>
+  <rect x="45" y="27" width="8" height="20" fill="#0a0a0a"/>
+  <rect x="46" y="28" width="6" height="18" fill="#3a2080"/>
+  <rect x="44" y="44" width="9" height="5" fill="#0a0a0a"/>
+  <rect x="45" y="45" width="7" height="4" fill="${wc}"/>
+  <rect x="45" y="45" width="7" height="2" fill="rgba(255,255,255,0.3)"/>
+  <rect x="45" y="49" width="7" height="5" fill="#0a0a0a"/>
+  <rect x="46" y="50" width="5" height="4" fill="#f0c090"/>
+  <rect x="44" y="48" width="9" height="7" fill="${wc}" opacity="0.2"/>
+  <!-- neck/head -->
+  <rect x="28" y="23" width="8" height="6" fill="#0a0a0a"/>
+  <rect x="29" y="24" width="6" height="5" fill="#f0c090"/>
+  <rect x="22" y="9" width="20" height="16" fill="#0a0a0a"/>
+  <rect x="23" y="10" width="18" height="14" fill="#f0c090"/>
+  <rect x="23" y="10" width="8" height="5" fill="#f8d8b0" opacity="0.6"/>
+  <!-- glowing eyes -->
+  <rect x="25" y="16" width="4" height="3" fill="#0a0820"/>
+  <rect x="35" y="16" width="4" height="3" fill="#0a0820"/>
+  <rect x="25" y="16" width="3" height="2" fill="#8030e0"/>
+  <rect x="35" y="16" width="3" height="2" fill="#8030e0"/>
+  <rect x="25" y="16" width="2" height="1" fill="#c060ff"/>
+  <rect x="35" y="16" width="2" height="1" fill="#c060ff"/>
+  <rect x="25" y="16" width="1" height="1" fill="rgba(255,255,255,0.95)"/>
+  <rect x="35" y="16" width="1" height="1" fill="rgba(255,255,255,0.95)"/>
+  <rect x="30" y="20" width="4" height="1" fill="#b06040" opacity="0.7"/>
+  <!-- gold hat -->
+  <rect x="19" y="3" width="26" height="8" fill="#0a0a0a"/>
+  <rect x="20" y="4" width="24" height="7" fill="#1a0a40"/>
+  <rect x="19" y="9" width="26" height="2" fill="${wc}" opacity="0.8"/>
+  <rect x="19" y="9" width="13" height="1" fill="rgba(255,255,255,0.35)"/>
+  <rect x="24" y="-1" width="16" height="6" fill="#0a0a0a"/>
+  <rect x="25" y="0" width="14" height="5" fill="#1a0a40"/>
+  <rect x="29" y="-4" width="6" height="5" fill="#1a0a40"/>
+  <rect x="30" y="-5" width="4" height="4" fill="#0a0a0a"/>
+  <rect x="28" y="2" width="2" height="2" fill="${wc}" opacity="0.9"/>
+  <rect x="27" y="3" width="4" height="1" fill="${wc}" opacity="0.7"/>
+  <rect x="37" y="5" width="2" height="2" fill="${wc}" opacity="0.7"/>
+  <rect x="21" y="5" width="2" height="2" fill="${wc}" opacity="0.6"/>
+  <!-- legendary staff + orb — strong glow -->
+  <g filter="url(#gm)">
+    <rect x="5" y="14" width="5" height="48" fill="#0a0a0a"/>
+    <rect x="6" y="15" width="3" height="46" fill="${wc}" opacity="0.9"/>
+    <rect x="6" y="15" width="1" height="46" fill="rgba(255,255,255,0.35)"/>
+    <rect x="5" y="22" width="5" height="2" fill="${wc}"/>
+    <rect x="5" y="35" width="5" height="2" fill="${wc}"/>
+    <rect x="5" y="48" width="5" height="2" fill="${wc}"/>
+    <rect x="4" y="60" width="7" height="3" fill="#0a0a0a"/>
+    <rect x="5" y="61" width="5" height="2" fill="${wc}"/>
+    <!-- large orb -->
+    <rect x="0" y="2"  width="15" height="15" fill="#0a0a0a"/>
+    <rect x="1" y="3"  width="13" height="13" fill="${wc}"/>
+    <rect x="2" y="4"  width="9" height="9" fill="rgba(255,255,255,0.4)"/>
+    <rect x="3" y="5"  width="7" height="7" fill="rgba(255,255,255,0.55)"/>
+    <rect x="4" y="6"  width="5" height="5" fill="rgba(255,255,255,0.7)"/>
+    <rect x="2" y="4"  width="4" height="3" fill="rgba(255,255,255,0.85)"/>
+    <!-- orb ring -->
+    <rect x="-1" y="5" width="17" height="1" fill="${wc}" opacity="0.5"/>
+    <rect x="-1" y="14" width="17" height="1" fill="${wc}" opacity="0.5"/>
+    <rect x="-1" y="5" width="1" height="10" fill="${wc}" opacity="0.5"/>
+    <rect x="15" y="5" width="1" height="10" fill="${wc}" opacity="0.5"/>
+    <!-- magic sparks -->
+    <rect x="15" y="3"  width="3" height="2" fill="${wc}" opacity="0.8"/>
+    <rect x="17" y="1"  width="2" height="2" fill="${wc}" opacity="0.6"/>
+    <rect x="-2" y="3"  width="3" height="2" fill="${wc}" opacity="0.7"/>
+    <rect x="6"  y="0"  width="3" height="2" fill="${wc}" opacity="0.7"/>
+    <rect x="18" y="7"  width="2" height="1" fill="${wc}" opacity="0.5"/>
+    <rect x="-3" y="9"  width="2" height="1" fill="${wc}" opacity="0.5"/>
+  </g>
+  <!-- spellbook gold accents -->
+  <rect x="42" y="34" width="14" height="18" fill="#0a0a0a"/>
+  <rect x="43" y="35" width="12" height="16" fill="#0e0828"/>
+  <rect x="44" y="36" width="10" height="14" fill="#1e1248"/>
+  <rect x="43" y="35" width="3" height="16" fill="#0a0618"/>
+  <rect x="47" y="38" width="7" height="1" fill="${wc}" opacity="0.7"/>
+  <rect x="47" y="40" width="6" height="1" fill="${wc}" opacity="0.6"/>
+  <rect x="47" y="42" width="7" height="1" fill="${wc}" opacity="0.6"/>
+  <rect x="47" y="44" width="5" height="1" fill="${wc}" opacity="0.5"/>
+  <rect x="44" y="36" width="10" height="2" fill="${wc}" opacity="0.4"/>
+  <rect x="48" y="46" width="5" height="1" fill="${wc}" opacity="0.8"/>
+  <rect x="47" y="47" width="7" height="1" fill="${wc}" opacity="0.8"/>
+  <rect x="50" y="46" width="1" height="3" fill="${wc}" opacity="0.8"/>
+  <rect x="48" y="47" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
+</svg>`;
   }
 
   function renderClassSelectCards(currentClass) {
@@ -2427,6 +2640,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // 인벤토리 전체 동기화 (전체 교체)
   async function dbSaveInventory() {
     try {
+      // 저장 전 state.inventory 중복 제거
+      const seenIds = new Set();
+      state.inventory = state.inventory.filter(i => {
+        if (seenIds.has(i.id)) return false;
+        seenIds.add(i.id); return true;
+      });
       // 기존 삭제 후 전체 insert
       await sb.from('inventory_items').delete().eq('player_id', PLAYER_ID);
       if (!state.inventory.length) return;
@@ -2539,7 +2758,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (invErr) throw invErr;
 
       if (invData && invData.length) {
-        state.inventory = invData.map(row => ({
+        // item_id 기준 중복 제거 (최신 obtained_at 우선, 이미 내림차순 정렬됨)
+        const seenIds = new Set();
+        const uniqueInv = invData.filter(row => {
+          if (seenIds.has(row.item_id)) return false;
+          seenIds.add(row.item_id);
+          return true;
+        });
+        state.inventory = uniqueInv.map(row => ({
           id:         row.item_id,
           name:       row.item_name,
           baseName:   row.base_name,
@@ -2553,10 +2779,12 @@ document.addEventListener('DOMContentLoaded', () => {
           weaponType: row.weapon_type,
           classes:    row.classes || null
         }));
-        // 착용 장비 복원
-        invData.filter(r => r.is_equipped && r.equipped_slot).forEach(row => {
+        // 착용 장비 복원 — is_equipped=true인 것만, 슬롯당 1개만
+        const restoredSlots = new Set();
+        uniqueInv.filter(r => r.is_equipped && r.equipped_slot).forEach(row => {
+          if (restoredSlots.has(row.equipped_slot)) return;
           const item = state.inventory.find(i => i.id === row.item_id);
-          if (item) state.equipment[row.equipped_slot] = item;
+          if (item) { state.equipment[row.equipped_slot] = item; restoredSlots.add(row.equipped_slot); }
         });
       }
 
@@ -2905,146 +3133,583 @@ document.addEventListener('DOMContentLoaded', () => {
     const shieldEdge  = state.equipment.shield
       ? { common:'#c5d5f0', uncommon:'#a0f0c8', rare:'#8dc8ff', epic:'#d0a0ff', legendary:'#ffe77a' }[state.equipment.shield.rarity]
       : '#c5d5f0';
+    const extraClass = [getWeaponGlowClass(), getArmorGlowClass(), getShieldGlowClass()].filter(Boolean).join(' ');
 
-    const extraClass = [
-      getWeaponGlowClass(),
-      getArmorGlowClass(),
-      getShieldGlowClass()
-    ].filter(Boolean).join(' ');
+    if (heroClass === '전사') return `<svg viewBox="0 0 64 80" width="64" height="80" shape-rendering="crispEdges" style="image-rendering:pixelated" class="class-warrior${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
+  <!-- shadow -->
+  <ellipse cx="32" cy="77" rx="14" ry="3" fill="rgba(0,0,0,0.28)"/>
 
-    // ── 전사: 왼손 한손검, 오른손 방패 ──
-    if (heroClass === '전사') {
-      return `<svg viewBox="0 0 96 98" width="96" height="98"
-        class="class-warrior${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
-        <ellipse cx="48" cy="90" rx="20" ry="5" fill="rgba(0,0,0,0.18)"/>
-        <!-- 망토/갑옷 -->
-        <path class="hero-cloak" d="M28 45c4-12 12-19 20-19 9 0 17 7 20 19l7 26H21z"/>
-        <!-- 머리 -->
-        <circle cx="48" cy="20" r="12" fill="#f4d1b5"/>
-        <!-- 몸통 -->
-        <rect class="hero-body" x="34" y="34" width="28" height="27" rx="10"/>
-        <!-- 왼팔 (검 든 팔) -->
-        <rect fill="#f4d1b5" x="20" y="41" width="8" height="20" rx="4"/>
-        <!-- 오른팔 (방패 든 팔) -->
-        <rect fill="#f4d1b5" x="68" y="41" width="8" height="20" rx="4"/>
-        <!-- 다리 -->
-        <rect fill="#f4d1b5" x="38" y="60" width="7" height="20" rx="3"/>
-        <rect fill="#f4d1b5" x="51" y="60" width="7" height="20" rx="3"/>
-        <!-- 머리카락/투구 -->
-        <path fill="#1b2135" d="M36 16c2-9 24-12 28 0-3-2-8-3-14-3s-11 1-14 3z"/>
+  <!-- ── BOOTS ── -->
+  <!-- left boot outline -->
+  <rect x="20" y="65" width="11" height="10" fill="#0a0a0a"/>
+  <!-- left boot base -->
+  <rect x="21" y="66" width="9" height="8" fill="#2a1e0e"/>
+  <rect x="21" y="66" width="9" height="4" fill="#3d2c14"/>
+  <rect x="21" y="66" width="4" height="2" fill="#5a4020" opacity="0.7"/>
+  <!-- left boot sole -->
+  <rect x="20" y="73" width="11" height="2" fill="#1a1008"/>
+  <!-- right boot outline -->
+  <rect x="33" y="65" width="11" height="10" fill="#0a0a0a"/>
+  <rect x="34" y="66" width="9" height="8" fill="#2a1e0e"/>
+  <rect x="34" y="66" width="9" height="4" fill="#3d2c14"/>
+  <rect x="34" y="66" width="4" height="2" fill="#5a4020" opacity="0.7"/>
+  <rect x="33" y="73" width="11" height="2" fill="#1a1008"/>
 
-        <!-- 왼손 한손검 (왼팔 바깥쪽) -->
-        <g class="hero-weapon">
-          <!-- 칼날 -->
-          <rect fill="${weaponColor}" x="11" y="22" width="5" height="26" rx="2.5"/>
-          <!-- 가드 -->
-          <rect fill="${weaponColor}" x="7" y="43" width="13" height="3.5" rx="1.8"/>
-          <!-- 손잡이 -->
-          <rect fill="${weaponColor}" x="12.5" y="46" width="2.5" height="8" rx="1.2"/>
-          <!-- 검 끝 -->
-          <polygon fill="${weaponColor}" points="13.5,19 11,26 16,26"/>
-        </g>
+  <!-- ── LEGS ── -->
+  <!-- left leg outline -->
+  <rect x="20" y="51" width="11" height="16" fill="#0a0a0a"/>
+  <rect x="21" y="52" width="9" height="14" fill="#2a3a8a"/>
+  <rect x="21" y="52" width="4" height="14" fill="#3a50b8"/>
+  <rect x="21" y="52" width="2" height="14" fill="#4a60c8" opacity="0.6"/>
+  <!-- knee guard -->
+  <rect x="20" y="57" width="11" height="4" fill="#3050a0"/>
+  <rect x="21" y="58" width="9" height="2" fill="#5070c0"/>
+  <rect x="21" y="58" width="4" height="1" fill="#7090e0" opacity="0.5"/>
+  <!-- right leg outline -->
+  <rect x="33" y="51" width="11" height="16" fill="#0a0a0a"/>
+  <rect x="34" y="52" width="9" height="14" fill="#2a3a8a"/>
+  <rect x="34" y="52" width="4" height="14" fill="#3a50b8"/>
+  <rect x="34" y="52" width="2" height="14" fill="#4a60c8" opacity="0.6"/>
+  <rect x="33" y="57" width="11" height="4" fill="#3050a0"/>
+  <rect x="34" y="58" width="9" height="2" fill="#5070c0"/>
+  <rect x="34" y="58" width="4" height="1" fill="#7090e0" opacity="0.5"/>
 
-        <!-- 오른손 방패 (오른팔 바깥쪽) ── 궁사는 제외 -->
-        <g class="hero-shield">
-          <!-- 방패 몸체 -->
-          <path fill="${shieldColor}" stroke="${shieldEdge}" stroke-width="1.2"
-            d="M80 36c5 2 7 4 7 4v13c0 9-7 15-7 15s-7-6-7-15V40s2-2 7-4z"/>
-          <!-- 방패 장식선 -->
-          <line x1="80" y1="41" x2="80" y2="62" stroke="${shieldEdge}" stroke-width="0.9" opacity="0.6"/>
-          <line x1="76" y1="48" x2="84" y2="48" stroke="${shieldEdge}" stroke-width="0.8" opacity="0.5"/>
-        </g>
-      </svg>`;
-    }
+  <!-- ── SKIRT / TASSET ── -->
+  <rect x="19" y="47" width="26" height="7" fill="#0a0a0a"/>
+  <rect x="20" y="48" width="24" height="6" fill="#1e2e80"/>
+  <rect x="20" y="48" width="24" height="2" fill="#3040a0"/>
+  <!-- tasset center piece -->
+  <rect x="28" y="48" width="8" height="6" fill="#2838a0"/>
+  <rect x="28" y="48" width="8" height="2" fill="#4858c0"/>
+  <!-- rivet detail -->
+  <rect x="22" y="49" width="2" height="2" fill="#5060b0"/>
+  <rect x="40" y="49" width="2" height="2" fill="#5060b0"/>
 
-    // ── 궁사: 왼손 활, 오른손 화살통 ──
-    if (heroClass === '궁사') {
-      return `<svg viewBox="0 0 96 98" width="96" height="98"
-        class="class-archer${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
-        <ellipse cx="48" cy="90" rx="20" ry="5" fill="rgba(0,0,0,0.18)"/>
-        <path class="hero-cloak" d="M28 45c4-12 12-19 20-19 9 0 17 7 20 19l7 26H21z"/>
-        <circle cx="48" cy="20" r="12" fill="#f4d1b5"/>
-        <rect class="hero-body" x="34" y="34" width="28" height="27" rx="10"/>
-        <!-- 왼팔 -->
-        <rect fill="#f4d1b5" x="20" y="41" width="8" height="20" rx="4"/>
-        <!-- 오른팔 -->
-        <rect fill="#f4d1b5" x="68" y="41" width="8" height="20" rx="4"/>
-        <rect fill="#f4d1b5" x="38" y="60" width="7" height="20" rx="3"/>
-        <rect fill="#f4d1b5" x="51" y="60" width="7" height="20" rx="3"/>
-        <path fill="#1b2135" d="M36 16c2-9 24-12 28 0-3-2-8-3-14-3s-11 1-14 3z"/>
+  <!-- ── TORSO ARMOR ── -->
+  <rect x="18" y="28" width="28" height="21" fill="#0a0a0a"/>
+  <rect x="19" y="29" width="26" height="19" fill="#3a5ac0"/>
+  <!-- chest highlight -->
+  <rect x="19" y="29" width="26" height="4" fill="#5878e0"/>
+  <rect x="19" y="29" width="13" height="4" fill="#6888ee" opacity="0.6"/>
+  <!-- chest center line -->
+  <rect x="31" y="29" width="2" height="19" fill="#2848a8"/>
+  <!-- chest detail lines -->
+  <rect x="21" y="34" width="22" height="1" fill="#2848a8" opacity="0.8"/>
+  <rect x="21" y="38" width="22" height="1" fill="#2848a8" opacity="0.6"/>
+  <!-- pectoral plates -->
+  <rect x="20" y="30" width="10" height="8" fill="#4a6ad0" opacity="0.7"/>
+  <rect x="20" y="30" width="5" height="3" fill="#6888ee" opacity="0.4"/>
+  <rect x="34" y="30" width="10" height="8" fill="#4a6ad0" opacity="0.7"/>
+  <rect x="34" y="30" width="5" height="3" fill="#6888ee" opacity="0.4"/>
+  <!-- belly guard -->
+  <rect x="22" y="41" width="20" height="5" fill="#2a4aaa"/>
+  <rect x="22" y="41" width="20" height="2" fill="#3a5ac0"/>
 
-        <!-- 왼손 활 -->
-        <g class="hero-weapon">
-          <path fill="none" stroke="${weaponColor}" stroke-width="3.5" stroke-linecap="round"
-            d="M14 22 Q8 44 14 66"/>
-          <path fill="none" stroke="${weaponColor}" stroke-width="3" stroke-linecap="round" opacity="0.7"
-            d="M14 22 Q18 28 17 44 Q16 58 14 66"/>
-          <!-- 활시위 -->
-          <line x1="14" y1="23" x2="14" y2="65" stroke="#f6e6b0" stroke-width="1.2" opacity="0.9"/>
-          <!-- 화살 -->
-          <line x1="14" y1="44" x2="30" y2="40" stroke="#f6e6b0" stroke-width="1.5" stroke-linecap="round"/>
-          <polygon fill="${weaponColor}" points="30,40 26,37 27,43"/>
-        </g>
+  <!-- ── SHOULDER PADS ── -->
+  <!-- left shoulder -->
+  <rect x="13" y="26" width="8" height="10" fill="#0a0a0a"/>
+  <rect x="14" y="27" width="6" height="9" fill="#4a6ad0"/>
+  <rect x="14" y="27" width="6" height="3" fill="#7090ee"/>
+  <rect x="14" y="27" width="3" height="2" fill="#9ab0ff" opacity="0.5"/>
+  <!-- left shoulder spike -->
+  <rect x="12" y="24" width="4" height="4" fill="#0a0a0a"/>
+  <rect x="13" y="25" width="2" height="3" fill="#5878e0"/>
+  <!-- right shoulder -->
+  <rect x="43" y="26" width="8" height="10" fill="#0a0a0a"/>
+  <rect x="44" y="27" width="6" height="9" fill="#4a6ad0"/>
+  <rect x="44" y="27" width="6" height="3" fill="#7090ee"/>
+  <rect x="47" y="27" width="3" height="2" fill="#9ab0ff" opacity="0.5"/>
+  <!-- right shoulder spike -->
+  <rect x="48" y="24" width="4" height="4" fill="#0a0a0a"/>
+  <rect x="49" y="25" width="2" height="3" fill="#5878e0"/>
 
-        <!-- 오른손 화살통 -->
-        <g>
-          <rect fill="#6b4c2a" x="74" y="36" width="7" height="22" rx="3" opacity="0.9"/>
-          <rect fill="#8b6a3e" x="74" y="36" width="7" height="4" rx="2" opacity="0.8"/>
-          <!-- 화살들 -->
-          <line x1="76" y1="36" x2="76" y2="22" stroke="#e0c878" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="78" y1="36" x2="79" y2="20" stroke="#e0c878" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="80" y1="36" x2="81" y2="23" stroke="#e0c878" stroke-width="1.2" stroke-linecap="round"/>
-          <!-- 화살촉 -->
-          <polygon fill="${weaponColor}" points="76,22 74.5,26 77.5,26"/>
-          <polygon fill="${weaponColor}" points="79,20 77.5,24 80.5,24"/>
-          <polygon fill="${weaponColor}" points="81,23 79.5,27 82.5,27"/>
-        </g>
-      </svg>`;
-    }
+  <!-- ── ARMS ── -->
+  <!-- left arm (sword arm — raised) -->
+  <rect x="10" y="24" width="6" height="16" fill="#0a0a0a"/>
+  <rect x="11" y="25" width="4" height="14" fill="#f0c090"/>
+  <rect x="11" y="25" width="2" height="5" fill="#f8d8b0" opacity="0.7"/>
+  <!-- left gauntlet -->
+  <rect x="10" y="37" width="7" height="5" fill="#0a0a0a"/>
+  <rect x="11" y="38" width="5" height="4" fill="#3a5ac0"/>
+  <rect x="11" y="38" width="5" height="2" fill="#5878e0"/>
 
-    // ── 마법사: 왼손 지팡이, 오른손 마법서/오브 ──
-    return `<svg viewBox="0 0 96 98" width="96" height="98"
-      class="class-mage${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
-      <ellipse cx="48" cy="90" rx="20" ry="5" fill="rgba(0,0,0,0.18)"/>
-      <path class="hero-cloak" d="M28 45c4-12 12-19 20-19 9 0 17 7 20 19l7 26H21z"/>
-      <circle cx="48" cy="20" r="12" fill="#f4d1b5"/>
-      <rect class="hero-body" x="34" y="34" width="28" height="27" rx="10"/>
-      <!-- 왼팔 -->
-      <rect fill="#f4d1b5" x="20" y="41" width="8" height="20" rx="4"/>
-      <!-- 오른팔 -->
-      <rect fill="#f4d1b5" x="68" y="41" width="8" height="20" rx="4"/>
-      <rect fill="#f4d1b5" x="38" y="60" width="7" height="20" rx="3"/>
-      <rect fill="#f4d1b5" x="51" y="60" width="7" height="20" rx="3"/>
-      <path fill="#1b2135" d="M36 16c2-9 24-12 28 0-3-2-8-3-14-3s-11 1-14 3z"/>
+  <!-- right arm (shield arm) -->
+  <rect x="48" y="29" width="6" height="16" fill="#0a0a0a"/>
+  <rect x="49" y="30" width="4" height="14" fill="#f0c090"/>
+  <rect x="49" y="30" width="2" height="5" fill="#f8d8b0" opacity="0.7"/>
+  <!-- right gauntlet -->
+  <rect x="48" y="42" width="7" height="5" fill="#0a0a0a"/>
+  <rect x="49" y="43" width="5" height="4" fill="#3a5ac0"/>
+  <rect x="49" y="43" width="5" height="2" fill="#5878e0"/>
 
-      <!-- 왼손 지팡이 -->
-      <g class="hero-weapon">
-        <!-- 지팡이 막대 -->
-        <rect fill="${weaponColor}" x="12.5" y="20" width="4" height="38" rx="2"/>
-        <!-- 지팡이 보석 (오브) -->
-        <circle fill="${weaponColor}" cx="14.5" cy="14" r="7"/>
-        <circle fill="rgba(255,255,255,0.35)" cx="12" cy="11" r="2.5"/>
-        <!-- 지팡이 장식 -->
-        <rect fill="${weaponColor}" x="10" y="52" width="9" height="3" rx="1.5" opacity="0.7"/>
-      </g>
+  <!-- ── NECK ── -->
+  <rect x="28" y="24" width="8" height="6" fill="#0a0a0a"/>
+  <rect x="29" y="25" width="6" height="5" fill="#f0c090"/>
+  <!-- gorget (neck armor) -->
+  <rect x="27" y="27" width="10" height="3" fill="#3a5ac0"/>
+  <rect x="27" y="27" width="10" height="1" fill="#5878e0"/>
 
-      <!-- 오른손 마법서 -->
-      <g>
-        <!-- 책 본체 -->
-        <rect fill="#2a1f4a" x="69" y="40" width="12" height="16" rx="2" opacity="0.95"/>
-        <rect fill="#4a348a" x="70" y="41" width="10" height="14" rx="1.5" opacity="0.9"/>
-        <!-- 책 표지 장식 -->
-        <rect fill="${weaponColor}" x="71" y="42.5" width="8" height="1.5" rx="0.8" opacity="0.8"/>
-        <rect fill="${weaponColor}" x="71" y="45.5" width="6" height="1.2" rx="0.6" opacity="0.6"/>
-        <rect fill="${weaponColor}" x="71" y="48" width="7" height="1.2" rx="0.6" opacity="0.6"/>
-        <!-- 마법 문양 -->
-        <circle fill="none" stroke="${weaponColor}" stroke-width="0.8" cx="75" cy="52" r="2.5" opacity="0.8"/>
-        <line x1="75" y1="49.5" x2="75" y2="54.5" stroke="${weaponColor}" stroke-width="0.6" opacity="0.7"/>
-        <line x1="72.5" y1="52" x2="77.5" y2="52" stroke="${weaponColor}" stroke-width="0.6" opacity="0.7"/>
-        <!-- 책 척추 -->
-        <rect fill="#1a1030" x="69" y="40" width="2" height="16" rx="1" opacity="0.8"/>
-      </g>
-    </svg>`;
+  <!-- ── HEAD ── -->
+  <rect x="22" y="10" width="20" height="16" fill="#0a0a0a"/>
+  <rect x="23" y="11" width="18" height="14" fill="#f0c090"/>
+  <!-- face highlight -->
+  <rect x="23" y="11" width="8" height="5" fill="#f8d8b0" opacity="0.6"/>
+  <!-- eyes -->
+  <rect x="25" y="17" width="4" height="3" fill="#1a1a30"/>
+  <rect x="35" y="17" width="4" height="3" fill="#1a1a30"/>
+  <!-- eye whites -->
+  <rect x="25" y="17" width="2" height="2" fill="#e8eeff"/>
+  <rect x="35" y="17" width="2" height="2" fill="#e8eeff"/>
+  <!-- pupils -->
+  <rect x="26" y="18" width="2" height="1" fill="#1a1a30"/>
+  <rect x="36" y="18" width="2" height="1" fill="#1a1a30"/>
+  <!-- eye shine -->
+  <rect x="25" y="17" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
+  <rect x="35" y="17" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
+  <!-- nose -->
+  <rect x="31" y="20" width="2" height="2" fill="#d4a070" opacity="0.7"/>
+  <!-- mouth -->
+  <rect x="27" y="23" width="10" height="1" fill="#b06040"/>
+  <rect x="29" y="22" width="6" height="1" fill="#b06040" opacity="0.5"/>
+
+  <!-- ── HELMET ── -->
+  <rect x="21" y="4" width="22" height="12" fill="#0a0a0a"/>
+  <rect x="22" y="5" width="20" height="11" fill="#3a5ac0"/>
+  <!-- helmet top highlight -->
+  <rect x="22" y="5" width="20" height="3" fill="#6888ee"/>
+  <rect x="22" y="5" width="10" height="2" fill="#8aa8ff" opacity="0.5"/>
+  <!-- visor -->
+  <rect x="23" y="13" width="18" height="5" fill="#2a3a90"/>
+  <rect x="23" y="13" width="18" height="2" fill="#1a2a70"/>
+  <rect x="24" y="14" width="16" height="1" fill="#0a1a50" opacity="0.7"/>
+  <!-- cheek guards -->
+  <rect x="21" y="10" width="4" height="8" fill="#3050a8"/>
+  <rect x="39" y="10" width="4" height="8" fill="#3050a8"/>
+  <!-- helmet crest base -->
+  <rect x="29" y="2" width="6" height="5" fill="#0a0a0a"/>
+  <rect x="30" y="3" width="4" height="4" fill="#ffcf63"/>
+  <!-- crest plume -->
+  <rect x="30" y="0" width="4" height="4" fill="#ff9030"/>
+  <rect x="31" y="0" width="2" height="3" fill="#ffcf63"/>
+
+  <!-- ── SWORD (left, raised high) ── -->
+  <g class="hero-weapon">
+    <!-- blade outline -->
+    <rect x="3" y="2" width="9" height="38" fill="#0a0a0a"/>
+    <!-- blade main -->
+    <rect x="4" y="3" width="7" height="36" fill="${weaponColor}"/>
+    <!-- blade edge highlight -->
+    <rect x="4" y="3" width="2" height="36" fill="rgba(255,255,255,0.5)"/>
+    <!-- blade center fuller -->
+    <rect x="6" y="5" width="2" height="30" fill="rgba(255,255,255,0.2)"/>
+    <!-- blade tip -->
+    <rect x="5" y="2" width="5" height="3" fill="${weaponColor}"/>
+    <rect x="6" y="1" width="3" height="2" fill="${weaponColor}"/>
+    <rect x="7" y="0" width="1" height="2" fill="${weaponColor}"/>
+    <!-- crossguard -->
+    <rect x="0" y="37" width="15" height="4" fill="#0a0a0a"/>
+    <rect x="1" y="38" width="13" height="3" fill="${weaponColor}"/>
+    <rect x="1" y="38" width="13" height="1" fill="rgba(255,255,255,0.4)"/>
+    <!-- grip -->
+    <rect x="5" y="41" width="5" height="9" fill="#0a0a0a"/>
+    <rect x="6" y="42" width="3" height="8" fill="#5a3a1a"/>
+    <rect x="6" y="42" width="1" height="8" fill="#7a5a30" opacity="0.6"/>
+    <!-- grip wrap -->
+    <rect x="5" y="43" width="5" height="1" fill="#3a2010"/>
+    <rect x="5" y="45" width="5" height="1" fill="#3a2010"/>
+    <rect x="5" y="47" width="5" height="1" fill="#3a2010"/>
+    <!-- pommel -->
+    <rect x="4" y="50" width="7" height="4" fill="#0a0a0a"/>
+    <rect x="5" y="51" width="5" height="3" fill="${weaponColor}"/>
+    <rect x="5" y="51" width="2" height="1" fill="rgba(255,255,255,0.5)"/>
+  </g>
+
+  <!-- ── SHIELD (right, forward) ── -->
+  <g class="hero-shield">
+    <!-- shield outline -->
+    <rect x="51" y="22" width="13" height="20" fill="#0a0a0a"/>
+    <!-- shield body -->
+    <rect x="52" y="23" width="11" height="18" fill="${shieldColor}"/>
+    <!-- shield highlight -->
+    <rect x="52" y="23" width="11" height="4" fill="rgba(255,255,255,0.3)"/>
+    <rect x="52" y="23" width="5" height="3" fill="rgba(255,255,255,0.2)"/>
+    <!-- shield border inner -->
+    <rect x="53" y="24" width="9" height="16" fill="none"/>
+    <rect x="53" y="24" width="9" height="1" fill="${shieldEdge}" opacity="0.5"/>
+    <rect x="53" y="38" width="9" height="1" fill="${shieldEdge}" opacity="0.5"/>
+    <rect x="53" y="24" width="1" height="15" fill="${shieldEdge}" opacity="0.4"/>
+    <rect x="61" y="24" width="1" height="15" fill="${shieldEdge}" opacity="0.4"/>
+    <!-- boss (center emblem) -->
+    <rect x="55" y="29" width="5" height="5" fill="#0a0a0a"/>
+    <rect x="56" y="30" width="3" height="3" fill="${shieldEdge}"/>
+    <rect x="56" y="30" width="2" height="1" fill="rgba(255,255,255,0.7)"/>
+    <!-- shield shadow side -->
+    <rect x="60" y="24" width="3" height="17" fill="rgba(0,0,0,0.2)"/>
+  </g>
+</svg>`;
+    if (heroClass === '궁사') return `<svg viewBox="0 0 64 80" width="64" height="80" shape-rendering="crispEdges" style="image-rendering:pixelated" class="class-archer${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
+  <ellipse cx="32" cy="77" rx="14" ry="3" fill="rgba(0,0,0,0.28)"/>
+
+  <!-- ── BOOTS ── -->
+  <rect x="20" y="64" width="11" height="11" fill="#0a0a0a"/>
+  <rect x="21" y="65" width="9" height="9" fill="#2a1a0a"/>
+  <rect x="21" y="65" width="9" height="4" fill="#3d2a10"/>
+  <rect x="21" y="65" width="4" height="2" fill="#5a3a18" opacity="0.7"/>
+  <rect x="20" y="73" width="12" height="2" fill="#1a0e04"/>
+  <rect x="33" y="64" width="11" height="11" fill="#0a0a0a"/>
+  <rect x="34" y="65" width="9" height="9" fill="#2a1a0a"/>
+  <rect x="34" y="65" width="9" height="4" fill="#3d2a10"/>
+  <rect x="34" y="65" width="4" height="2" fill="#5a3a18" opacity="0.7"/>
+  <rect x="33" y="73" width="12" height="2" fill="#1a0e04"/>
+
+  <!-- ── LEGS ── -->
+  <rect x="20" y="50" width="11" height="16" fill="#0a0a0a"/>
+  <rect x="21" y="51" width="9" height="14" fill="#1e4a30"/>
+  <rect x="21" y="51" width="4" height="14" fill="#2a6040"/>
+  <rect x="21" y="51" width="2" height="14" fill="#3a7050" opacity="0.6"/>
+  <!-- knee guard leather -->
+  <rect x="20" y="57" width="11" height="4" fill="#0a0a0a"/>
+  <rect x="21" y="58" width="9" height="3" fill="#3a2510"/>
+  <rect x="21" y="58" width="9" height="1" fill="#5a3a1e"/>
+  <rect x="33" y="50" width="11" height="16" fill="#0a0a0a"/>
+  <rect x="34" y="51" width="9" height="14" fill="#1e4a30"/>
+  <rect x="34" y="51" width="4" height="14" fill="#2a6040"/>
+  <rect x="34" y="51" width="2" height="14" fill="#3a7050" opacity="0.6"/>
+  <rect x="33" y="57" width="11" height="4" fill="#0a0a0a"/>
+  <rect x="34" y="58" width="9" height="3" fill="#3a2510"/>
+  <rect x="34" y="58" width="9" height="1" fill="#5a3a1e"/>
+
+  <!-- ── LOWER BODY / BELT ── -->
+  <rect x="19" y="45" width="26" height="7" fill="#0a0a0a"/>
+  <rect x="20" y="46" width="24" height="6" fill="#1a3a28"/>
+  <rect x="20" y="46" width="24" height="2" fill="#2a5038"/>
+  <!-- belt buckle -->
+  <rect x="29" y="46" width="6" height="4" fill="#8a6020"/>
+  <rect x="30" y="47" width="4" height="2" fill="#c09030"/>
+  <rect x="30" y="47" width="2" height="1" fill="rgba(255,255,255,0.4)"/>
+  <!-- quiver strap -->
+  <rect x="37" y="30" width="2" height="20" fill="#5a3a10"/>
+  <rect x="37" y="30" width="1" height="20" fill="#7a5a20" opacity="0.5"/>
+
+  <!-- ── TORSO (leather armor) ── -->
+  <rect x="18" y="27" width="28" height="20" fill="#0a0a0a"/>
+  <rect x="19" y="28" width="26" height="18" fill="#2a5038"/>
+  <!-- chest highlight -->
+  <rect x="19" y="28" width="26" height="4" fill="#3a6048"/>
+  <rect x="19" y="28" width="13" height="3" fill="#4a7058" opacity="0.6"/>
+  <!-- chest center -->
+  <rect x="31" y="28" width="2" height="18" fill="#1a3828"/>
+  <!-- leather stitching -->
+  <rect x="21" y="33" width="9" height="1" fill="#1a3028" opacity="0.8"/>
+  <rect x="34" y="33" width="9" height="1" fill="#1a3028" opacity="0.8"/>
+  <rect x="21" y="37" width="22" height="1" fill="#1a3028" opacity="0.6"/>
+  <!-- shoulder leather -->
+  <rect x="19" y="28" width="5" height="10" fill="#3a5a40" opacity="0.5"/>
+
+  <!-- ── SHOULDER PADS (light leather) ── -->
+  <rect x="13" y="26" width="7" height="9" fill="#0a0a0a"/>
+  <rect x="14" y="27" width="5" height="8" fill="#3a5a40"/>
+  <rect x="14" y="27" width="5" height="3" fill="#4a6a50"/>
+  <rect x="14" y="27" width="2" height="2" fill="#6a8a68" opacity="0.5"/>
+  <rect x="44" y="26" width="7" height="9" fill="#0a0a0a"/>
+  <rect x="45" y="27" width="5" height="8" fill="#3a5a40"/>
+  <rect x="45" y="27" width="5" height="3" fill="#4a6a50"/>
+  <rect x="48" y="27" width="2" height="2" fill="#6a8a68" opacity="0.5"/>
+
+  <!-- ── ARMS ── -->
+  <!-- left arm (bow arm — stretched forward) -->
+  <rect x="8" y="28" width="7" height="18" fill="#0a0a0a"/>
+  <rect x="9" y="29" width="5" height="16" fill="#f0c090"/>
+  <rect x="9" y="29" width="2" height="7" fill="#f8d8b0" opacity="0.6"/>
+  <!-- bracer left -->
+  <rect x="8" y="40" width="7" height="7" fill="#0a0a0a"/>
+  <rect x="9" y="41" width="5" height="6" fill="#5a3a10"/>
+  <rect x="9" y="41" width="5" height="2" fill="#8a5a20"/>
+  <rect x="9" y="43" width="2" height="1" fill="#aa7a30" opacity="0.6"/>
+
+  <!-- right arm (draw arm) -->
+  <rect x="49" y="30" width="7" height="15" fill="#0a0a0a"/>
+  <rect x="50" y="31" width="5" height="13" fill="#f0c090"/>
+  <rect x="50" y="31" width="2" height="5" fill="#f8d8b0" opacity="0.6"/>
+  <!-- bracer right -->
+  <rect x="49" y="41" width="7" height="6" fill="#0a0a0a"/>
+  <rect x="50" y="42" width="5" height="5" fill="#5a3a10"/>
+  <rect x="50" y="42" width="5" height="2" fill="#8a5a20"/>
+
+  <!-- ── NECK / HEAD ── -->
+  <rect x="28" y="23" width="8" height="6" fill="#0a0a0a"/>
+  <rect x="29" y="24" width="6" height="5" fill="#f0c090"/>
+  <!-- neck scarf -->
+  <rect x="27" y="26" width="10" height="3" fill="#1a3a28"/>
+  <rect x="27" y="26" width="10" height="1" fill="#2a5038"/>
+
+  <rect x="22" y="9" width="20" height="16" fill="#0a0a0a"/>
+  <rect x="23" y="10" width="18" height="14" fill="#f0c090"/>
+  <rect x="23" y="10" width="8" height="5" fill="#f8d8b0" opacity="0.6"/>
+  <!-- eyes (focused, narrowed) -->
+  <rect x="25" y="16" width="5" height="2" fill="#1a1a30"/>
+  <rect x="34" y="16" width="5" height="2" fill="#1a1a30"/>
+  <rect x="25" y="16" width="2" height="1" fill="#e8eeff"/>
+  <rect x="34" y="16" width="2" height="1" fill="#e8eeff"/>
+  <rect x="26" y="16" width="2" height="1" fill="#2a3060"/>
+  <rect x="35" y="16" width="2" height="1" fill="#2a3060"/>
+  <rect x="25" y="16" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
+  <rect x="34" y="16" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
+  <!-- focused brow -->
+  <rect x="24" y="15" width="7" height="1" fill="#5a3a20" opacity="0.7"/>
+  <rect x="33" y="15" width="7" height="1" fill="#5a3a20" opacity="0.7"/>
+  <rect x="30" y="20" width="4" height="1" fill="#b06040" opacity="0.8"/>
+
+  <!-- ── HOOD ── -->
+  <rect x="20" y="3" width="24" height="12" fill="#0a0a0a"/>
+  <rect x="21" y="4" width="22" height="11" fill="#1a3a28"/>
+  <rect x="21" y="4" width="22" height="3" fill="#2a5038"/>
+  <rect x="21" y="4" width="11" height="2" fill="#3a6048" opacity="0.6"/>
+  <!-- hood sides -->
+  <rect x="20" y="8" width="5" height="10" fill="#1a3a28"/>
+  <rect x="39" y="8" width="5" height="10" fill="#1a3a28"/>
+  <!-- hood shadow rim -->
+  <rect x="22" y="13" width="20" height="2" fill="#0e2218"/>
+  <!-- gold headband -->
+  <rect x="21" y="10" width="22" height="3" fill="#0a0a0a"/>
+  <rect x="22" y="11" width="20" height="2" fill="${weaponColor}"/>
+  <rect x="22" y="11" width="10" height="1" fill="rgba(255,255,255,0.3)"/>
+  <!-- hood tip -->
+  <rect x="29" y="0" width="6" height="5" fill="#1a3a28"/>
+  <rect x="30" y="0" width="4" height="4" fill="#2a5038"/>
+
+  <!-- ── BOW (left side, drawn) ── -->
+  <g class="hero-weapon">
+    <!-- bow limbs — curved with blocks -->
+    <rect x="2" y="8"  width="4" height="4" fill="${weaponColor}"/>
+    <rect x="1" y="12" width="4" height="5" fill="${weaponColor}"/>
+    <rect x="1" y="17" width="4" height="6" fill="${weaponColor}"/>
+    <rect x="1" y="23" width="4" height="6" fill="${weaponColor}"/>
+    <rect x="1" y="29" width="4" height="6" fill="${weaponColor}"/>
+    <rect x="1" y="35" width="4" height="5" fill="${weaponColor}"/>
+    <rect x="2" y="40" width="4" height="4" fill="${weaponColor}"/>
+    <rect x="3" y="43" width="3" height="3" fill="${weaponColor}"/>
+    <!-- bow highlight -->
+    <rect x="2" y="8"  width="2" height="4" fill="rgba(255,255,255,0.3)"/>
+    <rect x="1" y="12" width="2" height="30" fill="rgba(255,255,255,0.2)"/>
+    <!-- handle wrap -->
+    <rect x="0" y="22" width="5" height="8" fill="#5a3a10"/>
+    <rect x="0" y="22" width="5" height="2" fill="#8a5a20"/>
+    <rect x="0" y="25" width="5" height="1" fill="#3a2010"/>
+    <rect x="0" y="27" width="5" height="1" fill="#3a2010"/>
+    <!-- bowstring (taut — drawn back) -->
+    <rect x="4" y="9"  width="1" height="13" fill="#f0e8c0" opacity="0.9"/>
+    <rect x="4" y="30" width="1" height="13" fill="#f0e8c0" opacity="0.9"/>
+    <!-- string to draw point -->
+    <rect x="4" y="22" width="10" height="1" fill="#f0e8c0" opacity="0.9"/>
+    <rect x="14" y="21" width="1" height="3" fill="#f0e8c0" opacity="0.7"/>
+    <!-- nocked arrow -->
+    <rect x="5" y="23" width="30" height="2" fill="#c8a050"/>
+    <rect x="5" y="23" width="30" height="1" fill="#e0c070" opacity="0.6"/>
+    <!-- arrowhead -->
+    <rect x="33" y="21" width="4" height="4" fill="#0a0a0a"/>
+    <rect x="34" y="22" width="3" height="2" fill="${weaponColor}"/>
+    <rect x="35" y="22" width="2" height="1" fill="rgba(255,255,255,0.5)"/>
+    <!-- fletching -->
+    <rect x="4" y="21" width="3" height="1" fill="#c03030"/>
+    <rect x="4" y="25" width="3" height="1" fill="#c03030"/>
+    <rect x="3" y="21" width="2" height="1" fill="#e04040" opacity="0.7"/>
+    <rect x="3" y="25" width="2" height="1" fill="#e04040" opacity="0.7"/>
+  </g>
+
+  <!-- ── QUIVER (right side) ── -->
+  <rect x="42" y="20" width="9" height="22" fill="#0a0a0a"/>
+  <rect x="43" y="21" width="7" height="20" fill="#5a3a10"/>
+  <rect x="43" y="21" width="7" height="4" fill="#8a5a20"/>
+  <rect x="43" y="21" width="3" height="2" fill="#aa7a30" opacity="0.5"/>
+  <!-- arrows in quiver -->
+  <rect x="44" y="10" width="2" height="12" fill="#c8a050"/>
+  <rect x="47" y="8"  width="2" height="14" fill="#c8a050"/>
+  <rect x="50" y="11" width="2" height="11" fill="#c8a050"/>
+  <rect x="44" y="9"  width="2" height="2" fill="${weaponColor}"/>
+  <rect x="47" y="7"  width="2" height="2" fill="${weaponColor}"/>
+  <rect x="50" y="10" width="2" height="2" fill="${weaponColor}"/>
+</svg>`;
+    return `<svg viewBox="0 0 64 80" width="64" height="80" shape-rendering="crispEdges" style="image-rendering:pixelated" class="class-mage${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
+  <ellipse cx="32" cy="77" rx="14" ry="3" fill="rgba(0,0,0,0.28)"/>
+
+  <!-- ── ROBE BOTTOM ── -->
+  <rect x="16" y="50" width="32" height="18" fill="#0a0a0a"/>
+  <rect x="17" y="51" width="30" height="17" fill="#2a1a5a"/>
+  <rect x="17" y="51" width="30" height="4" fill="#3a2070"/>
+  <rect x="17" y="51" width="15" height="3" fill="#4a2880" opacity="0.6"/>
+  <!-- robe panels -->
+  <rect x="17" y="51" width="9" height="17" fill="#281858"/>
+  <rect x="38" y="51" width="9" height="17" fill="#281858"/>
+  <rect x="26" y="51" width="12" height="17" fill="#321e6e"/>
+  <!-- gold trim bottom -->
+  <rect x="16" y="66" width="32" height="3" fill="#0a0a0a"/>
+  <rect x="17" y="67" width="30" height="2" fill="${weaponColor}" opacity="0.8"/>
+  <rect x="17" y="67" width="15" height="1" fill="rgba(255,255,255,0.3)"/>
+  <!-- rune patterns -->
+  <rect x="20" y="56" width="2" height="2" fill="${weaponColor}" opacity="0.5"/>
+  <rect x="20" y="60" width="2" height="2" fill="${weaponColor}" opacity="0.4"/>
+  <rect x="42" y="56" width="2" height="2" fill="${weaponColor}" opacity="0.5"/>
+  <rect x="42" y="60" width="2" height="2" fill="${weaponColor}" opacity="0.4"/>
+  <rect x="30" y="58" width="4" height="1" fill="${weaponColor}" opacity="0.4"/>
+  <rect x="31" y="57" width="2" height="3" fill="${weaponColor}" opacity="0.3"/>
+  <!-- feet -->
+  <rect x="20" y="68" width="9" height="7" fill="#0a0a0a"/>
+  <rect x="21" y="69" width="7" height="6" fill="#1a0e3a"/>
+  <rect x="35" y="68" width="9" height="7" fill="#0a0a0a"/>
+  <rect x="36" y="69" width="7" height="6" fill="#1a0e3a"/>
+
+  <!-- ── TORSO ROBE ── -->
+  <rect x="17" y="27" width="30" height="25" fill="#0a0a0a"/>
+  <rect x="18" y="28" width="28" height="23" fill="#3a2080"/>
+  <!-- chest highlight -->
+  <rect x="18" y="28" width="28" height="5" fill="#5030a0"/>
+  <rect x="18" y="28" width="14" height="4" fill="#6038b0" opacity="0.6"/>
+  <!-- robe center seam -->
+  <rect x="31" y="28" width="2" height="23" fill="#281860"/>
+  <!-- robe collar -->
+  <rect x="25" y="28" width="14" height="4" fill="#4028a0"/>
+  <rect x="25" y="28" width="14" height="2" fill="#5838b0"/>
+  <!-- robe decoration -->
+  <rect x="20" y="34" width="24" height="1" fill="${weaponColor}" opacity="0.4"/>
+  <rect x="20" y="38" width="24" height="1" fill="${weaponColor}" opacity="0.3"/>
+  <rect x="20" y="42" width="24" height="1" fill="${weaponColor}" opacity="0.25"/>
+  <!-- chest rune -->
+  <rect x="29" y="33" width="6" height="1" fill="${weaponColor}" opacity="0.6"/>
+  <rect x="31" y="31" width="2" height="5" fill="${weaponColor}" opacity="0.5"/>
+
+  <!-- ── SLEEVES ── -->
+  <!-- left sleeve -->
+  <rect x="11" y="27" width="8" height="20" fill="#0a0a0a"/>
+  <rect x="12" y="28" width="6" height="18" fill="#3a2080"/>
+  <rect x="12" y="28" width="6" height="4" fill="#5030a0"/>
+  <rect x="12" y="28" width="3" height="3" fill="#6038b0" opacity="0.5"/>
+  <!-- sleeve cuff left -->
+  <rect x="11" y="44" width="9" height="5" fill="#0a0a0a"/>
+  <rect x="12" y="45" width="7" height="4" fill="${weaponColor}" opacity="0.85"/>
+  <rect x="12" y="45" width="7" height="2" fill="rgba(255,255,255,0.25)"/>
+  <!-- hand left -->
+  <rect x="12" y="49" width="6" height="5" fill="#0a0a0a"/>
+  <rect x="13" y="50" width="4" height="4" fill="#f0c090"/>
+  <!-- right sleeve -->
+  <rect x="45" y="27" width="8" height="20" fill="#0a0a0a"/>
+  <rect x="46" y="28" width="6" height="18" fill="#3a2080"/>
+  <rect x="46" y="28" width="6" height="4" fill="#5030a0"/>
+  <rect x="49" y="28" width="3" height="3" fill="#6038b0" opacity="0.5"/>
+  <!-- sleeve cuff right -->
+  <rect x="44" y="44" width="9" height="5" fill="#0a0a0a"/>
+  <rect x="45" y="45" width="7" height="4" fill="${weaponColor}" opacity="0.85"/>
+  <rect x="45" y="45" width="7" height="2" fill="rgba(255,255,255,0.25)"/>
+  <!-- hand right (casting pose — open) -->
+  <rect x="45" y="49" width="7" height="5" fill="#0a0a0a"/>
+  <rect x="46" y="50" width="5" height="4" fill="#f0c090"/>
+  <!-- casting glow around hand -->
+  <rect x="44" y="48" width="9" height="7" fill="${weaponColor}" opacity="0.15"/>
+
+  <!-- ── NECK / HEAD ── -->
+  <rect x="28" y="23" width="8" height="6" fill="#0a0a0a"/>
+  <rect x="29" y="24" width="6" height="5" fill="#f0c090"/>
+
+  <rect x="22" y="9" width="20" height="16" fill="#0a0a0a"/>
+  <rect x="23" y="10" width="18" height="14" fill="#f0c090"/>
+  <rect x="23" y="10" width="8" height="5" fill="#f8d8b0" opacity="0.6"/>
+  <!-- eyes (glowing magical) -->
+  <rect x="25" y="16" width="4" height="3" fill="#0a0820"/>
+  <rect x="35" y="16" width="4" height="3" fill="#0a0820"/>
+  <rect x="25" y="16" width="3" height="2" fill="#6020c0"/>
+  <rect x="35" y="16" width="3" height="2" fill="#6020c0"/>
+  <rect x="25" y="16" width="2" height="1" fill="#a050ff"/>
+  <rect x="35" y="16" width="2" height="1" fill="#a050ff"/>
+  <rect x="25" y="16" width="1" height="1" fill="rgba(255,255,255,0.95)"/>
+  <rect x="35" y="16" width="1" height="1" fill="rgba(255,255,255,0.95)"/>
+  <!-- eyebrows (arched) -->
+  <rect x="24" y="14" width="6" height="1" fill="#5a3a20" opacity="0.8"/>
+  <rect x="34" y="14" width="6" height="1" fill="#5a3a20" opacity="0.8"/>
+  <rect x="30" y="20" width="4" height="1" fill="#b06040" opacity="0.7"/>
+  <!-- nose -->
+  <rect x="31" y="19" width="2" height="2" fill="#d4a070" opacity="0.6"/>
+
+  <!-- ── HAT ── -->
+  <rect x="19" y="3" width="26" height="8" fill="#0a0a0a"/>
+  <rect x="20" y="4" width="24" height="7" fill="#1a0a40"/>
+  <rect x="20" y="4" width="24" height="3" fill="#2a1060"/>
+  <rect x="20" y="4" width="12" height="2" fill="#3a1878" opacity="0.6"/>
+  <!-- hat brim gold trim -->
+  <rect x="19" y="9" width="26" height="2" fill="${weaponColor}" opacity="0.7"/>
+  <rect x="19" y="9" width="13" height="1" fill="rgba(255,255,255,0.3)"/>
+  <!-- hat tower -->
+  <rect x="24" y="-1" width="16" height="6" fill="#0a0a0a"/>
+  <rect x="25" y="0" width="14" height="5" fill="#1a0a40"/>
+  <rect x="25" y="0" width="14" height="2" fill="#2a1060"/>
+  <rect x="25" y="0" width="7" height="1" fill="#3a1878" opacity="0.5"/>
+  <!-- hat tip -->
+  <rect x="29" y="-4" width="6" height="5" fill="#1a0a40"/>
+  <rect x="30" y="-5" width="4" height="4" fill="#0a0a0a"/>
+  <rect x="31" y="-5" width="2" height="3" fill="#1a0a40"/>
+  <!-- hat star decoration -->
+  <rect x="28" y="2" width="2" height="2" fill="${weaponColor}" opacity="0.8"/>
+  <rect x="27" y="3" width="4" height="1" fill="${weaponColor}" opacity="0.6"/>
+  <rect x="37" y="5" width="2" height="2" fill="${weaponColor}" opacity="0.6"/>
+  <rect x="21" y="5" width="2" height="2" fill="${weaponColor}" opacity="0.5"/>
+
+  <!-- ── STAFF (left, raised) ── -->
+  <g class="hero-weapon">
+    <!-- staff pole -->
+    <rect x="5" y="14" width="5" height="48" fill="#0a0a0a"/>
+    <rect x="6" y="15" width="3" height="46" fill="#5a3a18"/>
+    <rect x="6" y="15" width="1" height="46" fill="#8a6030" opacity="0.6"/>
+    <!-- gold rings on staff -->
+    <rect x="5" y="22" width="5" height="2" fill="${weaponColor}" opacity="0.8"/>
+    <rect x="5" y="35" width="5" height="2" fill="${weaponColor}" opacity="0.7"/>
+    <rect x="5" y="48" width="5" height="2" fill="${weaponColor}" opacity="0.6"/>
+    <!-- staff base -->
+    <rect x="4" y="60" width="7" height="3" fill="#0a0a0a"/>
+    <rect x="5" y="61" width="5" height="2" fill="${weaponColor}" opacity="0.8"/>
+    <!-- ORB (top) -->
+    <rect x="1" y="3"  width="13" height="13" fill="#0a0a0a"/>
+    <rect x="2" y="4"  width="11" height="11" fill="${weaponColor}"/>
+    <!-- orb inner glow -->
+    <rect x="3" y="5"  width="7" height="7" fill="rgba(255,255,255,0.35)"/>
+    <rect x="4" y="6"  width="5" height="5" fill="rgba(255,255,255,0.5)"/>
+    <rect x="5" y="7"  width="3" height="3" fill="rgba(255,255,255,0.7)"/>
+    <rect x="3" y="5"  width="3" height="2" fill="rgba(255,255,255,0.8)"/>
+    <!-- orb outer ring -->
+    <rect x="0" y="6"  width="15" height="1" fill="${weaponColor}" opacity="0.4"/>
+    <rect x="0" y="13" width="15" height="1" fill="${weaponColor}" opacity="0.4"/>
+    <rect x="0" y="6"  width="1" height="8" fill="${weaponColor}" opacity="0.4"/>
+    <rect x="14" y="6" width="1" height="8" fill="${weaponColor}" opacity="0.4"/>
+    <!-- magic sparkles from orb -->
+    <rect x="14" y="4" width="2" height="2" fill="${weaponColor}" opacity="0.7"/>
+    <rect x="16" y="2" width="1" height="1" fill="${weaponColor}" opacity="0.5"/>
+    <rect x="0"  y="4" width="2" height="2" fill="${weaponColor}" opacity="0.6"/>
+    <rect x="7"  y="1" width="2" height="2" fill="${weaponColor}" opacity="0.6"/>
+  </g>
+
+  <!-- ── SPELLBOOK (right hand) ── -->
+  <rect x="42" y="34" width="14" height="18" fill="#0a0a0a"/>
+  <rect x="43" y="35" width="12" height="16" fill="#0e0828"/>
+  <rect x="44" y="36" width="10" height="14" fill="#1e1248"/>
+  <rect x="44" y="36" width="10" height="3" fill="rgba(255,255,255,0.1)"/>
+  <!-- book spine -->
+  <rect x="43" y="35" width="3" height="16" fill="#0a0618"/>
+  <rect x="43" y="38" width="3" height="2" fill="#1a0e30"/>
+  <rect x="43" y="42" width="3" height="2" fill="#1a0e30"/>
+  <rect x="43" y="46" width="3" height="2" fill="#1a0e30"/>
+  <!-- book pages lines -->
+  <rect x="47" y="38" width="7" height="1" fill="${weaponColor}" opacity="0.6"/>
+  <rect x="47" y="40" width="6" height="1" fill="${weaponColor}" opacity="0.5"/>
+  <rect x="47" y="42" width="7" height="1" fill="${weaponColor}" opacity="0.5"/>
+  <rect x="47" y="44" width="5" height="1" fill="${weaponColor}" opacity="0.4"/>
+  <!-- magic circle on book -->
+  <rect x="48" y="46" width="5" height="1" fill="${weaponColor}" opacity="0.7"/>
+  <rect x="47" y="47" width="7" height="1" fill="${weaponColor}" opacity="0.7"/>
+  <rect x="50" y="46" width="1" height="3" fill="${weaponColor}" opacity="0.7"/>
+  <rect x="48" y="47" width="1" height="1" fill="rgba(255,255,255,0.8)"/>
+  <!-- casting magic effect from right hand -->
+  <rect x="51" y="49" width="3" height="1" fill="${weaponColor}" opacity="0.6"/>
+  <rect x="53" y="47" width="2" height="2" fill="${weaponColor}" opacity="0.5"/>
+  <rect x="55" y="46" width="2" height="1" fill="${weaponColor}" opacity="0.4"/>
+</svg>`;
   }
 
   function getHeroVisualHtml(heroClass) {
