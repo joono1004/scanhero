@@ -294,8 +294,112 @@
     .modal-list { max-height: 46vh; overflow: auto; display: grid; gap: 8px; }
     .list-item { background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96)); border: 1px solid rgba(110, 139, 204, 0.18); border-radius: 12px; padding: 11px; cursor: pointer; }
 
+    /* ===== 인증 화면 (로그인 / 회원가입) ===== */
+    .auth-screen {
+      position: fixed; inset: 0; z-index: 2000;
+      background: linear-gradient(180deg, #050b1a 0%, #0a1020 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .auth-logo { font-size: 36px; font-weight: 900; letter-spacing: -1px; color: #eef3ff; margin-bottom: 4px; }
+    .auth-tagline { color: #7a90be; font-size: 12px; margin-bottom: 28px; text-align: center; }
+    .auth-card {
+      width: min(360px, 100%);
+      background: linear-gradient(180deg, rgba(22,31,56,0.98), rgba(14,20,38,0.98));
+      border: 1px solid rgba(134,164,235,0.24); border-radius: 24px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6); overflow: hidden;
+    }
+    .auth-tabs { display: flex; border-bottom: 1px solid rgba(112,138,203,0.16); }
+    .auth-tab {
+      flex: 1; padding: 14px; text-align: center; font-size: 13px; font-weight: 900;
+      color: #6a7fa8; cursor: pointer; transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+    .auth-tab.active { color: #eef3ff; border-bottom-color: #4f7cff; background: rgba(79,124,255,0.06); }
+    .auth-form { padding: 20px; display: grid; gap: 12px; }
+    .auth-field label { display: block; font-size: 11px; font-weight: 700; color: #8a9dc4; margin-bottom: 5px; }
+    .auth-field input {
+      width: 100%; padding: 11px 14px; border-radius: 12px;
+      background: rgba(10,16,32,0.8); border: 1px solid rgba(120,149,220,0.22);
+      color: #eef3ff; font-size: 14px; outline: none; transition: border 0.2s;
+    }
+    .auth-field input:focus { border-color: rgba(79,124,255,0.6); }
+    .auth-btn {
+      width: 100%; padding: 13px; border-radius: 14px; border: none; cursor: pointer;
+      font-size: 14px; font-weight: 900; transition: all 0.18s; margin-top: 4px;
+      background: linear-gradient(135deg, #4f7cff, #3a5fd9);
+      color: #fff; box-shadow: 0 4px 16px rgba(79,124,255,0.35);
+    }
+    .auth-btn:hover { transform: translateY(-1px); }
+    .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .auth-error { font-size: 11px; color: #ff7b7b; text-align: center; min-height: 16px; }
+
+    /* ===== 캐릭터 선택 화면 ===== */
+    .char-screen {
+      position: fixed; inset: 0; z-index: 1900;
+      background: linear-gradient(180deg, #050b1a 0%, #0a1020 100%);
+      display: flex; flex-direction: column; align-items: center;
+      padding: 20px 16px; overflow-y: auto;
+    }
+    .char-screen-header {
+      width: min(430px, 100%); display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 8px; padding-top: 8px;
+    }
+    .char-screen-title { font-size: 20px; font-weight: 900; }
+    .char-logout-btn {
+      padding: 6px 12px; border-radius: 10px; border: 1px solid rgba(120,149,220,0.22);
+      background: rgba(14,21,38,0.9); color: #7a90be; font-size: 11px; font-weight: 700; cursor: pointer;
+    }
+    .char-account-info { width: min(430px,100%); font-size: 11px; color: #5a7090; margin-bottom: 20px; }
+    .char-slots { width: min(430px, 100%); display: grid; gap: 12px; }
+    .char-slot {
+      border-radius: 20px; padding: 16px; cursor: pointer;
+      transition: all 0.2s; position: relative; overflow: hidden;
+    }
+    .char-slot.has-char {
+      background: linear-gradient(135deg, rgba(23,33,60,0.97), rgba(16,24,46,0.97));
+      border: 1px solid rgba(134,164,235,0.28);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .char-slot.has-char:hover { border-color: rgba(79,124,255,0.5); transform: translateY(-2px); }
+    .char-slot.empty {
+      background: rgba(14,21,38,0.6);
+      border: 2px dashed rgba(79,124,255,0.25);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      min-height: 88px; color: #4a6090; font-size: 13px; font-weight: 700;
+    }
+    .char-slot.empty:hover { border-color: rgba(79,124,255,0.5); color: #7a9abb; background: rgba(79,124,255,0.06); }
+    .char-slot-inner { display: flex; align-items: center; gap: 14px; }
+    .char-slot-sprite {
+      width: 64px; height: 64px; border-radius: 16px; flex-shrink: 0;
+      background: linear-gradient(180deg, rgba(49,71,133,0.6), rgba(20,30,60,0.8));
+      border: 1px solid rgba(120,149,220,0.22);
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .char-slot-info { flex: 1; min-width: 0; }
+    .char-slot-name { font-size: 16px; font-weight: 900; margin-bottom: 3px; }
+    .char-slot-meta { font-size: 11px; color: #7a90be; margin-bottom: 6px; }
+    .char-slot-stats { display: flex; gap: 6px; flex-wrap: wrap; }
+    .char-stat-pill {
+      font-size: 10px; padding: 2px 8px; border-radius: 8px;
+      background: rgba(79,124,255,0.12); border: 1px solid rgba(79,124,255,0.22); color: #9fbfff;
+    }
+    .char-slot-play-btn {
+      padding: 8px 16px; border-radius: 12px; border: none; cursor: pointer;
+      background: linear-gradient(135deg, #4f7cff, #3a5fd9);
+      color: #fff; font-size: 12px; font-weight: 900; flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(79,124,255,0.35);
+    }
+    .char-slot-delete-btn {
+      position: absolute; top: 10px; right: 10px;
+      width: 26px; height: 26px; border-radius: 8px; border: 1px solid rgba(255,80,80,0.25);
+      cursor: pointer; background: rgba(255,80,80,0.1); color: #ff7b7b; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;
+    }
+    .char-slot.has-char:hover .char-slot-delete-btn { opacity: 1; }
+
     /* ===== 영웅 시작 모달 ===== */
-    .hero-start-backdrop { position: fixed; inset: 0; z-index: 1200; background: rgba(4, 8, 18, 0.82); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; padding: 12px; }
+    .hero-start-backdrop { position: fixed; inset: 0; z-index: 2100; background: rgba(4, 8, 18, 0.88); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 12px; }
     .hero-start-modal { width: min(390px, 100%); background: linear-gradient(180deg, rgba(24, 33, 57, 0.98), rgba(14, 21, 37, 0.98)); border: 1px solid rgba(134, 164, 235, 0.24); border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.45); overflow: hidden; }
     .hero-start-head { padding: 16px 16px 10px; border-bottom: 1px solid rgba(112, 138, 203, 0.16); background: linear-gradient(180deg, rgba(49, 71, 133, 0.35), rgba(0,0,0,0)); }
     .hero-start-title { font-size: 22px; font-weight: 900; margin-bottom: 5px; }
@@ -758,16 +862,66 @@
   </style>
 </head>
 <body>
-  <div class="hero-start-backdrop" id="heroStartBackdrop">
+
+  <!-- ══ 인증 화면 ══ -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-logo">⚔️ ScanHero</div>
+    <div class="auth-tagline">바코드로 세계를 탐험하는 모바일 RPG</div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="authTabLogin" onclick="switchAuthTab('login')">로그인</div>
+        <div class="auth-tab" id="authTabSignup" onclick="switchAuthTab('signup')">회원가입</div>
+      </div>
+      <!-- 로그인 폼 -->
+      <div class="auth-form" id="loginForm">
+        <div class="auth-field"><label>이메일</label><input type="email" id="loginEmail" placeholder="이메일 입력" /></div>
+        <div class="auth-field"><label>비밀번호</label><input type="password" id="loginPw" placeholder="비밀번호 입력" /></div>
+        <div class="auth-error" id="loginError"></div>
+        <button class="auth-btn" id="loginBtn">로그인</button>
+      </div>
+      <!-- 회원가입 폼 -->
+      <div class="auth-form" id="signupForm" style="display:none;">
+        <div class="auth-field"><label>이메일</label><input type="email" id="signupEmail" placeholder="이메일 입력" /></div>
+        <div class="auth-field"><label>비밀번호 (6자 이상)</label><input type="password" id="signupPw" placeholder="비밀번호 입력" /></div>
+        <div class="auth-field"><label>비밀번호 확인</label><input type="password" id="signupPw2" placeholder="비밀번호 재입력" /></div>
+        <div class="auth-error" id="signupError"></div>
+        <button class="auth-btn" id="signupBtn">계정 만들기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 캐릭터 선택 화면 ══ -->
+  <div class="char-screen" id="charScreen" style="display:none;">
+    <div class="char-screen-header">
+      <div class="char-screen-title">⚔️ 영웅 선택</div>
+      <button class="char-logout-btn" id="logoutBtn">로그아웃</button>
+    </div>
+    <div class="char-account-info" id="charAccountInfo"></div>
+    <div class="char-slots" id="charSlots">
+      <!-- JS로 렌더 -->
+    </div>
+  </div>
+
+  <!-- ══ 영웅 생성 모달 ══ -->
+  <div class="hero-start-backdrop" id="heroStartBackdrop" style="display:none;">
     <div class="hero-start-modal">
       <div class="hero-start-head">
-        <div class="hero-start-title">영웅 생성</div>
-        <div class="hero-start-desc">처음 모험을 시작하기 전에 영웅의 이름과 클래스를 선택해 주세요.</div>
+        <div class="hero-start-title">✨ 영웅 생성</div>
+        <div class="hero-start-desc">새로운 영웅의 이름과 클래스를 선택해 주세요.<br>클래스는 나중에 변경할 수 없습니다.</div>
       </div>
       <div class="hero-start-body">
         <div class="line" style="margin-bottom:0;"><label for="startHeroName">영웅 이름</label><input id="startHeroName" value="주인님의 영웅" /></div>
-        <div class="line" style="margin-bottom:0;"><label for="startHeroClass">클래스</label><select id="startHeroClass"><option value="전사">전사</option><option value="궁사">궁사</option><option value="마법사">마법사</option></select></div>
-        <button id="startGameBtn">모험 시작</button>
+        <div class="line" style="margin-bottom:0;"><label for="startHeroClass">클래스</label>
+          <select id="startHeroClass">
+            <option value="전사">⚔️ 전사 — 강인한 방어와 근접 전투</option>
+            <option value="궁사">🏹 궁사 — 빠른 속도와 원거리 공격</option>
+            <option value="마법사">🔮 마법사 — 강력한 마법과 치명타</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <button id="cancelHeroBtn" style="flex:1; padding:11px; border-radius:12px; background:rgba(14,21,38,0.9); border:1px solid rgba(120,149,220,0.22); color:#8a9dc4; font-size:13px; font-weight:700; cursor:pointer;">취소</button>
+          <button id="startGameBtn" style="flex:2; padding:11px; border-radius:12px; background:linear-gradient(135deg,#4f7cff,#3a5fd9); border:none; color:#fff; font-size:14px; font-weight:900; cursor:pointer;">모험 시작</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1205,16 +1359,240 @@ document.addEventListener('DOMContentLoaded', () => {
   const SUPABASE_KEY = 'sb_publishable_IC07F5YFaruLMKsTEAPA8Q_ewH7l1ez';
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // 기기 고유 player_id (localStorage에 영구 보관)
-  function getPlayerId() {
-    let id = localStorage.getItem('scanhero_player_id');
-    if (!id) {
-      id = 'player_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
-      localStorage.setItem('scanhero_player_id', id);
-    }
-    return id;
+  // ── 현재 플레이 중인 캐릭터 player_id (로그인+캐릭선택 후 설정) ──
+  let PLAYER_ID = null;
+  let CURRENT_USER = null;
+  let CURRENT_CHAR_SLOT = null;
+
+  // ═══════════════════════════════════════════════════════
+  // 인증 UI
+  // ═══════════════════════════════════════════════════════
+  window.switchAuthTab = function(tab) {
+    document.getElementById('authTabLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('authTabSignup').classList.toggle('active', tab === 'signup');
+    document.getElementById('loginForm').style.display  = tab === 'login'  ? 'grid' : 'none';
+    document.getElementById('signupForm').style.display = tab === 'signup' ? 'grid' : 'none';
+  };
+
+  function setAuthLoading(btnId, loading, label) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.textContent = loading ? '처리 중...' : label;
   }
-  const PLAYER_ID = getPlayerId();
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const errEl = document.getElementById('loginError');
+    const email = document.getElementById('loginEmail').value.trim();
+    const pw    = document.getElementById('loginPw').value;
+    errEl.textContent = ''; errEl.style.color = '#ff7b7b';
+    if (!email || !pw) { errEl.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
+    setAuthLoading('loginBtn', true, '로그인');
+    const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+    setAuthLoading('loginBtn', false, '로그인');
+    if (error) errEl.textContent = (error.message === 'Invalid login credentials')
+      ? '이메일 또는 비밀번호가 올바르지 않습니다.' : error.message;
+  });
+
+  ['loginEmail','loginPw'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('loginBtn').click();
+    });
+  });
+
+  document.getElementById('signupBtn').addEventListener('click', async () => {
+    const errEl = document.getElementById('signupError');
+    const email = document.getElementById('signupEmail').value.trim();
+    const pw    = document.getElementById('signupPw').value;
+    const pw2   = document.getElementById('signupPw2').value;
+    errEl.textContent = ''; errEl.style.color = '#ff7b7b';
+    if (!email || !pw) { errEl.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
+    if (pw.length < 6) { errEl.textContent = '비밀번호는 6자 이상이어야 합니다.'; return; }
+    if (pw !== pw2)    { errEl.textContent = '비밀번호가 일치하지 않습니다.'; return; }
+    setAuthLoading('signupBtn', true, '계정 만들기');
+    const { error } = await sb.auth.signUp({ email, password: pw });
+    setAuthLoading('signupBtn', false, '계정 만들기');
+    if (error) errEl.textContent = error.message;
+    else { errEl.style.color = '#63d09a'; errEl.textContent = '가입 완료! 로그인해 주세요.'; window.switchAuthTab('login'); }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    PLAYER_ID = null; CURRENT_USER = null; CURRENT_CHAR_SLOT = null;
+    showScreen('auth');
+  });
+
+  // ─── Supabase Auth 상태 감지 ───
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (session?.user) {
+      CURRENT_USER = session.user;
+      showScreen('char');
+      document.getElementById('charAccountInfo').textContent = '계정: ' + CURRENT_USER.email;
+      await renderCharSlots();
+    } else {
+      CURRENT_USER = null;
+      showScreen('auth');
+    }
+  });
+
+  // 초기 세션 체크
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session?.user) {
+      CURRENT_USER = session.user;
+      showScreen('char');
+      document.getElementById('charAccountInfo').textContent = '계정: ' + CURRENT_USER.email;
+      await renderCharSlots();
+    } else {
+      showScreen('auth');
+    }
+  })();
+
+  // ═══════════════════════════════════════════════════════
+  // 화면 전환
+  // ═══════════════════════════════════════════════════════
+  function showScreen(screen) {
+    document.getElementById('authScreen').style.display  = screen === 'auth' ? 'flex' : 'none';
+    document.getElementById('charScreen').style.display  = screen === 'char' ? 'flex' : 'none';
+    if (screen !== 'char' && screen !== 'auth') {
+      document.getElementById('charScreen').style.display = 'none';
+      document.getElementById('authScreen').style.display = 'none';
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // 캐릭터 선택 화면
+  // ═══════════════════════════════════════════════════════
+  async function loadMyHeroes() {
+    if (!CURRENT_USER) return [];
+    const { data, error } = await sb
+      .from('heroes')
+      .select('player_id, hero_name, hero_class, level, gold, char_slot, updated_at')
+      .eq('account_id', CURRENT_USER.id)
+      .order('char_slot');
+    if (error) { console.error(error); return []; }
+    return data || [];
+  }
+
+  async function renderCharSlots() {
+    const container = document.getElementById('charSlots');
+    container.innerHTML = '<div style="color:#5a7090;font-size:12px;text-align:center;padding:30px;">불러오는 중...</div>';
+    const heroes = await loadMyHeroes();
+    const MAX_SLOTS = 3;
+    let html = '';
+    for (let slot = 1; slot <= MAX_SLOTS; slot++) {
+      const hero = heroes.find(h => h.char_slot === slot);
+      if (hero) {
+        const classIcon = { '전사':'⚔️','궁사':'🏹','마법사':'🔮' }[hero.hero_class] || '🧙';
+        const spriteHtml = getHeroVisualHtml(hero.hero_class);
+        const updated = hero.updated_at ? new Date(hero.updated_at).toLocaleDateString('ko-KR') : '';
+        html += `
+          <div class="char-slot has-char" data-slot="${slot}">
+            <button class="char-slot-delete-btn" data-del-slot="${slot}" title="캐릭터 삭제">🗑</button>
+            <div class="char-slot-inner">
+              <div class="char-slot-sprite">${spriteHtml}</div>
+              <div class="char-slot-info">
+                <div style="font-size:10px;color:#4a6090;font-weight:700;margin-bottom:4px;">슬롯 ${slot}</div>
+                <div class="char-slot-name">${hero.hero_name}</div>
+                <div class="char-slot-meta">${classIcon} ${hero.hero_class} · Lv.${hero.level}</div>
+                <div class="char-slot-stats">
+                  <span class="char-stat-pill">Lv.${hero.level}</span>
+                  <span class="char-stat-pill">🪙 ${hero.gold.toLocaleString()}</span>
+                  ${updated ? `<span class="char-stat-pill">📅 ${updated}</span>` : ''}
+                </div>
+              </div>
+              <button class="char-slot-play-btn" data-play-slot="${slot}">플레이 ▶</button>
+            </div>
+          </div>`;
+      } else {
+        html += `
+          <div class="char-slot empty" data-new-slot="${slot}">
+            <span style="font-size:28px;">➕</span>
+            <div>
+              <div style="font-weight:900;font-size:14px;margin-bottom:3px;">슬롯 ${slot}</div>
+              <div style="font-size:11px;color:#4a6090;">새 영웅 생성</div>
+            </div>
+          </div>`;
+      }
+    }
+    container.innerHTML = html;
+
+    // 플레이 버튼
+    container.querySelectorAll('[data-play-slot]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        enterGame(parseInt(btn.dataset.playSlot), heroes);
+      });
+    });
+    // 슬롯 전체 클릭
+    container.querySelectorAll('.char-slot.has-char').forEach(slot => {
+      slot.addEventListener('click', e => {
+        if (e.target.closest('[data-del-slot]')) return;
+        enterGame(parseInt(slot.dataset.slot), heroes);
+      });
+    });
+    // 빈 슬롯
+    container.querySelectorAll('[data-new-slot]').forEach(slot => {
+      slot.addEventListener('click', () => openHeroCreate(parseInt(slot.dataset.newSlot)));
+    });
+    // 삭제 버튼
+    container.querySelectorAll('[data-del-slot]').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        const slot = parseInt(btn.dataset.delSlot);
+        const hero = heroes.find(h => h.char_slot === slot);
+        if (!hero) return;
+        if (!confirm(`"${hero.hero_name}"을(를) 정말 삭제할까요?\n삭제하면 되돌릴 수 없습니다.`)) return;
+        await deleteHero(hero.player_id);
+        await renderCharSlots();
+      });
+    });
+  }
+
+  async function deleteHero(playerId) {
+    showDbStatus('캐릭터 삭제 중...', 'saving');
+    await sb.from('inventory_items').delete().eq('player_id', playerId);
+    await sb.from('battle_logs').delete().eq('player_id', playerId);
+    await sb.from('explore_logs').delete().eq('player_id', playerId);
+    await sb.from('shop_logs').delete().eq('player_id', playerId);
+    await sb.from('heroes').delete().eq('player_id', playerId).eq('account_id', CURRENT_USER.id);
+    showDbStatus('캐릭터 삭제 완료', 'ok');
+  }
+
+  // ─── 새 캐릭터 생성 모달 ───
+  let pendingNewSlot = null;
+  function openHeroCreate(slot) {
+    pendingNewSlot = slot;
+    document.getElementById('startHeroName').value = '주인님의 영웅';
+    document.getElementById('startHeroClass').value = '전사';
+    document.getElementById('heroStartBackdrop').style.display = 'flex';
+  }
+  document.getElementById('cancelHeroBtn').addEventListener('click', () => {
+    document.getElementById('heroStartBackdrop').style.display = 'none';
+    pendingNewSlot = null;
+  });
+
+  // ─── 게임 진입 ───
+  async function enterGame(slot, heroes) {
+    const hero = heroes.find(h => h.char_slot === slot);
+    if (!hero) return;
+    showDbStatus(`${hero.hero_name} 로딩 중...`, 'info');
+    PLAYER_ID = hero.player_id;
+    CURRENT_CHAR_SLOT = slot;
+    document.getElementById('charScreen').style.display = 'none';
+    // 상태 초기화
+    state.heroName = hero.hero_name;
+    state.heroClass = hero.hero_class;
+    state.level = hero.level;
+    state.gold = hero.gold;
+    state.inventory = [];
+    state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null };
+    state.usedBarcodes = new Set();
+    await dbLoadAll();
+    loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap();
+    requestCurrentLocation();
+    // 30초마다 자동 저장
+    setInterval(async () => { await dbSaveAll(true); }, 30000);
+  }
 
   // ── DB 상태 표시 UI ──
   function showDbStatus(msg, type = 'info') {
@@ -1246,9 +1624,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 영웅 저장 (upsert)
   async function dbSaveHero() {
+    if (!PLAYER_ID || !CURRENT_USER) return;
     try {
       const { error } = await sb.from('heroes').upsert({
         player_id:     PLAYER_ID,
+        account_id:    CURRENT_USER.id,
+        char_slot:     CURRENT_CHAR_SLOT,
         hero_name:     state.heroName,
         hero_class:    state.heroClass,
         level:         state.level,
@@ -1399,9 +1780,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (heroData) {
         showDbStatus(`${heroData.hero_name} (Lv.${heroData.level}) 불러오기 완료!`, 'ok');
-        // 영웅 생성 화면 건너뛰기
-        const backdrop = document.getElementById('heroStartBackdrop');
-        if (backdrop) backdrop.style.display = 'none';
       } else {
         showDbStatus('새 영웅을 만들어 모험을 시작하세요!', 'info');
       }
@@ -2950,11 +3328,41 @@ document.addEventListener('DOMContentLoaded', () => {
     renderEvent(decoded); showEventModal(decoded);
   }
 
-  function applyStartHero() {
-    state.heroName  = (els.startHeroName.value||'').trim()||'주인님의 영웅';
-    state.heroClass = els.startHeroClass.value||'전사';
-    renderHero(); els.startHeroBackdrop.style.display='none'; requestCurrentLocation();
-    dbSaveAll(); // 새 영웅 DB 저장
+  async function applyStartHero() {
+    if (!CURRENT_USER || pendingNewSlot === null) return;
+    const heroName  = (els.startHeroName.value||'').trim() || '주인님의 영웅';
+    const heroClass = els.startHeroClass.value || '전사';
+    // 새 캐릭터 player_id 생성
+    const newPlayerId = 'hero_' + Date.now() + '_' + Math.random().toString(36).slice(2,9);
+    PLAYER_ID = newPlayerId;
+    CURRENT_CHAR_SLOT = pendingNewSlot;
+    // 상태 초기화
+    state.heroName  = heroName;
+    state.heroClass = heroClass;
+    state.level = 1; state.exp = 0; state.gold = 0;
+    state.inventory = [];
+    state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null };
+    state.usedBarcodes = new Set();
+    // DB에 영웅 저장 (account_id + char_slot 포함)
+    showDbStatus('영웅 생성 중...', 'saving');
+    const { error } = await sb.from('heroes').insert({
+      player_id:  newPlayerId,
+      account_id: CURRENT_USER.id,
+      char_slot:  pendingNewSlot,
+      hero_name:  heroName,
+      hero_class: heroClass,
+      level: 1, exp: 0, gold: 0,
+      used_barcodes: [],
+      dev_mode: state.devMode
+    });
+    if (error) { showDbStatus('영웅 생성 실패: ' + error.message, 'error'); return; }
+    showDbStatus('영웅 생성 완료!', 'ok');
+    pendingNewSlot = null;
+    els.startHeroBackdrop.style.display = 'none';
+    document.getElementById('charScreen').style.display = 'none';
+    renderHero(); requestCurrentLocation();
+    loadMapHistory(); renderLogs(); renderMapHistoryList(); initMap();
+    setInterval(async () => { await dbSaveAll(true); }, 30000);
   }
 
   // 게임 타이틀 클릭 → 개발자 모드
@@ -3036,18 +3444,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  loadMapHistory(); renderLogs(); renderMapHistoryList(); initMap();
-
-  // Supabase에서 저장된 데이터 불러오기 후 화면 갱신
-  dbLoadAll().then(() => {
-    renderHero();
-    renderLogs();
-    renderMapHistoryList();
-    // 30초마다 자동 저장 시작
-    setInterval(async () => {
-      await dbSaveAll(true);
-    }, 30000);
-  });
+  // 초기화 (인증/캐릭터 선택 후 enterGame에서 호출됨)
+  // 인증 전까지 게임 화면은 숨겨져 있음
 });
 </script>
 </body>
