@@ -544,6 +544,52 @@
     .rarity-legendary{ color: var(--legendary); border-color: rgba(255,207,99,.34); }
 
     .inventory-panel { margin-top: 2px; }
+
+    /* ── 장비 도감 레이아웃 ── */
+    .equip-doll-wrap {
+      background: linear-gradient(180deg, rgba(11,17,30,0.97), rgba(17,25,42,0.97));
+      border: 1px solid rgba(110,139,204,0.2); border-radius: 16px;
+      padding: 10px 8px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .equip-doll-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+    }
+    .equip-doll-col {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .equip-slot-btn {
+      width: 58px; min-height: 64px; border-radius: 12px; cursor: pointer;
+      background: rgba(20,30,55,0.8); border: 1px solid rgba(80,110,180,0.25);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 3px; transition: all 0.15s; padding: 4px 2px;
+    }
+    .equip-slot-btn:hover { border-color: rgba(99,168,255,0.5); background: rgba(40,60,100,0.6); }
+    .equip-slot-btn.has-item { border-color: rgba(99,208,154,0.4); background: rgba(20,50,35,0.5); }
+    .equip-slot-btn.has-item.rarity-uncommon { border-color: rgba(99,208,154,0.5); }
+    .equip-slot-btn.has-item.rarity-rare     { border-color: rgba(99,168,255,0.55); background: rgba(20,35,65,0.6); }
+    .equip-slot-btn.has-item.rarity-epic     { border-color: rgba(178,125,255,0.55); background: rgba(35,20,60,0.6); }
+    .equip-slot-btn.has-item.rarity-legendary{ border-color: rgba(255,207,99,0.65); background: rgba(50,38,10,0.6); box-shadow: 0 0 8px rgba(255,207,99,0.2); }
+    .eq-slot-icon { font-size: 22px; line-height: 1; }
+    .eq-slot-label {
+      font-size: 9px; font-weight: 700; color: rgba(150,170,210,0.7);
+      text-align: center; line-height: 1.1;
+    }
+    .equip-slot-btn.has-item .eq-slot-label { color: rgba(180,220,180,0.85); }
+    .equip-doll-center {
+      flex: 1; min-height: 160px; border-radius: 16px; cursor: pointer;
+      background: radial-gradient(ellipse at 50% 60%, rgba(40,60,120,0.5) 0%, rgba(10,15,30,0.8) 100%);
+      border: 1px solid rgba(100,130,200,0.25);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; transition: all 0.15s;
+    }
+    .equip-doll-center:hover { border-color: rgba(99,168,255,0.4); }
+    .equip-doll-center .hero-preview-wrap { transform: scale(1.8); transform-origin: bottom center; margin-bottom: 16px; }
+    .eq-armor-label {
+      position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+      font-size: 9px; font-weight: 700; color: rgba(150,170,210,0.7);
+      background: rgba(10,15,30,0.7); padding: 2px 8px; border-radius: 6px;
+      white-space: nowrap;
+    }
     .inventory-title { font-size: 12px; font-weight: 900; margin-bottom: 6px; color: #eef3ff; }
     .inv-section-label { font-size: 10px; color: var(--muted); font-weight: 800; margin: 7px 0 4px; letter-spacing: 0.5px; }
 
@@ -1277,10 +1323,10 @@
   <!-- 영웅 상세 -->
   <div class="modal-backdrop" id="heroStatsBackdrop">
     <div class="modal">
-      <div class="modal-head"><div class="modal-title">영웅 상세 정보</div></div>
-      <div class="modal-body">
-        <div style="font-size:15px; font-weight:900; margin-bottom:6px;" id="heroStatsTitle">주인님의 영웅</div>
-        <div class="stats-panel">
+      <div class="modal-head"><div class="modal-title" id="heroStatsTitle">영웅 상세 정보</div></div>
+      <div class="modal-body" style="padding:10px 12px;">
+        <!-- 스탯 패널 -->
+        <div class="stats-panel" style="margin-bottom:10px;">
           <div class="cp-block">
             <div class="cp-block-label">전투력</div>
             <div class="cp-block-value" id="heroCombatPower">0</div>
@@ -1295,32 +1341,72 @@
             <div class="stats-compact-item"><span class="stats-compact-label">🪖 병사</span><span class="stats-compact-value" id="heroStatsSoldiers">0명</span></div>
           </div>
         </div>
-        <!-- 장비 착용 시각화 스테이지 -->
-        <div class="hero-detail-layout">
-          <div class="hero-detail-left">
-            <div class="hero-preview-stage" id="heroPreviewStage">
-              <div class="hero-preview-ground"></div>
-              <!-- 망토 오버레이 (뒤) -->
-              <div class="equip-overlay-cloak" id="overlayCloak"></div>
-              <!-- 영웅 본체 -->
+
+        <!-- 장비 도감 레이아웃: 캐릭터 중앙 + 슬롯 주변 배치 -->
+        <div class="equip-doll-wrap">
+          <!-- 상단: 투구(helmet), 목걸이 -->
+          <div class="equip-doll-row equip-doll-top">
+            <div class="equip-slot-btn" id="eqSlot_helmet" data-slot="helmet" title="투구">
+              <div class="eq-slot-icon" id="eqIcon_helmet">🪖</div>
+              <div class="eq-slot-label">투구</div>
+            </div>
+            <div style="flex:1"></div>
+            <div class="equip-slot-btn" id="eqSlot_necklace" data-slot="necklace" title="목걸이">
+              <div class="eq-slot-icon" id="eqIcon_necklace">📿</div>
+              <div class="eq-slot-label">목걸이</div>
+            </div>
+          </div>
+
+          <!-- 중간: 무기/장갑 — 캐릭터 — 방패/반지 -->
+          <div class="equip-doll-row equip-doll-mid">
+            <!-- 좌측 컬럼 -->
+            <div class="equip-doll-col">
+              <div class="equip-slot-btn" id="eqSlot_weapon" data-slot="weapon" title="무기">
+                <div class="eq-slot-icon" id="eqIcon_weapon">⚔️</div>
+                <div class="eq-slot-label">무기</div>
+              </div>
+              <div class="equip-slot-btn" id="eqSlot_gloves" data-slot="gloves" title="장갑">
+                <div class="eq-slot-icon" id="eqIcon_gloves">🧤</div>
+                <div class="eq-slot-label">장갑</div>
+              </div>
+            </div>
+
+            <!-- 중앙 캐릭터 (갑옷 슬롯) -->
+            <div class="equip-doll-center" id="eqSlot_armor" data-slot="armor" title="갑옷">
               <div class="hero-preview-wrap" id="heroPreviewWrap"></div>
-              <!-- 장신구 오버레이 (앞) -->
-              <div class="equip-overlay-necklace" id="overlayNecklace"></div>
-              <div class="equip-overlay-glove-l"  id="overlayGloveL"></div>
-              <div class="equip-overlay-glove-r"  id="overlayGloveR"></div>
-              <div class="equip-overlay-boot-l"   id="overlayBootL"></div>
-              <div class="equip-overlay-boot-r"   id="overlayBootR"></div>
-              <div class="equip-overlay-ring-l"   id="overlayRingL"></div>
-              <div class="equip-overlay-ring-r"   id="overlayRingR"></div>
+              <div class="eq-armor-label" id="eqIcon_armor">갑옷</div>
+            </div>
+
+            <!-- 우측 컬럼 -->
+            <div class="equip-doll-col">
+              <div class="equip-slot-btn" id="eqSlot_shield" data-slot="shield" title="방패">
+                <div class="eq-slot-icon" id="eqIcon_shield">🔰</div>
+                <div class="eq-slot-label">방패</div>
+              </div>
+              <div class="equip-slot-btn" id="eqSlot_ring1" data-slot="ring1" title="반지">
+                <div class="eq-slot-icon" id="eqIcon_ring1">💍</div>
+                <div class="eq-slot-label">반지</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 하단: 장화, 망토 -->
+          <div class="equip-doll-row equip-doll-bot">
+            <div class="equip-slot-btn" id="eqSlot_boots" data-slot="boots" title="장화">
+              <div class="eq-slot-icon" id="eqIcon_boots">👟</div>
+              <div class="eq-slot-label">장화</div>
+            </div>
+            <div style="flex:1"></div>
+            <div class="equip-slot-btn" id="eqSlot_cloak" data-slot="cloak" title="망토">
+              <div class="eq-slot-icon" id="eqIcon_cloak">🧥</div>
+              <div class="eq-slot-label">망토</div>
             </div>
           </div>
         </div>
-        <!-- 인벤토리 -->
-        <div class="inventory-panel">
-          <div class="inventory-title">🎒 인벤토리</div>
-          <div class="inv-section-label">착용 중</div>
-          <div class="inventory-grid" id="equippedGrid"></div>
-          <div class="inv-section-label">보관 중</div>
+
+        <!-- 보관 중 인벤토리만 -->
+        <div class="inventory-panel" style="margin-top:8px;">
+          <div class="inventory-title">🎒 보관 중</div>
           <div class="inventory-scroll"><div class="inventory-grid" id="inventoryGrid"></div></div>
         </div>
       </div>
@@ -2738,7 +2824,7 @@ document.addEventListener('DOMContentLoaded', () => {
     heroStatsDef:q('heroStatsDef'), heroStatsHp:q('heroStatsHp'),
     heroStatsSpeed:q('heroStatsSpeed'), heroStatsCrit:q('heroStatsCrit'),
     heroStatsSoldiers:q('heroStatsSoldiers'), heroPreviewWrap:q('heroPreviewWrap'),
-    equippedGrid:q('equippedGrid'),
+    equippedGrid: document.getElementById('equippedGrid'),
     inventoryGrid:q('inventoryGrid'),
     overlayCloak:q('overlayCloak'), overlayNecklace:q('overlayNecklace'),
     overlayGloveL:q('overlayGloveL'), overlayGloveR:q('overlayGloveR'),
@@ -4503,39 +4589,7 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
 
   function renderInventoryGrid() {
     const equippedIds = getAllEquippedIds();
-
-    // 착용 중 그리드
-    const equippedItems = state.inventory.filter(i => equippedIds.has(i.id));
-    if (!equippedItems.length) {
-      els.equippedGrid.innerHTML = `<div style="grid-column:1/-1;font-size:10px;color:var(--muted);padding:4px 0;">착용 중인 장비 없음</div>`;
-    } else {
-      // 슬롯 순서대로 표시
-      const slotOrder = ['weapon','armor','shield','gloves','boots','ring1','ring2','necklace','cloak'];
-      const slotEmoji = {weapon:'⚔️',armor:'🛡',shield:'🔰',gloves:'🧤',boots:'👟',ring1:'💍',ring2:'💍',necklace:'📿',cloak:'🧥'};
-      const slotShort = {weapon:'무기',armor:'갑옷',shield:'방패',gloves:'장갑',boots:'장화',ring1:'반지',ring2:'반지',necklace:'목걸이',cloak:'망토'};
-      // 슬롯별로 아이템 매핑
-      const bySlot = {};
-      equippedItems.forEach(item => {
-        const slot = Object.keys(state.equipment).find(k => state.equipment[k]?.id === item.id);
-        if (slot) bySlot[slot] = item;
-      });
-      els.equippedGrid.innerHTML = slotOrder.filter(s => bySlot[s]).map(slot => {
-        const item = bySlot[slot];
-        return `<div class="inv-icon-slot rarity-${item.rarity} is-equipped" data-id="${item.id}" title="${slotShort[slot]}: ${item.name}" style="position:relative;">
-          <div style="position:absolute;top:2px;left:2px;font-size:9px;line-height:1;opacity:0.8;">${slotEmoji[slot]}</div>
-          ${getItemIconHtml(item.icon, 26)}
-          <div style="position:absolute;bottom:1px;left:0;right:0;text-align:center;font-size:7px;font-weight:900;color:rgba(200,220,255,0.7);letter-spacing:0;">${slotShort[slot]}</div>
-        </div>`;
-      }).join('');
-      els.equippedGrid.querySelectorAll('.inv-icon-slot').forEach(slot => {
-        slot.addEventListener('click', () => {
-          const item = state.inventory.find(i => i.id === slot.dataset.id);
-          if (item) openItemDetailModal(item);
-        });
-      });
-    }
-
-    // 보관 중 그리드
+    // 보관 중 그리드만 렌더 (착용 중은 equip-doll에서 표시)
     const unequipped = state.inventory.filter(i => !equippedIds.has(i.id));
     if (!unequipped.length) {
       els.inventoryGrid.innerHTML = `<div style="grid-column:1/-1;font-size:10px;color:var(--muted);padding:4px 0;">보관 중인 장비 없음</div>`;
@@ -4566,8 +4620,52 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
     els.heroStatsSpeed.textContent   = stats.speed;
     els.heroStatsCrit.textContent    = `${stats.crit}%`;
     els.heroStatsSoldiers.textContent= `${stats.soldiers}명`;
-    els.heroPreviewWrap.innerHTML    = getHeroVisualHtml(state.heroClass);
-    renderEquipOverlays();
+
+    // 캐릭터 렌더
+    els.heroPreviewWrap.innerHTML = getHeroVisualHtml(state.heroClass);
+
+    // 장비 슬롯 버튼 렌더
+    const slotDefaultIcon = {
+      weapon:'⚔️', armor:'🛡️', shield:'🔰', gloves:'🧤',
+      boots:'👟', ring1:'💍', ring2:'💍', necklace:'📿', cloak:'🧥', helmet:'🪖'
+    };
+    const slotDefaultLabel = {
+      weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑',
+      boots:'장화', ring1:'반지', ring2:'반지', necklace:'목걸이', cloak:'망토', helmet:'투구'
+    };
+    ['weapon','armor','shield','gloves','boots','ring1','ring2','necklace','cloak','helmet'].forEach(slot => {
+      const btn = document.getElementById(`eqSlot_${slot}`);
+      const iconEl = document.getElementById(`eqIcon_${slot}`);
+      if (!btn || !iconEl) return;
+      const item = state.equipment[slot] || null;
+      // 갑옷은 center div라 별도 처리
+      if (slot === 'armor') {
+        const label = document.querySelector('.eq-armor-label');
+        if (label) label.textContent = item ? item.name : '갑옷';
+        btn.className = `equip-doll-center${item ? ' has-item rarity-'+item.rarity : ''}`;
+        return;
+      }
+      if (item) {
+        btn.className = `equip-slot-btn has-item rarity-${item.rarity}`;
+        iconEl.innerHTML = getItemIconHtml(item.icon, 28);
+        iconEl.style.fontSize = '';
+        // 라벨
+        const labelEl = btn.querySelector('.eq-slot-label');
+        if (labelEl) {
+          const nm = item.name.length > 5 ? item.name.slice(0,5)+'…' : item.name;
+          labelEl.textContent = nm;
+        }
+        btn.onclick = () => { closeModal(els.heroStatsBackdrop); openItemDetailModal(item); };
+      } else {
+        btn.className = 'equip-slot-btn';
+        iconEl.textContent = slotDefaultIcon[slot] || '○';
+        iconEl.style.fontSize = '22px';
+        const labelEl = btn.querySelector('.eq-slot-label');
+        if (labelEl) labelEl.textContent = slotDefaultLabel[slot] || slot;
+        btn.onclick = null;
+      }
+    });
+
     renderInventoryGrid();
     openModal(els.heroStatsBackdrop);
   }
