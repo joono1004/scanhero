@@ -195,7 +195,7 @@
 
     /* ── 경험치 바 영역 ── */
     .hero-exp-wrap {
-      position: absolute; left: 10px; right: 50px; bottom: 10px; z-index: 5;
+      position: absolute; left: 10px; right: 56px; bottom: 10px; z-index: 5;
       background: rgba(10,15,27,0.62); border: 1px solid rgba(151,175,235,0.18);
       border-radius: 12px; padding: 7px 9px 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.18);
     }
@@ -213,25 +213,24 @@
 
     /* ── 지도 버튼: 경험치바 영역과 동일한 세로 크기 (padding 7+8=15px + head fontSize/lineheight~16px + margin 5px + bar 9px = ~45px total, match with height:auto stretching) ── */
     .game-logout-btn {
-      position: fixed; top: 14px; left: 14px;
-      width: 36px; height: 36px; border-radius: 50%;
-      border: 1px solid rgba(255,80,80,0.35);
-      background: rgba(10,6,20,0.88); backdrop-filter: blur(10px);
-      color: rgba(255,130,110,0.9); font-size: 17px;
-      cursor: pointer; z-index: 9999; transition: all 0.2s;
-      display: none;
-      align-items: center; justify-content: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      padding: 5px 12px; border-radius: 10px;
+      border: 1px solid rgba(255,80,80,0.3);
+      background: rgba(255,50,50,0.08);
+      color: rgba(255,130,110,0.9); font-size: 11px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      display: none; width: auto;
+      align-items: center; justify-content: center; gap: 4px;
+      white-space: nowrap; flex-shrink: 0;
     }
-    .game-logout-btn:hover { background: rgba(200,40,40,0.25); color: #ff7060; border-color: rgba(255,80,80,0.6); transform: scale(1.1); }
+    .game-logout-btn:hover { background: rgba(200,40,40,0.2); color: #ff8070; border-color: rgba(255,80,80,0.5); }
     .hero-map-btn {
-      position: fixed; right: 14px; bottom: 14px;
-      width: 46px; height: 46px;
+      position: absolute; right: 10px; bottom: 10px;
+      width: 38px; height: 38px;
       border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;
-      font-size: 22px;
+      font-size: 20px;
       background: linear-gradient(180deg, rgba(60,80,140,0.95), rgba(30,45,90,0.95));
       border: 1px solid rgba(140,170,255,0.35);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.35); z-index: 200;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35); z-index: 6;
       cursor: pointer; transition: all 0.15s;
     }
     .hero-map-btn:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(79,124,255,0.3); }
@@ -1040,10 +1039,10 @@
 
     /* 상점 버튼 (메인화면) */
     .shop-fab {
-      position:fixed; right:14px; bottom:68px; z-index:200;
-      width:46px; height:46px; border-radius:50%;
+      position:absolute; right:10px; bottom:56px; z-index:6;
+      width:38px; height:38px; border-radius:50%;
       background:linear-gradient(180deg,rgba(99,208,154,0.28),rgba(50,160,100,0.18));
-      border:1px solid rgba(99,208,154,0.45); color:#63d09a; font-size:22px;
+      border:1px solid rgba(99,208,154,0.45); color:#63d09a; font-size:20px;
       cursor:pointer; display:flex; align-items:center; justify-content:center;
       box-shadow:0 4px 16px rgba(0,0,0,0.35); transition:all 0.15s;
     }
@@ -1152,7 +1151,10 @@
   </div>
 
   <div class="wrap">
-    <div class="title" id="gameTitleBtn" style="cursor:pointer; user-select:none;" title="개발자 모드">ScanHero MVP</div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+      <div class="title" id="gameTitleBtn" style="cursor:pointer; user-select:none; margin-bottom:0;" title="개발자 모드">ScanHero MVP</div>
+      <button type="button" class="game-logout-btn" id="gameLogoutBtn" title="나가기">🚪 나가기</button>
+    </div>
     <div class="subtitle">초기 버전은 <b>영웅 성장</b>과 <b>바코드 탐험의 재미</b>에 집중했습니다.<br />전술과 병사 클래스를 먼저 고른 뒤, 바코드 탐험을 진행할 수 있습니다.</div>
 
     <div class="grid">
@@ -1172,6 +1174,7 @@
               <div class="hero-exp-head"><span>경험치</span><span id="heroExpBarText">0 / 20</span></div>
               <div class="hero-exp-bar"><div class="hero-exp-fill" id="heroExpFill"></div></div>
             </div>
+            <button class="shop-fab" id="shopFab" title="상점">🏪</button>
             <button class="hero-map-btn" id="heroMapBtn" type="button" title="지도 보기">🗺️</button>
           </div>
 
@@ -1357,8 +1360,6 @@
     </div>
   </div>
 
-  <!-- 상점 FAB -->
-  <button class="shop-fab" id="shopFab" title="상점">🏪</button>
 
   <!-- 개발자 모드 패널 -->
   <div class="devmode-backdrop" id="devModeBackdrop">
@@ -1773,19 +1774,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 게임 화면 내 나가기 버튼 — 저장 후 로그아웃
   document.getElementById('gameLogoutBtn').addEventListener('click', async () => {
-    if (!confirm('저장 후 로그아웃 하시겠습니까?')) return;
+    if (!confirm('캐릭터 선택 화면으로 돌아가시겠습니까?\n현재 진행 상황이 저장됩니다.')) return;
+    showDbStatus('저장 중...', 'saving');
     await dbSaveAll();
-    _ignoreAuthChange = true;
-    PLAYER_ID = null; CURRENT_USER = null; CURRENT_CHAR_SLOT = null;
-    showScreen('auth');
-    const badge = document.getElementById('gmBadge');
-    if (badge) badge.remove();
-    document.getElementById('loginEmail').value = '';
-    const pwField = document.getElementById('loginPwField');
-    if (pwField) pwField.style.display = '';
-    document.getElementById('loginError').textContent = '';
-    await sb.auth.signOut();
-    setTimeout(() => { _ignoreAuthChange = false; }, 800);
+    showDbStatus('저장 완료', 'ok');
+    showScreen('char');
+    await renderCharSlots();
   });
 
   // ─── Supabase Auth 상태 감지 ───
@@ -1841,7 +1835,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('authScreen').style.display  = screen === 'auth' ? 'flex' : 'none';
     document.getElementById('charScreen').style.display  = screen === 'char' ? 'flex' : 'none';
     const logoutBtn = document.getElementById('gameLogoutBtn');
-    if (logoutBtn) logoutBtn.style.display = (screen !== 'auth' && screen !== 'char') ? 'flex' : 'none';
+    if (logoutBtn) logoutBtn.style.display = (screen !== 'auth' && screen !== 'char') ? 'inline-flex' : 'none';
     if (screen !== 'char' && screen !== 'auth') {
       document.getElementById('charScreen').style.display = 'none';
       document.getElementById('authScreen').style.display = 'none';
@@ -5365,7 +5359,5 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
   // 인증 전까지 게임 화면은 숨겨져 있음
 });
 </script>
-  <!-- 게임 화면 나가기 버튼 (fixed 우상단) -->
-  <button type="button" class="game-logout-btn" id="gameLogoutBtn" title="나가기 (저장 후 로그아웃)">🚪</button>
 </body>
 </html>
