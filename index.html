@@ -213,30 +213,28 @@
 
     /* ── 지도 버튼: 경험치바 영역과 동일한 세로 크기 (padding 7+8=15px + head fontSize/lineheight~16px + margin 5px + bar 9px = ~45px total, match with height:auto stretching) ── */
     .game-logout-btn {
-      position: fixed; top: 12px; right: 12px;
-      padding: 5px 12px; border-radius: 10px;
-      border: 1px solid rgba(255,80,80,0.3);
-      background: rgba(10,6,20,0.85); backdrop-filter: blur(8px);
-      color: rgba(255,120,100,0.8); font-size: 10px; font-weight: 700;
+      position: fixed; top: 14px; left: 14px;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid rgba(255,80,80,0.35);
+      background: rgba(10,6,20,0.88); backdrop-filter: blur(10px);
+      color: rgba(255,130,110,0.9); font-size: 17px;
       cursor: pointer; z-index: 9999; transition: all 0.2s;
-      display: none; /* showScreen에서 제어 */
+      display: none;
+      align-items: center; justify-content: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
     }
-    .game-logout-btn:hover { background: rgba(255,60,60,0.18); color: #ff9080; border-color: rgba(255,80,80,0.55); }
+    .game-logout-btn:hover { background: rgba(200,40,40,0.25); color: #ff7060; border-color: rgba(255,80,80,0.6); transform: scale(1.1); }
     .hero-map-btn {
-      position: absolute; right: 10px; bottom: 10px;
-      width: 32px;
-      /* height는 .hero-exp-wrap의 전체 높이와 맞춤: top=bottom=10px이므로 hero-exp-wrap와 동일한 bottom 기준 */
-      height: auto;
-      min-height: 32px;
-      /* hero-exp-wrap와 동일한 top을 계산: exp-wrap bottom=10px, height≈45px -> top≈auto
-         대신 absolute positioning에서 top/bottom 동시 지정으로 높이를 exp-wrap에 맞춤 */
-      top: auto;
-      border-radius: 10px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
-      font-size: 15px; background: linear-gradient(180deg, rgba(80,101,154,0.95), rgba(45,60,99,0.95));
-      border: 1px solid rgba(140, 170, 255, 0.24); box-shadow: 0 8px 18px rgba(0,0,0,0.18); z-index: 6;
-      /* exp-wrap과 동일한 높이 계산: padding(7+8) + line(16) + margin(5) + bar(11) = 47px */
-      height: 47px;
+      position: fixed; right: 14px; bottom: 14px;
+      width: 46px; height: 46px;
+      border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      background: linear-gradient(180deg, rgba(60,80,140,0.95), rgba(30,45,90,0.95));
+      border: 1px solid rgba(140,170,255,0.35);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35); z-index: 200;
+      cursor: pointer; transition: all 0.15s;
     }
+    .hero-map-btn:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(79,124,255,0.3); }
 
     .line { display: grid; gap: 6px; margin-bottom: 10px; }
     label { font-size: 12px; color: #c9d6f6; font-weight: 800; }
@@ -408,13 +406,21 @@
       display: flex; align-items: center; gap: 10px; flex: 1;
     }
     .char-slot-sprite {
-      width: 72px; height: 72px; border-radius: 14px; flex-shrink: 0;
-      background: linear-gradient(180deg, rgba(49,71,133,0.6), rgba(20,30,60,0.8));
-      border: 1px solid rgba(120,149,220,0.22);
-      display: flex; align-items: flex-end; justify-content: center; overflow: visible;
-      position: relative;
+      width: 90px; height: 90px; border-radius: 16px; flex-shrink: 0;
+      background: linear-gradient(180deg, rgba(30,48,100,0.85), rgba(12,20,50,0.95));
+      border: 1px solid rgba(120,149,220,0.3);
+      display: flex; align-items: flex-end; justify-content: center;
+      overflow: hidden; position: relative;
     }
-    .char-slot-sprite .hero-visual-wrap { transform: scale(1.4); transform-origin: bottom center; margin-bottom: 4px; }
+    .char-slot-sprite::after {
+      content:''; position:absolute; bottom:0; left:0; right:0; height:24px;
+      background: radial-gradient(ellipse at 50% 100%, rgba(79,124,255,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .char-slot-sprite .hero-visual-wrap {
+      transform: scale(1.8); transform-origin: bottom center;
+      margin-bottom: 6px; position: relative; z-index: 1;
+    }
     .char-slot-info { flex: 1; min-width: 0; }
     .char-slot-name { font-size: 14px; font-weight: 900; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .char-slot-meta { font-size: 10px; color: #7a90be; margin-bottom: 4px; }
@@ -1033,7 +1039,7 @@
 
     /* 상점 버튼 (메인화면) */
     .shop-fab {
-      position:fixed; right:16px; bottom:72px; z-index:200;
+      position:fixed; right:14px; bottom:68px; z-index:200;
       width:46px; height:46px; border-radius:50%;
       background:linear-gradient(180deg,rgba(99,208,154,0.28),rgba(50,160,100,0.18));
       border:1px solid rgba(99,208,154,0.45); color:#63d09a; font-size:22px;
@@ -1165,8 +1171,6 @@
               <div class="hero-exp-head"><span>경험치</span><span id="heroExpBarText">0 / 20</span></div>
               <div class="hero-exp-bar"><div class="hero-exp-fill" id="heroExpFill"></div></div>
             </div>
-            <!-- 착용 장비 요약 배지 -->
-            <div id="mainEquipBadges" style="display:flex;flex-wrap:wrap;gap:4px;padding:4px 2px 0;min-height:20px;"></div>
             <button class="hero-map-btn" id="heroMapBtn" type="button" title="지도 보기">🗺️</button>
           </div>
 
@@ -1329,10 +1333,15 @@
           <div class="item-detail-header">
             <div class="item-detail-icon" id="itemDetailIcon"></div>
             <div class="item-detail-info">
-              <div class="item-detail-name" id="itemDetailName"></div>
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <div class="item-detail-name" id="itemDetailName"></div>
+                <div id="itemDetailCP" style="font-size:10px;font-weight:900;padding:2px 7px;border-radius:8px;background:rgba(99,208,154,0.12);border:1px solid rgba(99,208,154,0.3);color:#63d09a;white-space:nowrap;"></div>
+              </div>
               <div class="item-detail-meta" id="itemDetailMeta"></div>
             </div>
           </div>
+          <!-- 아이템 자체 스탯 (장착 전 순수 스탯) -->
+          <div id="itemOwnStatGrid" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;"></div>
           <div id="itemStatChangeHint" class="stat-change-hint neutral"></div>
           <div class="stat-compare-grid" id="itemStatCompareGrid"></div>
           <!-- 판매 확인 패널 (기본 숨김) -->
@@ -1831,7 +1840,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('authScreen').style.display  = screen === 'auth' ? 'flex' : 'none';
     document.getElementById('charScreen').style.display  = screen === 'char' ? 'flex' : 'none';
     const logoutBtn = document.getElementById('gameLogoutBtn');
-    if (logoutBtn) logoutBtn.style.display = (screen !== 'auth' && screen !== 'char') ? 'block' : 'none';
+    if (logoutBtn) logoutBtn.style.display = (screen !== 'auth' && screen !== 'char') ? 'flex' : 'none';
     if (screen !== 'char' && screen !== 'auth') {
       document.getElementById('charScreen').style.display = 'none';
       document.getElementById('authScreen').style.display = 'none';
@@ -2743,7 +2752,7 @@ document.addEventListener('DOMContentLoaded', () => {
     overlayRingL:q('overlayRingL'),  overlayRingR:q('overlayRingR'),
     itemDetailBackdrop:q('itemDetailBackdrop'), itemDetailTitle:q('itemDetailTitle'),
     itemDetailIcon:q('itemDetailIcon'), itemDetailName:q('itemDetailName'),
-    itemDetailMeta:q('itemDetailMeta'), itemStatChangeHint:q('itemStatChangeHint'),
+    itemDetailMeta:q('itemDetailMeta'), itemStatChangeHint:q('itemStatChangeHint'), itemDetailCP:q('itemDetailCP'), itemOwnStatGrid:q('itemOwnStatGrid'),
     itemStatCompareGrid:q('itemStatCompareGrid'), itemSellPriceRow:q('itemSellPriceRow'),
     itemDetailActions:q('itemDetailActions'),
     sellConfirmBox:q('sellConfirmBox')
@@ -3373,8 +3382,6 @@ document.addEventListener('DOMContentLoaded', () => {
       els.heroExpFill.style.width = `${expRate}%`;
     }
 
-    // 장비 효과를 메인 영웅 패널에도 반영
-    renderMainHeroEquipBadges();
   }
 
   // ─────────────────────────────────────────
@@ -4508,12 +4515,24 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
     if (!equippedItems.length) {
       els.equippedGrid.innerHTML = `<div style="grid-column:1/-1;font-size:10px;color:var(--muted);padding:4px 0;">착용 중인 장비 없음</div>`;
     } else {
-      els.equippedGrid.innerHTML = equippedItems.map(item => `
-        <div class="inv-icon-slot rarity-${item.rarity} is-equipped" data-id="${item.id}" title="${item.name}">
-          <div class="inv-equipped-badge">E</div>
-          ${getItemIconHtml(item.icon, 18)}
-          <div class="inv-rarity-dot"></div>
-        </div>`).join('');
+      // 슬롯 순서대로 표시
+      const slotOrder = ['weapon','armor','shield','gloves','boots','ring1','ring2','necklace','cloak'];
+      const slotEmoji = {weapon:'⚔️',armor:'🛡',shield:'🔰',gloves:'🧤',boots:'👟',ring1:'💍',ring2:'💍',necklace:'📿',cloak:'🧥'};
+      const slotShort = {weapon:'무기',armor:'갑옷',shield:'방패',gloves:'장갑',boots:'장화',ring1:'반지',ring2:'반지',necklace:'목걸이',cloak:'망토'};
+      // 슬롯별로 아이템 매핑
+      const bySlot = {};
+      equippedItems.forEach(item => {
+        const slot = Object.keys(state.equipment).find(k => state.equipment[k]?.id === item.id);
+        if (slot) bySlot[slot] = item;
+      });
+      els.equippedGrid.innerHTML = slotOrder.filter(s => bySlot[s]).map(slot => {
+        const item = bySlot[slot];
+        return `<div class="inv-icon-slot rarity-${item.rarity} is-equipped" data-id="${item.id}" title="${slotShort[slot]}: ${item.name}" style="position:relative;">
+          <div style="position:absolute;top:2px;left:2px;font-size:9px;line-height:1;opacity:0.8;">${slotEmoji[slot]}</div>
+          ${getItemIconHtml(item.icon, 26)}
+          <div style="position:absolute;bottom:1px;left:0;right:0;text-align:center;font-size:7px;font-weight:900;color:rgba(200,220,255,0.7);letter-spacing:0;">${slotShort[slot]}</div>
+        </div>`;
+      }).join('');
       els.equippedGrid.querySelectorAll('.inv-icon-slot').forEach(slot => {
         slot.addEventListener('click', () => {
           const item = state.inventory.find(i => i.id === slot.dataset.id);
@@ -4530,7 +4549,7 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
     }
     els.inventoryGrid.innerHTML = unequipped.map(item => `
       <div class="inv-icon-slot rarity-${item.rarity}" data-id="${item.id}" title="${item.name}">
-        ${item.icon}
+        ${getItemIconHtml(item.icon, 28)}
         <div class="inv-rarity-dot"></div>
       </div>`).join('');
     els.inventoryGrid.querySelectorAll('.inv-icon-slot').forEach(slot => {
@@ -4583,7 +4602,26 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
     const cpDiff = curEquipped ? (item.power - curEquipped.power) : item.power;
     const cpSign = cpDiff > 0 ? '+' : '';
     const cpColor = cpDiff > 0 ? '#63d09a' : cpDiff < 0 ? '#ff7b7b' : '#a9b6d6';
-    els.itemDetailMeta.innerHTML = `슬롯: ${dispSlot} &nbsp;·&nbsp; <span id="cpDiffBadge" style="font-family:'Georgia',serif;font-weight:900;font-size:13px;color:${cpColor};text-shadow:0 0 8px ${cpColor}88;letter-spacing:0.5px;">⚡전투력 ${cpSign}${cpDiff}</span>`;
+    // 전투력 뱃지 (이름 옆)
+    if (els.itemDetailCP) {
+      els.itemDetailCP.textContent = `⚡ ${cpSign}${cpDiff}`;
+      els.itemDetailCP.style.color = cpColor;
+      els.itemDetailCP.style.borderColor = cpColor + '55';
+      els.itemDetailCP.style.background = cpColor + '18';
+    }
+    els.itemDetailMeta.textContent = `슬롯: ${dispSlot}`;
+
+    // 아이템 순수 스탯 표시
+    if (els.itemOwnStatGrid) {
+      const statLabels = {atk:'⚔️공격',def:'🛡방어',hp:'❤️체력',speed:'💨속도',crit:'✨치명'};
+      const statEntries = Object.entries(item.stats || {}).filter(([,v]) => v !== 0);
+      els.itemOwnStatGrid.innerHTML = statEntries.length
+        ? statEntries.map(([k,v]) => {
+            const col = v > 0 ? '#a0e8c0' : '#ff9090';
+            return `<div style="padding:4px 9px;border-radius:9px;background:rgba(20,30,55,0.9);border:1px solid rgba(100,140,200,0.25);font-size:11px;font-weight:900;color:${col};">${statLabels[k]||k} <b>${v>0?'+':''}${v}</b></div>`;
+          }).join('')
+        : `<div style="font-size:10px;color:#4a6090;">스탯 정보 없음</div>`;
+    }
 
     // 스탯 비교 (착용 시 미리보기)
     const curStats     = getHeroBaseStats();
@@ -5327,6 +5365,6 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
 });
 </script>
   <!-- 게임 화면 나가기 버튼 (fixed 우상단) -->
-  <button type="button" class="game-logout-btn" id="gameLogoutBtn" title="로그아웃">⬅ 나가기</button>
+  <button type="button" class="game-logout-btn" id="gameLogoutBtn" title="나가기 (저장 후 로그아웃)">🚪</button>
 </body>
 </html>
