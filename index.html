@@ -357,63 +357,71 @@
       position: fixed; inset: 0; z-index: 1900;
       background: linear-gradient(180deg, #050b1a 0%, #0a1020 100%);
       display: flex; flex-direction: column; align-items: center;
-      padding: 20px 16px; overflow-y: auto;
+      padding: 12px 14px; overflow: hidden;
     }
     .char-screen-header {
       width: min(430px, 100%); display: flex; align-items: center;
-      justify-content: space-between; margin-bottom: 8px; padding-top: 8px;
+      justify-content: space-between; margin-bottom: 2px; padding-top: 4px;
+      flex-shrink: 0;
     }
-    .char-screen-title { font-size: 20px; font-weight: 900; }
+    .char-screen-title { font-size: 17px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .char-logout-btn {
-      padding: 6px 14px; border-radius: 10px; border: 1px solid rgba(120,149,220,0.22);
+      padding: 5px 12px; border-radius: 10px; border: 1px solid rgba(120,149,220,0.22);
       background: rgba(14,21,38,0.9); color: #7a90be; font-size: 11px; font-weight: 700; cursor: pointer;
       white-space: nowrap; flex-shrink: 0;
     }
-    .char-screen-title { font-size: 18px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .char-account-info { width: min(430px,100%); font-size: 11px; color: #5a7090; margin-bottom: 20px; }
-    .char-slots { width: min(430px, 100%); display: grid; gap: 12px; }
+    .char-account-info { width: min(430px,100%); font-size: 10px; color: #5a7090; margin-bottom: 8px; flex-shrink: 0; }
+    .char-slots {
+      width: min(430px, 100%); display: flex; flex-direction: column;
+      gap: 8px; flex: 1; overflow: hidden;
+    }
     .char-slot {
-      border-radius: 20px; padding: 16px; cursor: pointer;
-      transition: all 0.2s; position: relative; overflow: hidden;
+      border-radius: 16px; padding: 10px 12px; cursor: pointer;
+      transition: all 0.2s; position: relative; flex: 1;
     }
     .char-slot.has-char {
       background: linear-gradient(135deg, rgba(23,33,60,0.97), rgba(16,24,46,0.97));
       border: 1px solid rgba(134,164,235,0.28);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+      display: flex; flex-direction: column;
     }
-    .char-slot.has-char:hover { border-color: rgba(79,124,255,0.5); transform: translateY(-2px); }
+    .char-slot.has-char:hover { border-color: rgba(79,124,255,0.5); }
     .char-slot.empty {
       background: rgba(14,21,38,0.6);
       border: 2px dashed rgba(79,124,255,0.25);
       display: flex; align-items: center; justify-content: center; gap: 10px;
-      min-height: 88px; color: #4a6090; font-size: 13px; font-weight: 700;
+      color: #4a6090; font-size: 13px; font-weight: 700; min-height: 0;
     }
     .char-slot.empty:hover { border-color: rgba(79,124,255,0.5); color: #7a9abb; background: rgba(79,124,255,0.06); }
-    .char-slot-inner { display: flex; align-items: center; gap: 14px; }
+    /* 슬롯 내부: 스프라이트+정보 행 + 플레이버튼 행 */
+    .char-slot-inner {
+      display: flex; align-items: center; gap: 10px; flex: 1;
+    }
     .char-slot-sprite {
-      width: 64px; height: 64px; border-radius: 16px; flex-shrink: 0;
+      width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0;
       background: linear-gradient(180deg, rgba(49,71,133,0.6), rgba(20,30,60,0.8));
       border: 1px solid rgba(120,149,220,0.22);
       display: flex; align-items: center; justify-content: center; overflow: hidden;
     }
     .char-slot-info { flex: 1; min-width: 0; }
-    .char-slot-name { font-size: 16px; font-weight: 900; margin-bottom: 3px; }
-    .char-slot-meta { font-size: 11px; color: #7a90be; margin-bottom: 6px; }
-    .char-slot-stats { display: flex; gap: 6px; flex-wrap: wrap; }
+    .char-slot-name { font-size: 14px; font-weight: 900; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .char-slot-meta { font-size: 10px; color: #7a90be; margin-bottom: 4px; }
+    .char-slot-stats { display: flex; gap: 4px; flex-wrap: wrap; }
     .char-stat-pill {
-      font-size: 10px; padding: 2px 8px; border-radius: 8px;
+      font-size: 9px; padding: 1px 6px; border-radius: 6px;
       background: rgba(79,124,255,0.12); border: 1px solid rgba(79,124,255,0.22); color: #9fbfff;
     }
+    /* 플레이 버튼 — 슬롯 하단 전체 너비 */
     .char-slot-play-btn {
-      padding: 8px 16px; border-radius: 12px; border: none; cursor: pointer;
+      width: 100%; margin-top: 8px; padding: 7px; border-radius: 10px; border: none; cursor: pointer;
       background: linear-gradient(135deg, #4f7cff, #3a5fd9);
       color: #fff; font-size: 12px; font-weight: 900; flex-shrink: 0;
-      box-shadow: 0 3px 10px rgba(79,124,255,0.35);
+      box-shadow: 0 2px 8px rgba(79,124,255,0.35);
     }
     .char-slot-delete-btn {
-      position: absolute; top: 10px; right: 10px;
-      width: 26px; height: 26px; border-radius: 8px; border: 1px solid rgba(255,80,80,0.25);
-      cursor: pointer; background: rgba(255,80,80,0.1); color: #ff7b7b; font-size: 14px;
+      position: absolute; top: 8px; right: 8px;
+      width: 22px; height: 22px; border-radius: 6px; border: 1px solid rgba(255,80,80,0.25);
+      cursor: pointer; background: rgba(255,80,80,0.1); color: #ff7b7b; font-size: 12px;
       display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;
     }
     .char-slot.has-char:hover .char-slot-delete-btn { opacity: 1; }
@@ -956,9 +964,9 @@
 
     /* ── 캐릭터 선택 화면 로고 ── */
     .char-screen-logo {
-      font-size: 30px; font-weight: 900; letter-spacing: -0.5px;
-      color: #eef3ff; margin-bottom: 6px; padding-top: 8px;
-      width: min(430px, 100%); text-align: left;
+      font-size: 26px; font-weight: 900; letter-spacing: -0.5px;
+      color: #eef3ff; margin-bottom: 2px; padding-top: 2px;
+      width: min(430px, 100%); text-align: left; flex-shrink: 0;
     }
     .char-screen-logo::before { content: ''; }
 
@@ -1878,7 +1886,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="char-slot-inner">
               <div class="char-slot-sprite">${spriteHtml}</div>
               <div class="char-slot-info">
-                <div style="font-size:10px;color:#4a6090;font-weight:700;margin-bottom:4px;">슬롯 ${slot}</div>
+                <div style="font-size:9px;color:#4a6090;font-weight:700;margin-bottom:2px;">슬롯 ${slot}</div>
                 <div class="char-slot-name">${hero.hero_name}</div>
                 <div class="char-slot-meta">${classIcon} ${hero.hero_class} · Lv.${hero.level}</div>
                 <div class="char-slot-stats">
@@ -1887,8 +1895,8 @@ document.addEventListener('DOMContentLoaded', () => {
                   ${updated ? `<span class="char-stat-pill">📅 ${updated}</span>` : ''}
                 </div>
               </div>
-              <button class="char-slot-play-btn" data-play-slot="${slot}">플레이 ▶</button>
             </div>
+            <button class="char-slot-play-btn" data-play-slot="${slot}">▶ 플레이</button>
           </div>`;
       } else {
         html += `
@@ -2519,18 +2527,57 @@ document.addEventListener('DOMContentLoaded', () => {
   const rarityOrder   = ['common','uncommon','rare','epic','legendary'];
 
   const gearCatalog = [
-    { name:'낡은 검',        slot:'weapon',   weaponType:'sword', icon:'🗡️', stats:{atk:3,crit:1},        classes:['전사'] },
-    { name:'튼튼한 갑옷',    slot:'armor',    icon:'🛡️', stats:{def:4,hp:10} },
-    { name:'가벼운 장화',    slot:'boots',    icon:'🥾', stats:{speed:2,hp:4} },
-    { name:'철 장갑',        slot:'gloves',   icon:'🧤', stats:{atk:2,def:2} },
-    { name:'전투 반지',      slot:'ring',     icon:'💍', stats:{crit:3,atk:1} },
-    { name:'강화 망토',      slot:'cloak',    icon:'〔망토〕', stats:{hp:8,def:2} },
-    { name:'사냥 활',        slot:'weapon',   weaponType:'bow',   icon:'🏹', stats:{atk:3,speed:1,crit:1}, classes:['궁사'] },
-    { name:'기사 방패',      slot:'shield',   icon:'🛡️', stats:{def:5,hp:8},                              classes:['전사','마법사'] },
-    { name:'집중 목걸이',    slot:'necklace', icon:'📿', stats:{crit:2,speed:1} },
-    { name:'용사의 문장',    slot:'cloak',    icon:'〔망토〕', stats:{atk:2,def:2,hp:6} },
-    { name:'마법 지팡이',    slot:'weapon',   weaponType:'staff', icon:'🪄', stats:{atk:4,crit:2},         classes:['마법사'] },
-    { name:'신성한 반지',    slot:'ring',     icon:'💍', stats:{hp:6,def:1} }
+    // ── 검 (전사) ──
+    { name:'단검',          slot:'weapon', weaponType:'sword', icon:'⟨단검⟩',     stats:{atk:2,speed:1},          classes:['전사'] },
+    { name:'외날검',        slot:'weapon', weaponType:'sword', icon:'⟨외날검⟩',   stats:{atk:3,crit:1},           classes:['전사'] },
+    { name:'장검',          slot:'weapon', weaponType:'sword', icon:'⟨장검⟩',     stats:{atk:4,def:1},            classes:['전사'] },
+    { name:'양손검',        slot:'weapon', weaponType:'sword', icon:'⟨양손검⟩',   stats:{atk:6,hp:5},             classes:['전사'] },
+    { name:'기사검',        slot:'weapon', weaponType:'sword', icon:'⟨기사검⟩',   stats:{atk:4,crit:2,def:1},     classes:['전사'] },
+    // ── 활 (궁사) ──
+    { name:'단궁',          slot:'weapon', weaponType:'bow',   icon:'⟨단궁⟩',     stats:{atk:2,speed:2},          classes:['궁사'] },
+    { name:'장궁',          slot:'weapon', weaponType:'bow',   icon:'⟨장궁⟩',     stats:{atk:4,speed:1},          classes:['궁사'] },
+    { name:'복합궁',        slot:'weapon', weaponType:'bow',   icon:'⟨복합궁⟩',   stats:{atk:3,crit:2,speed:1},   classes:['궁사'] },
+    { name:'강화 석궁',     slot:'weapon', weaponType:'bow',   icon:'⟨석궁⟩',     stats:{atk:5,crit:2},           classes:['궁사'] },
+    // ── 지팡이 (마법사) ──
+    { name:'나무 지팡이',   slot:'weapon', weaponType:'staff', icon:'⟨나무지팡이⟩', stats:{atk:2,crit:1},           classes:['마법사'] },
+    { name:'수정 지팡이',   slot:'weapon', weaponType:'staff', icon:'⟨수정지팡이⟩', stats:{atk:3,crit:2},           classes:['마법사'] },
+    { name:'강철 지팡이',   slot:'weapon', weaponType:'staff', icon:'⟨강철지팡이⟩', stats:{atk:4,def:1,crit:1},     classes:['마법사'] },
+    { name:'마법 지팡이',   slot:'weapon', weaponType:'staff', icon:'⟨마법지팡이⟩', stats:{atk:5,crit:3},           classes:['마법사'] },
+    // ── 갑옷 ──
+    { name:'가죽 갑옷',     slot:'armor',  icon:'⟨가죽갑옷⟩', stats:{def:2,hp:8} },
+    { name:'사슬 갑옷',     slot:'armor',  icon:'⟨사슬갑옷⟩', stats:{def:4,hp:10} },
+    { name:'철판 갑옷',     slot:'armor',  icon:'⟨철판갑옷⟩', stats:{def:6,hp:12} },
+    { name:'기사 흉갑',     slot:'armor',  icon:'⟨기사흉갑⟩', stats:{def:7,hp:10,speed:-1} },
+    // ── 방패 (전사·마법사) ──
+    { name:'나무 방패',     slot:'shield', icon:'⟨나무방패⟩', stats:{def:3,hp:6},             classes:['전사','마법사'] },
+    { name:'철 방패',       slot:'shield', icon:'⟨철방패⟩',   stats:{def:5,hp:8},             classes:['전사','마법사'] },
+    { name:'원형 방패',     slot:'shield', icon:'⟨원형방패⟩', stats:{def:4,hp:6,crit:1},      classes:['전사','마법사'] },
+    { name:'탑 방패',       slot:'shield', icon:'⟨탑방패⟩',   stats:{def:7,hp:10,speed:-1},   classes:['전사','마법사'] },
+    // ── 장갑 ──
+    { name:'천 장갑',       slot:'gloves', icon:'⟨천장갑⟩',   stats:{speed:1,hp:4} },
+    { name:'철 장갑',       slot:'gloves', icon:'⟨철장갑⟩',   stats:{atk:2,def:2} },
+    { name:'가죽 장갑',     slot:'gloves', icon:'⟨가죽장갑⟩', stats:{atk:1,crit:2} },
+    { name:'전투 장갑',     slot:'gloves', icon:'⟨전투장갑⟩', stats:{atk:3,crit:1} },
+    // ── 장화 ──
+    { name:'천 신발',       slot:'boots',  icon:'⟨천신발⟩',   stats:{speed:1,hp:3} },
+    { name:'가죽 장화',     slot:'boots',  icon:'⟨가죽장화⟩', stats:{speed:2,hp:4} },
+    { name:'강화 장화',     slot:'boots',  icon:'⟨강화장화⟩', stats:{speed:3,def:1} },
+    { name:'질풍 장화',     slot:'boots',  icon:'⟨질풍장화⟩', stats:{speed:4,crit:1} },
+    // ── 망토 ──
+    { name:'낡은 망토',     slot:'cloak',  icon:'⟨낡은망토⟩', stats:{hp:5,def:1} },
+    { name:'강화 망토',     slot:'cloak',  icon:'⟨강화망토⟩', stats:{hp:8,def:2} },
+    { name:'전사의 망토',   slot:'cloak',  icon:'⟨전사망토⟩', stats:{hp:6,def:3,atk:1} },
+    { name:'용사의 망토',   slot:'cloak',  icon:'⟨용사망토⟩', stats:{atk:2,def:2,hp:6,crit:1} },
+    // ── 반지 ──
+    { name:'구리 반지',     slot:'ring',   icon:'⟨구리반지⟩', stats:{hp:4} },
+    { name:'전투 반지',     slot:'ring',   icon:'⟨전투반지⟩', stats:{crit:3,atk:1} },
+    { name:'수호 반지',     slot:'ring',   icon:'⟨수호반지⟩', stats:{hp:6,def:1} },
+    { name:'마력 반지',     slot:'ring',   icon:'⟨마력반지⟩', stats:{atk:2,crit:2} },
+    // ── 목걸이 ──
+    { name:'가죽 끈',       slot:'necklace', icon:'⟨가죽끈⟩',     stats:{hp:5} },
+    { name:'집중 목걸이',   slot:'necklace', icon:'⟨집중목걸이⟩', stats:{crit:2,speed:1} },
+    { name:'수호 목걸이',   slot:'necklace', icon:'⟨수호목걸이⟩', stats:{def:2,hp:6} },
+    { name:'투사의 목걸이', slot:'necklace', icon:'⟨투사목걸이⟩', stats:{atk:2,crit:1,hp:3} },
   ];
 
   const slotLabels = { weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑', boots:'장화', ring1:'반지1', ring2:'반지2', necklace:'목걸이', cloak:'망토' };
@@ -3216,7 +3263,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const el = document.getElementById('mainEquipBadges');
     if (!el) return;
     const eq = state.equipment;
-    const slotIcons = { weapon:'⚔️', armor:'🛡️', shield:'🔰', gloves:'🧤', boots:'👟', ring1:'💍', ring2:'💍', necklace:'📿', cloak:'🗺' };
+    const slotIcons = { weapon:'⚔️', armor:'⟨철판갑옷⟩', shield:'🔰', gloves:'🧤', boots:'👟', ring1:'💍', ring2:'💍', necklace:'📿', cloak:'⟨강화망토⟩' };
     const rarityColors = { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' };
 
     // 장착된 슬롯만 배지로 표시
@@ -3290,33 +3337,38 @@ document.addEventListener('DOMContentLoaded', () => {
   // ─────────────────────────────────────────
   // 오버레이 SVG 빌더
   // ─────────────────────────────────────────
-  function getItemIconHtml(icon, size=16) {
-    if (icon === '〔망토〕') {
-      return `<svg viewBox="0 0 20 20" width="${size}" height="${size}" style="vertical-align:middle;display:inline-block;">
-        <path d="M10 1.5 C7 1.5 4.5 3.5 3.5 6 L1.5 18 L5.5 17 C5.5 12 6.5 7.5 10 6.5 C13.5 7.5 14.5 12 14.5 17 L18.5 18 L16.5 6 C15.5 3.5 13 1.5 10 1.5Z" fill="currentColor" opacity="0.85"/>
-        <circle cx="10" cy="3" r="1.8" fill="currentColor"/>
-        <path d="M3.5 6 Q10 4 16.5 6" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.6"/>
-      </svg>`;
-    }
-    return icon;
-  }
-
   function getRarityHex(rarity) {
     return { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' }[rarity] || '#a9b6d6';
   }
 
-  function getItemIconHtml(icon, size=16) {
-    if (icon === '〔망토〕') {
-      return `<svg viewBox="0 0 20 20" width="${size}" height="${size}" style="vertical-align:middle;display:inline-block;">
-        <path d="M10 2 C7 2 4.5 4 3.5 6.5 L1.5 18.5 L5.5 17 C5.5 12 6.8 8 10 7 C13.2 8 14.5 12 14.5 17 L18.5 18.5 L16.5 6.5 C15.5 4 13 2 10 2Z" fill="currentColor" opacity="0.85"/>
-        <circle cx="10" cy="3.2" r="1.8" fill="currentColor"/>
-        <path d="M3.5 6.5 Q10 4.5 16.5 6.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.6"/>
-        <path d="M5 10 Q7 9 10 9.5 Q13 9 15 10" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.35"/>
-      </svg>`;
-    }
-    return icon;
-  }
+  // ── 아이템 아이콘 SVG 라이브러리 ──
+  (function() {
+    // ── 공통 defs 빌더 ──
+function defs(...items){ return `<defs>${items.join('')}</defs>`; }
+function lg(id, x1,y1,x2,y2, stops){ return `<linearGradient id="${id}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" gradientUnits="userSpaceOnUse">${stops.map(([o,c,a])=>`<stop offset="${o}%" stop-color="${c}" stop-opacity="${a??1}"/>`).join('')}</linearGradient>`; }
+function rg(id, cx,cy,r, stops){ return `<radialGradient id="${id}" cx="${cx}" cy="${cy}" r="${r}" gradientUnits="userSpaceOnUse">${stops.map(([o,c,a])=>`<stop offset="${o}%" stop-color="${c}" stop-opacity="${a??1}"/>`).join('')}</radialGradient>`; }
+function svg(content, w=48, h=48){ return `<svg viewBox="0 0 48 48" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">${content}</svg>`; }
+// bg pill
+function bg(col1, col2){ return `<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)" opacity="0.9"/>`; }
+function bgDef(c1,c2){ return lg('bg',24,2,24,46,[[0,c1],[100,c2]]); }
 
+const ICO = {};
+    window._SCANHERO_ICO = ICO;
+    window._SCANHERO_defs = defs;
+    window._SCANHERO_lg = lg;
+    window._SCANHERO_rg = rg;
+    window._SCANHERO_svg = svg;
+  })();
+
+  function getItemIconHtml(icon, size=16) {
+    const ICO = window._SCANHERO_ICO || {};
+    const svgStr = ICO[icon];
+    if (svgStr) {
+      // size에 맞게 width/height 재조정
+      return svgStr.replace(/width="48" height="48"/, `width="${size}" height="${size}"`);
+    }
+    return `<span style="font-size:${Math.round(size*0.85)}px;line-height:1;">${icon}</span>`;
+  }
   function buildCloakOverlay(item) {
     const c = getRarityHex(item.rarity);
     // 망토 SVG — 양쪽으로 흘러내리는 망토 형태
