@@ -546,62 +546,64 @@
     .inventory-panel { margin-top: 2px; }
 
     /* ── 장비 도감 레이아웃 ── */
-    /* ── 장비 도감 (캐릭터 배경 + 슬롯 오버레이) ── */
+    /* ── 장비 도감: 캐릭터 배경 + 슬롯 absolute 오버레이 ── */
     .equip-doll-stage {
       position: relative;
       border-radius: 16px; overflow: hidden;
-      background: radial-gradient(ellipse at 50% 55%, rgba(50,75,150,0.55) 0%, rgba(10,15,35,0.85) 100%);
+      background: radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
       border: 1px solid rgba(100,130,200,0.22);
-      min-height: 320px;
-      display: flex; flex-direction: column;
-      padding: 8px 8px 6px;
-      gap: 6px;
+      height: 340px; width: 100%;
     }
-    /* 캐릭터 — 절대위치로 중앙 배경처럼 */
+    /* 캐릭터 — 중앙 배경 */
     .equip-doll-hero {
-      position: absolute; left: 50%; top: 50%;
+      position: absolute; left: 50%; top: 46%;
       transform: translate(-50%, -50%);
-      z-index: 0; pointer-events: none; opacity: 0.85;
+      z-index: 0; pointer-events: none;
     }
-    .equip-doll-hero .hero-visual-wrap { transform: scale(2.8); transform-origin: center center; }
-    /* 슬롯 행들은 z-index:1로 캐릭터 위에 */
-    .eds-row {
-      position: relative; z-index: 1;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 6px;
-    }
-    .eds-top, .eds-bot { }
-    .eds-mid { flex: 1; align-items: stretch; }
-    .eds-spacer { flex: 1; }
-    .eds-center-gap { flex: 1; }
-    .eds-armor { }
-    .equip-doll-col { display: flex; flex-direction: column; gap: 6px; }
+    .equip-doll-hero .hero-visual-wrap { transform: scale(2.6); transform-origin: center center; }
 
     /* 슬롯 버튼 공통 */
     .equip-slot-btn {
-      width: 62px; min-height: 62px; border-radius: 14px; cursor: pointer;
-      background: rgba(15,22,45,0.78); border: 1px solid rgba(80,110,180,0.35);
-      backdrop-filter: blur(6px);
+      position: absolute; z-index: 2;
+      width: 64px; height: 64px; border-radius: 14px; cursor: pointer;
+      background: rgba(12,18,42,0.72); border: 1px solid rgba(80,110,180,0.4);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 3px; transition: all 0.15s; padding: 6px 4px; flex-shrink: 0;
+      gap: 3px; transition: all 0.15s; padding: 6px 4px;
     }
-    .equip-slot-btn:hover { border-color: rgba(99,168,255,0.6); background: rgba(30,50,100,0.75); transform: scale(1.05); }
-    .equip-slot-btn.has-item { border-color: rgba(99,208,154,0.5); background: rgba(15,40,28,0.82); }
-    .equip-slot-btn.has-item.rarity-uncommon { border-color: rgba(99,208,154,0.6); }
-    .equip-slot-btn.has-item.rarity-rare     { border-color: rgba(99,168,255,0.65); background: rgba(15,28,60,0.82); }
-    .equip-slot-btn.has-item.rarity-epic     { border-color: rgba(178,125,255,0.65); background: rgba(28,15,55,0.82); }
-    .equip-slot-btn.has-item.rarity-legendary{ border-color: rgba(255,207,99,0.75); background: rgba(45,32,8,0.82); box-shadow: 0 0 10px rgba(255,207,99,0.25); }
-    /* 갑옷 — 가로 전체 */
-    .eds-armor-btn {
-      width: 100%; flex-direction: row; min-height: 48px; gap: 8px;
+    .equip-slot-btn:hover { border-color: rgba(99,168,255,0.65); background: rgba(25,40,90,0.8); transform: scale(1.08); }
+    .equip-slot-btn.has-item { border-color: rgba(99,208,154,0.55); background: rgba(12,38,25,0.82); }
+    .equip-slot-btn.has-item.rarity-uncommon { border-color: rgba(99,208,154,0.65); }
+    .equip-slot-btn.has-item.rarity-rare     { border-color: rgba(99,168,255,0.7);  background: rgba(12,25,58,0.82); }
+    .equip-slot-btn.has-item.rarity-epic     { border-color: rgba(178,125,255,0.7); background: rgba(25,12,52,0.82); }
+    .equip-slot-btn.has-item.rarity-legendary{ border-color: rgba(255,207,99,0.8);  background: rgba(42,28,5,0.82); box-shadow:0 0 12px rgba(255,207,99,0.3); }
+
+    /* 각 슬롯 위치 (stage 340px 기준) */
+    /* 상단: 투구 좌, 목걸이 우 */
+    #eqSlot_helmet   { top: 8px;  left: 8px; }
+    #eqSlot_necklace { top: 8px;  right: 8px; }
+    /* 중단 좌: 무기 위, 장갑 아래 */
+    #eqSlot_weapon   { top: 100px; left: 8px; }
+    #eqSlot_gloves   { top: 178px; left: 8px; }
+    /* 중단 우: 방패 위, 반지 아래 */
+    #eqSlot_shield   { top: 100px; right: 8px; }
+    #eqSlot_ring1    { top: 178px; right: 8px; }
+    /* 하단: 장화 좌, 망토 우 */
+    #eqSlot_boots    { bottom: 56px; left: 8px; }
+    #eqSlot_cloak    { bottom: 56px; right: 8px; }
+    /* 갑옷 — 하단 중앙 가로 전체 */
+    #eqSlot_armor    {
+      bottom: 8px; left: 8px; right: 8px;
+      width: auto; height: 42px; flex-direction: row; gap: 8px; border-radius: 10px;
     }
+
     .eq-slot-icon { font-size: 22px; line-height: 1; }
     .eq-slot-label {
-      font-size: 9px; font-weight: 700; color: rgba(160,185,230,0.8);
+      font-size: 9px; font-weight: 700; color: rgba(160,185,230,0.85);
       text-align: center; line-height: 1.1; white-space: nowrap;
     }
     .equip-slot-btn.has-item .eq-slot-label { color: rgba(180,230,190,0.9); }
-    .eds-armor-btn .eq-slot-label { font-size: 11px; }
+    #eqSlot_armor .eq-slot-label { font-size: 10px; }
 
     .inventory-panel { margin-top: 2px; }
 
@@ -1370,38 +1372,16 @@
           <!-- 캐릭터 배경 -->
           <div class="equip-doll-hero" id="heroPreviewWrap"></div>
 
-          <!-- 슬롯 오버레이 그리드 -->
-          <!-- 상단행: 투구 | [빈칸] | 목걸이 -->
-          <div class="eds-row eds-top">
-            <div class="equip-slot-btn" id="eqSlot_helmet"  data-slot="helmet"  title="투구"><div class="eq-slot-icon" id="eqIcon_helmet">🪖</div><div class="eq-slot-label">투구</div></div>
-            <div class="eds-spacer"></div>
-            <div class="equip-slot-btn" id="eqSlot_necklace" data-slot="necklace" title="목걸이"><div class="eq-slot-icon" id="eqIcon_necklace">📿</div><div class="eq-slot-label">목걸이</div></div>
-          </div>
-
-          <!-- 중간행: 무기 | [캐릭터] | 방패 -->
-          <div class="eds-row eds-mid">
-            <div class="equip-doll-col">
-              <div class="equip-slot-btn" id="eqSlot_weapon" data-slot="weapon" title="무기"><div class="eq-slot-icon" id="eqIcon_weapon">⚔️</div><div class="eq-slot-label">무기</div></div>
-              <div class="equip-slot-btn" id="eqSlot_gloves" data-slot="gloves" title="장갑"><div class="eq-slot-icon" id="eqIcon_gloves">🧤</div><div class="eq-slot-label">장갑</div></div>
-            </div>
-            <div class="eds-center-gap"></div>
-            <div class="equip-doll-col">
-              <div class="equip-slot-btn" id="eqSlot_shield" data-slot="shield" title="방패"><div class="eq-slot-icon" id="eqIcon_shield">🔰</div><div class="eq-slot-label">방패</div></div>
-              <div class="equip-slot-btn" id="eqSlot_ring1"  data-slot="ring1"  title="반지"><div class="eq-slot-icon" id="eqIcon_ring1">💍</div><div class="eq-slot-label">반지</div></div>
-            </div>
-          </div>
-
-          <!-- 하단행: 장화 | [빈칸] | 망토 -->
-          <div class="eds-row eds-bot">
-            <div class="equip-slot-btn" id="eqSlot_boots" data-slot="boots" title="장화"><div class="eq-slot-icon" id="eqIcon_boots">👟</div><div class="eq-slot-label">장화</div></div>
-            <div class="eds-spacer"></div>
-            <div class="equip-slot-btn" id="eqSlot_cloak" data-slot="cloak" title="망토"><div class="eq-slot-icon" id="eqIcon_cloak">🧥</div><div class="eq-slot-label">망토</div></div>
-          </div>
-
-          <!-- 갑옷 — 하단 전체폭 -->
-          <div class="eds-row eds-armor">
-            <div class="equip-slot-btn eds-armor-btn" id="eqSlot_armor" data-slot="armor" title="갑옷"><div class="eq-slot-icon" id="eqIcon_armor">🛡️</div><div class="eq-slot-label">갑옷</div></div>
-          </div>
+          <!-- 슬롯들 absolute 오버레이 -->
+          <div class="equip-slot-btn" id="eqSlot_helmet"   data-slot="helmet"   title="투구">   <div class="eq-slot-icon" id="eqIcon_helmet">🪖</div>  <div class="eq-slot-label">투구</div></div>
+          <div class="equip-slot-btn" id="eqSlot_necklace" data-slot="necklace" title="목걸이"> <div class="eq-slot-icon" id="eqIcon_necklace">📿</div><div class="eq-slot-label">목걸이</div></div>
+          <div class="equip-slot-btn" id="eqSlot_weapon"   data-slot="weapon"   title="무기">   <div class="eq-slot-icon" id="eqIcon_weapon">⚔️</div>  <div class="eq-slot-label">무기</div></div>
+          <div class="equip-slot-btn" id="eqSlot_gloves"   data-slot="gloves"   title="장갑">   <div class="eq-slot-icon" id="eqIcon_gloves">🧤</div>  <div class="eq-slot-label">장갑</div></div>
+          <div class="equip-slot-btn" id="eqSlot_shield"   data-slot="shield"   title="방패">   <div class="eq-slot-icon" id="eqIcon_shield">🔰</div>  <div class="eq-slot-label">방패</div></div>
+          <div class="equip-slot-btn" id="eqSlot_ring1"    data-slot="ring1"    title="반지">   <div class="eq-slot-icon" id="eqIcon_ring1">💍</div>   <div class="eq-slot-label">반지</div></div>
+          <div class="equip-slot-btn" id="eqSlot_boots"    data-slot="boots"    title="장화">   <div class="eq-slot-icon" id="eqIcon_boots">👟</div>   <div class="eq-slot-label">장화</div></div>
+          <div class="equip-slot-btn" id="eqSlot_cloak"    data-slot="cloak"    title="망토">   <div class="eq-slot-icon" id="eqIcon_cloak">🧥</div>   <div class="eq-slot-label">망토</div></div>
+          <div class="equip-slot-btn" id="eqSlot_armor"    data-slot="armor"    title="갑옷">   <div class="eq-slot-icon" id="eqIcon_armor">🛡️</div>  <div class="eq-slot-label">갑옷</div></div>
         </div>
 
         <!-- 보관 중 인벤토리만 -->
