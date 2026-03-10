@@ -942,6 +942,67 @@
     .class-confirm-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(79,124,255,0.45); }
     .class-confirm-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
+    /* ── 캐릭터 선택 화면 로고 ── */
+    .char-screen-logo {
+      font-size: 30px; font-weight: 900; letter-spacing: -0.5px;
+      color: #eef3ff; margin-bottom: 6px; padding-top: 8px;
+      width: min(430px, 100%); text-align: left;
+    }
+    .char-screen-logo::before { content: ''; }
+
+    /* ── 인라인 클래스 선택 버튼 ── */
+    .class-inline-btns { display: flex; gap: 8px; }
+    .class-inline-btn {
+      flex: 1; padding: 10px 6px; border-radius: 14px; font-size: 13px; font-weight: 900;
+      cursor: pointer; transition: all 0.2s;
+      background: rgba(14,21,40,0.95); border: 2px solid rgba(120,149,220,0.18);
+      color: #7a90be;
+    }
+    .class-inline-btn.active-전사  { border-color: #ff8a6a; color: #ff9a7a; background: rgba(255,100,60,0.1); box-shadow: 0 0 14px rgba(255,100,60,0.2); }
+    .class-inline-btn.active-궁사  { border-color: #63d09a; color: #63d09a; background: rgba(60,200,120,0.1); box-shadow: 0 0 14px rgba(60,200,120,0.2); }
+    .class-inline-btn.active-마법사 { border-color: #b27dff; color: #b27dff; background: rgba(150,80,255,0.1); box-shadow: 0 0 14px rgba(150,80,255,0.2); }
+    .class-inline-btn:hover { transform: translateY(-2px); }
+
+    /* ── 클래스 미리보기 ── */
+    .class-preview-wrap {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px; border-radius: 18px;
+      background: rgba(10,16,32,0.7); border: 1px solid rgba(120,149,220,0.15);
+    }
+    .class-preview-sprite {
+      width: 80px; height: 80px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .class-preview-sprite svg { transition: transform 0.3s; }
+    .class-preview-info { flex: 1; }
+    .class-preview-name { font-size: 15px; font-weight: 900; margin-bottom: 4px; }
+    .class-preview-desc { font-size: 11px; color: #8a9dc4; line-height: 1.5; margin-bottom: 6px; }
+    .class-preview-stats { display: flex; flex-direction: column; gap: 3px; }
+    .class-preview-stat-row { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #6a80a4; }
+    .class-preview-stat-track { flex: 1; height: 4px; border-radius: 2px; background: rgba(30,42,68,0.9); }
+    .class-preview-stat-fill  { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+
+    /* 선택된 클래스 스프라이트 계속 흔들리는 애니메이션 */
+    @keyframes classIdleWave { 0%,100%{transform:translateY(0) rotate(0)} 25%{transform:translateY(-4px) rotate(-2deg)} 75%{transform:translateY(-2px) rotate(2deg)} }
+    @keyframes classIdleBow  { 0%,100%{transform:translateY(0) rotate(0)} 30%{transform:translateY(-3px) rotate(3deg) scaleX(1.04)} 70%{transform:translateY(-1px) rotate(-1deg)} }
+    @keyframes classIdleMage { 0%,100%{transform:scale(1) rotate(0)} 33%{transform:scale(1.05) rotate(2deg)} 66%{transform:scale(1.03) rotate(-2deg)} }
+    .class-preview-anim-전사  svg { animation: classIdleWave 1.6s ease-in-out infinite; }
+    .class-preview-anim-궁사  svg { animation: classIdleBow  1.8s ease-in-out infinite; }
+    .class-preview-anim-마법사 svg { animation: classIdleMage 1.4s ease-in-out infinite; }
+
+    /* ── 저장 실패 배너 ── */
+    .save-fail-banner {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: min(430px, 100%); z-index: 9999;
+      background: linear-gradient(135deg, #2a0a0a, #1a0606);
+      border-top: 2px solid #ff4444; padding: 12px 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .save-fail-banner-icon { font-size: 22px; flex-shrink: 0; }
+    .save-fail-banner-text { flex: 1; }
+    .save-fail-banner-title { font-size: 13px; font-weight: 900; color: #ff7b7b; margin-bottom: 2px; }
+    .save-fail-banner-desc  { font-size: 11px; color: #cc5555; }
+
     /* 상점 버튼 (메인화면) */
     .shop-fab {
       position:fixed; right:16px; bottom:72px; z-index:200;
@@ -994,8 +1055,9 @@
 
   <!-- ══ 캐릭터 선택 화면 ══ -->
   <div class="char-screen" id="charScreen" style="display:none;">
+    <div class="char-screen-logo">⚔️ ScanHero</div>
     <div class="char-screen-header">
-      <div class="char-screen-title">⚔️ 영웅 선택</div>
+      <div class="char-screen-title">영웅 선택</div>
       <button class="char-logout-btn" id="logoutBtn">로그아웃</button>
     </div>
     <div class="char-account-info" id="charAccountInfo"></div>
@@ -1014,16 +1076,21 @@
       <div class="hero-start-body">
         <div class="line" style="margin-bottom:0;">
           <label for="startHeroName">영웅 이름</label>
-          <input id="startHeroName" value="주인님의 영웅" />
+          <input id="startHeroName" placeholder="영웅 이름을 입력하세요" />
         </div>
-        <div class="line" style="margin-bottom:0;">
-          <label>클래스 선택</label>
-          <button id="classSelectOpenBtn" style="width:100%;padding:11px 14px;border-radius:12px;background:rgba(10,16,32,0.8);border:1px solid rgba(120,149,220,0.22);color:#eef3ff;font-size:13px;font-weight:700;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;">
-            <span id="classSelectIcon">⚔️</span>
-            <span id="classSelectLabel">전사 — 강인한 방어와 근접 전투</span>
-            <span style="margin-left:auto;color:#6a80a4;font-size:11px;">클릭하여 선택 ▼</span>
-          </button>
+        <div style="margin-bottom:0;">
+          <label style="display:block;font-size:11px;font-weight:700;color:#8a9dc4;margin-bottom:8px;">클래스 선택</label>
+          <div class="class-inline-btns" id="classInlineBtns">
+            <button class="class-inline-btn active-전사" data-class="전사">⚔️ 전사</button>
+            <button class="class-inline-btn" data-class="궁사">🏹 궁사</button>
+            <button class="class-inline-btn" data-class="마법사">🔮 마법사</button>
+          </div>
           <input type="hidden" id="startHeroClass" value="전사" />
+        </div>
+        <!-- 클래스 미리보기 -->
+        <div class="class-preview-wrap" id="classPreviewWrap">
+          <div class="class-preview-sprite" id="classPreviewSprite"></div>
+          <div class="class-preview-info" id="classPreviewInfo"></div>
         </div>
         <div style="display:flex; gap:8px; margin-top:4px;">
           <button id="cancelHeroBtn" style="flex:1; padding:11px; border-radius:12px; background:rgba(14,21,38,0.9); border:1px solid rgba(120,149,220,0.22); color:#8a9dc4; font-size:13px; font-weight:700; cursor:pointer;">취소</button>
@@ -1616,6 +1683,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 초기 세션 체크
   (async () => {
+    // 저장 실패 플래그가 있으면 세션 무시하고 로그인 화면 강제
+    const saveFailed = localStorage.getItem('scanhero_save_failed');
+    if (saveFailed) {
+      localStorage.removeItem('scanhero_save_failed');
+      await sb.auth.signOut();
+      showScreen('auth');
+      // 재접속 안내 메세지
+      setTimeout(() => {
+        const errEl = document.getElementById('loginError');
+        if (errEl) {
+          errEl.style.color = '#ffcf63';
+          errEl.textContent = '⚠️ 이전 세션에서 저장 실패가 발생했습니다. 다시 로그인해 주세요.';
+        }
+      }, 300);
+      return;
+    }
     const { data: { session } } = await sb.auth.getSession();
     if (session?.user) {
       CURRENT_USER = session.user;
@@ -1975,42 +2058,65 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 클래스 선택 팝업 열기
-  document.getElementById('classSelectOpenBtn').addEventListener('click', () => {
-    renderClassSelectCards(selectedClass);
-    document.getElementById('classSelectBackdrop').style.display = 'flex';
-  });
+  // ── 인라인 클래스 선택 버튼 로직 ──
+  function renderClassPreview(cls) {
+    const info = CLASS_INFO[cls];
+    const sprite = document.getElementById('classPreviewSprite');
+    const infoEl = document.getElementById('classPreviewInfo');
+    if (!sprite || !infoEl) return;
 
-  // 클래스 확인 버튼
-  document.getElementById('classConfirmBtn').addEventListener('click', () => {
-    const info = CLASS_INFO[selectedClass];
-    document.getElementById('startHeroClass').value = selectedClass;
-    document.getElementById('classSelectIcon').textContent = info.icon;
-    document.getElementById('classSelectLabel').textContent = `${selectedClass} — ${info.desc}`;
-    document.getElementById('classSelectOpenBtn').style.borderColor = info.color;
-    document.getElementById('classSelectBackdrop').style.display = 'none';
-  });
+    // 스프라이트 + 애니메이션 클래스
+    sprite.className = `class-preview-sprite class-preview-anim-${cls}`;
+    sprite.innerHTML = getClassPreviewSprite(cls);
 
-  // 팝업 외부 클릭 닫기
-  document.getElementById('classSelectBackdrop').addEventListener('click', e => {
-    if (e.target === document.getElementById('classSelectBackdrop')) {
-      document.getElementById('classSelectBackdrop').style.display = 'none';
-    }
+    // 스탯 바
+    const statBars = [
+      { label:'공격', val: info.stats.atk, color:'#ff8a6a' },
+      { label:'방어', val: info.stats.def, color:'#63a8ff' },
+      { label:'속도', val: info.stats.spd, color:'#63d09a' },
+      { label:'치명', val: info.stats.crit, color:'#ffcf63' }
+    ].map(s => `<div class="class-preview-stat-row">
+      <span style="width:24px;">${s.label}</span>
+      <div class="class-preview-stat-track">
+        <div class="class-preview-stat-fill" style="width:${s.val}%;background:${s.color};"></div>
+      </div>
+    </div>`).join('');
+
+    const nameColors = { '전사':'#ff9a7a', '궁사':'#63d09a', '마법사':'#b27dff' };
+    infoEl.innerHTML = `
+      <div class="class-preview-name" style="color:${nameColors[cls]}">${info.icon} ${cls}</div>
+      <div class="class-preview-desc">${info.desc}</div>
+      <div class="class-preview-stats">${statBars}</div>`;
+  }
+
+  function selectInlineClass(cls) {
+    selectedClass = cls;
+    document.getElementById('startHeroClass').value = cls;
+    // 버튼 활성화 스타일
+    document.querySelectorAll('.class-inline-btn').forEach(btn => {
+      btn.className = 'class-inline-btn' + (btn.dataset.class === cls ? ` active-${cls}` : '');
+    });
+    renderClassPreview(cls);
+  }
+
+  // 인라인 버튼 이벤트
+  document.getElementById('classInlineBtns').addEventListener('click', e => {
+    const btn = e.target.closest('[data-class]');
+    if (btn) selectInlineClass(btn.dataset.class);
   });
 
   function openHeroCreate(slot) {
     pendingNewSlot = slot;
     selectedClass = '전사';
-    document.getElementById('startHeroName').value = '주인님의 영웅';
+    document.getElementById('startHeroName').value = '';
     document.getElementById('startHeroClass').value = '전사';
-    document.getElementById('classSelectIcon').textContent = '⚔️';
-    document.getElementById('classSelectLabel').textContent = '전사 — 강인한 방어와 근접 전투';
-    document.getElementById('classSelectOpenBtn').style.borderColor = '';
+    selectInlineClass('전사');
     document.getElementById('heroStartBackdrop').style.display = 'flex';
+    // 이름 필드에 포커스
+    setTimeout(() => document.getElementById('startHeroName').focus(), 100);
   }
   document.getElementById('cancelHeroBtn').addEventListener('click', () => {
     document.getElementById('heroStartBackdrop').style.display = 'none';
-    document.getElementById('classSelectBackdrop').style.display = 'none';
     pendingNewSlot = null;
   });
 
@@ -2115,7 +2221,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }));
       const { error } = await sb.from('inventory_items').insert(rows);
       if (error) throw error;
-    } catch (e) { showDbStatus('인벤토리 저장 실패: ' + e.message, 'error'); }
+    } catch (e) { showDbStatus('인벤토리 저장 실패: ' + e.message, 'error'); throw e; }
   }
 
   // 전투 기록 1건 저장
@@ -2247,12 +2353,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 30000);
   }
 
+  // ── 저장 실패 카운터 ──
+  let saveFailCount = 0;
+  const MAX_SAVE_FAIL = 3; // 연속 3회 실패 시 경고
+
+  function showSaveFailBanner() {
+    let banner = document.getElementById('saveFailBanner');
+    if (banner) return; // 이미 표시 중
+    banner = document.createElement('div');
+    banner.id = 'saveFailBanner';
+    banner.className = 'save-fail-banner';
+    banner.innerHTML = `
+      <div class="save-fail-banner-icon">⚠️</div>
+      <div class="save-fail-banner-text">
+        <div class="save-fail-banner-title">저장에 실패했습니다</div>
+        <div class="save-fail-banner-desc">네트워크 오류로 진행상황이 저장되지 않았습니다.<br>재접속 시 로그인 화면부터 다시 시작합니다.</div>
+      </div>`;
+    document.body.appendChild(banner);
+    // localStorage에 실패 플래그 저장 → 재접속 시 로그인 화면 강제
+    localStorage.setItem('scanhero_save_failed', '1');
+  }
+
+  function hideSaveFailBanner() {
+    const banner = document.getElementById('saveFailBanner');
+    if (banner) banner.remove();
+    saveFailCount = 0;
+    localStorage.removeItem('scanhero_save_failed');
+  }
+
   // 즉시 전체 저장
   async function dbSaveAll(silent = false) {
+    if (!PLAYER_ID || !CURRENT_USER || CURRENT_USER.isGM) return;
     if (!silent) showDbStatus('저장 중...', 'saving');
-    await dbSaveHero();
-    await dbSaveInventory();
-    if (!silent) showDbStatus('저장 완료!', 'ok');
+    try {
+      await dbSaveHero();
+      await dbSaveInventory();
+      saveFailCount = 0;
+      hideSaveFailBanner();
+      if (!silent) showDbStatus('저장 완료!', 'ok');
+    } catch (e) {
+      saveFailCount++;
+      showDbStatus('저장 실패 (' + saveFailCount + '/' + MAX_SAVE_FAIL + ')', 'error');
+      if (saveFailCount >= MAX_SAVE_FAIL) showSaveFailBanner();
+    }
   }
   const rankTable = [
     { minLevel:1,  rank:'견습',  soldiers:2 },
