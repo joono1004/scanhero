@@ -201,7 +201,15 @@
     }
     .hero-exp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; font-size: 10px; font-weight: 800; color: #d8e4ff; }
     .hero-exp-bar { width: 100%; height: 9px; background: rgba(8, 12, 22, 0.9); border-radius: 999px; border: 1px solid rgba(73, 94, 143, 0.4); overflow: hidden; }
-    .hero-exp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #6ea6ff, #88d8ff); transition: width 0.35s ease; border-radius: 999px; }
+    .hero-exp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #6ea6ff, #88d8ff); transition: width 0.5s ease; border-radius: 999px; }
+    @keyframes expLevelUp {
+      0%   { width: var(--exp-from); background: linear-gradient(90deg,#6ea6ff,#88d8ff); }
+      45%  { width: 100%; background: linear-gradient(90deg,#ffcf63,#ffe88a); box-shadow: 0 0 8px rgba(255,207,63,0.8); }
+      50%  { width: 100%; opacity: 0.2; }
+      55%  { width: 0%;   opacity: 1; background: linear-gradient(90deg,#63d09a,#88ffcc); }
+      100% { width: var(--exp-to);   background: linear-gradient(90deg,#6ea6ff,#88d8ff); }
+    }
+    .hero-exp-fill.leveling { animation: expLevelUp 1.0s ease forwards; transition: none; }
 
     /* ── 지도 버튼: 경험치바 영역과 동일한 세로 크기 (padding 7+8=15px + head fontSize/lineheight~16px + margin 5px + bar 9px = ~45px total, match with height:auto stretching) ── */
     .hero-map-btn {
@@ -1141,6 +1149,8 @@
               <div class="hero-exp-head"><span>경험치</span><span id="heroExpBarText">0 / 20</span></div>
               <div class="hero-exp-bar"><div class="hero-exp-fill" id="heroExpFill"></div></div>
             </div>
+            <!-- 착용 장비 요약 배지 -->
+            <div id="mainEquipBadges" style="display:flex;flex-wrap:wrap;gap:4px;padding:4px 2px 0;min-height:20px;"></div>
             <button class="hero-map-btn" id="heroMapBtn" type="button" title="지도 보기">🗺️</button>
           </div>
 
@@ -2514,11 +2524,11 @@ document.addEventListener('DOMContentLoaded', () => {
     { name:'가벼운 장화',    slot:'boots',    icon:'🥾', stats:{speed:2,hp:4} },
     { name:'철 장갑',        slot:'gloves',   icon:'🧤', stats:{atk:2,def:2} },
     { name:'전투 반지',      slot:'ring',     icon:'💍', stats:{crit:3,atk:1} },
-    { name:'강화 망토',      slot:'cloak',    icon:'🧥', stats:{hp:8,def:2} },
+    { name:'강화 망토',      slot:'cloak',    icon:'〔망토〕', stats:{hp:8,def:2} },
     { name:'사냥 활',        slot:'weapon',   weaponType:'bow',   icon:'🏹', stats:{atk:3,speed:1,crit:1}, classes:['궁사'] },
     { name:'기사 방패',      slot:'shield',   icon:'🛡️', stats:{def:5,hp:8},                              classes:['전사','마법사'] },
     { name:'집중 목걸이',    slot:'necklace', icon:'📿', stats:{crit:2,speed:1} },
-    { name:'용사의 문장',    slot:'cloak',    icon:'🏅', stats:{atk:2,def:2,hp:6} },
+    { name:'용사의 문장',    slot:'cloak',    icon:'〔망토〕', stats:{atk:2,def:2,hp:6} },
     { name:'마법 지팡이',    slot:'weapon',   weaponType:'staff', icon:'🪄', stats:{atk:4,crit:2},         classes:['마법사'] },
     { name:'신성한 반지',    slot:'ring',     icon:'💍', stats:{hp:6,def:1} }
   ];
@@ -3014,7 +3024,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const sdClass   = item.soldOut ? ' sold-out' : '';
       const statText  = getItemStatText(item);
       return `<div class="shop-item-card rarity-${item.rarity}${sdClass}" data-shop-idx="${idx}">
-        <span class="shop-item-icon">${item.icon}</span>
+        <span class="shop-item-icon">${getItemIconHtml(item.icon, 18)}</span>
         <div class="shop-item-name rarity-${item.rarity}">${item.name}</div>
         <div class="shop-item-rarity rarity-${item.rarity}">[${item.rarityLabel}] ${item.slotLabel}</div>
         <div class="shop-item-stats">${statText}</div>
@@ -3201,15 +3211,65 @@ document.addEventListener('DOMContentLoaded', () => {
     els.soldierFront.innerHTML   = Array.from({length:soldierCount}, ()=>getSoldierSprite(soldierClass)).join('');
   }
 
-  function renderHero() {
+  // ── 메인 패널 장비 배지 렌더 ──
+  function renderMainHeroEquipBadges() {
+    const el = document.getElementById('mainEquipBadges');
+    if (!el) return;
+    const eq = state.equipment;
+    const slotIcons = { weapon:'⚔️', armor:'🛡️', shield:'🔰', gloves:'🧤', boots:'👟', ring1:'💍', ring2:'💍', necklace:'📿', cloak:'🗺' };
+    const rarityColors = { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' };
+
+    // 장착된 슬롯만 배지로 표시
+    const badges = Object.entries(eq)
+      .filter(([, item]) => item)
+      .map(([slot, item]) => {
+        const col = rarityColors[item.rarity] || '#a9b6d6';
+        return `<span title="${item.name}" style="
+          display:inline-flex;align-items:center;gap:3px;
+          padding:2px 6px;border-radius:8px;font-size:10px;font-weight:700;
+          background:rgba(${slot==='weapon'?'255,138,106':'slot'==='armor'?'99,168,255':'120,149,220'},0.1);
+          border:1px solid ${col}44;color:${col};cursor:default;
+        ">${item.icon||slotIcons[slot]} ${item.name}</span>`;
+      }).join('');
+
+    if (badges) {
+      el.innerHTML = badges;
+      el.style.display = 'flex';
+    } else {
+      el.innerHTML = '<span style="font-size:10px;color:#3a4a6a;">장착 장비 없음</span>';
+      el.style.display = 'flex';
+    }
+  }
+
+  let _lastExpLevel = null; // 레벨업 감지용
+
+  function renderHero(leveled = false) {
     const stats = getHeroBaseStats();
     const expNeed = getExpNeed(state.level);
-    const expRate = Math.max(0, Math.min(100, (state.exp/expNeed)*100));
-    els.heroGoldTop.textContent   = state.gold;
-    els.heroExpBarText.textContent= `${state.exp} / ${expNeed}`;
-    els.heroExpFill.style.width   = `${expRate}%`;
-    els.heroTitleBtn.textContent  = formatHeroTopTitle(stats);
+    const expRate = Math.max(0, Math.min(100, (state.exp / expNeed) * 100));
+    els.heroGoldTop.textContent    = state.gold;
+    els.heroExpBarText.textContent = `${state.exp} / ${expNeed}`;
+    els.heroTitleBtn.textContent   = formatHeroTopTitle(stats);
     renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
+
+    if (leveled) {
+      // 레벨업 애니메이션: 우측 끝까지 → 번쩍 → 왼쪽부터 새 경험치로 차오름
+      const fill = els.heroExpFill;
+      fill.style.setProperty('--exp-from', fill.style.width || '0%');
+      fill.style.setProperty('--exp-to', `${expRate}%`);
+      fill.classList.remove('leveling');
+      void fill.offsetWidth; // reflow
+      fill.classList.add('leveling');
+      fill.addEventListener('animationend', () => {
+        fill.classList.remove('leveling');
+        fill.style.width = `${expRate}%`;
+      }, { once: true });
+    } else {
+      els.heroExpFill.style.width = `${expRate}%`;
+    }
+
+    // 장비 효과를 메인 영웅 패널에도 반영
+    renderMainHeroEquipBadges();
   }
 
   // ─────────────────────────────────────────
@@ -3230,27 +3290,68 @@ document.addEventListener('DOMContentLoaded', () => {
   // ─────────────────────────────────────────
   // 오버레이 SVG 빌더
   // ─────────────────────────────────────────
+  function getItemIconHtml(icon, size=16) {
+    if (icon === '〔망토〕') {
+      return `<svg viewBox="0 0 20 20" width="${size}" height="${size}" style="vertical-align:middle;display:inline-block;">
+        <path d="M10 1.5 C7 1.5 4.5 3.5 3.5 6 L1.5 18 L5.5 17 C5.5 12 6.5 7.5 10 6.5 C13.5 7.5 14.5 12 14.5 17 L18.5 18 L16.5 6 C15.5 3.5 13 1.5 10 1.5Z" fill="currentColor" opacity="0.85"/>
+        <circle cx="10" cy="3" r="1.8" fill="currentColor"/>
+        <path d="M3.5 6 Q10 4 16.5 6" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.6"/>
+      </svg>`;
+    }
+    return icon;
+  }
+
   function getRarityHex(rarity) {
     return { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' }[rarity] || '#a9b6d6';
   }
 
+  function getItemIconHtml(icon, size=16) {
+    if (icon === '〔망토〕') {
+      return `<svg viewBox="0 0 20 20" width="${size}" height="${size}" style="vertical-align:middle;display:inline-block;">
+        <path d="M10 2 C7 2 4.5 4 3.5 6.5 L1.5 18.5 L5.5 17 C5.5 12 6.8 8 10 7 C13.2 8 14.5 12 14.5 17 L18.5 18.5 L16.5 6.5 C15.5 4 13 2 10 2Z" fill="currentColor" opacity="0.85"/>
+        <circle cx="10" cy="3.2" r="1.8" fill="currentColor"/>
+        <path d="M3.5 6.5 Q10 4.5 16.5 6.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.6"/>
+        <path d="M5 10 Q7 9 10 9.5 Q13 9 15 10" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.35"/>
+      </svg>`;
+    }
+    return icon;
+  }
+
   function buildCloakOverlay(item) {
     const c = getRarityHex(item.rarity);
-    return `<svg viewBox="0 0 120 200" width="120" height="200">
+    // 망토 SVG — 양쪽으로 흘러내리는 망토 형태
+    return `<svg viewBox="0 0 120 210" width="120" height="210" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="${c}" stop-opacity="0.82"/>
-          <stop offset="100%" stop-color="${c}" stop-opacity="0.38"/>
+        <linearGradient id="cg_${item.id}" x1="0" y1="0" x2="0.3" y2="1">
+          <stop offset="0%" stop-color="${c}" stop-opacity="0.9"/>
+          <stop offset="60%" stop-color="${c}" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="${c}" stop-opacity="0.2"/>
         </linearGradient>
       </defs>
-      <path fill="url(#cg)" stroke="${c}" stroke-width="1.2" stroke-opacity="0.6"
-        d="M18 30 Q10 60 8 100 Q6 140 12 170 Q20 178 28 172 Q18 140 20 100 Q22 60 32 34Z"/>
-      <path fill="url(#cg)" stroke="${c}" stroke-width="1.2" stroke-opacity="0.6"
-        d="M102 30 Q110 60 112 100 Q114 140 108 170 Q100 178 92 172 Q102 140 100 100 Q98 60 88 34Z"/>
-      <line x1="18" y1="30" x2="102" y2="30" stroke="${c}" stroke-width="1.8" stroke-opacity="0.5"/>
-      ${item.rarity==='legendary' ? `<path fill="none" stroke="#ffcf63" stroke-width="0.8" stroke-opacity="0.7" d="M20 80 Q14 100 16 120 M100 80 Q106 100 104 120"/>` : ''}
+      <!-- 왼쪽 망토 패널 -->
+      <path fill="url(#cg_${item.id})" stroke="${c}" stroke-width="1.4" stroke-opacity="0.7"
+        d="M15 28 C10 50 6 85 5 115 C4 145 8 168 14 182 C20 192 28 190 30 180
+           C24 164 20 140 21 112 C22 82 27 52 35 30 Z"/>
+      <!-- 오른쪽 망토 패널 -->
+      <path fill="url(#cg_${item.id})" stroke="${c}" stroke-width="1.4" stroke-opacity="0.7"
+        d="M105 28 C110 50 114 85 115 115 C116 145 112 168 106 182 C100 192 92 190 90 180
+           C96 164 100 140 99 112 C98 82 93 52 85 30 Z"/>
+      <!-- 목걸이 부분 -->
+      <path fill="none" stroke="${c}" stroke-width="2" stroke-opacity="0.8"
+        d="M15 28 Q60 18 105 28"/>
+      <!-- 망토 브로치 -->
+      <circle cx="60" cy="27" r="5" fill="${c}" opacity="0.9"/>
+      <circle cx="60" cy="27" r="2.5" fill="white" opacity="0.4"/>
+      <!-- 망토 안쪽 음영 -->
+      <path fill="${c}" opacity="0.12"
+        d="M35 30 C32 55 30 85 31 112 C32 138 35 162 38 178
+           C42 172 45 148 44 118 C43 88 40 58 38 32 Z"/>
+      <path fill="${c}" opacity="0.12"
+        d="M85 30 C88 55 90 85 89 112 C88 138 85 162 82 178
+           C78 172 75 148 76 118 C77 88 80 58 82 32 Z"/>
     </svg>`;
   }
+
 
   function buildNecklaceOverlay(item) {
     const c = getRarityHex(item.rarity);
@@ -3341,7 +3442,7 @@ document.addEventListener('DOMContentLoaded', () => {
       els.equippedGrid.innerHTML = equippedItems.map(item => `
         <div class="inv-icon-slot rarity-${item.rarity} is-equipped" data-id="${item.id}" title="${item.name}">
           <div class="inv-equipped-badge">E</div>
-          ${item.icon}
+          ${getItemIconHtml(item.icon, 18)}
           <div class="inv-rarity-dot"></div>
         </div>`).join('');
       els.equippedGrid.querySelectorAll('.inv-icon-slot').forEach(slot => {
@@ -3399,7 +3500,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     els.itemDetailTitle.textContent = item.rarityLabel + ' 등급 아이템';
     els.itemDetailIcon.className    = `item-detail-icon rarity-${item.rarity}`;
-    els.itemDetailIcon.textContent  = item.icon;
+    els.itemDetailIcon.innerHTML = getItemIconHtml(item.icon, 22);
     els.itemDetailName.className    = `item-detail-name rarity-${item.rarity}`;
     els.itemDetailName.textContent  = item.name;
 
@@ -3847,7 +3948,7 @@ document.addEventListener('DOMContentLoaded', () => {
     await dbSaveAll(true); // silent=true (토스트 숨김)
     scheduleAutoSave();
 
-    renderHero(); renderLogs();
+    renderHero(leveled); renderLogs();
     if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
 
     const dropHtml = dropItem ? `<br>${dropItem.icon} <span style="color:var(--${dropItem.rarity==='legendary'?'legendary':dropItem.rarity==='epic'?'epic':dropItem.rarity==='rare'?'rare':dropItem.rarity==='uncommon'?'uncommon':'common'})">${dropItem.name} 획득!</span>` : '';
@@ -3945,7 +4046,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const detail  = `${decoded.title}${itemLog} / 경험치 ${reward.exp}${reward.gold?` / 골드 ${reward.gold}`:''}`;
     addLog(decoded.title, `${detail}${leveled?' / 레벨업!':''}`);
     await addMapHistory({ barcode:onlyDigits(els.barcodeInput.value), decoded, detail, exp:reward.exp, gold:reward.gold });
-    renderHero(); renderLogs();
+    renderHero(leveled); renderLogs();
     if (decoded.item) els.eventDesc.textContent += state.equipment[decoded.item.slot]?.id===decoded.item.id?' 더 강한 장비라 자동 장착되었습니다!':" 인벤토리에 보관되었습니다.";
     if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
   }
