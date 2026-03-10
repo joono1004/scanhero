@@ -626,18 +626,134 @@
     @keyframes shadowPulse { 0%,100%{transform:scale(1);opacity:.58;} 50%{transform:scale(.92);opacity:.36;} }
     @keyframes sparkleMove { 0%,100%{transform:translateY(0);opacity:.85;} 50%{transform:translateY(-4px);opacity:1;} }
 
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-thumb { background: rgba(112, 135, 194, 0.42); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
-
-    @media (max-height: 780px) {
-      .hero-avatar { min-height: 262px; }
-      .formation-stage { height: 176px; }
-      .battle-stage { height: 244px; }
-      #map { height: 285px; }
-      .subtitle { font-size: 10px; }
-      #scanner { min-height: 220px; height: 220px; }
-      .hero-preview-stage { min-height: 300px; }
+    /* ── 개발자 모드 패널 ── */
+    .devmode-backdrop { position:fixed; inset:0; z-index:9000; background:rgba(5,8,18,0.82); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; }
+    .devmode-backdrop.show { display:flex; }
+    .devmode-panel {
+      background: linear-gradient(180deg,rgba(10,16,32,0.99),rgba(16,24,44,0.99));
+      border:1px solid rgba(255,207,99,0.35); border-radius:20px; padding:18px 16px 14px;
+      width:min(96vw,380px); max-height:90dvh; overflow-y:auto;
+      box-shadow: 0 0 40px rgba(255,207,99,0.12), 0 20px 50px rgba(0,0,0,0.55);
     }
+    .devmode-title { font-size:15px; font-weight:900; color:#ffcf63; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+    .devmode-section { font-size:10px; font-weight:800; color:var(--muted); letter-spacing:0.8px; text-transform:uppercase; margin:14px 0 8px; border-top:1px solid rgba(120,149,220,0.14); padding-top:10px; }
+    .devmode-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; gap:8px; }
+    .devmode-label { font-size:12px; font-weight:700; flex:1; }
+    .devmode-desc  { font-size:10px; color:var(--muted); margin-top:2px; }
+    .seg-ctrl { display:flex; gap:3px; }
+    .seg-btn {
+      padding:5px 10px; border-radius:8px; border:1px solid rgba(120,149,220,0.22);
+      background:rgba(14,21,38,0.95); color:var(--muted); font-size:11px; font-weight:800;
+      cursor:pointer; transition:all 0.15s;
+    }
+    .seg-btn.active { background:rgba(255,207,99,0.18); border-color:rgba(255,207,99,0.5); color:#ffcf63; }
+    .toggle-row { display:flex; align-items:center; gap:10px; cursor:pointer; }
+    .toggle-track {
+      width:40px; height:22px; border-radius:11px; background:rgba(30,42,68,0.9);
+      border:1px solid rgba(120,149,220,0.22); position:relative; transition:background 0.2s;
+      flex-shrink:0;
+    }
+    .toggle-track.on { background:rgba(99,208,154,0.35); border-color:rgba(99,208,154,0.6); }
+    .toggle-thumb {
+      position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%;
+      background:#a4b4db; transition:all 0.2s;
+    }
+    .toggle-track.on .toggle-thumb { left:20px; background:#63d09a; }
+    .luck-bar { display:flex; gap:3px; margin-top:6px; }
+    .luck-bar-seg { flex:1; height:6px; border-radius:3px; background:rgba(30,42,68,0.9); transition:background 0.2s; }
+    .luck-bar-seg.active-0 { background:#a4b4db; }
+    .luck-bar-seg.active-1 { background:#63a8ff; }
+    .luck-bar-seg.active-2 { background:#63d09a; }
+    .luck-bar-seg.active-3 { background:#ffcf63; }
+
+    /* ── 상점 모달 ── */
+    .shop-backdrop { position:fixed; inset:0; z-index:8000; background:rgba(5,8,18,0.85); backdrop-filter:blur(8px); display:none; align-items:flex-end; justify-content:center; }
+    .shop-backdrop.show { display:flex; }
+    .shop-panel {
+      background: linear-gradient(180deg,rgba(12,18,34,0.99),rgba(18,27,48,0.99));
+      border:1px solid rgba(99,168,255,0.22); border-top-left-radius:24px; border-top-right-radius:24px;
+      width:min(100vw,430px); max-height:92dvh; overflow-y:auto; padding:0 0 20px;
+      box-shadow: 0 -8px 40px rgba(79,124,255,0.15), 0 -2px 0 rgba(99,168,255,0.2);
+    }
+    .shop-header {
+      position:sticky; top:0; z-index:2;
+      background:linear-gradient(180deg,rgba(12,18,34,0.99),rgba(12,18,34,0.95));
+      padding:14px 16px 10px; border-bottom:1px solid rgba(99,168,255,0.14);
+    }
+    .shop-title-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+    .shop-title { font-size:17px; font-weight:900; display:flex; align-items:center; gap:8px; }
+    .shop-close-btn { width:30px; height:30px; border-radius:50%; background:rgba(30,42,68,0.9); border:1px solid rgba(120,149,220,0.2); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .shop-gold-row { font-size:12px; color:#ffcf63; font-weight:800; display:flex; align-items:center; gap:4px; }
+
+    /* 고블린 상인 */
+    .goblin-stage {
+      display:flex; align-items:flex-end; justify-content:center;
+      padding:10px 0 0; min-height:110px; position:relative;
+      background:radial-gradient(circle at 50% 80%, rgba(99,208,154,0.08), transparent 60%);
+    }
+    .goblin-wrap { position:relative; z-index:2; }
+    .goblin-speech {
+      position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+      background:rgba(18,28,50,0.97); border:1px solid rgba(99,208,154,0.3); border-radius:12px;
+      padding:6px 10px; font-size:10px; font-weight:700; color:#c8f5d8; white-space:nowrap;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);
+    }
+    .goblin-speech::after {
+      content:''; position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
+      border:3px solid transparent; border-top-color:rgba(99,208,154,0.3);
+    }
+
+    /* 상점 아이템 그리드 */
+    .shop-items-section { padding:12px 14px 0; }
+    .shop-section-label { font-size:11px; font-weight:800; color:var(--muted); margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; }
+    .shop-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .shop-item-card {
+      background:linear-gradient(180deg,rgba(14,21,38,0.98),rgba(20,30,54,0.97));
+      border:1px solid rgba(110,139,204,0.2); border-radius:14px; padding:12px 10px;
+      cursor:pointer; transition:transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+      position:relative; overflow:hidden;
+    }
+    .shop-item-card:hover { transform:translateY(-2px); border-color:rgba(140,170,255,0.45); box-shadow:0 8px 20px rgba(79,124,255,0.18); }
+    .shop-item-card.rarity-uncommon { border-color:rgba(99,208,154,.35); }
+    .shop-item-card.rarity-rare     { border-color:rgba(99,168,255,.4); box-shadow:0 0 12px rgba(99,168,255,0.1); }
+    .shop-item-card.rarity-epic     { border-color:rgba(178,125,255,.45); box-shadow:0 0 14px rgba(178,125,255,0.12); }
+    .shop-item-card.rarity-legendary{ border-color:rgba(255,207,99,.55); box-shadow:0 0 18px rgba(255,207,99,0.18); }
+    .shop-item-card.sold-out { opacity:0.45; cursor:not-allowed; }
+    .shop-item-card.sold-out::after { content:'SOLD'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900; color:rgba(255,255,255,0.35); background:rgba(5,8,18,0.3); border-radius:14px; letter-spacing:3px; }
+    .shop-item-icon { font-size:26px; margin-bottom:6px; display:block; text-align:center; }
+    .shop-item-name { font-size:11px; font-weight:900; margin-bottom:2px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .shop-item-rarity { font-size:9px; font-weight:800; text-align:center; margin-bottom:6px; }
+    .shop-item-stats  { font-size:9px; color:var(--muted); text-align:center; margin-bottom:8px; line-height:1.5; min-height:24px; }
+    .shop-item-price  { display:flex; align-items:center; justify-content:center; gap:4px; font-size:12px; font-weight:900; color:#ffcf63; }
+    .shop-buy-btn {
+      width:100%; margin-top:7px; padding:6px 0; border-radius:9px;
+      background:linear-gradient(180deg,rgba(255,207,99,0.22),rgba(255,180,0,0.12));
+      border:1px solid rgba(255,207,99,0.35); color:#ffcf63; font-size:11px; font-weight:900;
+      cursor:pointer; transition:all 0.15s;
+    }
+    .shop-buy-btn:hover { background:linear-gradient(180deg,rgba(255,207,99,0.38),rgba(255,180,0,0.24)); }
+    .shop-buy-btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .shop-refresh-row { padding:12px 14px 0; display:flex; gap:8px; align-items:center; }
+    .shop-refresh-btn {
+      flex:1; padding:10px; border-radius:12px;
+      background:linear-gradient(180deg,rgba(79,124,255,0.18),rgba(55,95,210,0.12));
+      border:1px solid rgba(79,124,255,0.3); color:#9fbfff; font-size:12px; font-weight:900;
+      cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; gap:6px;
+    }
+    .shop-refresh-btn:hover { background:linear-gradient(180deg,rgba(79,124,255,0.3),rgba(55,95,210,0.2)); }
+    .shop-refresh-cost { font-size:10px; color:#ffcf63; }
+
+    /* 상점 버튼 (메인화면) */
+    .shop-fab {
+      position:fixed; right:16px; bottom:72px; z-index:200;
+      width:46px; height:46px; border-radius:50%;
+      background:linear-gradient(180deg,rgba(99,208,154,0.28),rgba(50,160,100,0.18));
+      border:1px solid rgba(99,208,154,0.45); color:#63d09a; font-size:22px;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 16px rgba(0,0,0,0.35); transition:all 0.15s;
+    }
+    .shop-fab:hover { transform:scale(1.08); box-shadow:0 6px 20px rgba(99,208,154,0.25); }
+
   </style>
 </head>
 <body>
@@ -656,7 +772,7 @@
   </div>
 
   <div class="wrap">
-    <div class="title">ScanHero MVP</div>
+    <div class="title" id="gameTitleBtn" style="cursor:pointer; user-select:none;" title="개발자 모드">ScanHero MVP</div>
     <div class="subtitle">초기 버전은 <b>영웅 성장</b>과 <b>바코드 탐험의 재미</b>에 집중했습니다.<br />전술과 병사 클래스를 먼저 고른 뒤, 바코드 탐험을 진행할 수 있습니다.</div>
 
     <div class="grid">
@@ -856,6 +972,159 @@
     </div>
   </div>
 
+  <!-- 상점 FAB -->
+  <button class="shop-fab" id="shopFab" title="상점">🏪</button>
+
+  <!-- 개발자 모드 패널 -->
+  <div class="devmode-backdrop" id="devModeBackdrop">
+    <div class="devmode-panel">
+      <div class="devmode-title">🛠️ 개발자 모드</div>
+
+      <div class="devmode-section">🎲 아이템 획득 확률</div>
+      <div style="margin-bottom:6px;">
+        <div class="devmode-row" style="margin-bottom:4px;">
+          <div>
+            <div class="devmode-label" id="luckLabel">보통</div>
+            <div class="devmode-desc">희귀 아이템 드롭 확률에 영향</div>
+          </div>
+          <div class="seg-ctrl" id="luckCtrl">
+            <button class="seg-btn" data-luck="0">최악</button>
+            <button class="seg-btn active" data-luck="1">보통</button>
+            <button class="seg-btn" data-luck="2">행운</button>
+            <button class="seg-btn" data-luck="3">대박</button>
+          </div>
+        </div>
+        <div class="luck-bar" id="luckBar">
+          <div class="luck-bar-seg"></div>
+          <div class="luck-bar-seg"></div>
+          <div class="luck-bar-seg"></div>
+          <div class="luck-bar-seg"></div>
+        </div>
+        <div style="font-size:9px; color:var(--muted); margin-top:5px;" id="luckHint">일반:30% 고급:32% 희귀:22% 영웅:12% 전설:4%</div>
+      </div>
+
+      <div class="devmode-section">⚔️ 게임 난이도</div>
+      <div class="devmode-row">
+        <div>
+          <div class="devmode-label" id="diffLabel">보통</div>
+          <div class="devmode-desc">적 강도 / 보상 배율에 영향</div>
+        </div>
+        <div class="seg-ctrl" id="diffCtrl">
+          <button class="seg-btn" data-diff="0">🌱 쉬움</button>
+          <button class="seg-btn active" data-diff="1">⚔️ 보통</button>
+          <button class="seg-btn" data-diff="2">💀 어려움</button>
+        </div>
+      </div>
+
+      <div class="devmode-section">🔁 바코드 설정</div>
+      <div class="toggle-row" id="dupeToggleRow">
+        <div class="toggle-track" id="dupeTrack">
+          <div class="toggle-thumb"></div>
+        </div>
+        <div>
+          <div class="devmode-label">바코드 중복 허용</div>
+          <div class="devmode-desc">같은 바코드를 여러 번 사용 가능</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; padding:8px 10px; background:rgba(255,207,99,0.06); border:1px solid rgba(255,207,99,0.15); border-radius:10px;">
+        <div style="font-size:10px; color:rgba(255,207,99,0.7); font-weight:700;">사용된 바코드: <span id="usedBarcodeCount">0</span>개</div>
+        <button id="clearBarcodesBtn" style="margin-top:6px; width:100%; padding:6px; border-radius:8px; background:rgba(255,120,80,0.15); border:1px solid rgba(255,120,80,0.3); color:#ff9b7f; font-size:10px; font-weight:800; cursor:pointer;">사용 기록 초기화</button>
+      </div>
+
+      <div style="margin-top:16px; display:flex; gap:8px;">
+        <button id="devModeCloseBtn" style="flex:1; padding:10px; border-radius:12px; background:rgba(79,124,255,0.18); border:1px solid rgba(79,124,255,0.3); color:#9fbfff; font-size:13px; font-weight:900; cursor:pointer;">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 상점 모달 -->
+  <div class="shop-backdrop" id="shopBackdrop">
+    <div class="shop-panel">
+      <div class="shop-header">
+        <div class="shop-title-row">
+          <div class="shop-title">🏪 고블린 상점</div>
+          <button class="shop-close-btn" id="shopCloseBtn">✕</button>
+        </div>
+        <div class="shop-gold-row">🪙 보유 골드: <span id="shopGoldDisplay">0</span>G</div>
+      </div>
+
+      <!-- 고블린 상인 -->
+      <div class="goblin-stage">
+        <div class="goblin-wrap">
+          <div class="goblin-speech" id="goblinSpeech">어서오세요, 모험가님! 🍀</div>
+          <svg viewBox="0 0 80 100" width="80" height="100" aria-hidden="true">
+            <!-- 고블린 몸통 -->
+            <ellipse cx="40" cy="75" rx="18" ry="5" fill="rgba(0,0,0,0.2)"/>
+            <!-- 다리 -->
+            <rect x="28" y="68" width="8" height="16" rx="4" fill="#4a7a3a"/>
+            <rect x="44" y="68" width="8" height="16" rx="4" fill="#4a7a3a"/>
+            <!-- 신발 -->
+            <ellipse cx="32" cy="84" rx="7" ry="4" fill="#3a2a1a"/>
+            <ellipse cx="48" cy="84" rx="7" ry="4" fill="#3a2a1a"/>
+            <!-- 몸 -->
+            <rect x="24" y="42" width="32" height="30" rx="10" fill="#5a9a48"/>
+            <!-- 망토/옷 장식 -->
+            <rect x="24" y="42" width="32" height="8" rx="8" fill="#4a8a38" opacity="0.7"/>
+            <rect x="34" y="46" width="12" height="22" rx="3" fill="#6aaa58" opacity="0.5"/>
+            <!-- 팔 왼쪽 (지팡이) -->
+            <rect x="12" y="44" width="8" height="18" rx="4" fill="#5a9a48"/>
+            <rect x="9" y="36" width="4" height="22" rx="2" fill="#8b6a3e"/>
+            <circle cx="11" cy="34" r="5" fill="#63d09a" opacity="0.9"/>
+            <circle cx="11" cy="34" r="3" fill="white" opacity="0.3"/>
+            <!-- 팔 오른쪽 (자루) -->
+            <rect x="60" y="44" width="8" height="18" rx="4" fill="#5a9a48"/>
+            <ellipse cx="65" cy="42" rx="8" ry="7" fill="#8b5a2a"/>
+            <path d="M57 40 Q65 44 73 40" fill="#6b4a1a" stroke="#5a3a10" stroke-width="1"/>
+            <text x="65" y="44" text-anchor="middle" font-size="8" fill="#ffcf63">$</text>
+            <!-- 머리 -->
+            <circle cx="40" cy="30" r="16" fill="#5a9a48"/>
+            <!-- 귀 -->
+            <ellipse cx="22" cy="28" rx="5" ry="8" fill="#4a8a38"/>
+            <ellipse cx="58" cy="28" rx="5" ry="8" fill="#4a8a38"/>
+            <!-- 눈 -->
+            <circle cx="33" cy="28" r="5" fill="#ffe87a"/>
+            <circle cx="47" cy="28" r="5" fill="#ffe87a"/>
+            <circle cx="34" cy="28" r="2.5" fill="#1a0a00"/>
+            <circle cx="48" cy="28" r="2.5" fill="#1a0a00"/>
+            <circle cx="35" cy="27" r="1" fill="white"/>
+            <circle cx="49" cy="27" r="1" fill="white"/>
+            <!-- 코 -->
+            <ellipse cx="40" cy="33" rx="4" ry="3" fill="#4a8a38"/>
+            <circle cx="38" cy="34" r="1.5" fill="#3a7a28"/>
+            <circle cx="42" cy="34" r="1.5" fill="#3a7a28"/>
+            <!-- 입 (활짝 웃음) -->
+            <path d="M33 38 Q40 44 47 38" fill="#2a1a0a" stroke="#2a1a0a" stroke-width="0.5"/>
+            <path d="M35 39 Q40 43 45 39" fill="#cc4444" stroke="none"/>
+            <!-- 이빨 -->
+            <rect x="37" y="38" width="3" height="4" rx="1" fill="white"/>
+            <rect x="40" y="38" width="3" height="4" rx="1" fill="white"/>
+            <!-- 모자 -->
+            <ellipse cx="40" cy="17" rx="18" ry="4" fill="#2a4a1a"/>
+            <rect x="28" y="4" width="24" height="14" rx="5" fill="#2a4a1a"/>
+            <rect x="28" y="4" width="24" height="4" rx="3" fill="#3a6a28" opacity="0.7"/>
+            <text x="40" y="14" text-anchor="middle" font-size="8">🍀</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 상품 목록 -->
+      <div class="shop-items-section">
+        <div class="shop-section-label">
+          <span>오늘의 상품 (4종)</span>
+          <span id="shopLuckBadge" style="font-size:9px; padding:2px 6px; border-radius:6px; background:rgba(99,208,154,0.15); color:#63d09a;">보통 운</span>
+        </div>
+        <div class="shop-grid" id="shopGrid"></div>
+      </div>
+
+      <div class="shop-refresh-row">
+        <button class="shop-refresh-btn" id="shopRefreshBtn">
+          🔄 상품 새로고침
+          <span class="shop-refresh-cost" id="shopRefreshCost">(50G)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- 스캔 모달 -->
   <div class="modal-backdrop" id="scanModalBackdrop">
     <div class="modal">
@@ -956,12 +1225,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const slotLabels = { weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑', boots:'장화', ring1:'반지1', ring2:'반지2', necklace:'목걸이', cloak:'망토' };
   // slotPinMap 제거 (핀 UI 대신 오버레이 방식 사용)
 
-  const monsterDropRarityTable = {
+  // 기본 드롭 테이블 (보통 난이도)
+  const BASE_DROP_TABLE = {
     일반:  [30, 32, 22, 12, 4 ],
     강화:  [18, 28, 28, 18, 8 ],
     엘리트:[8,  20, 30, 28, 14],
     보스:  [2,  8,  22, 36, 32]
   };
+  // luck 레벨에 따라 희귀도 가중치를 조정 (높을수록 희귀템 더 많이)
+  function getDropTable(grade) {
+    const base = BASE_DROP_TABLE[grade] || BASE_DROP_TABLE.일반;
+    const luck = state.devMode.luckLevel; // 0~3
+    if (luck === 0) { // 최악: 공통 쪽으로 편향
+      const shift = [15, 10, -5, -12, -8];
+      return base.map((v,i) => Math.max(1, v + shift[i]));
+    }
+    if (luck === 2) { // 행운: 고급 쪽으로 편향
+      const shift = [-10, -8, 2, 10, 6];
+      return base.map((v,i) => Math.max(1, v + shift[i]));
+    }
+    if (luck === 3) { // 대박: 에픽/전설 대폭 증가
+      const shift = [-18, -14, -4, 18, 18];
+      return base.map((v,i) => Math.max(1, v + shift[i]));
+    }
+    return base; // 보통
+  }
+  function getDropChance(grade) {
+    const base = { 일반:0.75, 강화:0.88, 엘리트:0.96, 보스:1.00 }[grade] || 0.75;
+    const luck = state.devMode.luckLevel;
+    if (luck === 0) return base * 0.7;
+    if (luck === 2) return Math.min(1, base * 1.15);
+    if (luck === 3) return 1.0;
+    return base;
+  }
 
   const state = {
     heroName:'주인님의 영웅', heroClass:'전사',
@@ -972,7 +1268,14 @@ document.addEventListener('DOMContentLoaded', () => {
     html5QrCode:null, scannerRunning:false,
     inventory:[],
     equipment:{ weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null },
-    selectedItemId: null
+    selectedItemId: null,
+    usedBarcodes: new Set(),
+    shopStock: [],
+    devMode: {
+      luckLevel:   1,    // 0=최악 1=보통 2=행운 3=대박 (아이템 등급 확률)
+      difficulty:  1,    // 0=쉬움 1=보통 2=어려움
+      allowDupe:   false // 바코드 중복 허용
+    }
   };
 
   const q = id => document.getElementById(id);
@@ -1293,6 +1596,185 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  // ─────────────────────────────────────────
+  // 개발자 모드
+  // ─────────────────────────────────────────
+  const LUCK_LABELS = ['😞 최악', '😐 보통', '🍀 행운', '⭐ 대박'];
+  const DIFF_LABELS = ['🌱 쉬움', '⚔️ 보통', '💀 어려움'];
+  const LUCK_HINTS  = [
+    '일반:45% 고급:34% 희귀:14% 영웅:5% 전설:2%',
+    '일반:30% 고급:32% 희귀:22% 영웅:12% 전설:4%',
+    '일반:18% 고급:22% 희귀:30% 영웅:20% 전설:10%',
+    '일반:8% 고급:16% 희귀:24% 영웅:28% 전설:24%'
+  ];
+  function updateDevModeUI() {
+    const dm = state.devMode;
+    // 행운 세그먼트
+    document.querySelectorAll('#luckCtrl .seg-btn').forEach(b => {
+      b.classList.toggle('active', +b.dataset.luck === dm.luckLevel);
+    });
+    document.getElementById('luckLabel').textContent = LUCK_LABELS[dm.luckLevel];
+    document.getElementById('luckHint').textContent  = LUCK_HINTS[dm.luckLevel];
+    // 행운 바
+    document.querySelectorAll('#luckBar .luck-bar-seg').forEach((seg, i) => {
+      seg.className = 'luck-bar-seg' + (i <= dm.luckLevel ? ` active-${dm.luckLevel}` : '');
+    });
+    // 난이도
+    document.querySelectorAll('#diffCtrl .seg-btn').forEach(b => {
+      b.classList.toggle('active', +b.dataset.diff === dm.difficulty);
+    });
+    document.getElementById('diffLabel').textContent = DIFF_LABELS[dm.difficulty];
+    // 중복 토글
+    const track = document.getElementById('dupeTrack');
+    track.classList.toggle('on', dm.allowDupe);
+    // 사용된 바코드 수
+    document.getElementById('usedBarcodeCount').textContent = state.usedBarcodes.size;
+  }
+
+  function openDevMode() {
+    updateDevModeUI();
+    document.getElementById('devModeBackdrop').classList.add('show');
+  }
+  function closeDevMode() {
+    document.getElementById('devModeBackdrop').classList.remove('show');
+  }
+
+  // 난이도에 따른 적 강도 배율
+  function getDifficultyMult() {
+    return [0.75, 1.0, 1.35][state.devMode.difficulty] || 1.0;
+  }
+  function getDifficultyRewardMult() {
+    return [0.8, 1.0, 1.25][state.devMode.difficulty] || 1.0;
+  }
+
+  // ─────────────────────────────────────────
+  // 상점 시스템
+  // ─────────────────────────────────────────
+  const SHOP_REFRESH_COST = 50;
+
+  function rollShopRarity() {
+    // 상점 확률 = 행운 레벨에 따라 다름 (일반 드롭보다 약간 낮게)
+    const tables = [
+      [50, 30, 14,  5,  1], // 최악
+      [35, 32, 20, 10,  3], // 보통
+      [20, 28, 28, 18,  6], // 행운
+      [10, 16, 26, 28, 20], // 대박
+    ];
+    const table = tables[state.devMode.luckLevel];
+    const total = table.reduce((a,b)=>a+b,0);
+    const roll  = Math.random() * total;
+    let cum = 0, idx = 0;
+    for (let i=0; i<table.length; i++) { cum += table[i]; if (roll < cum) { idx = i; break; } idx = i; }
+    return rarityOrder[idx];
+  }
+
+  function getShopItemPrice(item) {
+    const base = { common:30, uncommon:80, rare:180, epic:380, legendary:800 };
+    return Math.round((base[item.rarity] || 30) * getRarityMultiplier(item.rarity));
+  }
+
+  function generateShopStock() {
+    const stock = [];
+    const usedSlots = new Set();
+    for (let i = 0; i < 4; i++) {
+      const rarity = rollShopRarity();
+      // 중복 슬롯 방지
+      let d4, gear, attempts = 0;
+      do {
+        d4   = Math.floor(Math.random() * gearCatalog.length);
+        gear = gearCatalog[d4];
+        attempts++;
+      } while (usedSlots.has(gear.slot) && attempts < 20);
+      usedSlots.add(gear.slot);
+      const item = createEquipmentItem(rarity, d4, true);
+      item.shopPrice = getShopItemPrice(item);
+      item.soldOut   = false;
+      stock.push(item);
+    }
+    state.shopStock = stock;
+  }
+
+  function renderShopGrid() {
+    const grid = document.getElementById('shopGrid');
+    const luckNames = ['😞 최악 운','😐 보통 운','🍀 행운','⭐ 대박 운'];
+    const luckColors = ['#a4b4db','#a4b4db','#63d09a','#ffcf63'];
+    const badge = document.getElementById('shopLuckBadge');
+    const luck  = state.devMode.luckLevel;
+    badge.textContent = luckNames[luck];
+    badge.style.background = `rgba(${luck===3?'255,207,99':luck===2?'99,208,154':'120,149,220'},0.15)`;
+    badge.style.color = luckColors[luck];
+
+    document.getElementById('shopGoldDisplay').textContent = state.gold;
+
+    grid.innerHTML = state.shopStock.map((item, idx) => {
+      const canAfford = state.gold >= item.shopPrice;
+      const sdClass   = item.soldOut ? ' sold-out' : '';
+      const statText  = getItemStatText(item);
+      return `<div class="shop-item-card rarity-${item.rarity}${sdClass}" data-shop-idx="${idx}">
+        <span class="shop-item-icon">${item.icon}</span>
+        <div class="shop-item-name rarity-${item.rarity}">${item.name}</div>
+        <div class="shop-item-rarity rarity-${item.rarity}">[${item.rarityLabel}] ${item.slotLabel}</div>
+        <div class="shop-item-stats">${statText}</div>
+        <div class="shop-item-price">🪙 ${item.shopPrice}G</div>
+        ${!item.soldOut ? `<button class="shop-buy-btn" data-shop-idx="${idx}" ${canAfford?'':'disabled'}>
+          ${canAfford ? '구매' : '골드 부족'}
+        </button>` : ''}
+      </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.shop-buy-btn:not(:disabled)').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        buyShopItem(+btn.dataset.shopIdx);
+      });
+    });
+
+    // 새로고침 비용 표시
+    document.getElementById('shopRefreshCost').textContent = `(${SHOP_REFRESH_COST}G)`;
+    const refreshBtn = document.getElementById('shopRefreshBtn');
+    refreshBtn.disabled = state.gold < SHOP_REFRESH_COST;
+  }
+
+  function buyShopItem(idx) {
+    const item = state.shopStock[idx];
+    if (!item || item.soldOut) return;
+    if (state.gold < item.shopPrice) {
+      updateGoblinSpeech('골드가 부족해요... 😢');
+      return;
+    }
+    state.gold -= item.shopPrice;
+    item.soldOut = true;
+    state.inventory.unshift(item);
+    state.inventory = state.inventory.slice(0, 60);
+    renderHero();
+    renderShopGrid();
+    updateGoblinSpeech(`${item.name} 구매 완료! 좋은 선택이에요! ✨`);
+    showDropNotification(`🛒 ${item.name} 구매! -${item.shopPrice}G`, getRarityHex(item.rarity));
+  }
+
+  function updateGoblinSpeech(text) {
+    const el = document.getElementById('goblinSpeech');
+    if (el) el.textContent = text;
+  }
+
+  const GOBLIN_GREETINGS = [
+    '어서오세요, 모험가님! 🍀',
+    '오늘은 특별한 물건이 있어요! ✨',
+    '최고의 장비를 찾고 계신가요? 🗡️',
+    '좋은 거래를 해봅시다! 💰',
+    '희귀한 물건이 들어왔어요! 🌟',
+  ];
+
+  function openShop() {
+    if (!state.shopStock.length) generateShopStock();
+    updateGoblinSpeech(GOBLIN_GREETINGS[Math.floor(Math.random()*GOBLIN_GREETINGS.length)]);
+    renderShopGrid();
+    document.getElementById('shopBackdrop').classList.add('show');
+  }
+  function closeShop() {
+    document.getElementById('shopBackdrop').classList.remove('show');
+  }
+
   function calcCombatPower(stats) {
     return Math.round(
       stats.atk     * 2.8 +
@@ -1346,10 +1828,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function rollMonsterDrop(enemy) {
-    const dropChance = { 일반:0.75, 강화:0.88, 엘리트:0.96, 보스:1.00 }[enemy.grade] || 0.75;
+    const dropChance = getDropChance(enemy.grade);
     if (Math.random() > dropChance) return null;
-    const table = monsterDropRarityTable[enemy.grade] || monsterDropRarityTable.일반;
-    const roll  = Math.random() * 100;
+    const table = getDropTable(enemy.grade);
+    // 정규화
+    const total = table.reduce((a,b)=>a+b, 0);
+    const roll  = Math.random() * total;
     let cum = 0, rarityIdx = 0;
     for (let i=0; i<table.length; i++) { cum += table[i]; if (roll < cum) { rarityIdx = i; break; } rarityIdx = i; }
     const rarity = rarityOrder[rarityIdx];
@@ -1365,7 +1849,7 @@ document.addEventListener('DOMContentLoaded', () => {
       {atk:11,def:8,hp:42,speed:2,crit:3},{atk:12,def:6,hp:28,speed:11,crit:10},
       {atk:18,def:12,hp:70,speed:2,crit:4},{atk:20,def:14,hp:80,speed:7,crit:12}
     ][d4];
-    const gradeMult = grade==='일반'?1.12: grade==='강화'?1.34: grade==='엘리트'?1.62: 2.12;
+    const gradeMult = (grade==='일반'?1.12: grade==='강화'?1.34: grade==='엘리트'?1.62: 2.12) * getDifficultyMult();
     let atk=Math.round(baseStats.atk*gradeMult), def=Math.round(baseStats.def*gradeMult),
         hp=Math.round((baseStats.hp+amount*10)*gradeMult), speed=Math.round(baseStats.speed*gradeMult),
         crit=baseStats.crit+(grade==='강화'?3:grade==='엘리트'?5:grade==='보스'?8:1);
@@ -2179,6 +2663,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const barcode=onlyDigits(els.barcodeInput.value);
     if (!barcode)                { alert('바코드 숫자를 입력하거나 카메라로 스캔해 주세요.'); return; }
     if (!state.currentLocation)  { alert('현재 위치 확인 후 다시 시도해 주세요.'); return; }
+    // 중복 바코드 체크
+    if (!state.devMode.allowDupe && state.usedBarcodes.has(barcode)) {
+      alert(`⚠️ 이미 사용한 바코드입니다!\n(개발자 모드에서 중복 허용 옵션을 켤 수 있습니다)`);
+      return;
+    }
+    state.usedBarcodes.add(barcode);
     closeModal(els.scanModalBackdrop);
     const code=toFiveCode(barcode), decoded=decodeEvent(code);
     renderEvent(decoded); showEventModal(decoded);
@@ -2189,6 +2679,54 @@ document.addEventListener('DOMContentLoaded', () => {
     state.heroClass = els.startHeroClass.value||'전사';
     renderHero(); els.startHeroBackdrop.style.display='none'; requestCurrentLocation();
   }
+
+  // 게임 타이틀 클릭 → 개발자 모드
+  document.getElementById('gameTitleBtn').addEventListener('click', openDevMode);
+  document.getElementById('devModeCloseBtn').addEventListener('click', closeDevMode);
+  document.getElementById('devModeBackdrop').addEventListener('click', e => {
+    if (e.target === document.getElementById('devModeBackdrop')) closeDevMode();
+  });
+  // 행운 세그먼트 버튼
+  document.querySelectorAll('#luckCtrl .seg-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      state.devMode.luckLevel = +b.dataset.luck;
+      state.shopStock = []; // 상점 재고 리셋
+      updateDevModeUI();
+    });
+  });
+  // 난이도 세그먼트 버튼
+  document.querySelectorAll('#diffCtrl .seg-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      state.devMode.difficulty = +b.dataset.diff;
+      updateDevModeUI();
+    });
+  });
+  // 중복 토글
+  document.getElementById('dupeToggleRow').addEventListener('click', () => {
+    state.devMode.allowDupe = !state.devMode.allowDupe;
+    updateDevModeUI();
+  });
+  // 바코드 기록 초기화
+  document.getElementById('clearBarcodesBtn').addEventListener('click', () => {
+    state.usedBarcodes.clear();
+    updateDevModeUI();
+    showDropNotification('🔄 바코드 사용 기록이 초기화됐습니다.', '#a4b4db');
+  });
+
+  // 상점 FAB
+  document.getElementById('shopFab').addEventListener('click', openShop);
+  document.getElementById('shopCloseBtn').addEventListener('click', closeShop);
+  document.getElementById('shopBackdrop').addEventListener('click', e => {
+    if (e.target === document.getElementById('shopBackdrop')) closeShop();
+  });
+  document.getElementById('shopRefreshBtn').addEventListener('click', () => {
+    if (state.gold < SHOP_REFRESH_COST) { updateGoblinSpeech('골드가 부족해요... 😢'); return; }
+    state.gold -= SHOP_REFRESH_COST;
+    generateShopStock();
+    renderHero();
+    renderShopGrid();
+    updateGoblinSpeech('새 물건이 들어왔어요! ✨');
+  });
 
   els.scanFab.addEventListener('click', async ()=>{ els.scanStatusText.textContent='카메라 스캔 또는 바코드 숫자 직접 입력을 사용할 수 있습니다.'; els.barcodeInput.value=''; openModal(els.scanModalBackdrop); await startCameraScanner(); });
   els.scanModalCloseBtn.addEventListener('click', async ()=>{ await stopCameraScanner(); closeModal(els.scanModalBackdrop); });
