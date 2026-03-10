@@ -1842,7 +1842,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function renderCharSlots() {
     const container = document.getElementById('charSlots');
-    container.innerHTML = '<div style="color:#5a7090;font-size:12px;text-align:center;padding:30px;">불러오는 중...</div>';
+    container.innerHTML = '<div style="color:#5a7090;font-size:12px;text-align:center;padding:30px;">불러오는 중...<br><small style="font-size:10px;color:#3a4a6a;">user: ' + (CURRENT_USER?.id?.slice(0,8) || 'none') + '</small></div>';
     const heroes = await loadMyHeroes();
     if (heroes === null) return; // 오류 시 showCharError가 이미 표시됨
     // GM은 모든 캐릭터를 슬롯 번호 기준으로 표시
