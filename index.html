@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <!-- 캐시 방지 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>ScanHero MVP</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -1555,6 +1559,50 @@ document.addEventListener('DOMContentLoaded', () => {
   let CURRENT_CHAR_SLOT = null;
 
   // ═══════════════════════════════════════════════════════
+  // 버전 체크 — 캐시된 구버전 자동 새로고침
+  // ═══════════════════════════════════════════════════════
+  const APP_VERSION = '1773121860';
+  (function() {
+    const saved = localStorage.getItem('scanhero_version');
+    if (saved && saved !== APP_VERSION) {
+      console.log('[ScanHero] 새 버전 감지 (' + saved + ' → ' + APP_VERSION + '), 새로고침...');
+      localStorage.setItem('scanhero_version', APP_VERSION);
+      window.location.reload(true); // 강제 서버 새로고침
+      return;
+    }
+    localStorage.setItem('scanhero_version', APP_VERSION);
+  })();
+
+  // ═══════════════════════════════════════════════════════
+  // 버전 체크 — 캐시된 구버전 자동 새로고침
+  // ═══════════════════════════════════════════════════════
+  const APP_VERSION = '1773121873';
+  (function checkVersion() {
+    const saved = localStorage.getItem('scanhero_version');
+    if (saved && saved !== APP_VERSION) {
+      console.log('[ScanHero] 새 버전 감지 (' + saved + ' → ' + APP_VERSION + '), 자동 새로고침...');
+      localStorage.setItem('scanhero_version', APP_VERSION);
+      window.location.reload(true);
+      return;
+    }
+    localStorage.setItem('scanhero_version', APP_VERSION);
+  })();
+
+  // ═══════════════════════════════════════════════════════
+  // 버전 체크 — 캐시된 구버전 자동 새로고침
+  // ═══════════════════════════════════════════════════════
+  const APP_VERSION = '1773121883';
+  (function checkVersion() {
+    const saved = localStorage.getItem('scanhero_version');
+    if (saved && saved !== APP_VERSION) {
+      localStorage.setItem('scanhero_version', APP_VERSION);
+      window.location.reload(true);
+      return;
+    }
+    localStorage.setItem('scanhero_version', APP_VERSION);
+  })();
+
+  // ═══════════════════════════════════════════════════════
   // 인증 UI
   // ═══════════════════════════════════════════════════════
 
@@ -1776,27 +1824,29 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch(e) { console.error('GM 영웅 로드 실패:', e); return []; }
     }
     try {
-      const { data, error } = await sb
+      // account_id 컬럼이 있으면 필터링, 없으면 전체 조회
+      let query = sb
         .from('heroes')
-        .select('player_id, hero_name, hero_class, level, gold, char_slot, updated_at')
-        .eq('account_id', CURRENT_USER.id)
+        .select('player_id, hero_name, hero_class, level, gold, char_slot, account_id, updated_at')
         .order('char_slot');
+
+      const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+
+      const rows = data || [];
+      console.log('[loadMyHeroes] 전체 rows:', rows.length, '/ CURRENT_USER.id:', CURRENT_USER.id);
+
+      // account_id 컬럼이 있고 값이 있으면 필터, 없으면 전체 반환 (개발 초기 호환)
+      const hasAccountId = rows.some(r => r.account_id != null);
+      if (hasAccountId) {
+        return rows.filter(r => r.account_id === CURRENT_USER.id);
+      }
+      return rows;
     } catch(e) {
       console.error('영웅 로드 실패:', e);
       showCharError('영웅 목록을 불러오지 못했습니다.<br>네트워크를 확인하고 다시 시도해 주세요.<br><small style="color:#6a80a4">' + e.message + '</small>');
-      return null; // null = 오류 상태
+      return null;
     }
-  }
-
-  function showCharError(msg) {
-    const container = document.getElementById('charSlots');
-    container.innerHTML = `<div style="padding:20px;text-align:center;color:#ff7b7b;font-size:12px;line-height:1.7;">
-      ❌ ${msg}
-      <br><br>
-      <button onclick="renderCharSlots()" style="padding:8px 20px;border-radius:10px;background:rgba(79,124,255,0.2);border:1px solid rgba(79,124,255,0.4);color:#9fbfff;font-size:12px;font-weight:700;cursor:pointer;">다시 시도</button>
-    </div>`;
   }
 
   function showCharError(msg) {
