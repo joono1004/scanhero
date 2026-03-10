@@ -333,14 +333,6 @@
     .auth-btn:hover { transform: translateY(-1px); }
     .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     .auth-error { font-size: 11px; color: #ff7b7b; text-align: center; min-height: 16px; }
-    .auth-btn-google {
-      background: rgba(255,255,255,0.07) !important;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
-      border: 1px solid rgba(255,255,255,0.12) !important;
-      color: #eef3ff !important; font-size: 13px !important;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .auth-btn-google:hover { background: rgba(255,255,255,0.13) !important; }
     .auth-gm-badge {
       position: absolute; top: 8px; right: 12px;
       font-size: 9px; color: #ffcf63; font-weight: 700;
@@ -361,9 +353,11 @@
     }
     .char-screen-title { font-size: 20px; font-weight: 900; }
     .char-logout-btn {
-      padding: 6px 12px; border-radius: 10px; border: 1px solid rgba(120,149,220,0.22);
+      padding: 6px 14px; border-radius: 10px; border: 1px solid rgba(120,149,220,0.22);
       background: rgba(14,21,38,0.9); color: #7a90be; font-size: 11px; font-weight: 700; cursor: pointer;
+      white-space: nowrap; flex-shrink: 0;
     }
+    .char-screen-title { font-size: 18px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .char-account-info { width: min(430px,100%); font-size: 11px; color: #5a7090; margin-bottom: 20px; }
     .char-slots { width: min(430px, 100%); display: grid; gap: 12px; }
     .char-slot {
@@ -862,6 +856,92 @@
     .shop-refresh-btn:hover { background:linear-gradient(180deg,rgba(79,124,255,0.3),rgba(55,95,210,0.2)); }
     .shop-refresh-cost { font-size:10px; color:#ffcf63; }
 
+
+    /* ===== 클래스 선택 팝업 ===== */
+    .class-select-backdrop {
+      position: fixed; inset: 0; z-index: 2200;
+      background: rgba(3, 6, 16, 0.92); backdrop-filter: blur(16px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 12px;
+    }
+    .class-select-modal {
+      width: min(440px, 100%);
+      background: linear-gradient(180deg, rgba(18,26,52,0.99), rgba(10,16,34,0.99));
+      border: 1px solid rgba(134,164,235,0.22); border-radius: 26px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.7); overflow: hidden;
+    }
+    .class-select-head {
+      padding: 18px 20px 12px;
+      border-bottom: 1px solid rgba(112,138,203,0.14);
+      background: linear-gradient(180deg, rgba(49,71,133,0.3), rgba(0,0,0,0));
+      text-align: center;
+    }
+    .class-select-head h2 { font-size: 20px; font-weight: 900; margin: 0 0 4px; }
+    .class-select-head p  { font-size: 11px; color: #8a9dc4; margin: 0; }
+    .class-select-cards {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 10px; padding: 16px;
+    }
+    .class-card {
+      border-radius: 18px; padding: 10px 6px 12px;
+      background: rgba(14,21,40,0.95);
+      border: 2px solid rgba(120,149,220,0.18);
+      cursor: pointer; transition: all 0.22s; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .class-card:hover {
+      border-color: rgba(79,124,255,0.5);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(79,124,255,0.18);
+    }
+    .class-card.selected-전사  { border-color: #ff8a6a; background: rgba(255,100,60,0.08); box-shadow: 0 8px 24px rgba(255,100,60,0.2); }
+    .class-card.selected-궁사  { border-color: #63d09a; background: rgba(60,200,120,0.08); box-shadow: 0 8px 24px rgba(60,200,120,0.2); }
+    .class-card.selected-마법사 { border-color: #b27dff; background: rgba(150,80,255,0.08); box-shadow: 0 8px 24px rgba(150,80,255,0.2); }
+    .class-card-sprite {
+      width: 88px; height: 90px; margin: 0 auto 8px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .class-card-sprite svg { transition: transform 0.3s; }
+    .class-card:hover .class-card-sprite svg { transform: scale(1.08); }
+    .class-card.selected-전사 .class-card-sprite svg  { animation: classAttackL 0.5s ease forwards; }
+    .class-card.selected-궁사 .class-card-sprite svg  { animation: classAttackR 0.5s ease forwards; }
+    .class-card.selected-마법사 .class-card-sprite svg { animation: classMagic  0.5s ease forwards; }
+    @keyframes classAttackL { 0%{transform:scale(1) rotate(0)} 40%{transform:scale(1.12) rotate(-8deg) translateX(-4px)} 100%{transform:scale(1.06) rotate(-4deg) translateX(-2px)} }
+    @keyframes classAttackR { 0%{transform:scale(1) rotate(0)} 40%{transform:scale(1.12) rotate(8deg) translateX(4px)} 100%{transform:scale(1.06) rotate(4deg) translateX(2px)} }
+    @keyframes classMagic   { 0%{transform:scale(1)} 30%{transform:scale(1.14) rotate(3deg)} 60%{transform:scale(1.08) rotate(-3deg)} 100%{transform:scale(1.1) rotate(0)} }
+    .class-card-name { font-size: 14px; font-weight: 900; margin-bottom: 3px; }
+    .class-card-name-전사  { color: #ff9a7a; }
+    .class-card-name-궁사  { color: #63d09a; }
+    .class-card-name-마법사 { color: #b27dff; }
+    .class-card-desc { font-size: 9.5px; color: #7a90be; line-height: 1.4; }
+    .class-card-stats { margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
+    .class-stat-bar-row { display: flex; align-items: center; gap: 4px; font-size: 8.5px; color: #6a80a4; }
+    .class-stat-bar-track { flex: 1; height: 3px; border-radius: 2px; background: rgba(30,42,68,0.9); }
+    .class-stat-bar-fill  { height: 100%; border-radius: 2px; }
+    .class-select-check {
+      position: absolute; top: 6px; right: 7px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(14,21,40,0.9); border: 1.5px solid rgba(120,149,220,0.22);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; transition: all 0.2s;
+    }
+    .class-card.selected-전사  .class-select-check { background: #ff8a6a; border-color: #ff8a6a; color: #fff; }
+    .class-card.selected-궁사  .class-select-check { background: #63d09a; border-color: #63d09a; color: #fff; }
+    .class-card.selected-마법사 .class-select-check { background: #b27dff; border-color: #b27dff; color: #fff; }
+    .class-aura-전사  { filter: drop-shadow(0 0 8px rgba(255,120,60,0.55)); }
+    .class-aura-궁사  { filter: drop-shadow(0 0 8px rgba(60,210,120,0.55)); }
+    .class-aura-마법사 { filter: drop-shadow(0 0 8px rgba(160,80,255,0.55)); }
+    .class-select-foot { padding: 0 16px 16px; }
+    .class-confirm-btn {
+      width: 100%; padding: 13px; border-radius: 14px; border: none; cursor: pointer;
+      font-size: 14px; font-weight: 900; transition: all 0.18s;
+      background: linear-gradient(135deg, #4f7cff, #3a5fd9);
+      color: #fff; box-shadow: 0 4px 16px rgba(79,124,255,0.35);
+    }
+    .class-confirm-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(79,124,255,0.45); }
+    .class-confirm-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
     /* 상점 버튼 (메인화면) */
     .shop-fab {
       position:fixed; right:16px; bottom:72px; z-index:200;
@@ -899,11 +979,6 @@
         </div>
         <div class="auth-error" id="loginError"></div>
         <button class="auth-btn" id="loginBtn">로그인</button>
-        <div class="auth-divider" style="text-align:center;color:#4a5a7a;font-size:11px;padding:4px 0;">또는</div>
-        <button class="auth-btn auth-btn-google" id="googleLoginBtn">
-          <svg width="18" height="18" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:8px;"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.5 30.2 0 24 0 14.7 0 6.7 5.4 2.7 13.3l7.9 6.1C12.5 13.1 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/><path fill="#FBBC05" d="M10.6 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.2 0-11.5-3.6-13.4-9l-7.9 6.1C6.7 42.6 14.7 48 24 48z"/></svg>
-          Google로 로그인
-        </button>
       </div>
 
       <!-- 회원가입 폼 -->
@@ -913,11 +988,6 @@
         <div class="auth-field"><label>비밀번호 확인</label><input type="password" id="signupPw2" placeholder="비밀번호 재입력" autocomplete="new-password" /></div>
         <div class="auth-error" id="signupError"></div>
         <button class="auth-btn" id="signupBtn">계정 만들기</button>
-        <div class="auth-divider" style="text-align:center;color:#4a5a7a;font-size:11px;padding:4px 0;">또는</div>
-        <button class="auth-btn auth-btn-google" id="googleSignupBtn">
-          <svg width="18" height="18" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:8px;"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.5 30.2 0 24 0 14.7 0 6.7 5.4 2.7 13.3l7.9 6.1C12.5 13.1 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/><path fill="#FBBC05" d="M10.6 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.2 0-11.5-3.6-13.4-9l-7.9 6.1C6.7 42.6 14.7 48 24 48z"/></svg>
-          Google로 가입
-        </button>
       </div>
     </div>
   </div>
@@ -939,21 +1009,42 @@
     <div class="hero-start-modal">
       <div class="hero-start-head">
         <div class="hero-start-title">✨ 영웅 생성</div>
-        <div class="hero-start-desc">새로운 영웅의 이름과 클래스를 선택해 주세요.<br>클래스는 나중에 변경할 수 없습니다.</div>
+        <div class="hero-start-desc">영웅의 이름을 입력하고, 클래스를 선택해 주세요.</div>
       </div>
       <div class="hero-start-body">
-        <div class="line" style="margin-bottom:0;"><label for="startHeroName">영웅 이름</label><input id="startHeroName" value="주인님의 영웅" /></div>
-        <div class="line" style="margin-bottom:0;"><label for="startHeroClass">클래스</label>
-          <select id="startHeroClass">
-            <option value="전사">⚔️ 전사 — 강인한 방어와 근접 전투</option>
-            <option value="궁사">🏹 궁사 — 빠른 속도와 원거리 공격</option>
-            <option value="마법사">🔮 마법사 — 강력한 마법과 치명타</option>
-          </select>
+        <div class="line" style="margin-bottom:0;">
+          <label for="startHeroName">영웅 이름</label>
+          <input id="startHeroName" value="주인님의 영웅" />
+        </div>
+        <div class="line" style="margin-bottom:0;">
+          <label>클래스 선택</label>
+          <button id="classSelectOpenBtn" style="width:100%;padding:11px 14px;border-radius:12px;background:rgba(10,16,32,0.8);border:1px solid rgba(120,149,220,0.22);color:#eef3ff;font-size:13px;font-weight:700;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;">
+            <span id="classSelectIcon">⚔️</span>
+            <span id="classSelectLabel">전사 — 강인한 방어와 근접 전투</span>
+            <span style="margin-left:auto;color:#6a80a4;font-size:11px;">클릭하여 선택 ▼</span>
+          </button>
+          <input type="hidden" id="startHeroClass" value="전사" />
         </div>
         <div style="display:flex; gap:8px; margin-top:4px;">
           <button id="cancelHeroBtn" style="flex:1; padding:11px; border-radius:12px; background:rgba(14,21,38,0.9); border:1px solid rgba(120,149,220,0.22); color:#8a9dc4; font-size:13px; font-weight:700; cursor:pointer;">취소</button>
-          <button id="startGameBtn" style="flex:2; padding:11px; border-radius:12px; background:linear-gradient(135deg,#4f7cff,#3a5fd9); border:none; color:#fff; font-size:14px; font-weight:900; cursor:pointer;">모험 시작</button>
+          <button id="startGameBtn" style="flex:2; padding:11px; border-radius:12px; background:linear-gradient(135deg,#4f7cff,#3a5fd9); border:none; color:#fff; font-size:14px; font-weight:900; cursor:pointer;">⚔️ 모험 시작</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 클래스 선택 팝업 ══ -->
+  <div class="class-select-backdrop" id="classSelectBackdrop" style="display:none;">
+    <div class="class-select-modal">
+      <div class="class-select-head">
+        <h2>⚔️ 클래스 선택</h2>
+        <p>클래스를 선택하면 전투 포즈를 확인할 수 있습니다 · 나중에 변경 불가</p>
+      </div>
+      <div class="class-select-cards" id="classSelectCards">
+        <!-- JS로 렌더 -->
+      </div>
+      <div class="class-select-foot">
+        <button class="class-confirm-btn" id="classConfirmBtn">이 클래스로 선택</button>
       </div>
     </div>
   </div>
@@ -1483,7 +1574,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pw.length < 6)  { errEl.textContent = '비밀번호는 6자 이상이어야 합니다.'; return; }
     if (pw !== pw2)     { errEl.textContent = '비밀번호가 일치하지 않습니다.'; return; }
     setAuthLoading('signupBtn', true, '계정 만들기');
-    const { error } = await sb.auth.signUp({ email, password: pw });
+    const { error } = await sb.auth.signUp({ email, password: pw, options: { emailRedirectTo: null, data: {} } });
+    // 이메일 인증 없이 즉시 사용 (Supabase 대시보드에서 Confirm email OFF 필요)
     setAuthLoading('signupBtn', false, '계정 만들기');
     if (error) errEl.textContent = error.message;
     else {
@@ -1494,16 +1586,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Google 로그인/가입 (같은 함수)
-  async function googleLogin() {
-    const { error } = await sb.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.href }
-    });
-    if (error) showDbStatus('Google 로그인 실패: ' + error.message, 'error');
-  }
-  document.getElementById('googleLoginBtn').addEventListener('click', googleLogin);
-  document.getElementById('googleSignupBtn').addEventListener('click', googleLogin);
+
 
   // 로그아웃
   document.getElementById('logoutBtn').addEventListener('click', async () => {
@@ -1673,14 +1756,261 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ─── 새 캐릭터 생성 모달 ───
   let pendingNewSlot = null;
+  let selectedClass = '전사';
+
+  // 클래스 정보
+  const CLASS_INFO = {
+    '전사': { icon:'⚔️', color:'#ff9a7a', desc:'강인한 방어와 근접 전투', stats:{atk:80,def:95,spd:50,crit:40} },
+    '궁사': { icon:'🏹', color:'#63d09a', desc:'빠른 속도와 원거리 공격', stats:{atk:75,def:55,spd:95,crit:70} },
+    '마법사': { icon:'🔮', color:'#b27dff', desc:'강력한 마법과 높은 치명타', stats:{atk:95,def:40,spd:65,crit:90} }
+  };
+
+  // 최강 장비 색상 (legendary)
+  const LEGEND_COLOR = '#ffe77a';
+  const LEGEND_SHIELD = '#ffe77a';
+
+  // 클래스별 최강 장비 착용 SVG 생성
+  function getClassPreviewSprite(heroClass) {
+    const wc = LEGEND_COLOR;
+    const sc = LEGEND_SHIELD;
+    const se = '#fff8d0';
+
+    if (heroClass === '전사') {
+      return `<svg viewBox="0 0 96 98" width="86" height="88" aria-hidden="true">
+        <ellipse cx="48" cy="90" rx="20" ry="5" fill="rgba(0,0,0,0.18)"/>
+        <!-- 황금 망토 -->
+        <path d="M28 45c4-12 12-19 20-19 9 0 17 7 20 19l7 26H21z" fill="${wc}" opacity="0.22"/>
+        <!-- 머리 -->
+        <circle cx="48" cy="20" r="12" fill="#f4d1b5"/>
+        <!-- 황금 투구 -->
+        <path d="M36 16c2-9 24-12 28 0-3-2-8-3-14-3s-11 1-14 3z" fill="${wc}"/>
+        <rect x="35" y="13" width="26" height="5" rx="2.5" fill="${wc}" opacity="0.8"/>
+        <!-- 황금 갑옷 몸통 -->
+        <rect x="34" y="34" width="28" height="27" rx="10" fill="${wc}" opacity="0.9"/>
+        <rect x="36" y="36" width="24" height="23" rx="8" fill="rgba(255,200,60,0.3)"/>
+        <!-- 팔 -->
+        <rect fill="#f4d1b5" x="20" y="41" width="8" height="20" rx="4"/>
+        <rect fill="#f4d1b5" x="68" y="41" width="8" height="20" rx="4"/>
+        <!-- 황금 장갑 -->
+        <rect fill="${wc}" x="20" y="55" width="8" height="8" rx="3"/>
+        <rect fill="${wc}" x="68" y="55" width="8" height="8" rx="3"/>
+        <!-- 다리 -->
+        <rect fill="#f4d1b5" x="38" y="60" width="7" height="20" rx="3"/>
+        <rect fill="#f4d1b5" x="51" y="60" width="7" height="20" rx="3"/>
+        <!-- 황금 장화 -->
+        <rect fill="${wc}" x="37" y="72" width="9" height="10" rx="3"/>
+        <rect fill="${wc}" x="50" y="72" width="9" height="10" rx="3"/>
+        <!-- 전투포즈: 검 크게 들어올림 -->
+        <g filter="url(#glow-legend)">
+          <rect fill="${wc}" x="8" y="10" width="6" height="32" rx="3"/>
+          <rect fill="${wc}" x="3" y="36" width="16" height="4" rx="2"/>
+          <rect fill="${wc}" x="10" y="40" width="3" height="10" rx="1.5"/>
+          <polygon fill="${wc}" points="11,7 8,14 14,14"/>
+          <!-- 검 빛 효과 -->
+          <rect fill="rgba(255,255,255,0.5)" x="9" y="12" width="2" height="20" rx="1"/>
+        </g>
+        <!-- 전투포즈: 황금 방패 앞으로 -->
+        <g filter="url(#glow-legend)">
+          <path fill="${sc}" stroke="${se}" stroke-width="1.5"
+            d="M78 30c6 2 9 5 9 5v16c0 11-9 18-9 18s-9-7-9-18V35s3-3 9-5z"/>
+          <line x1="78" y1="37" x2="78" y2="62" stroke="${se}" stroke-width="1" opacity="0.7"/>
+          <line x1="73" y1="46" x2="83" y2="46" stroke="${se}" stroke-width="0.9" opacity="0.6"/>
+          <circle cx="78" cy="46" r="3" fill="rgba(255,255,200,0.4)"/>
+        </g>
+        <!-- 반지 빛 -->
+        <circle cx="24" cy="57" r="3" fill="rgba(255,230,100,0.6)"/>
+        <!-- 목걸이 -->
+        <path d="M40 32 Q48 38 56 32" fill="none" stroke="${wc}" stroke-width="1.5" opacity="0.8"/>
+        <circle cx="48" cy="37" r="2.5" fill="${wc}"/>
+        <defs><filter id="glow-legend"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      </svg>`;
+    }
+
+    if (heroClass === '궁사') {
+      return `<svg viewBox="0 0 96 98" width="86" height="88" aria-hidden="true">
+        <ellipse cx="48" cy="90" rx="20" ry="5" fill="rgba(0,0,0,0.18)"/>
+        <!-- 에메랄드 망토 -->
+        <path d="M28 45c4-12 12-19 20-19 9 0 17 7 20 19l7 26H21z" fill="${wc}" opacity="0.18"/>
+        <!-- 머리 -->
+        <circle cx="48" cy="20" r="12" fill="#f4d1b5"/>
+        <!-- 황금 헤드밴드 -->
+        <path d="M36 16c2-9 24-12 28 0-3-2-8-3-14-3s-11 1-14 3z" fill="${wc}"/>
+        <!-- 몸통 -->
+        <rect x="34" y="34" width="28" height="27" rx="10" fill="${wc}" opacity="0.85"/>
+        <!-- 팔 — 활쏘기 포즈 (몸 앞으로) -->
+        <rect fill="#f4d1b5" x="18" y="36" width="8" height="22" rx="4" transform="rotate(-15,22,47)"/>
+        <rect fill="#f4d1b5" x="68" y="38" width="8" height="18" rx="4"/>
+        <!-- 황금 장갑 -->
+        <rect fill="${wc}" x="18" y="52" width="9" height="8" rx="3" transform="rotate(-15,22,56)"/>
+        <rect fill="${wc}" x="68" y="50" width="8" height="8" rx="3"/>
+        <!-- 다리 -->
+        <rect fill="#f4d1b5" x="38" y="60" width="7" height="20" rx="3"/>
+        <rect fill="#f4d1b5" x="51" y="60" width="7" height="20" rx="3"/>
+        <!-- 황금 장화 -->
+        <rect fill="${wc}" x="37" y="72" width="9" height="10" rx="3"/>
+        <rect fill="${wc}" x="50" y="72" width="9" height="10" rx="3"/>
+        <!-- 전투포즈: 활 크게 당김 -->
+        <g filter="url(#glow-legend2)">
+          <path fill="none" stroke="${wc}" stroke-width="4" stroke-linecap="round" d="M13 15 Q5 42 13 68"/>
+          <path fill="none" stroke="${wc}" stroke-width="3" stroke-linecap="round" opacity="0.6" d="M13 15 Q19 30 18 42 Q17 56 13 68"/>
+          <!-- 활시위 당김 -->
+          <line x1="13" y1="16" x2="28" y2="38" stroke="#fff8d0" stroke-width="1.5" opacity="0.9"/>
+          <line x1="28" y1="38" x2="13" y2="67" stroke="#fff8d0" stroke-width="1.5" opacity="0.9"/>
+          <!-- 화살 -->
+          <line x1="10" y1="38" x2="62" y2="32" stroke="#fff8d0" stroke-width="2" stroke-linecap="round"/>
+          <polygon fill="${wc}" points="62,32 55,28 56,36"/>
+          <!-- 빛 효과 -->
+          <circle cx="62" cy="32" r="4" fill="rgba(255,230,100,0.5)"/>
+        </g>
+        <!-- 화살통 -->
+        <rect fill="#8b6a2a" x="74" y="30" width="8" height="26" rx="3" opacity="0.9"/>
+        <rect fill="${wc}" x="74" y="30" width="8" height="4" rx="2" opacity="0.8"/>
+        <line x1="76" y1="30" x2="76" y2="14" stroke="${wc}" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="79" y1="30" x2="80" y2="12" stroke="${wc}" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="81" y1="30" x2="82" y2="16" stroke="${wc}" stroke-width="1.5" stroke-linecap="round"/>
+        <polygon fill="${wc}" points="76,14 74,18 78,18"/>
+        <polygon fill="${wc}" points="80,12 78,16 82,16"/>
+        <!-- 목걸이 -->
+        <path d="M40 32 Q48 38 56 32" fill="none" stroke="${wc}" stroke-width="1.5" opacity="0.8"/>
+        <circle cx="48" cy="37" r="2.5" fill="${wc}"/>
+        <defs><filter id="glow-legend2"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      </svg>`;
+    }
+
+    // 마법사
+    return `<svg viewBox="0 0 96 98" width="86" height="88" aria-hidden="true">
+      <ellipse cx="48" cy="90" rx="20" ry="5" fill="rgba(0,0,0,0.18)"/>
+      <!-- 보라 망토 -->
+      <path d="M26 46c4-13 12-20 22-20 10 0 18 7 22 20l8 28H18z" fill="#b27dff" opacity="0.25"/>
+      <!-- 머리 -->
+      <circle cx="48" cy="20" r="12" fill="#f4d1b5"/>
+      <!-- 마법사 모자 -->
+      <ellipse cx="48" cy="11" rx="16" ry="3.5" fill="${wc}" opacity="0.9"/>
+      <path d="M38 11 L45 -4 L51 -4 L58 11z" fill="${wc}" opacity="0.9"/>
+      <!-- 몸통 로브 -->
+      <rect x="33" y="34" width="30" height="28" rx="12" fill="#4a2a8a" opacity="0.95"/>
+      <rect x="35" y="36" width="26" height="24" rx="10" fill="#6a3aaa" opacity="0.8"/>
+      <!-- 황금 로브 장식 -->
+      <path d="M40 36 Q48 42 56 36" fill="none" stroke="${wc}" stroke-width="1.5" opacity="0.9"/>
+      <!-- 팔 -->
+      <rect fill="#f4d1b5" x="20" y="39" width="8" height="20" rx="4"/>
+      <rect fill="#f4d1b5" x="68" y="39" width="8" height="20" rx="4"/>
+      <!-- 황금 장갑 -->
+      <rect fill="${wc}" x="20" y="53" width="8" height="8" rx="3"/>
+      <rect fill="${wc}" x="68" y="53" width="8" height="8" rx="3"/>
+      <!-- 다리 -->
+      <rect fill="#4a2a8a" x="38" y="60" width="7" height="22" rx="3"/>
+      <rect fill="#4a2a8a" x="51" y="60" width="7" height="22" rx="3"/>
+      <rect fill="${wc}" x="37" y="72" width="9" height="10" rx="3"/>
+      <rect fill="${wc}" x="50" y="72" width="9" height="10" rx="3"/>
+      <!-- 전투포즈: 지팡이 크게 들고 마법 방출 -->
+      <g filter="url(#glow-legend3)">
+        <!-- 지팡이 막대 -->
+        <rect fill="${wc}" x="9" y="18" width="5" height="44" rx="2.5"/>
+        <!-- 오브 (큰 빛나는 구슬) -->
+        <circle fill="${wc}" cx="11.5" cy="11" r="9"/>
+        <circle fill="rgba(255,255,255,0.5)" cx="8.5" cy="8" r="3.5"/>
+        <!-- 마법 방출 파동 -->
+        <circle cx="11.5" cy="11" r="13" fill="none" stroke="${wc}" stroke-width="1.5" opacity="0.4"/>
+        <circle cx="11.5" cy="11" r="18" fill="none" stroke="${wc}" stroke-width="1" opacity="0.2"/>
+        <rect fill="${wc}" x="7" y="54" width="11" height="4" rx="2" opacity="0.8"/>
+      </g>
+      <!-- 마법서 -->
+      <g filter="url(#glow-legend3)">
+        <rect fill="#2a1f4a" x="68" y="38" width="14" height="18" rx="2.5"/>
+        <rect fill="#7a3aff" x="69" y="39" width="12" height="16" rx="2"/>
+        <rect fill="${wc}" x="70" y="41" width="10" height="2" rx="1" opacity="0.9"/>
+        <rect fill="${wc}" x="70" y="44" width="8" height="1.5" rx="0.8" opacity="0.7"/>
+        <rect fill="${wc}" x="70" y="47" width="9" height="1.5" rx="0.8" opacity="0.7"/>
+        <circle fill="none" stroke="${wc}" stroke-width="1" cx="75" cy="52" r="3" opacity="0.9"/>
+        <line x1="75" y1="49" x2="75" y2="55" stroke="${wc}" stroke-width="0.8" opacity="0.8"/>
+        <line x1="72" y1="52" x2="78" y2="52" stroke="${wc}" stroke-width="0.8" opacity="0.8"/>
+      </g>
+      <!-- 반지 빛 -->
+      <circle cx="24" cy="56" r="3.5" fill="rgba(178,125,255,0.7)"/>
+      <circle cx="72" cy="56" r="3.5" fill="rgba(178,125,255,0.7)"/>
+      <!-- 목걸이 -->
+      <path d="M40 32 Q48 38 56 32" fill="none" stroke="${wc}" stroke-width="1.5" opacity="0.8"/>
+      <circle cx="48" cy="37" r="2.5" fill="${wc}"/>
+      <defs><filter id="glow-legend3"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    </svg>`;
+  }
+
+  function renderClassSelectCards(currentClass) {
+    const container = document.getElementById('classSelectCards');
+    const classes = ['전사', '궁사', '마법사'];
+    container.innerHTML = classes.map(cls => {
+      const info = CLASS_INFO[cls];
+      const isSelected = cls === currentClass;
+      const statBars = [
+        { label:'공격', val: info.stats.atk, color:'#ff8a6a' },
+        { label:'방어', val: info.stats.def, color:'#63a8ff' },
+        { label:'속도', val: info.stats.spd, color:'#63d09a' },
+        { label:'치명', val: info.stats.crit, color:'#ffcf63' }
+      ].map(s => `<div class="class-stat-bar-row">
+        <span style="width:22px;">${s.label}</span>
+        <div class="class-stat-bar-track"><div class="class-stat-bar-fill" style="width:${s.val}%;background:${s.color};"></div></div>
+      </div>`).join('');
+
+      return `<div class="class-card ${isSelected ? 'selected-'+cls : ''}" data-class="${cls}">
+        <div class="class-select-check">${isSelected ? '✓' : ''}</div>
+        <div class="class-card-sprite">
+          <div class="${isSelected ? 'class-aura-'+cls : ''}" style="transition:filter 0.3s;">
+            ${getClassPreviewSprite(cls)}
+          </div>
+        </div>
+        <div class="class-card-name class-card-name-${cls}">${info.icon} ${cls}</div>
+        <div class="class-card-desc">${info.desc}</div>
+        <div class="class-card-stats">${statBars}</div>
+      </div>`;
+    }).join('');
+
+    container.querySelectorAll('.class-card').forEach(card => {
+      card.addEventListener('click', () => {
+        selectedClass = card.dataset.class;
+        renderClassSelectCards(selectedClass);
+        // 확인 버튼 활성화
+        document.getElementById('classConfirmBtn').disabled = false;
+      });
+    });
+  }
+
+  // 클래스 선택 팝업 열기
+  document.getElementById('classSelectOpenBtn').addEventListener('click', () => {
+    renderClassSelectCards(selectedClass);
+    document.getElementById('classSelectBackdrop').style.display = 'flex';
+  });
+
+  // 클래스 확인 버튼
+  document.getElementById('classConfirmBtn').addEventListener('click', () => {
+    const info = CLASS_INFO[selectedClass];
+    document.getElementById('startHeroClass').value = selectedClass;
+    document.getElementById('classSelectIcon').textContent = info.icon;
+    document.getElementById('classSelectLabel').textContent = `${selectedClass} — ${info.desc}`;
+    document.getElementById('classSelectOpenBtn').style.borderColor = info.color;
+    document.getElementById('classSelectBackdrop').style.display = 'none';
+  });
+
+  // 팝업 외부 클릭 닫기
+  document.getElementById('classSelectBackdrop').addEventListener('click', e => {
+    if (e.target === document.getElementById('classSelectBackdrop')) {
+      document.getElementById('classSelectBackdrop').style.display = 'none';
+    }
+  });
+
   function openHeroCreate(slot) {
     pendingNewSlot = slot;
+    selectedClass = '전사';
     document.getElementById('startHeroName').value = '주인님의 영웅';
     document.getElementById('startHeroClass').value = '전사';
+    document.getElementById('classSelectIcon').textContent = '⚔️';
+    document.getElementById('classSelectLabel').textContent = '전사 — 강인한 방어와 근접 전투';
+    document.getElementById('classSelectOpenBtn').style.borderColor = '';
     document.getElementById('heroStartBackdrop').style.display = 'flex';
   }
   document.getElementById('cancelHeroBtn').addEventListener('click', () => {
     document.getElementById('heroStartBackdrop').style.display = 'none';
+    document.getElementById('classSelectBackdrop').style.display = 'none';
     pendingNewSlot = null;
   });
 
@@ -3444,20 +3774,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function applyStartHero() {
     if (!CURRENT_USER || pendingNewSlot === null) return;
-    const heroName  = (els.startHeroName.value||'').trim() || '주인님의 영웅';
-    const heroClass = els.startHeroClass.value || '전사';
-    // 새 캐릭터 player_id 생성
+    const heroName  = (document.getElementById('startHeroName').value||'').trim() || '주인님의 영웅';
+    const heroClass = document.getElementById('startHeroClass').value || selectedClass || '전사';
+
+    // 상태 초기화
     const newPlayerId = 'hero_' + Date.now() + '_' + Math.random().toString(36).slice(2,9);
     PLAYER_ID = newPlayerId;
     CURRENT_CHAR_SLOT = pendingNewSlot;
-    // 상태 초기화
     state.heroName  = heroName;
     state.heroClass = heroClass;
     state.level = 1; state.exp = 0; state.gold = 0;
     state.inventory = [];
     state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null };
     state.usedBarcodes = new Set();
-    // DB에 영웅 저장 (account_id + char_slot 포함)
+
+    // GM은 DB에 저장하지 않고 바로 게임 진입
+    if (CURRENT_USER.isGM) {
+      showDbStatus('👑 GM 영웅 생성 완료 (임시)', 'ok');
+      pendingNewSlot = null;
+      document.getElementById('heroStartBackdrop').style.display = 'none';
+      document.getElementById('classSelectBackdrop').style.display = 'none';
+      document.getElementById('charScreen').style.display = 'none';
+      renderHero(); requestCurrentLocation();
+      loadMapHistory(); renderLogs(); renderMapHistoryList(); initMap();
+      return;
+    }
+
+    // 일반 사용자: DB에 저장
     showDbStatus('영웅 생성 중...', 'saving');
     const { error } = await sb.from('heroes').insert({
       player_id:  newPlayerId,
@@ -3470,9 +3813,10 @@ document.addEventListener('DOMContentLoaded', () => {
       dev_mode: state.devMode
     });
     if (error) { showDbStatus('영웅 생성 실패: ' + error.message, 'error'); return; }
-    showDbStatus('영웅 생성 완료!', 'ok');
+    showDbStatus('✅ ' + heroName + ' 탄생!', 'ok');
     pendingNewSlot = null;
-    els.startHeroBackdrop.style.display = 'none';
+    document.getElementById('heroStartBackdrop').style.display = 'none';
+    document.getElementById('classSelectBackdrop').style.display = 'none';
     document.getElementById('charScreen').style.display = 'none';
     renderHero(); requestCurrentLocation();
     loadMapHistory(); renderLogs(); renderMapHistoryList(); initMap();
