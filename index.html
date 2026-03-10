@@ -305,12 +305,52 @@
     .hero-detail-layout { display: grid; grid-template-columns: 1fr; gap: 8px; align-items: start; }
     .hero-detail-left, .hero-detail-right, .inventory-panel { background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96)); border: 1px solid rgba(110, 139, 204, 0.18); border-radius: 16px; padding: 10px; }
 
-    .stats-compact-row { display: flex; flex-wrap: wrap; gap: 5px; }
+    /* ── 전투력 + 스탯 패널 ── */
+    .stats-panel {
+      display: flex; gap: 6px; align-items: stretch;
+    }
+
+    /* 전투력 블록 - 두 줄 높이 */
+    .cp-block {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: linear-gradient(180deg, rgba(20,28,52,0.98), rgba(14,21,40,0.98));
+      border: 1px solid rgba(255,207,99,0.28);
+      border-radius: 12px; padding: 8px 10px;
+      min-width: 68px; flex-shrink: 0;
+      box-shadow: 0 0 14px rgba(255,207,99,0.08), inset 0 1px 0 rgba(255,255,255,0.06);
+      position: relative; overflow: hidden;
+    }
+    .cp-block::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(255,207,99,0.10), transparent 65%);
+      pointer-events: none;
+    }
+    .cp-block-label {
+      font-size: 9px; font-weight: 800; color: rgba(255,207,99,0.75);
+      letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; white-space: nowrap;
+    }
+    .cp-block-value {
+      font-size: 26px; font-weight: 900; color: #ffcf63; line-height: 1;
+      text-shadow: 0 0 12px rgba(255,207,99,0.5);
+      letter-spacing: -0.5px;
+    }
+    .cp-block-sub {
+      font-size: 8px; color: rgba(255,207,99,0.5); margin-top: 3px; font-weight: 700;
+    }
+
+    /* 스탯 그리드 - 2행 × 3열 */
+    .stats-compact-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: 1fr 1fr;
+      gap: 5px;
+      flex: 1;
+    }
     .stats-compact-item {
       display: flex; align-items: center; gap: 4px;
       background: linear-gradient(180deg, rgba(14,21,36,0.95), rgba(21,31,52,0.96));
       border: 1px solid rgba(110,139,204,0.12);
-      border-radius: 8px; padding: 5px 8px; flex: 1; min-width: 70px;
+      border-radius: 8px; padding: 5px 8px;
     }
     .stats-compact-label { color: var(--muted); font-size: 9px; font-weight: 700; white-space: nowrap; }
     .stats-compact-value { font-size: 12px; font-weight: 900; color: #eef3ff; margin-left: auto; }
@@ -765,14 +805,23 @@
     <div class="modal">
       <div class="modal-head"><div class="modal-title">영웅 상세 정보</div></div>
       <div class="modal-body">
-        <div style="font-size:15px; font-weight:900; margin-bottom:2px;" id="heroStatsTitle">주인님의 영웅</div>
-        <div class="stats-compact-row">
-          <div class="stats-compact-item"><span class="stats-compact-label">⚔️ 공격</span><span class="stats-compact-value" id="heroStatsAtk">0</span></div>
-          <div class="stats-compact-item"><span class="stats-compact-label">🛡️ 방어</span><span class="stats-compact-value" id="heroStatsDef">0</span></div>
-          <div class="stats-compact-item"><span class="stats-compact-label">❤️ 체력</span><span class="stats-compact-value" id="heroStatsHp">0</span></div>
-          <div class="stats-compact-item"><span class="stats-compact-label">💨 속도</span><span class="stats-compact-value" id="heroStatsSpeed">0</span></div>
-          <div class="stats-compact-item"><span class="stats-compact-label">✨ 치명</span><span class="stats-compact-value" id="heroStatsCrit">0%</span></div>
-          <div class="stats-compact-item"><span class="stats-compact-label">🪖 병사</span><span class="stats-compact-value" id="heroStatsSoldiers">0명</span></div>
+        <div style="font-size:15px; font-weight:900; margin-bottom:6px;" id="heroStatsTitle">주인님의 영웅</div>
+        <div class="stats-panel">
+          <!-- 전투력 블록 -->
+          <div class="cp-block">
+            <div class="cp-block-label">전투력</div>
+            <div class="cp-block-value" id="heroCombatPower">0</div>
+            <div class="cp-block-sub">CP</div>
+          </div>
+          <!-- 스탯 2행 × 3열 -->
+          <div class="stats-compact-row">
+            <div class="stats-compact-item"><span class="stats-compact-label">⚔️ 공격</span><span class="stats-compact-value" id="heroStatsAtk">0</span></div>
+            <div class="stats-compact-item"><span class="stats-compact-label">🛡️ 방어</span><span class="stats-compact-value" id="heroStatsDef">0</span></div>
+            <div class="stats-compact-item"><span class="stats-compact-label">❤️ 체력</span><span class="stats-compact-value" id="heroStatsHp">0</span></div>
+            <div class="stats-compact-item"><span class="stats-compact-label">💨 속도</span><span class="stats-compact-value" id="heroStatsSpeed">0</span></div>
+            <div class="stats-compact-item"><span class="stats-compact-label">✨ 치명</span><span class="stats-compact-value" id="heroStatsCrit">0%</span></div>
+            <div class="stats-compact-item"><span class="stats-compact-label">🪖 병사</span><span class="stats-compact-value" id="heroStatsSoldiers">0명</span></div>
+          </div>
         </div>
         <div class="hero-detail-layout">
           <div class="hero-detail-left">
@@ -974,7 +1023,8 @@ document.addEventListener('DOMContentLoaded', () => {
     startHeroBackdrop:q('heroStartBackdrop'), startHeroName:q('startHeroName'),
     startHeroClass:q('startHeroClass'), startGameBtn:q('startGameBtn'),
     heroStatsBackdrop:q('heroStatsBackdrop'), heroStatsCloseBtn:q('heroStatsCloseBtn'),
-    heroStatsTitle:q('heroStatsTitle'), heroStatsAtk:q('heroStatsAtk'),
+    heroStatsTitle:q('heroStatsTitle'), heroCombatPower:q('heroCombatPower'),
+    heroStatsAtk:q('heroStatsAtk'),
     heroStatsDef:q('heroStatsDef'), heroStatsHp:q('heroStatsHp'),
     heroStatsSpeed:q('heroStatsSpeed'), heroStatsCrit:q('heroStatsCrit'),
     heroStatsSoldiers:q('heroStatsSoldiers'), heroPreviewWrap:q('heroPreviewWrap'),
@@ -1252,6 +1302,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  function calcCombatPower(stats) {
+    return Math.round(
+      stats.atk     * 2.8 +
+      stats.def     * 2.2 +
+      stats.hp      * 0.18 +
+      stats.speed   * 3.5 +
+      stats.crit    * 4.0 +
+      stats.soldiers * 25
+    );
+  }
+
   function createEquipmentItem(rarityOrDigit, d4, isRarityDirect) {
     const gear = gearCatalog[d4];
     const rarity = isRarityDirect ? rarityOrDigit : getRarityFromDigit(rarityOrDigit);
@@ -1408,6 +1469,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function openHeroStatsModal() {
     const stats = getHeroBaseStats();
     els.heroStatsTitle.textContent   = formatHeroTopTitle(stats);
+    els.heroCombatPower.textContent  = calcCombatPower(stats).toLocaleString();
     els.heroStatsAtk.textContent     = stats.atk;
     els.heroStatsDef.textContent     = stats.def;
     els.heroStatsHp.textContent      = stats.hp;
