@@ -359,39 +359,28 @@
     .stats-modal-label { color: var(--muted); font-size: 10px; margin-bottom: 4px; font-weight: 700; }
     .stats-modal-value { font-size: 13px; font-weight: 900; color: #eef3ff; }
 
+    /* ── 영웅 프리뷰 스테이지 ── */
     .hero-preview-stage {
-      position: relative; min-height: 360px; border-radius: 16px; overflow: hidden;
+      position: relative; height: 340px; border-radius: 16px; overflow: hidden;
       background: radial-gradient(circle at 50% 25%, rgba(255,255,255,0.08), transparent 24%),
         linear-gradient(180deg, rgba(35,49,86,0.95), rgba(13,19,35,0.98));
       border: 1px solid rgba(115,143,210,0.14);
-      display: flex; align-items: flex-end; justify-content: center; padding-bottom: 28px;
+      display: flex; align-items: flex-end; justify-content: center; padding-bottom: 24px;
     }
     .hero-preview-ground { position: absolute; left: -10%; right: -10%; bottom: 8px; height: 90px; border-radius: 50%; background: radial-gradient(circle, rgba(245,201,107,0.22), rgba(55,77,123,0.26) 45%, rgba(7,11,20,0.02) 70%); filter: blur(2px); }
-    .hero-preview-wrap { position: relative; z-index: 2; display: flex; align-items: flex-end; justify-content: center; width: 180px; min-height: 200px; }
-    .hero-preview-wrap .hero-visual-wrap { transform: scale(2.1); transform-origin: bottom center; }
-
-    .equip-pin {
-      position: absolute; z-index: 3;
-      min-width: 54px; max-width: 80px;
-      padding: 5px 6px; border-radius: 9px;
-      background: rgba(8, 12, 24, 0.88);
-      border: 1px solid rgba(149, 173, 233, 0.28);
-      box-shadow: 0 6px 14px rgba(0,0,0,.28);
-      font-size: 9px; line-height: 1.3; text-align: center;
-      color: #eef3ff; backdrop-filter: blur(8px);
-      transition: all 0.2s ease;
-    }
-    .equip-pin.empty { opacity: .38; border-style: dashed; }
-    .equip-pin b { display: block; font-size: 9px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .pin-armor    { left: 50%; top: 10px;  transform: translateX(-50%); }
-    .pin-necklace { left: 50%; top: 48px;  transform: translateX(-50%); }
-    .pin-weapon   { left: 6px;  top: 110px; }
-    .pin-shield   { right: 6px; top: 110px; }
-    .pin-gloves   { left: 6px;  top: 168px; }
-    .pin-boots    { right: 6px; top: 168px; }
-    .pin-ring     { left: 6px;  bottom: 18px; }
-    .pin-cloak    { right: 6px; bottom: 18px; }
+    .hero-preview-wrap { position: relative; z-index: 4; display: flex; align-items: flex-end; justify-content: center; width: 160px; min-height: 190px; }
+    .hero-preview-wrap .hero-visual-wrap { transform: scale(2.0); transform-origin: bottom center; }
+    /* 장비 오버레이 레이어 */
+    .equip-overlay-cloak { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); z-index:3; pointer-events:none; filter:drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }
+    .equip-overlay-necklace { position:absolute; z-index:6; pointer-events:none; bottom:144px; left:50%; transform:translateX(-50%); }
+    .equip-overlay-glove-l { position:absolute; z-index:6; pointer-events:none; bottom:80px; left:calc(50% - 68px); }
+    .equip-overlay-glove-r { position:absolute; z-index:6; pointer-events:none; bottom:80px; left:calc(50% + 36px); }
+    .equip-overlay-boot-l  { position:absolute; z-index:6; pointer-events:none; bottom:24px; left:calc(50% - 58px); }
+    .equip-overlay-boot-r  { position:absolute; z-index:6; pointer-events:none; bottom:24px; left:calc(50% + 14px); }
+    .equip-overlay-ring-l  { position:absolute; z-index:7; pointer-events:none; bottom:84px; left:calc(50% - 80px); }
+    .equip-overlay-ring-r  { position:absolute; z-index:7; pointer-events:none; bottom:84px; left:calc(50% + 52px); }
+    @keyframes ringSparkle { 0%,100%{opacity:.7;transform:scale(1) rotate(0deg);} 33%{opacity:1;transform:scale(1.4) rotate(15deg);} 66%{opacity:.8;transform:scale(.9) rotate(-10deg);} }
+    .ring-sparkle { animation: ringSparkle 1.4s ease-in-out infinite; display: inline-block; font-size: 11px; }
 
     .equip-summary { margin-top: 8px; display: grid; gap: 6px; }
     .equip-summary-row { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -404,60 +393,46 @@
     .rarity-legendary{ color: var(--legendary); border-color: rgba(255,207,99,.34); }
 
     .inventory-panel { margin-top: 2px; }
-    .inventory-title { font-size: 12px; font-weight: 900; margin-bottom: 8px; color: #eef3ff; }
+    .inventory-title { font-size: 12px; font-weight: 900; margin-bottom: 6px; color: #eef3ff; }
+    .inv-section-label { font-size: 10px; color: var(--muted); font-weight: 800; margin: 7px 0 4px; letter-spacing: 0.5px; }
 
-    .inventory-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 6px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
+    .inventory-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .inventory-scroll { max-height: 150px; overflow-y: auto; }
 
     .inv-icon-slot {
-      aspect-ratio: 1;
-      border-radius: 10px;
+      aspect-ratio: 1; border-radius: 10px;
       background: linear-gradient(180deg, rgba(15,22,39,0.98), rgba(18,27,45,0.98));
       border: 1px solid rgba(110, 139, 204, 0.18);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      cursor: pointer;
-      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; cursor: pointer; position: relative;
       transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     }
-    .inv-icon-slot:hover {
-      transform: scale(1.08);
-      border-color: rgba(140, 170, 255, 0.5);
-      box-shadow: 0 4px 14px rgba(79,124,255,0.25);
-    }
-    .inv-icon-slot::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 10px;
-      border: 2px solid transparent;
-    }
+    .inv-icon-slot:hover { transform: scale(1.08); border-color: rgba(140,170,255,0.5); box-shadow: 0 4px 14px rgba(79,124,255,0.25); }
     .inv-icon-slot.rarity-uncommon { border-color: rgba(99,208,154,.4); }
     .inv-icon-slot.rarity-rare     { border-color: rgba(99,168,255,.5); }
     .inv-icon-slot.rarity-epic     { border-color: rgba(178,125,255,.5); }
-    .inv-icon-slot.rarity-legendary{
-      border-color: rgba(255,207,99,.6);
-      box-shadow: 0 0 10px rgba(255,207,99,0.25), inset 0 0 8px rgba(255,207,99,0.1);
+    .inv-icon-slot.rarity-legendary { border-color: rgba(255,207,99,.6); box-shadow: 0 0 10px rgba(255,207,99,0.25), inset 0 0 8px rgba(255,207,99,0.1); }
+    /* 착용 중 표식 */
+    .inv-icon-slot.is-equipped { box-shadow: inset 0 0 0 2px rgba(99,208,154,0.7), 0 0 8px rgba(99,208,154,0.2); }
+    .inv-equipped-badge {
+      position: absolute; top: 2px; left: 2px;
+      width: 13px; height: 13px; border-radius: 50%;
+      background: linear-gradient(135deg, #63d09a, #3aad74);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7px; color: #fff; font-weight: 900; line-height: 1;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4); z-index: 2;
     }
-
-    .inv-rarity-dot {
-      position: absolute;
-      bottom: 3px; right: 3px;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-    }
+    .inv-rarity-dot { position: absolute; bottom: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%; }
     .inv-icon-slot.rarity-common   .inv-rarity-dot { background: var(--common); }
     .inv-icon-slot.rarity-uncommon .inv-rarity-dot { background: var(--uncommon); }
     .inv-icon-slot.rarity-rare     .inv-rarity-dot { background: var(--rare); }
     .inv-icon-slot.rarity-epic     .inv-rarity-dot { background: var(--epic); }
     .inv-icon-slot.rarity-legendary .inv-rarity-dot { background: var(--legendary); box-shadow: 0 0 4px rgba(255,207,99,0.8); }
+
+    /* 판매 확인 */
+    .sell-confirm-box { background: rgba(43,20,22,0.96); border: 1px solid rgba(255,120,120,0.3); border-radius: 12px; padding: 10px 12px; margin-bottom: 2px; text-align: center; }
+    .sell-confirm-box .sell-price { font-size: 15px; font-weight: 900; color: #ffcf63; margin-bottom: 4px; }
+    .sell-confirm-box .sell-warn  { font-size: 10px; color: #ffb3b3; margin-bottom: 6px; }
 
     .item-detail-card {
       background: linear-gradient(180deg, rgba(14,21,36,0.98), rgba(18,27,45,0.98));
@@ -807,13 +782,11 @@
       <div class="modal-body">
         <div style="font-size:15px; font-weight:900; margin-bottom:6px;" id="heroStatsTitle">주인님의 영웅</div>
         <div class="stats-panel">
-          <!-- 전투력 블록 -->
           <div class="cp-block">
             <div class="cp-block-label">전투력</div>
             <div class="cp-block-value" id="heroCombatPower">0</div>
             <div class="cp-block-sub">CP</div>
           </div>
-          <!-- 스탯 2행 × 3열 -->
           <div class="stats-compact-row">
             <div class="stats-compact-item"><span class="stats-compact-label">⚔️ 공격</span><span class="stats-compact-value" id="heroStatsAtk">0</span></div>
             <div class="stats-compact-item"><span class="stats-compact-label">🛡️ 방어</span><span class="stats-compact-value" id="heroStatsDef">0</span></div>
@@ -823,25 +796,33 @@
             <div class="stats-compact-item"><span class="stats-compact-label">🪖 병사</span><span class="stats-compact-value" id="heroStatsSoldiers">0명</span></div>
           </div>
         </div>
+        <!-- 장비 착용 시각화 스테이지 -->
         <div class="hero-detail-layout">
           <div class="hero-detail-left">
-            <div class="hero-preview-stage">
+            <div class="hero-preview-stage" id="heroPreviewStage">
               <div class="hero-preview-ground"></div>
+              <!-- 망토 오버레이 (뒤) -->
+              <div class="equip-overlay-cloak" id="overlayCloak"></div>
+              <!-- 영웅 본체 -->
               <div class="hero-preview-wrap" id="heroPreviewWrap"></div>
-              <div class="equip-pin pin-armor"    id="pinArmor"></div>
-              <div class="equip-pin pin-necklace" id="pinNecklace"></div>
-              <div class="equip-pin pin-weapon"   id="pinWeapon"></div>
-              <div class="equip-pin pin-shield"   id="pinShield"></div>
-              <div class="equip-pin pin-gloves"   id="pinGloves"></div>
-              <div class="equip-pin pin-boots"    id="pinBoots"></div>
-              <div class="equip-pin pin-ring"     id="pinRing"></div>
-              <div class="equip-pin pin-cloak"    id="pinCloak"></div>
+              <!-- 장신구 오버레이 (앞) -->
+              <div class="equip-overlay-necklace" id="overlayNecklace"></div>
+              <div class="equip-overlay-glove-l"  id="overlayGloveL"></div>
+              <div class="equip-overlay-glove-r"  id="overlayGloveR"></div>
+              <div class="equip-overlay-boot-l"   id="overlayBootL"></div>
+              <div class="equip-overlay-boot-r"   id="overlayBootR"></div>
+              <div class="equip-overlay-ring-l"   id="overlayRingL"></div>
+              <div class="equip-overlay-ring-r"   id="overlayRingR"></div>
             </div>
           </div>
         </div>
+        <!-- 인벤토리 -->
         <div class="inventory-panel">
-          <div class="inventory-title">인벤토리</div>
-          <div class="inventory-grid" id="inventoryGrid"></div>
+          <div class="inventory-title">🎒 인벤토리</div>
+          <div class="inv-section-label">착용 중</div>
+          <div class="inventory-grid" id="equippedGrid"></div>
+          <div class="inv-section-label">보관 중</div>
+          <div class="inventory-scroll"><div class="inventory-grid" id="inventoryGrid"></div></div>
         </div>
       </div>
       <div class="modal-actions center-single"><button class="modal-primary" id="heroStatsCloseBtn">닫기</button></div>
@@ -863,6 +844,11 @@
           </div>
           <div id="itemStatChangeHint" class="stat-change-hint neutral"></div>
           <div class="stat-compare-grid" id="itemStatCompareGrid"></div>
+          <!-- 판매 확인 패널 (기본 숨김) -->
+          <div id="sellConfirmBox" style="display:none;" class="sell-confirm-box">
+            <div class="sell-price" id="sellConfirmPrice">🪙 0 골드</div>
+            <div class="sell-warn">판매하면 되돌릴 수 없습니다!</div>
+          </div>
           <div class="sell-price-row" id="itemSellPriceRow"></div>
         </div>
       </div>
@@ -953,20 +939,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const rarityOrder   = ['common','uncommon','rare','epic','legendary'];
 
   const gearCatalog = [
-    { name:'낡은 검',      slot:'weapon',   icon:'🗡️', stats:{atk:3,crit:1} },
-    { name:'튼튼한 갑옷',  slot:'armor',    icon:'🛡️', stats:{def:4,hp:10} },
-    { name:'가벼운 장화',  slot:'boots',    icon:'🥾', stats:{speed:2,hp:4} },
-    { name:'철 장갑',      slot:'gloves',   icon:'🧤', stats:{atk:2,def:2} },
-    { name:'전투 반지',    slot:'ring',     icon:'💍', stats:{crit:3,atk:1} },
-    { name:'강화 망토',    slot:'cloak',    icon:'🧥', stats:{hp:8,def:2} },
-    { name:'사냥 활',      slot:'weapon',   icon:'🏹', stats:{atk:3,speed:1,crit:1} },
-    { name:'기사 방패',    slot:'shield',   icon:'🛡️', stats:{def:5,hp:8} },
-    { name:'집중 목걸이',  slot:'necklace', icon:'📿', stats:{crit:2,speed:1} },
-    { name:'용사의 문장',  slot:'cloak',    icon:'🏅', stats:{atk:2,def:2,hp:6} }
+    { name:'낡은 검',        slot:'weapon',   weaponType:'sword', icon:'🗡️', stats:{atk:3,crit:1},        classes:['전사'] },
+    { name:'튼튼한 갑옷',    slot:'armor',    icon:'🛡️', stats:{def:4,hp:10} },
+    { name:'가벼운 장화',    slot:'boots',    icon:'🥾', stats:{speed:2,hp:4} },
+    { name:'철 장갑',        slot:'gloves',   icon:'🧤', stats:{atk:2,def:2} },
+    { name:'전투 반지',      slot:'ring',     icon:'💍', stats:{crit:3,atk:1} },
+    { name:'강화 망토',      slot:'cloak',    icon:'🧥', stats:{hp:8,def:2} },
+    { name:'사냥 활',        slot:'weapon',   weaponType:'bow',   icon:'🏹', stats:{atk:3,speed:1,crit:1}, classes:['궁사'] },
+    { name:'기사 방패',      slot:'shield',   icon:'🛡️', stats:{def:5,hp:8},                              classes:['전사','마법사'] },
+    { name:'집중 목걸이',    slot:'necklace', icon:'📿', stats:{crit:2,speed:1} },
+    { name:'용사의 문장',    slot:'cloak',    icon:'🏅', stats:{atk:2,def:2,hp:6} },
+    { name:'마법 지팡이',    slot:'weapon',   weaponType:'staff', icon:'🪄', stats:{atk:4,crit:2},         classes:['마법사'] },
+    { name:'신성한 반지',    slot:'ring',     icon:'💍', stats:{hp:6,def:1} }
   ];
 
-  const slotLabels = { weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑', boots:'장화', ring:'반지', necklace:'목걸이', cloak:'망토' };
-  const slotPinMap = { weapon:'pinWeapon', armor:'pinArmor', shield:'pinShield', gloves:'pinGloves', boots:'pinBoots', ring:'pinRing', necklace:'pinNecklace', cloak:'pinCloak' };
+  const slotLabels = { weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑', boots:'장화', ring1:'반지1', ring2:'반지2', necklace:'목걸이', cloak:'망토' };
+  // slotPinMap 제거 (핀 UI 대신 오버레이 방식 사용)
 
   const monsterDropRarityTable = {
     일반:  [30, 32, 22, 12, 4 ],
@@ -983,7 +971,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pendingDecoded:null, battle:null,
     html5QrCode:null, scannerRunning:false,
     inventory:[],
-    equipment:{ weapon:null, armor:null, shield:null, gloves:null, boots:null, ring:null, necklace:null, cloak:null },
+    equipment:{ weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null },
     selectedItemId: null
   };
 
@@ -1028,15 +1016,18 @@ document.addEventListener('DOMContentLoaded', () => {
     heroStatsDef:q('heroStatsDef'), heroStatsHp:q('heroStatsHp'),
     heroStatsSpeed:q('heroStatsSpeed'), heroStatsCrit:q('heroStatsCrit'),
     heroStatsSoldiers:q('heroStatsSoldiers'), heroPreviewWrap:q('heroPreviewWrap'),
+    equippedGrid:q('equippedGrid'),
     inventoryGrid:q('inventoryGrid'),
-    pinWeapon:q('pinWeapon'), pinArmor:q('pinArmor'), pinShield:q('pinShield'),
-    pinGloves:q('pinGloves'), pinBoots:q('pinBoots'), pinRing:q('pinRing'),
-    pinNecklace:q('pinNecklace'), pinCloak:q('pinCloak'),
+    overlayCloak:q('overlayCloak'), overlayNecklace:q('overlayNecklace'),
+    overlayGloveL:q('overlayGloveL'), overlayGloveR:q('overlayGloveR'),
+    overlayBootL:q('overlayBootL'),  overlayBootR:q('overlayBootR'),
+    overlayRingL:q('overlayRingL'),  overlayRingR:q('overlayRingR'),
     itemDetailBackdrop:q('itemDetailBackdrop'), itemDetailTitle:q('itemDetailTitle'),
     itemDetailIcon:q('itemDetailIcon'), itemDetailName:q('itemDetailName'),
     itemDetailMeta:q('itemDetailMeta'), itemStatChangeHint:q('itemStatChangeHint'),
     itemStatCompareGrid:q('itemStatCompareGrid'), itemSellPriceRow:q('itemSellPriceRow'),
-    itemDetailActions:q('itemDetailActions')
+    itemDetailActions:q('itemDetailActions'),
+    sellConfirmBox:q('sellConfirmBox')
   };
 
   const openModal  = el => el.classList.add('show');
@@ -1430,41 +1421,166 @@ document.addEventListener('DOMContentLoaded', () => {
     renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
   }
 
+  // ─────────────────────────────────────────
+  // 장비 착용 가능 여부 체크
+  // ─────────────────────────────────────────
+  function canEquipItem(item) {
+    const hc = state.heroClass;
+    if (item.slot === 'weapon') {
+      if (item.weaponType === 'sword'  && hc !== '전사')   return { ok:false, reason:'전사만 검 장착 가능' };
+      if (item.weaponType === 'bow'    && hc !== '궁사')   return { ok:false, reason:'궁사만 활 장착 가능' };
+      if (item.weaponType === 'staff'  && hc !== '마법사') return { ok:false, reason:'마법사만 지팡이 장착 가능' };
+      if (item.classes && !item.classes.includes(hc))     return { ok:false, reason:`${item.classes.join('/')}만 사용 가능` };
+    }
+    if (item.slot === 'shield' && hc === '궁사') return { ok:false, reason:'궁사는 방패 착용 불가' };
+    return { ok:true };
+  }
+
+  // ─────────────────────────────────────────
+  // 오버레이 SVG 빌더
+  // ─────────────────────────────────────────
+  function getRarityHex(rarity) {
+    return { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' }[rarity] || '#a9b6d6';
+  }
+
+  function buildCloakOverlay(item) {
+    const c = getRarityHex(item.rarity);
+    return `<svg viewBox="0 0 120 200" width="120" height="200">
+      <defs>
+        <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${c}" stop-opacity="0.82"/>
+          <stop offset="100%" stop-color="${c}" stop-opacity="0.38"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#cg)" stroke="${c}" stroke-width="1.2" stroke-opacity="0.6"
+        d="M18 30 Q10 60 8 100 Q6 140 12 170 Q20 178 28 172 Q18 140 20 100 Q22 60 32 34Z"/>
+      <path fill="url(#cg)" stroke="${c}" stroke-width="1.2" stroke-opacity="0.6"
+        d="M102 30 Q110 60 112 100 Q114 140 108 170 Q100 178 92 172 Q102 140 100 100 Q98 60 88 34Z"/>
+      <line x1="18" y1="30" x2="102" y2="30" stroke="${c}" stroke-width="1.8" stroke-opacity="0.5"/>
+      ${item.rarity==='legendary' ? `<path fill="none" stroke="#ffcf63" stroke-width="0.8" stroke-opacity="0.7" d="M20 80 Q14 100 16 120 M100 80 Q106 100 104 120"/>` : ''}
+    </svg>`;
+  }
+
+  function buildNecklaceOverlay(item) {
+    const c = getRarityHex(item.rarity);
+    return `<svg viewBox="0 0 80 28" width="80" height="28">
+      <path fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round"
+        d="M8 6 Q40 22 72 6"/>
+      <circle cx="40" cy="20" r="5" fill="${c}" opacity="0.9"/>
+      <circle cx="40" cy="20" r="3" fill="white" opacity="0.35"/>
+      <circle cx="22" cy="12" r="2.5" fill="${c}" opacity="0.7"/>
+      <circle cx="58" cy="12" r="2.5" fill="${c}" opacity="0.7"/>
+      ${item.rarity==='legendary'||item.rarity==='epic' ? `<circle cx="40" cy="20" r="7" fill="none" stroke="${c}" stroke-width="0.8" stroke-opacity="0.5"/>` : ''}
+    </svg>`;
+  }
+
+  function buildGloveOverlay(item, side) {
+    const c = getRarityHex(item.rarity);
+    const flip = side === 'r' ? 'transform="scale(-1,1) translate(-32,0)"' : '';
+    return `<svg viewBox="0 0 32 28" width="22" height="20">
+      <g ${flip}>
+        <rect x="4" y="4" width="22" height="18" rx="5" fill="${c}" opacity="0.85"/>
+        <rect x="4" y="4" width="22" height="7" rx="4" fill="${c}" opacity="0.6"/>
+        <!-- 손가락 마디선 -->
+        <line x1="10" y1="10" x2="10" y2="22" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
+        <line x1="16" y1="10" x2="16" y2="22" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
+        <line x1="22" y1="10" x2="22" y2="22" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
+        <rect x="4" y="4" width="22" height="18" rx="5" fill="none" stroke="${c}" stroke-width="1.2" opacity="0.7"/>
+      </g>
+    </svg>`;
+  }
+
+  function buildBootOverlay(item, side) {
+    const c = getRarityHex(item.rarity);
+    const flip = side === 'r' ? 'transform="scale(-1,1) translate(-38,0)"' : '';
+    return `<svg viewBox="0 0 38 44" width="28" height="36">
+      <g ${flip}>
+        <!-- 장화 몸통 -->
+        <rect x="6" y="2" width="16" height="28" rx="5" fill="${c}" opacity="0.85"/>
+        <!-- 발목 앞 커프 -->
+        <rect x="4" y="2" width="20" height="6" rx="3" fill="${c}" opacity="0.7"/>
+        <!-- 밑창 -->
+        <rect x="2" y="28" width="26" height="8" rx="4" fill="${c}" opacity="0.95"/>
+        <rect x="0" y="32" width="30" height="6" rx="3" fill="${c}" opacity="0.75"/>
+        <rect x="4" y="2" width="20" height="30" rx="5" fill="none" stroke="${c}" stroke-width="1.2" opacity="0.6"/>
+      </g>
+    </svg>`;
+  }
+
+  function buildRingSparkle(item) {
+    const c = getRarityHex(item.rarity);
+    return `<span class="ring-sparkle" style="color:${c}; filter:drop-shadow(0 0 4px ${c});">✦</span>`;
+  }
+
+  // ─────────────────────────────────────────
+  // 영웅 프리뷰 오버레이 렌더
+  // ─────────────────────────────────────────
+  function renderEquipOverlays() {
+    const eq = state.equipment;
+    // 망토
+    els.overlayCloak.innerHTML     = eq.cloak    ? buildCloakOverlay(eq.cloak)       : '';
+    // 목걸이
+    els.overlayNecklace.innerHTML  = eq.necklace ? buildNecklaceOverlay(eq.necklace) : '';
+    // 장갑
+    els.overlayGloveL.innerHTML    = eq.gloves   ? buildGloveOverlay(eq.gloves,'l')  : '';
+    els.overlayGloveR.innerHTML    = eq.gloves   ? buildGloveOverlay(eq.gloves,'r')  : '';
+    // 장화
+    els.overlayBootL.innerHTML     = eq.boots    ? buildBootOverlay(eq.boots,'l')    : '';
+    els.overlayBootR.innerHTML     = eq.boots    ? buildBootOverlay(eq.boots,'r')    : '';
+    // 반지 스파클
+    els.overlayRingL.innerHTML     = eq.ring1    ? buildRingSparkle(eq.ring1)        : '';
+    els.overlayRingR.innerHTML     = eq.ring2    ? buildRingSparkle(eq.ring2)        : '';
+  }
+
+  // ─────────────────────────────────────────
+  // 인벤토리 렌더 (착용 중 + 보관 중 분리)
+  // ─────────────────────────────────────────
+  function getAllEquippedIds() {
+    return new Set(Object.values(state.equipment).filter(Boolean).map(i => i.id));
+  }
+
   function renderInventoryGrid() {
-    const equippedIds = new Set(Object.values(state.equipment).filter(Boolean).map(i=>i.id));
+    const equippedIds = getAllEquippedIds();
+
+    // 착용 중 그리드
+    const equippedItems = state.inventory.filter(i => equippedIds.has(i.id));
+    if (!equippedItems.length) {
+      els.equippedGrid.innerHTML = `<div style="grid-column:1/-1;font-size:10px;color:var(--muted);padding:4px 0;">착용 중인 장비 없음</div>`;
+    } else {
+      els.equippedGrid.innerHTML = equippedItems.map(item => `
+        <div class="inv-icon-slot rarity-${item.rarity} is-equipped" data-id="${item.id}" title="${item.name}">
+          <div class="inv-equipped-badge">E</div>
+          ${item.icon}
+          <div class="inv-rarity-dot"></div>
+        </div>`).join('');
+      els.equippedGrid.querySelectorAll('.inv-icon-slot').forEach(slot => {
+        slot.addEventListener('click', () => {
+          const item = state.inventory.find(i => i.id === slot.dataset.id);
+          if (item) openItemDetailModal(item);
+        });
+      });
+    }
+
+    // 보관 중 그리드
     const unequipped = state.inventory.filter(i => !equippedIds.has(i.id));
     if (!unequipped.length) {
-      els.inventoryGrid.innerHTML = `<div style="grid-column:1/-1;" class="empty-box">인벤토리가 비어 있습니다.</div>`;
+      els.inventoryGrid.innerHTML = `<div style="grid-column:1/-1;font-size:10px;color:var(--muted);padding:4px 0;">보관 중인 장비 없음</div>`;
       return;
     }
     els.inventoryGrid.innerHTML = unequipped.map(item => `
       <div class="inv-icon-slot rarity-${item.rarity}" data-id="${item.id}" title="${item.name}">
         ${item.icon}
         <div class="inv-rarity-dot"></div>
-      </div>
-    `).join('');
+      </div>`).join('');
     els.inventoryGrid.querySelectorAll('.inv-icon-slot').forEach(slot => {
       slot.addEventListener('click', () => {
-        const item = state.inventory.find(i=>i.id===slot.dataset.id);
+        const item = state.inventory.find(i => i.id === slot.dataset.id);
         if (item) openItemDetailModal(item);
       });
     });
   }
 
-  function renderEquipPins() {
-    Object.entries(slotPinMap).forEach(([slot, pinId]) => {
-      const pinEl = els[pinId];
-      const item  = state.equipment[slot];
-      const posClass = pinEl.className.split(' ').find(v=>v.startsWith('pin-')) || '';
-      if (!item) {
-        pinEl.className = `equip-pin ${posClass} empty`;
-        pinEl.innerHTML = slotLabels[slot];
-        return;
-      }
-      pinEl.className = `equip-pin ${posClass} rarity-${item.rarity}`;
-      pinEl.innerHTML = `${item.icon}<b>${item.baseName}</b>`;
-    });
-  }
+  function renderEquipPins() { /* 핀 UI 제거 - 오버레이로 대체 */ }
 
   function openHeroStatsModal() {
     const stats = getHeroBaseStats();
@@ -1477,30 +1593,46 @@ document.addEventListener('DOMContentLoaded', () => {
     els.heroStatsCrit.textContent    = `${stats.crit}%`;
     els.heroStatsSoldiers.textContent= `${stats.soldiers}명`;
     els.heroPreviewWrap.innerHTML    = getHeroVisualHtml(state.heroClass);
-    renderEquipPins();
+    renderEquipOverlays();
     renderInventoryGrid();
     openModal(els.heroStatsBackdrop);
   }
 
   function openItemDetailModal(item) {
     state.selectedItemId = item.id;
-    const equippedIds = new Set(Object.values(state.equipment).filter(Boolean).map(i=>i.id));
+    const equippedIds = getAllEquippedIds();
     const isEquipped  = equippedIds.has(item.id);
+    const check       = canEquipItem(item);
+    const sellConfirmBox = q('sellConfirmBox');
+    if (sellConfirmBox) sellConfirmBox.style.display = 'none';
 
     els.itemDetailTitle.textContent = item.rarityLabel + ' 등급 아이템';
     els.itemDetailIcon.className    = `item-detail-icon rarity-${item.rarity}`;
     els.itemDetailIcon.textContent  = item.icon;
     els.itemDetailName.className    = `item-detail-name rarity-${item.rarity}`;
     els.itemDetailName.textContent  = item.name;
-    els.itemDetailMeta.textContent  = `슬롯: ${item.slotLabel} · 전투력 ${item.power} · ${getItemStatText(item)}`;
 
-    const curStats    = getHeroBaseStats();
-    const previewEquip= { ...state.equipment, [item.slot]: item };
-    const newStats    = getHeroBaseStats(previewEquip);
+    // 슬롯 라벨 (ring → ring1/ring2 고려)
+    const dispSlot = item.slot === 'ring' ? '반지' : (slotLabels[item.slot] || item.slot);
+    els.itemDetailMeta.textContent  = `슬롯: ${dispSlot} · CP +${item.power} · ${getItemStatText(item)}`;
 
-    const statKeys = [{key:'atk',label:'공격'},{key:'def',label:'방어'},{key:'hp',label:'체력'},{key:'speed',label:'속도'},{key:'crit',label:'치명타'}];
-    let totalDiff = 0;
-
+    // 스탯 비교 (착용 시 미리보기)
+    const curStats     = getHeroBaseStats();
+    let previewEquip   = { ...state.equipment };
+    if (isEquipped) {
+      // 착용 중이면 해제 시 스탯 표시
+      const equippedSlot = Object.keys(state.equipment).find(k => state.equipment[k]?.id === item.id);
+      if (equippedSlot) previewEquip[equippedSlot] = null;
+    } else {
+      // 반지는 ring1 비어있으면 ring1, 아니면 ring2
+      const targetSlot = item.slot === 'ring'
+        ? (!state.equipment.ring1 ? 'ring1' : 'ring2')
+        : item.slot;
+      previewEquip[targetSlot] = item;
+    }
+    const newStats  = getHeroBaseStats(previewEquip);
+    const statKeys  = [{key:'atk',label:'공격'},{key:'def',label:'방어'},{key:'hp',label:'체력'},{key:'speed',label:'속도'},{key:'crit',label:'치명타'}];
+    let totalDiff   = 0;
     els.itemStatCompareGrid.innerHTML = statKeys.map(({key,label}) => {
       const before = curStats[key], after = newStats[key];
       const diff = after - before; totalDiff += diff;
@@ -1512,53 +1644,92 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
     }).join('');
 
-    if (!isEquipped) {
-      if (totalDiff > 0)       { els.itemStatChangeHint.className='stat-change-hint positive'; els.itemStatChangeHint.textContent=`장착 시 전체 스탯 +${totalDiff} 향상!`; }
-      else if (totalDiff < 0)  { els.itemStatChangeHint.className='stat-change-hint negative'; els.itemStatChangeHint.textContent=`장착 시 전체 스탯 ${totalDiff} 하락`; }
-      else                     { els.itemStatChangeHint.className='stat-change-hint neutral';  els.itemStatChangeHint.textContent='현재 장비와 동일한 스탯입니다.'; }
+    // 스탯 변화 힌트
+    if (isEquipped) {
+      els.itemStatChangeHint.className = 'stat-change-hint neutral';
+      els.itemStatChangeHint.textContent = '✓ 현재 착용 중 — 해제 시 스탯 변화 미리보기';
+    } else if (!check.ok) {
+      els.itemStatChangeHint.className = 'stat-change-hint negative';
+      els.itemStatChangeHint.textContent = `🚫 ${check.reason}`;
+    } else if (item.slot === 'ring' && state.equipment.ring1 && state.equipment.ring2) {
+      els.itemStatChangeHint.className = 'stat-change-hint negative';
+      els.itemStatChangeHint.textContent = '🚫 반지 슬롯이 가득 찼습니다 (최대 2개)';
+    } else if (totalDiff > 0) {
+      els.itemStatChangeHint.className = 'stat-change-hint positive';
+      els.itemStatChangeHint.textContent = `▲ 장착 시 전체 스탯 +${totalDiff} 향상!`;
+    } else if (totalDiff < 0) {
+      els.itemStatChangeHint.className = 'stat-change-hint negative';
+      els.itemStatChangeHint.textContent = `▼ 장착 시 전체 스탯 ${totalDiff} 변화`;
     } else {
-      els.itemStatChangeHint.className='stat-change-hint neutral';
-      els.itemStatChangeHint.textContent = '✓ 현재 장착 중인 장비입니다.';
+      els.itemStatChangeHint.className = 'stat-change-hint neutral';
+      els.itemStatChangeHint.textContent = '현재 장비와 동일한 스탯';
     }
 
     const sellPrice = getSellPrice(item);
-    els.itemSellPriceRow.innerHTML = `🪙 판매 시 골드 <b>${sellPrice}</b> 획득`;
+    els.itemSellPriceRow.innerHTML = `🪙 판매가 <b style="color:#ffcf63;">${sellPrice}G</b>`;
 
+    // 버튼 렌더
+    const ringFull = item.slot === 'ring' && state.equipment.ring1 && state.equipment.ring2;
     if (isEquipped) {
-      els.itemDetailActions.className='modal-actions two';
-      els.itemDetailActions.innerHTML=`
+      els.itemDetailActions.className = 'modal-actions two';
+      els.itemDetailActions.innerHTML = `
+        <button class="modal-danger" id="itemUnequipBtn">🔓 해제</button>
+        <button id="itemCloseBtn">닫기</button>`;
+      q('itemUnequipBtn').addEventListener('click', () => unequipItemFromModal(item));
+    } else if (!check.ok || ringFull) {
+      els.itemDetailActions.className = 'modal-actions two';
+      els.itemDetailActions.innerHTML = `
         <button class="modal-gold" id="itemSellBtn">🪙 판매 (${sellPrice}G)</button>
-        <button class="modal-primary" id="itemCloseBtn">닫기</button>
-      `;
+        <button id="itemCloseBtn">닫기</button>`;
+      q('itemSellBtn').addEventListener('click', () => showSellConfirm(item));
     } else {
-      const cantEquip = item.slot === 'shield' && state.heroClass === '궁사';
-      els.itemDetailActions.className = cantEquip ? 'modal-actions two' : 'modal-actions three';
-      els.itemDetailActions.innerHTML = cantEquip
-        ? `<button class="modal-gold" id="itemSellBtn">🪙 ${sellPrice}G</button>
-           <button id="itemCloseBtn">닫기</button>`
-        : `<button class="modal-primary" id="itemEquipBtn">장착</button>
-           <button class="modal-gold"    id="itemSellBtn">🪙 ${sellPrice}G</button>
-           <button id="itemCloseBtn">닫기</button>`;
-      if (cantEquip) {
-        els.itemStatChangeHint.className='stat-change-hint negative';
-        els.itemStatChangeHint.textContent='🚫 궁사는 방패를 착용할 수 없습니다.';
-      } else {
-        q('itemEquipBtn').addEventListener('click', () => equipItemFromModal(item));
-      }
+      els.itemDetailActions.className = 'modal-actions three';
+      els.itemDetailActions.innerHTML = `
+        <button class="modal-primary" id="itemEquipBtn">⚔️ 장착</button>
+        <button class="modal-gold" id="itemSellBtn">🪙 판매 (${sellPrice}G)</button>
+        <button id="itemCloseBtn">닫기</button>`;
+      q('itemEquipBtn').addEventListener('click', () => equipItemFromModal(item));
+      q('itemSellBtn').addEventListener('click', () => showSellConfirm(item));
     }
-    q('itemSellBtn').addEventListener('click', () => sellItemFromModal(item));
     q('itemCloseBtn').addEventListener('click', () => closeModal(els.itemDetailBackdrop));
-
     openModal(els.itemDetailBackdrop);
   }
 
+  function showSellConfirm(item) {
+    const sellPrice = getSellPrice(item);
+    const box = q('sellConfirmBox');
+    q('sellConfirmPrice').innerHTML = `🪙 <b>${item.name}</b> 판매 시 <b style="color:#ffcf63">${sellPrice}골드</b> 획득`;
+    box.style.display = 'block';
+    els.itemDetailActions.className = 'modal-actions two';
+    els.itemDetailActions.innerHTML = `
+      <button class="modal-danger" id="itemConfirmSellBtn">🪙 팔기</button>
+      <button id="itemCancelSellBtn">취소</button>`;
+    q('itemConfirmSellBtn').addEventListener('click', () => sellItemFromModal(item));
+    q('itemCancelSellBtn').addEventListener('click', () => {
+      box.style.display = 'none';
+      openItemDetailModal(item); // 다시 열기
+    });
+  }
+
   function equipItemFromModal(item) {
-    if (item.slot === 'shield' && state.heroClass === '궁사') {
-      showDropNotification('⚠️ 궁사는 방패를 착용할 수 없습니다!', '#ff9b7f');
-      return;
-    }
-    state.equipment[item.slot] = item;
+    const check = canEquipItem(item);
+    if (!check.ok) { showDropNotification(`⚠️ ${check.reason}`, '#ff9b7f'); return; }
+    const ringFull = item.slot === 'ring' && state.equipment.ring1 && state.equipment.ring2;
+    if (ringFull) { showDropNotification('⚠️ 반지 슬롯이 가득 찼습니다!', '#ff9b7f'); return; }
+    const targetSlot = item.slot === 'ring'
+      ? (!state.equipment.ring1 ? 'ring1' : 'ring2')
+      : item.slot;
+    state.equipment[targetSlot] = item;
     showEquipEffect(item);
+    closeModal(els.itemDetailBackdrop);
+    renderHero();
+    openHeroStatsModal();
+  }
+
+  function unequipItemFromModal(item) {
+    const equippedSlot = Object.keys(state.equipment).find(k => state.equipment[k]?.id === item.id);
+    if (equippedSlot) state.equipment[equippedSlot] = null;
+    showDropNotification(`🔓 ${item.name} 해제됨`, '#a4b4db');
     closeModal(els.itemDetailBackdrop);
     renderHero();
     openHeroStatsModal();
@@ -1566,14 +1737,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function sellItemFromModal(item) {
     const price = getSellPrice(item);
-    if (state.equipment[item.slot]?.id === item.id) {
-      state.equipment[item.slot] = null;
-    }
-    state.inventory = state.inventory.filter(i=>i.id!==item.id);
+    const equippedSlot = Object.keys(state.equipment).find(k => state.equipment[k]?.id === item.id);
+    if (equippedSlot) state.equipment[equippedSlot] = null;
+    state.inventory = state.inventory.filter(i => i.id !== item.id);
     state.gold += price;
     closeModal(els.itemDetailBackdrop);
     renderHero();
-    showDropNotification(`🪙 ${item.name} 판매 완료! +${price} 골드`);
+    showDropNotification(`🪙 ${item.name} 판매! +${price}G`);
     openHeroStatsModal();
   }
 
