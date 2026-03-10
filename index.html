@@ -1806,19 +1806,21 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch(e) { console.error('GM 영웅 로드 실패:', e); return []; }
     }
     try {
-      // account_id 컬럼이 있으면 필터링, 없으면 전체 조회
-      let query = sb
+      // 5초 타임아웃 적용
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('쿼리 타임아웃 (5초) — Supabase 연결을 확인해 주세요')), 5000)
+      );
+      const queryPromise = sb
         .from('heroes')
         .select('player_id, hero_name, hero_class, level, gold, char_slot, account_id, updated_at')
         .order('char_slot');
 
-      const { data, error } = await query;
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
       if (error) throw error;
 
       const rows = data || [];
-      console.log('[loadMyHeroes] 전체 rows:', rows.length, '/ CURRENT_USER.id:', CURRENT_USER.id);
+      console.log('[loadMyHeroes] rows:', rows.length, '/ uid:', CURRENT_USER.id);
 
-      // account_id 컬럼이 있고 값이 있으면 필터, 없으면 전체 반환 (개발 초기 호환)
       const hasAccountId = rows.some(r => r.account_id != null);
       if (hasAccountId) {
         return rows.filter(r => r.account_id === CURRENT_USER.id);
@@ -1826,7 +1828,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return rows;
     } catch(e) {
       console.error('영웅 로드 실패:', e);
-      showCharError('영웅 목록을 불러오지 못했습니다.<br>네트워크를 확인하고 다시 시도해 주세요.<br><small style="color:#6a80a4">' + e.message + '</small>');
+      showCharError('영웅 목록을 불러오지 못했습니다.<br>' + e.message + '<br><br><small>Supabase 프로젝트가 일시 정지됐을 수 있습니다.<br>supabase.com 대시보드를 확인해 주세요.</small>');
       return null;
     }
   }
