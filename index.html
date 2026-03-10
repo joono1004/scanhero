@@ -213,14 +213,15 @@
 
     /* ── 지도 버튼: 경험치바 영역과 동일한 세로 크기 (padding 7+8=15px + head fontSize/lineheight~16px + margin 5px + bar 9px = ~45px total, match with height:auto stretching) ── */
     .game-logout-btn {
-      position: absolute; top: 10px; right: 10px;
-      padding: 4px 10px; border-radius: 8px;
-      border: 1px solid rgba(255,80,80,0.25);
-      background: rgba(255,60,60,0.08);
-      color: rgba(255,120,100,0.7); font-size: 10px; font-weight: 700;
-      cursor: pointer; z-index: 10; transition: all 0.2s;
+      position: fixed; top: 12px; right: 12px;
+      padding: 5px 12px; border-radius: 10px;
+      border: 1px solid rgba(255,80,80,0.3);
+      background: rgba(10,6,20,0.85); backdrop-filter: blur(8px);
+      color: rgba(255,120,100,0.8); font-size: 10px; font-weight: 700;
+      cursor: pointer; z-index: 9999; transition: all 0.2s;
+      display: none; /* showScreen에서 제어 */
     }
-    .game-logout-btn:hover { background: rgba(255,60,60,0.18); color: #ff8070; border-color: rgba(255,80,80,0.5); }
+    .game-logout-btn:hover { background: rgba(255,60,60,0.18); color: #ff9080; border-color: rgba(255,80,80,0.55); }
     .hero-map-btn {
       position: absolute; right: 10px; bottom: 10px;
       width: 32px;
@@ -407,11 +408,13 @@
       display: flex; align-items: center; gap: 10px; flex: 1;
     }
     .char-slot-sprite {
-      width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0;
+      width: 72px; height: 72px; border-radius: 14px; flex-shrink: 0;
       background: linear-gradient(180deg, rgba(49,71,133,0.6), rgba(20,30,60,0.8));
       border: 1px solid rgba(120,149,220,0.22);
-      display: flex; align-items: center; justify-content: center; overflow: hidden;
+      display: flex; align-items: flex-end; justify-content: center; overflow: visible;
+      position: relative;
     }
+    .char-slot-sprite .hero-visual-wrap { transform: scale(1.4); transform-origin: bottom center; margin-bottom: 4px; }
     .char-slot-info { flex: 1; min-width: 0; }
     .char-slot-name { font-size: 14px; font-weight: 900; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .char-slot-meta { font-size: 10px; color: #7a90be; margin-bottom: 4px; }
@@ -641,12 +644,8 @@
     .stat-same { color: #eef3ff; }
 
     .stat-change-hint {
-      font-size: 10px;
-      padding: 6px 10px;
-      border-radius: 9px;
-      margin-bottom: 8px;
-      font-weight: 800;
-      text-align: center;
+      font-size: 11px; font-weight: 900; padding: 7px 10px; border-radius: 9px; margin-bottom: 8px;
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; letter-spacing: 0.3px;
     }
     .stat-change-hint.positive { background: rgba(17,31,25,0.95); border: 1px solid rgba(95,206,141,0.24); color: #dffbe9; }
     .stat-change-hint.negative { background: rgba(43,20,22,0.95); border: 1px solid rgba(255,120,120,0.24); color: #ffe3e3; }
@@ -1155,10 +1154,7 @@
           <div class="hero-avatar">
             <div class="hero-avatar-top">
               <button type="button" class="hero-title-btn" id="heroTitleBtn">주인님의 영웅 (전사-견습) Lv 1</button>
-              <div style="display:flex;align-items:center;gap:6px;">
-                <div class="hero-gold-box"><span>🪙</span><span id="heroGoldTop">0</span></div>
-                <button type="button" class="game-logout-btn" id="gameLogoutBtn" title="로그아웃">⬅ 나가기</button>
-              </div>
+              <div class="hero-gold-box"><span>🪙</span><span id="heroGoldTop">0</span></div>
             </div>
             <div class="formation-stage">
               <div class="hero-unit"><div class="hero-sprite" id="heroSpriteWrap"></div><div class="hero-shadow"></div></div>
@@ -1796,6 +1792,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // 앱 시작 시 아이템 카탈로그 로드 (로그인 전에 미리)
+  loadItemCatalog();   // await 불필요 — 플레이 시작 전에 충분히 로드됨
+
   // 초기 세션 체크
   (async () => {
     // 저장 실패 플래그가 있으면 세션 무시하고 로그인 화면 강제
@@ -1831,6 +1830,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function showScreen(screen) {
     document.getElementById('authScreen').style.display  = screen === 'auth' ? 'flex' : 'none';
     document.getElementById('charScreen').style.display  = screen === 'char' ? 'flex' : 'none';
+    const logoutBtn = document.getElementById('gameLogoutBtn');
+    if (logoutBtn) logoutBtn.style.display = (screen !== 'auth' && screen !== 'char') ? 'block' : 'none';
     if (screen !== 'char' && screen !== 'auth') {
       document.getElementById('charScreen').style.display = 'none';
       document.getElementById('authScreen').style.display = 'none';
@@ -2281,6 +2282,8 @@ document.addEventListener('DOMContentLoaded', () => {
     state.inventory = [];
     state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null };
     state.usedBarcodes = new Set();
+    // 카탈로그 미로드 상태라면 재시도
+    if (gearCatalog.length === 0) await loadItemCatalog();
     await dbLoadAll();
     loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap();
     requestCurrentLocation();
@@ -2555,61 +2558,87 @@ document.addEventListener('DOMContentLoaded', () => {
   const markerIcons   = { 몬스터:'⚔️', 보물:'🎁', 장비:'🧰', 특수:'✨' };
   const rarityOrder   = ['common','uncommon','rare','epic','legendary'];
 
-  const gearCatalog = [
-    // ── 검 (전사) ──
-    { name:'단검',          slot:'weapon', weaponType:'sword', icon:'⟨단검⟩',     stats:{atk:2,speed:1},          classes:['전사'] },
-    { name:'외날검',        slot:'weapon', weaponType:'sword', icon:'⟨외날검⟩',   stats:{atk:3,crit:1},           classes:['전사'] },
-    { name:'장검',          slot:'weapon', weaponType:'sword', icon:'⟨장검⟩',     stats:{atk:4,def:1},            classes:['전사'] },
-    { name:'양손검',        slot:'weapon', weaponType:'sword', icon:'⟨양손검⟩',   stats:{atk:6,hp:5},             classes:['전사'] },
-    { name:'기사검',        slot:'weapon', weaponType:'sword', icon:'⟨기사검⟩',   stats:{atk:4,crit:2,def:1},     classes:['전사'] },
-    // ── 활 (궁사) ──
-    { name:'단궁',          slot:'weapon', weaponType:'bow',   icon:'⟨단궁⟩',     stats:{atk:2,speed:2},          classes:['궁사'] },
-    { name:'장궁',          slot:'weapon', weaponType:'bow',   icon:'⟨장궁⟩',     stats:{atk:4,speed:1},          classes:['궁사'] },
-    { name:'복합궁',        slot:'weapon', weaponType:'bow',   icon:'⟨복합궁⟩',   stats:{atk:3,crit:2,speed:1},   classes:['궁사'] },
-    { name:'강화 석궁',     slot:'weapon', weaponType:'bow',   icon:'⟨석궁⟩',     stats:{atk:5,crit:2},           classes:['궁사'] },
-    // ── 지팡이 (마법사) ──
-    { name:'나무 지팡이',   slot:'weapon', weaponType:'staff', icon:'⟨나무지팡이⟩', stats:{atk:2,crit:1},           classes:['마법사'] },
-    { name:'수정 지팡이',   slot:'weapon', weaponType:'staff', icon:'⟨수정지팡이⟩', stats:{atk:3,crit:2},           classes:['마법사'] },
-    { name:'강철 지팡이',   slot:'weapon', weaponType:'staff', icon:'⟨강철지팡이⟩', stats:{atk:4,def:1,crit:1},     classes:['마법사'] },
-    { name:'마법 지팡이',   slot:'weapon', weaponType:'staff', icon:'⟨마법지팡이⟩', stats:{atk:5,crit:3},           classes:['마법사'] },
-    // ── 갑옷 ──
-    { name:'가죽 갑옷',     slot:'armor',  icon:'⟨가죽갑옷⟩', stats:{def:2,hp:8} },
-    { name:'사슬 갑옷',     slot:'armor',  icon:'⟨사슬갑옷⟩', stats:{def:4,hp:10} },
-    { name:'철판 갑옷',     slot:'armor',  icon:'⟨철판갑옷⟩', stats:{def:6,hp:12} },
-    { name:'기사 흉갑',     slot:'armor',  icon:'⟨기사흉갑⟩', stats:{def:7,hp:10,speed:-1} },
-    // ── 방패 (전사·마법사) ──
-    { name:'나무 방패',     slot:'shield', icon:'⟨나무방패⟩', stats:{def:3,hp:6},             classes:['전사','마법사'] },
-    { name:'철 방패',       slot:'shield', icon:'⟨철방패⟩',   stats:{def:5,hp:8},             classes:['전사','마법사'] },
-    { name:'원형 방패',     slot:'shield', icon:'⟨원형방패⟩', stats:{def:4,hp:6,crit:1},      classes:['전사','마법사'] },
-    { name:'탑 방패',       slot:'shield', icon:'⟨탑방패⟩',   stats:{def:7,hp:10,speed:-1},   classes:['전사','마법사'] },
-    // ── 장갑 ──
-    { name:'천 장갑',       slot:'gloves', icon:'⟨천장갑⟩',   stats:{speed:1,hp:4} },
-    { name:'철 장갑',       slot:'gloves', icon:'⟨철장갑⟩',   stats:{atk:2,def:2} },
-    { name:'가죽 장갑',     slot:'gloves', icon:'⟨가죽장갑⟩', stats:{atk:1,crit:2} },
-    { name:'전투 장갑',     slot:'gloves', icon:'⟨전투장갑⟩', stats:{atk:3,crit:1} },
-    // ── 장화 ──
-    { name:'천 신발',       slot:'boots',  icon:'⟨천신발⟩',   stats:{speed:1,hp:3} },
-    { name:'가죽 장화',     slot:'boots',  icon:'⟨가죽장화⟩', stats:{speed:2,hp:4} },
-    { name:'강화 장화',     slot:'boots',  icon:'⟨강화장화⟩', stats:{speed:3,def:1} },
-    { name:'질풍 장화',     slot:'boots',  icon:'⟨질풍장화⟩', stats:{speed:4,crit:1} },
-    // ── 망토 ──
-    { name:'낡은 망토',     slot:'cloak',  icon:'⟨낡은망토⟩', stats:{hp:5,def:1} },
-    { name:'강화 망토',     slot:'cloak',  icon:'⟨강화망토⟩', stats:{hp:8,def:2} },
-    { name:'전사의 망토',   slot:'cloak',  icon:'⟨전사망토⟩', stats:{hp:6,def:3,atk:1} },
-    { name:'용사의 망토',   slot:'cloak',  icon:'⟨용사망토⟩', stats:{atk:2,def:2,hp:6,crit:1} },
-    // ── 반지 ──
-    { name:'구리 반지',     slot:'ring',   icon:'⟨구리반지⟩', stats:{hp:4} },
-    { name:'전투 반지',     slot:'ring',   icon:'⟨전투반지⟩', stats:{crit:3,atk:1} },
-    { name:'수호 반지',     slot:'ring',   icon:'⟨수호반지⟩', stats:{hp:6,def:1} },
-    { name:'마력 반지',     slot:'ring',   icon:'⟨마력반지⟩', stats:{atk:2,crit:2} },
-    // ── 목걸이 ──
-    { name:'가죽 끈',       slot:'necklace', icon:'⟨가죽끈⟩',     stats:{hp:5} },
-    { name:'집중 목걸이',   slot:'necklace', icon:'⟨집중목걸이⟩', stats:{crit:2,speed:1} },
-    { name:'수호 목걸이',   slot:'necklace', icon:'⟨수호목걸이⟩', stats:{def:2,hp:6} },
-    { name:'투사의 목걸이', slot:'necklace', icon:'⟨투사목걸이⟩', stats:{atk:2,crit:1,hp:3} },
+  // ── 아이템 카탈로그 (DB에서 로드) ──
+  let gearCatalog = [];   // 앱 시작 시 item_catalog 테이블에서 채워짐
+
+  async function loadItemCatalog() {
+    try {
+      const { data, error } = await sb
+        .from('item_catalog')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order');
+      if (error) throw error;
+      // DB 컬럼 → 게임 내부 형식으로 변환
+      gearCatalog = data.map(row => ({
+        id:          row.id,
+        name:        row.name,
+        slot:        row.slot,
+        weaponType:  row.weapon_type || null,
+        icon:        row.icon,
+        classes:     row.classes || null,
+        stats: {
+          atk:   row.base_atk   || 0,
+          def:   row.base_def   || 0,
+          hp:    row.base_hp    || 0,
+          speed: row.base_speed || 0,
+          crit:  row.base_crit  || 0,
+        }
+      }));
+      console.log(`[카탈로그] ${gearCatalog.length}종 아이템 로드 완료`);
+    } catch (e) {
+      console.error('[카탈로그] 로드 실패, 폴백 사용:', e.message);
+      // 폴백: DB 연결 실패 시 하드코딩 사용
+      gearCatalog = FALLBACK_CATALOG;
+    }
+  }
+
+  // 폴백용 하드코딩 카탈로그 (DB 연결 실패 시)
+  const FALLBACK_CATALOG = [
+    { name:'단검',        slot:'weapon', weaponType:'sword', icon:'⟨단검⟩',      classes:['전사'],           stats:{atk:2,def:0,hp:0,speed:1,crit:0} },
+    { name:'외날검',      slot:'weapon', weaponType:'sword', icon:'⟨외날검⟩',    classes:['전사'],           stats:{atk:3,def:0,hp:0,speed:0,crit:1} },
+    { name:'장검',        slot:'weapon', weaponType:'sword', icon:'⟨장검⟩',      classes:['전사'],           stats:{atk:4,def:1,hp:0,speed:0,crit:0} },
+    { name:'양손검',      slot:'weapon', weaponType:'sword', icon:'⟨양손검⟩',    classes:['전사'],           stats:{atk:6,def:0,hp:5,speed:0,crit:0} },
+    { name:'기사검',      slot:'weapon', weaponType:'sword', icon:'⟨기사검⟩',    classes:['전사'],           stats:{atk:4,def:1,hp:0,speed:0,crit:2} },
+    { name:'단궁',        slot:'weapon', weaponType:'bow',   icon:'⟨단궁⟩',      classes:['궁사'],           stats:{atk:2,def:0,hp:0,speed:2,crit:0} },
+    { name:'장궁',        slot:'weapon', weaponType:'bow',   icon:'⟨장궁⟩',      classes:['궁사'],           stats:{atk:4,def:0,hp:0,speed:1,crit:0} },
+    { name:'복합궁',      slot:'weapon', weaponType:'bow',   icon:'⟨복합궁⟩',    classes:['궁사'],           stats:{atk:3,def:0,hp:0,speed:1,crit:2} },
+    { name:'강화 석궁',   slot:'weapon', weaponType:'bow',   icon:'⟨석궁⟩',      classes:['궁사'],           stats:{atk:5,def:0,hp:0,speed:0,crit:2} },
+    { name:'나무 지팡이', slot:'weapon', weaponType:'staff', icon:'⟨나무지팡이⟩', classes:['마법사'],         stats:{atk:2,def:0,hp:0,speed:0,crit:1} },
+    { name:'수정 지팡이', slot:'weapon', weaponType:'staff', icon:'⟨수정지팡이⟩', classes:['마법사'],         stats:{atk:3,def:0,hp:0,speed:0,crit:2} },
+    { name:'강철 지팡이', slot:'weapon', weaponType:'staff', icon:'⟨강철지팡이⟩', classes:['마법사'],         stats:{atk:4,def:1,hp:0,speed:0,crit:1} },
+    { name:'마법 지팡이', slot:'weapon', weaponType:'staff', icon:'⟨마법지팡이⟩', classes:['마법사'],         stats:{atk:5,def:0,hp:0,speed:0,crit:3} },
+    { name:'가죽 갑옷',   slot:'armor',  weaponType:null,    icon:'⟨가죽갑옷⟩',  classes:null,               stats:{atk:0,def:2,hp: 8,speed: 0,crit:0} },
+    { name:'사슬 갑옷',   slot:'armor',  weaponType:null,    icon:'⟨사슬갑옷⟩',  classes:null,               stats:{atk:0,def:4,hp:10,speed: 0,crit:0} },
+    { name:'철판 갑옷',   slot:'armor',  weaponType:null,    icon:'⟨철판갑옷⟩',  classes:null,               stats:{atk:0,def:6,hp:12,speed: 0,crit:0} },
+    { name:'기사 흉갑',   slot:'armor',  weaponType:null,    icon:'⟨기사흉갑⟩',  classes:null,               stats:{atk:0,def:7,hp:10,speed:-1,crit:0} },
+    { name:'나무 방패',   slot:'shield', weaponType:null,    icon:'⟨나무방패⟩',  classes:['전사','마법사'],  stats:{atk:0,def:3,hp: 6,speed: 0,crit:0} },
+    { name:'철 방패',     slot:'shield', weaponType:null,    icon:'⟨철방패⟩',    classes:['전사','마법사'],  stats:{atk:0,def:5,hp: 8,speed: 0,crit:0} },
+    { name:'원형 방패',   slot:'shield', weaponType:null,    icon:'⟨원형방패⟩',  classes:['전사','마법사'],  stats:{atk:0,def:4,hp: 6,speed: 0,crit:1} },
+    { name:'탑 방패',     slot:'shield', weaponType:null,    icon:'⟨탑방패⟩',    classes:['전사','마법사'],  stats:{atk:0,def:7,hp:10,speed:-1,crit:0} },
+    { name:'천 장갑',     slot:'gloves', weaponType:null,    icon:'⟨천장갑⟩',   classes:null,               stats:{atk:0,def:0,hp:4,speed:1,crit:0} },
+    { name:'철 장갑',     slot:'gloves', weaponType:null,    icon:'⟨철장갑⟩',   classes:null,               stats:{atk:2,def:2,hp:0,speed:0,crit:0} },
+    { name:'가죽 장갑',   slot:'gloves', weaponType:null,    icon:'⟨가죽장갑⟩', classes:null,               stats:{atk:1,def:0,hp:0,speed:0,crit:2} },
+    { name:'전투 장갑',   slot:'gloves', weaponType:null,    icon:'⟨전투장갑⟩', classes:null,               stats:{atk:3,def:0,hp:0,speed:0,crit:1} },
+    { name:'천 신발',     slot:'boots',  weaponType:null,    icon:'⟨천신발⟩',   classes:null,               stats:{atk:0,def:0,hp:3,speed:1,crit:0} },
+    { name:'가죽 장화',   slot:'boots',  weaponType:null,    icon:'⟨가죽장화⟩', classes:null,               stats:{atk:0,def:0,hp:4,speed:2,crit:0} },
+    { name:'강화 장화',   slot:'boots',  weaponType:null,    icon:'⟨강화장화⟩', classes:null,               stats:{atk:0,def:1,hp:0,speed:3,crit:0} },
+    { name:'질풍 장화',   slot:'boots',  weaponType:null,    icon:'⟨질풍장화⟩', classes:null,               stats:{atk:0,def:0,hp:0,speed:4,crit:1} },
+    { name:'낡은 망토',   slot:'cloak',  weaponType:null,    icon:'⟨낡은망토⟩', classes:null,               stats:{atk:0,def:1,hp:5,speed:0,crit:0} },
+    { name:'강화 망토',   slot:'cloak',  weaponType:null,    icon:'⟨강화망토⟩', classes:null,               stats:{atk:0,def:2,hp:8,speed:0,crit:0} },
+    { name:'전사의 망토', slot:'cloak',  weaponType:null,    icon:'⟨전사망토⟩', classes:null,               stats:{atk:1,def:3,hp:6,speed:0,crit:0} },
+    { name:'용사의 망토', slot:'cloak',  weaponType:null,    icon:'⟨용사망토⟩', classes:null,               stats:{atk:2,def:2,hp:6,speed:0,crit:1} },
+    { name:'구리 반지',   slot:'ring',   weaponType:null,    icon:'⟨구리반지⟩',   classes:null,             stats:{atk:0,def:0,hp:4,speed:0,crit:0} },
+    { name:'전투 반지',   slot:'ring',   weaponType:null,    icon:'⟨전투반지⟩',   classes:null,             stats:{atk:1,def:0,hp:0,speed:0,crit:3} },
+    { name:'수호 반지',   slot:'ring',   weaponType:null,    icon:'⟨수호반지⟩',   classes:null,             stats:{atk:0,def:1,hp:6,speed:0,crit:0} },
+    { name:'마력 반지',   slot:'ring',   weaponType:null,    icon:'⟨마력반지⟩',   classes:null,             stats:{atk:2,def:0,hp:0,speed:0,crit:2} },
+    { name:'가죽 끈',       slot:'necklace', weaponType:null, icon:'⟨가죽끈⟩',     classes:null,            stats:{atk:0,def:0,hp:5,speed:0,crit:0} },
+    { name:'집중 목걸이',   slot:'necklace', weaponType:null, icon:'⟨집중목걸이⟩', classes:null,            stats:{atk:0,def:0,hp:0,speed:1,crit:2} },
+    { name:'수호 목걸이',   slot:'necklace', weaponType:null, icon:'⟨수호목걸이⟩', classes:null,            stats:{atk:0,def:2,hp:6,speed:0,crit:0} },
+    { name:'투사의 목걸이', slot:'necklace', weaponType:null, icon:'⟨투사목걸이⟩', classes:null,            stats:{atk:2,def:0,hp:3,speed:0,crit:1} },
   ];
 
-  const slotLabels = { weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑', boots:'장화', ring1:'반지1', ring2:'반지2', necklace:'목걸이', cloak:'망토' };
+    const slotLabels = { weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑', boots:'장화', ring1:'반지1', ring2:'반지2', necklace:'목걸이', cloak:'망토' };
   // slotPinMap 제거 (핀 UI 대신 오버레이 방식 사용)
 
   // 기본 드롭 테이블 (보통 난이도)
@@ -3371,8 +3400,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── 아이템 아이콘 SVG 라이브러리 ──
-  (function() {
-    // ── 공통 defs 빌더 ──
+  // ── 공통 defs 빌더 ──
 function defs(...items){ return `<defs>${items.join('')}</defs>`; }
 function lg(id, x1,y1,x2,y2, stops){ return `<linearGradient id="${id}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" gradientUnits="userSpaceOnUse">${stops.map(([o,c,a])=>`<stop offset="${o}%" stop-color="${c}" stop-opacity="${a??1}"/>`).join('')}</linearGradient>`; }
 function rg(id, cx,cy,r, stops){ return `<radialGradient id="${id}" cx="${cx}" cy="${cy}" r="${r}" gradientUnits="userSpaceOnUse">${stops.map(([o,c,a])=>`<stop offset="${o}%" stop-color="${c}" stop-opacity="${a??1}"/>`).join('')}</radialGradient>`; }
@@ -3382,19 +3410,979 @@ function bg(col1, col2){ return `<rect x="2" y="2" width="44" height="44" rx="10
 function bgDef(c1,c2){ return lg('bg',24,2,24,46,[[0,c1],[100,c2]]); }
 
 const ICO = {};
-    window._SCANHERO_ICO = ICO;
-    window._SCANHERO_defs = defs;
-    window._SCANHERO_lg = lg;
-    window._SCANHERO_rg = rg;
-    window._SCANHERO_svg = svg;
-  })();
+
+// ══════════════════════════════════════════
+// 검류
+// ══════════════════════════════════════════
+
+// 단검 — 짧고 뚱뚱한 단검, 보랏빛 보석 손잡이
+ICO['⟨단검⟩'] = svg(defs(
+  bgDef('#1a1030','#0d0820'),
+  lg('blade',24,8,26,30,[[0,'#e8e8ff'],[40,'#b8c4e8'],[100,'#7880a8']]),
+  lg('hilt',24,30,24,44,[[0,'#c87820'],[100,'#7a4410']]),
+  lg('guard',12,28,36,28,[[0,'#888'],[50,'#ddd'],[100,'#888']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 그림자 -->
+<ellipse cx="26" cy="42" rx="8" ry="2" fill="black" opacity="0.3"/>
+<!-- 날 -->
+<path d="M22 8 L26 8 L27 30 L24 34 L21 30 Z" fill="url(#blade)"/>
+<!-- 날 하이라이트 -->
+<path d="M23 9 L24 9 L24.5 28" stroke="white" stroke-width="0.8" opacity="0.6" stroke-linecap="round"/>
+<!-- 가드 -->
+<rect x="17" y="28" width="14" height="3.5" rx="1.7" fill="url(#guard)"/>
+<rect x="18" y="28.3" width="12" height="1" rx="0.5" fill="white" opacity="0.35"/>
+<!-- 손잡이 -->
+<rect x="21.5" y="31.5" width="5" height="10" rx="2.5" fill="url(#hilt)"/>
+<rect x="22" y="32" width="2" height="9" rx="1" fill="white" opacity="0.15"/>
+<!-- 보석 -->
+<circle cx="24" cy="27" r="2.2" fill="#9060ff"/>
+<circle cx="23.3" cy="26.3" r="0.8" fill="white" opacity="0.7"/>
+`);
+
+// 외날검 — 살짝 곡선, 금빛 장식
+ICO['⟨외날검⟩'] = svg(defs(
+  bgDef('#1a1020','#0d0818'),
+  lg('blade',24,6,26,32,[[0,'#f0f0ff'],[30,'#c0c8e8'],[100,'#8090b8']]),
+  lg('hilt',24,32,24,46,[[0,'#d4901c'],[100,'#7a4a10']]),
+  lg('guard',14,30,34,30,[[0,'#aaa'],[50,'#fff'],[100,'#aaa']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<ellipse cx="26" cy="43" rx="7" ry="1.8" fill="black" opacity="0.3"/>
+<!-- 곡선 날 -->
+<path d="M22 6 L25.5 6 Q28 20 27 32 L24 36 L22 32 Q20 20 22 6Z" fill="url(#blade)"/>
+<!-- 날 엣지 라인 -->
+<path d="M23 7 Q24.5 20 23.5 32" stroke="white" stroke-width="0.7" opacity="0.5" stroke-linecap="round" fill="none"/>
+<!-- 가드 (살짝 곡선) -->
+<path d="M15 30 Q24 27 33 30 Q24 33 15 30Z" fill="url(#guard)"/>
+<path d="M16 29.5 Q24 27.5 32 29.5" stroke="white" stroke-width="0.6" opacity="0.4" fill="none"/>
+<!-- 손잡이 -->
+<rect x="21.5" y="33" width="5" height="11" rx="2.5" fill="url(#hilt)"/>
+<rect x="22" y="33.5" width="2" height="9.5" rx="1" fill="white" opacity="0.15"/>
+<!-- 금빛 링 -->
+<rect x="21" y="36" width="6" height="1.5" rx="0.7" fill="#ffcf63" opacity="0.8"/>
+`);
+
+// 장검 — 길고 날씬
+ICO['⟨장검⟩'] = svg(defs(
+  bgDef('#101828','#080f1c'),
+  lg('blade',24,4,26,34,[[0,'#ffffff'],[20,'#d0d8f8'],[70,'#9098c0'],[100,'#6870a0']]),
+  lg('hilt',24,36,24,47,[[0,'#b06820'],[100,'#603810']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<ellipse cx="25" cy="43" rx="6" ry="1.8" fill="black" opacity="0.3"/>
+<path d="M22.5 4 L25.5 4 L26 34 L24 38 L22 34 Z" fill="url(#blade)"/>
+<path d="M23 5 L23.8 5 L24 32" stroke="white" stroke-width="0.9" opacity="0.55" stroke-linecap="round"/>
+<path d="M24.5 5 L25 32" stroke="rgba(0,0,100,0.2)" stroke-width="0.5"/>
+<!-- 가드 -->
+<rect x="16" y="32" width="16" height="3.5" rx="1.7" fill="#a0a8c8"/>
+<rect x="17" y="32.3" width="14" height="1.2" rx="0.6" fill="white" opacity="0.4"/>
+<!-- 손잡이 -->
+<rect x="21.5" y="35.5" width="5" height="10" rx="2.5" fill="url(#hilt)"/>
+<rect x="22" y="36" width="2" height="8.5" rx="1" fill="white" opacity="0.12"/>
+<ellipse cx="24" cy="45" rx="2.5" ry="1.2" fill="#8a4810"/>
+`);
+
+// 양손검 — 크고 넓은 양손검
+ICO['⟨양손검⟩'] = svg(defs(
+  bgDef('#181020','#0e0818'),
+  lg('blade',24,3,27,33,[[0,'#ffffff'],[10,'#e0e8ff'],[50,'#9098c0'],[100,'#6068a0']]),
+  lg('hilt',24,35,24,47,[[0,'#c07828'],[100,'#703808']]),
+  lg('guard',12,32,36,32,[[0,'#607090'],[40,'#c0d0e0'],[60,'#c0d0e0'],[100,'#607090']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<ellipse cx="25" cy="43" rx="9" ry="2" fill="black" opacity="0.35"/>
+<!-- 넓은 날 -->
+<path d="M20 4 L28 4 L28.5 32 L24 37 L19.5 32 Z" fill="url(#blade)"/>
+<!-- 중앙 릿지 -->
+<path d="M24 5 L24 34" stroke="white" stroke-width="1.2" opacity="0.4"/>
+<!-- 날 엣지 음영 -->
+<path d="M20.5 5 L19.8 31" stroke="rgba(40,50,120,0.4)" stroke-width="1"/>
+<path d="M27.5 5 L28.2 31" stroke="rgba(40,50,120,0.4)" stroke-width="1"/>
+<!-- 가드 -->
+<rect x="13" y="31.5" width="22" height="4" rx="2" fill="url(#guard)"/>
+<rect x="14" y="32" width="20" height="1.5" rx="0.7" fill="white" opacity="0.35"/>
+<!-- 손잡이 감기 -->
+<rect x="21.5" y="35.5" width="5" height="10" rx="2.5" fill="url(#hilt)"/>
+<line x1="21.5" y1="37" x2="26.5" y2="37" stroke="#a06020" stroke-width="1"/>
+<line x1="21.5" y1="39" x2="26.5" y2="39" stroke="#a06020" stroke-width="1"/>
+<line x1="21.5" y1="41" x2="26.5" y2="41" stroke="#a06020" stroke-width="1"/>
+<line x1="21.5" y1="43" x2="26.5" y2="43" stroke="#a06020" stroke-width="1"/>
+<ellipse cx="24" cy="45.5" rx="3" ry="1.5" fill="#905010"/>
+`);
+
+// 기사검 — 십자가드 + 보석
+ICO['⟨기사검⟩'] = svg(defs(
+  bgDef('#101830','#080f20'),
+  lg('blade',24,4,26,32,[[0,'#ffffff'],[15,'#d8e8ff'],[60,'#9898c8'],[100,'#6868a8']]),
+  lg('hilt',24,34,24,47,[[0,'#c8c840'],[50,'#a0a020'],[100,'#606010']]),
+  lg('guard',12,31,36,31,[[0,'#6888a8'],[30,'#b8d0e8'],[50,'#e0f0ff'],[70,'#b8d0e8'],[100,'#6888a8']]),
+  rg('jewel',24,30,3,[[0,'#ff80ff'],[60,'#c040c0'],[100,'#800880']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<ellipse cx="25" cy="44" rx="7" ry="2" fill="black" opacity="0.3"/>
+<path d="M22 4 L26 4 L26.5 31 L24 35 L21.5 31 Z" fill="url(#blade)"/>
+<path d="M23 5 L23.8 5 L24.2 30" stroke="white" stroke-width="0.9" opacity="0.55" stroke-linecap="round"/>
+<!-- 십자 가드 -->
+<rect x="14" y="29.5" width="20" height="3.5" rx="1.7" fill="url(#guard)"/>
+<rect x="15" y="30" width="18" height="1.2" rx="0.6" fill="white" opacity="0.45"/>
+<!-- 가드 끝 장식 구 -->
+<circle cx="14.5" cy="31.2" r="2.2" fill="#b8d0e8"/>
+<circle cx="14" cy="30.7" r="0.8" fill="white" opacity="0.6"/>
+<circle cx="33.5" cy="31.2" r="2.2" fill="#b8d0e8"/>
+<circle cx="33" cy="30.7" r="0.8" fill="white" opacity="0.6"/>
+<!-- 손잡이 -->
+<rect x="22" y="33" width="4.5" height="11" rx="2.2" fill="url(#hilt)"/>
+<rect x="22.3" y="33.5" width="1.8" height="9.5" rx="0.9" fill="white" opacity="0.2"/>
+<!-- 보석 -->
+<circle cx="24.2" cy="30" r="3" fill="url(#jewel)"/>
+<circle cx="23" cy="28.8" r="1" fill="white" opacity="0.65"/>
+`);
+
+// ══════════════════════════════════════════
+// 활류
+// ══════════════════════════════════════════
+
+ICO['⟨단궁⟩'] = svg(defs(
+  bgDef('#101820','#080f16'),
+  lg('bow',8,4,10,44,[[0,'#c87828'],[50,'#a05c18'],[100,'#7a3c10']]),
+  lg('arrow',14,22,36,22,[[0,'#e0d090'],[100,'#b0a060']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 활 몸체 곡선 -->
+<path d="M9 5 Q3 24 9 43" fill="none" stroke="url(#bow)" stroke-width="3.5" stroke-linecap="round"/>
+<!-- 활 하이라이트 -->
+<path d="M9.5 6 Q5 24 9.5 42" fill="none" stroke="white" stroke-width="0.8" opacity="0.25" stroke-linecap="round"/>
+<!-- 시위 -->
+<line x1="9" y1="5" x2="9" y2="43" stroke="#e8d8a0" stroke-width="1.2" opacity="0.7"/>
+<!-- 화살 -->
+<line x1="10" y1="24" x2="38" y2="22" stroke="url(#arrow)" stroke-width="2" stroke-linecap="round"/>
+<!-- 화살촉 -->
+<path d="M38 22 L33 20 L35 22 L33 24 Z" fill="#d0c080"/>
+<path d="M38 22 L34.5 20.5 L36 22 L34.5 23.5 Z" fill="white" opacity="0.4"/>
+<!-- 화살 깃 -->
+<path d="M12 24 Q10 21 9 22" fill="none" stroke="#c03030" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M12 24 Q10 27 9 26" fill="none" stroke="#c03030" stroke-width="1.5" stroke-linecap="round"/>
+`);
+
+ICO['⟨장궁⟩'] = svg(defs(
+  bgDef('#0e1a20','#080f16'),
+  lg('bow',7,3,9,45,[[0,'#d8b850'],[40,'#b09030'],[100,'#806a18']]),
+  lg('arrow',12,24,38,22,[[0,'#f0e0a0'],[100,'#c0b060']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<path d="M8 3 Q1 24 8 45" fill="none" stroke="url(#bow)" stroke-width="4" stroke-linecap="round"/>
+<path d="M8.5 4 Q3 24 8.5 44" fill="none" stroke="white" stroke-width="0.9" opacity="0.2" stroke-linecap="round"/>
+<!-- 조각 장식 -->
+<path d="M7 16 Q10 16 9 20" fill="none" stroke="#d8b850" stroke-width="1.2" opacity="0.5"/>
+<path d="M7 32 Q10 32 9 28" fill="none" stroke="#d8b850" stroke-width="1.2" opacity="0.5"/>
+<!-- 시위 -->
+<line x1="8" y1="3" x2="8" y2="45" stroke="#f0e8c0" stroke-width="1.3" opacity="0.65"/>
+<!-- 화살 -->
+<line x1="9" y1="25" x2="40" y2="23" stroke="url(#arrow)" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M40 23 L35 21 L37 23 L35 25 Z" fill="#d8c878"/>
+<path d="M40 23 L36 21.5 L37.5 23 L36 24.5 Z" fill="white" opacity="0.4"/>
+<path d="M11 25.2 Q9 22 8 23" fill="none" stroke="#4090d0" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M11 25.2 Q9 28 8 27" fill="none" stroke="#4090d0" stroke-width="1.5" stroke-linecap="round"/>
+`);
+
+ICO['⟨복합궁⟩'] = svg(defs(
+  bgDef('#101820','#080f16'),
+  lg('limb',8,4,10,22,[[0,'#888'],[50,'#bbb'],[100,'#666']]),
+  lg('limb2',8,26,10,44,[[0,'#666'],[50,'#bbb'],[100,'#888']]),
+  lg('riser',8,18,10,28,[[0,'#444'],[50,'#888'],[100,'#444']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 위쪽 림 (반곡) -->
+<path d="M10 5 Q6 10 9 16 Q12 20 10 24" fill="none" stroke="url(#limb)" stroke-width="3.5" stroke-linecap="round"/>
+<!-- 아래쪽 림 -->
+<path d="M10 24 Q12 28 9 32 Q6 38 10 43" fill="none" stroke="url(#limb2)" stroke-width="3.5" stroke-linecap="round"/>
+<!-- 라이저 -->
+<rect x="7" y="20" width="6" height="8" rx="3" fill="url(#riser)"/>
+<rect x="7.5" y="21" width="2" height="6" rx="1" fill="white" opacity="0.2"/>
+<!-- 시위 -->
+<line x1="10" y1="5" x2="10" y2="43" stroke="#e8d8a0" stroke-width="1.2" opacity="0.6"/>
+<!-- 화살 -->
+<line x1="11" y1="25" x2="40" y2="23" stroke="#e0d090" stroke-width="2" stroke-linecap="round"/>
+<path d="M40 23 L35 21 L37 23 L35 25 Z" fill="#d0c070"/>
+<!-- 사이트 -->
+<circle cx="14" cy="22" r="2" fill="#333" stroke="#888" stroke-width="0.8"/>
+<circle cx="14" cy="22" r="0.8" fill="#ff4040" opacity="0.8"/>
+`);
+
+ICO['⟨석궁⟩'] = svg(defs(
+  bgDef('#101520','#080c16'),
+  lg('stock',6,22,42,26,[[0,'#8a4820'],[50,'#c07030'],[100,'#6a3010']]),
+  lg('prod',16,12,32,12,[[0,'#606878'],[40,'#a0b0c0'],[100,'#606878']]),
+  lg('rail',16,20,32,20,[[0,'#505860'],[50,'#909aa8'],[100,'#505860']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 개머리판 (스톡) -->
+<path d="M6 21 L30 21 L30 27 L8 27 Q5 27 5 24 Q5 21 6 21Z" fill="url(#stock)"/>
+<path d="M7 22 L29 22" stroke="white" stroke-width="0.7" opacity="0.2"/>
+<!-- 총열 (레일) -->
+<rect x="16" y="19" width="25" height="3" rx="1.5" fill="url(#rail)"/>
+<rect x="16" y="19.5" width="25" height="1" rx="0.5" fill="white" opacity="0.25"/>
+<!-- 활대 (prod) -->
+<path d="M16 10 Q10 18 16 20" fill="none" stroke="url(#prod)" stroke-width="3" stroke-linecap="round"/>
+<path d="M16 20 Q10 22 16 30" fill="none" stroke="url(#prod)" stroke-width="3" stroke-linecap="round"/>
+<!-- 시위 -->
+<line x1="16" y1="10" x2="16" y2="30" stroke="#e8d8a0" stroke-width="1" opacity="0.6"/>
+<!-- 화살 (볼트) -->
+<line x1="17" y1="20.5" x2="41" y2="20.5" stroke="#d8c878" stroke-width="1.8"/>
+<path d="M41 20.5 L37 18.5 L38.5 20.5 L37 22.5 Z" fill="#d0b868"/>
+<!-- 방아쇠 -->
+<path d="M22 27 L24 32 L26 27" fill="none" stroke="#c08040" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- 가늠자 -->
+<rect x="36" y="17" width="3" height="2" rx="0.5" fill="#808898"/>
+`);
+
+// ══════════════════════════════════════════
+// 지팡이류
+// ══════════════════════════════════════════
+
+ICO['⟨나무지팡이⟩'] = svg(defs(
+  bgDef('#101520','#080c14'),
+  lg('staff',22,6,26,44,[[0,'#c8a050'],[30,'#a07830'],[70,'#885e20'],[100,'#6a4414']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 나무 지팡이 (구불구불) -->
+<path d="M24 44 Q22 38 23 32 Q25 26 22 20 Q19 14 23 8 Q25 4 24 3" fill="none" stroke="url(#staff)" stroke-width="4.5" stroke-linecap="round"/>
+<!-- 나무 결 하이라이트 -->
+<path d="M23.5 44 Q22 38 23 32 Q25 26 22.5 20" fill="none" stroke="white" stroke-width="1" opacity="0.2" stroke-linecap="round"/>
+<!-- 옹이 -->
+<ellipse cx="22" cy="20" rx="3" ry="2" fill="#7a5018" opacity="0.7"/>
+<ellipse cx="22" cy="20" rx="1.5" ry="1" fill="#5a3810" opacity="0.8"/>
+<!-- 가지 흔적 -->
+<path d="M23 32 Q28 29 30 26" fill="none" stroke="#a07830" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+`);
+
+ICO['⟨수정지팡이⟩'] = svg(defs(
+  bgDef('#101828','#080f1c'),
+  lg('staff',23,16,25,46,[[0,'#9090d0'],[100,'#505090']]),
+  lg('crystal',22,4,26,18,[[0,'#e0f0ff'],[40,'#90c8ff'],[100,'#5090d0']]),
+  rg('glow',24,12,10,[[0,'#a0d8ff',0.6],[100,'#6090c0',0]])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 글로우 -->
+<circle cx="24" cy="12" r="12" fill="url(#glow)"/>
+<!-- 지팡이 몸체 -->
+<rect x="22" y="14" width="4" height="32" rx="2" fill="url(#staff)"/>
+<rect x="22.5" y="15" width="1.5" height="30" rx="0.7" fill="white" opacity="0.2"/>
+<!-- 수정 (6면체) -->
+<path d="M20 14 L24 4 L28 14 L26 20 L22 20 Z" fill="url(#crystal)"/>
+<path d="M24 4 L22 14 L24 20 L26 14 Z" fill="white" opacity="0.2"/>
+<!-- 수정 하이라이트 -->
+<path d="M22 10 L24 4 L25 10" fill="white" opacity="0.4"/>
+<!-- 수정 내부 빛 -->
+<path d="M23 14 L24 8 L25 14" fill="#b0e0ff" opacity="0.3"/>
+<!-- 아랫쪽 석 -->
+<ellipse cx="24" cy="46" rx="3" ry="1.5" fill="#404080" opacity="0.8"/>
+`);
+
+ICO['⟨강철지팡이⟩'] = svg(defs(
+  bgDef('#0c1418','#080c10'),
+  lg('staff',22,10,26,46,[[0,'#b0b8c8'],[40,'#7880a0'],[100,'#505870']]),
+  lg('head',18,4,30,16,[[0,'#d0d8e8'],[50,'#9098b8'],[100,'#606880']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 지팡이 몸체 -->
+<rect x="22" y="12" width="4.5" height="34" rx="2.2" fill="url(#staff)"/>
+<rect x="22.5" y="13" width="1.8" height="32" rx="0.9" fill="white" opacity="0.22"/>
+<!-- 헤드 (사각) -->
+<rect x="17" y="4" width="14" height="12" rx="3" fill="url(#head)"/>
+<rect x="18" y="5" width="12" height="4" rx="1.5" fill="white" opacity="0.3"/>
+<!-- 헤드 볼트 -->
+<circle cx="20" cy="10" r="1.5" fill="#404858"/>
+<circle cx="20" cy="10" r="0.7" fill="#9098b0"/>
+<circle cx="28" cy="10" r="1.5" fill="#404858"/>
+<circle cx="28" cy="10" r="0.7" fill="#9098b0"/>
+<!-- 중간 링 -->
+<rect x="20" y="26" width="8" height="2.5" rx="1.2" fill="#9098b8"/>
+<rect x="20" y="34" width="8" height="2.5" rx="1.2" fill="#9098b8"/>
+<rect x="20.5" y="26.3" width="7" height="1" rx="0.5" fill="white" opacity="0.3"/>
+<!-- 발 -->
+<rect x="20" y="43" width="8" height="3" rx="1.5" fill="#707888"/>
+`);
+
+ICO['⟨마법지팡이⟩'] = svg(defs(
+  bgDef('#10101c','#08080f'),
+  lg('staff',23,14,25,46,[[0,'#b060ff'],[50,'#8040d0'],[100,'#5020a0']]),
+  rg('orb',24,8,9,[[0,'#ffffff'],[20,'#e0c0ff'],[60,'#9040e0'],[100,'#5010b0']]),
+  rg('glow2',24,8,14,[[0,'#c080ff',0.5],[100,'#8040c0',0]])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 배경 글로우 -->
+<circle cx="24" cy="8" r="14" fill="url(#glow2)"/>
+<!-- 지팡이 몸체 -->
+<path d="M23 14 Q21 22 22 30 Q23 38 23 46" fill="none" stroke="url(#staff)" stroke-width="4" stroke-linecap="round"/>
+<path d="M23.5 15 Q22 22 22.5 30" fill="none" stroke="white" stroke-width="0.8" opacity="0.25" stroke-linecap="round"/>
+<!-- 오브 -->
+<circle cx="24" cy="8" r="9" fill="url(#orb)"/>
+<!-- 오브 하이라이트 -->
+<ellipse cx="21" cy="5" rx="3" ry="2" fill="white" opacity="0.45"/>
+<!-- 오브 내부 별 -->
+<path d="M24 3 L24.8 6 L28 6 L25.6 7.8 L26.5 11 L24 9.2 L21.5 11 L22.4 7.8 L20 6 L23.2 6 Z" fill="white" opacity="0.3"/>
+<!-- 오브 반짝이 -->
+<circle cx="27" cy="5" r="1.2" fill="white" opacity="0.6"/>
+`);
+
+// ══════════════════════════════════════════
+// 갑옷류
+// ══════════════════════════════════════════
+
+ICO['⟨가죽갑옷⟩'] = svg(defs(
+  bgDef('#141010','#0c0808'),
+  lg('body',16,6,32,40,[[0,'#c07840'],[40,'#9a5e28'],[100,'#6a3c14']]),
+  lg('shoulder',8,8,16,20,[[0,'#d08848'],[100,'#8a5020']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 어깨 -->
+<ellipse cx="14" cy="16" rx="7" ry="5" fill="url(#shoulder)" opacity="0.9"/>
+<ellipse cx="14" cy="14.5" rx="5" ry="2.5" fill="white" opacity="0.15"/>
+<ellipse cx="34" cy="16" rx="7" ry="5" fill="url(#shoulder)" opacity="0.9"/>
+<ellipse cx="34" cy="14.5" rx="5" ry="2.5" fill="white" opacity="0.15"/>
+<!-- 몸통 -->
+<path d="M14 14 L24 18 L34 14 L36 38 Q36 42 24 43 Q12 42 12 38 Z" fill="url(#body)"/>
+<!-- 가슴 하이라이트 -->
+<path d="M18 16 Q24 14 30 16 Q26 20 24 22 Q22 20 18 16Z" fill="white" opacity="0.12"/>
+<!-- 가죽 재봉선 -->
+<path d="M24 18 L24 40" stroke="#7a4a20" stroke-width="1.2" stroke-dasharray="2,2" opacity="0.6"/>
+<path d="M16 22 L32 22" stroke="#7a4a20" stroke-width="1" stroke-dasharray="2,2" opacity="0.5"/>
+<path d="M15 30 L33 30" stroke="#7a4a20" stroke-width="1" stroke-dasharray="2,2" opacity="0.4"/>
+<!-- 벨트 -->
+<rect x="13" y="35" width="22" height="3.5" rx="1.7" fill="#5a3010"/>
+<rect x="14" y="35.3" width="20" height="1.2" rx="0.6" fill="white" opacity="0.15"/>
+<rect x="22" y="34.5" width="4" height="4.5" rx="0.5" fill="#d0a030"/>
+`);
+
+ICO['⟨사슬갑옷⟩'] = svg(defs(
+  bgDef('#101414','#080c0c'),
+  lg('body',16,6,32,42,[[0,'#909898'],[40,'#686e70'],[100,'#404448']]),
+  lg('shine',16,6,32,42,[[0,'rgba(255,255,255,0.15)'],[100,'rgba(255,255,255,0)']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 어깨 패드 -->
+<ellipse cx="13" cy="16" rx="8" ry="5.5" fill="#707878"/>
+<ellipse cx="13" cy="14.5" rx="6" ry="3" fill="white" opacity="0.12"/>
+<ellipse cx="35" cy="16" rx="8" ry="5.5" fill="#707878"/>
+<ellipse cx="35" cy="14.5" rx="6" ry="3" fill="white" opacity="0.12"/>
+<!-- 몸통 -->
+<path d="M13 14 L24 18 L35 14 L37 40 Q37 44 24 44 Q11 44 11 40 Z" fill="url(#body)"/>
+<!-- 사슬 패턴 (가로줄) -->
+<line x1="12" y1="22" x2="36" y2="22" stroke="white" stroke-width="0.7" opacity="0.2"/>
+<line x1="12" y1="26" x2="36" y2="26" stroke="white" stroke-width="0.7" opacity="0.2"/>
+<line x1="12" y1="30" x2="36" y2="30" stroke="white" stroke-width="0.7" opacity="0.2"/>
+<line x1="12" y1="34" x2="36" y2="34" stroke="white" stroke-width="0.7" opacity="0.2"/>
+<line x1="12" y1="38" x2="36" y2="38" stroke="white" stroke-width="0.7" opacity="0.2"/>
+<!-- 사슬 패턴 (세로줄) -->
+<line x1="16" y1="18" x2="14" y2="43" stroke="white" stroke-width="0.7" opacity="0.15"/>
+<line x1="20" y1="18" x2="19" y2="44" stroke="white" stroke-width="0.7" opacity="0.15"/>
+<line x1="24" y1="18" x2="24" y2="44" stroke="white" stroke-width="0.7" opacity="0.15"/>
+<line x1="28" y1="18" x2="29" y2="44" stroke="white" stroke-width="0.7" opacity="0.15"/>
+<line x1="32" y1="18" x2="34" y2="43" stroke="white" stroke-width="0.7" opacity="0.15"/>
+<!-- 빛 반사 -->
+<path d="M14 14 L24 18 L34 14 Q28 20 24 22 Q20 20 14 14Z" fill="url(#shine)"/>
+`);
+
+ICO['⟨철판갑옷⟩'] = svg(defs(
+  bgDef('#0c1018','#080c10'),
+  lg('body',14,6,34,44,[[0,'#a0aac0'],[30,'#707888'],[100,'#404858']]),
+  lg('shoulder',8,8,18,22,[[0,'#c0c8d8'],[100,'#707888']]),
+  lg('plate',14,18,34,38,[[0,'#b0b8cc'],[100,'#606878']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 어깨 판 -->
+<path d="M7 12 Q7 6 14 8 L14 18 Q9 18 7 20 Z" fill="url(#shoulder)"/>
+<path d="M8 12 Q8 8 13 9.5 L13 17" fill="none" stroke="white" stroke-width="0.8" opacity="0.25"/>
+<path d="M41 12 Q41 6 34 8 L34 18 Q39 18 41 20 Z" fill="url(#shoulder)"/>
+<path d="M40 12 Q40 8 35 9.5 L35 17" fill="none" stroke="white" stroke-width="0.8" opacity="0.25"/>
+<!-- 몸통 -->
+<path d="M14 8 L24 12 L34 8 L36 38 Q36 43 24 44 Q12 43 12 38 Z" fill="url(#body)"/>
+<!-- 가슴판 분할선 -->
+<path d="M24 12 L24 40" stroke="white" stroke-width="1" opacity="0.25"/>
+<path d="M14 22 Q24 20 34 22" stroke="white" stroke-width="1" opacity="0.25" fill="none"/>
+<path d="M13 30 Q24 28 35 30" stroke="white" stroke-width="0.8" opacity="0.2" fill="none"/>
+<!-- 가슴 하이라이트 -->
+<path d="M16 10 Q24 8 32 10 Q28 16 24 18 Q20 16 16 10Z" fill="white" opacity="0.15"/>
+<!-- 복부 판 -->
+<rect x="14" y="34" width="20" height="7" rx="2" fill="url(#plate)" opacity="0.9"/>
+<line x1="14" y1="37" x2="34" y2="37" stroke="white" stroke-width="0.7" opacity="0.25"/>
+`);
+
+ICO['⟨기사흉갑⟩'] = svg(defs(
+  bgDef('#0c1020','#080810'),
+  lg('body',14,4,34,44,[[0,'#c0c8e0'],[20,'#9098b8'],[60,'#606880'],[100,'#404058']]),
+  lg('shoulder',6,6,18,20,[[0,'#d0d8f0'],[100,'#8088a8']]),
+  rg('emblem',24,26,5,[[0,'#ffe070'],[60,'#d0a020'],[100,'#906010']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 큰 어깨판 -->
+<path d="M5 10 Q4 4 14 6 L14 20 Q8 20 5 24 Z" fill="url(#shoulder)"/>
+<path d="M6 11 Q6 6 13 7.5 L13 19" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+<path d="M43 10 Q44 4 34 6 L34 20 Q40 20 43 24 Z" fill="url(#shoulder)"/>
+<path d="M42 11 Q42 6 35 7.5 L35 19" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+<!-- 목 가드 -->
+<path d="M17 4 Q24 2 31 4 L31 9 Q24 7 17 9 Z" fill="#b0b8d0"/>
+<path d="M18 4.5 Q24 3 30 4.5" fill="none" stroke="white" stroke-width="0.8" opacity="0.4"/>
+<!-- 몸통 -->
+<path d="M14 6 L24 10 L34 6 L36 38 Q36 44 24 44 Q12 44 12 38 Z" fill="url(#body)"/>
+<!-- 중앙 릿지 -->
+<path d="M24 10 L24 40" stroke="white" stroke-width="1.2" opacity="0.3"/>
+<!-- 가슴 하이라이트 -->
+<path d="M16 8 Q24 6 32 8 Q28 14 24 16 Q20 14 16 8Z" fill="white" opacity="0.2"/>
+<!-- 문장 (방패형) -->
+<path d="M20 22 L28 22 L28 30 Q28 34 24 35 Q20 34 20 30 Z" fill="url(#emblem)"/>
+<path d="M20 22 L28 22 L28 30 Q28 34 24 35 Q20 34 20 30 Z" fill="none" stroke="white" stroke-width="0.6" opacity="0.4"/>
+<!-- 문장 십자 -->
+<path d="M24 23 L24 34 M20.5 28 L27.5 28" stroke="white" stroke-width="1" opacity="0.5"/>
+<!-- 복부 링 -->
+<rect x="15" y="36" width="18" height="4" rx="2" fill="#8088a8" opacity="0.9"/>
+`);
+
+// ══════════════════════════════════════════
+// 방패류
+// ══════════════════════════════════════════
+
+ICO['⟨나무방패⟩'] = svg(defs(
+  bgDef('#101008','#080804'),
+  lg('wood',14,4,34,44,[[0,'#c88840'],[40,'#a06828'],[100,'#6a4014']]),
+  lg('rim',14,4,34,44,[[0,'#a07030'],[100,'#604010']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 방패 테두리 -->
+<path d="M24 4 L40 10 L40 28 Q40 42 24 46 Q8 42 8 28 L8 10 Z" fill="url(#rim)" opacity="0.8"/>
+<!-- 방패 판 -->
+<path d="M24 6 L38 12 L38 28 Q38 40 24 44 Q10 40 10 28 L10 12 Z" fill="url(#wood)"/>
+<!-- 나무 결 하이라이트 -->
+<path d="M16 10 Q24 8 32 10 Q28 18 24 20 Q20 18 16 10Z" fill="white" opacity="0.15"/>
+<!-- 중앙 십자 보강재 -->
+<path d="M24 8 L24 42" stroke="#7a5020" stroke-width="2" opacity="0.5"/>
+<path d="M11 24 L37 24" stroke="#7a5020" stroke-width="2" opacity="0.5"/>
+<!-- 나무결 패턴 -->
+<path d="M15 16 Q24 14 33 16" fill="none" stroke="#8a5c24" stroke-width="0.8" opacity="0.5"/>
+<path d="M13 28 Q24 26 35 28" fill="none" stroke="#8a5c24" stroke-width="0.8" opacity="0.4"/>
+<path d="M14 36 Q24 34 34 36" fill="none" stroke="#8a5c24" stroke-width="0.8" opacity="0.3"/>
+`);
+
+ICO['⟨철방패⟩'] = svg(defs(
+  bgDef('#0c1014','#080c0e'),
+  lg('metal',14,4,34,44,[[0,'#a8b0c0'],[30,'#787e90'],[70,'#505666'],[100,'#383e4e']]),
+  lg('boss',20,20,28,28,[[0,'#d0d8e8'],[50,'#909aaa'],[100,'#606070']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 방패 테두리 -->
+<path d="M9 4 L39 4 L39 28 Q39 44 24 46 Q9 44 9 28 Z" fill="#404858" opacity="0.9"/>
+<!-- 방패 판 -->
+<path d="M11 6 L37 6 L37 28 Q37 42 24 44 Q11 42 11 28 Z" fill="url(#metal)"/>
+<!-- 가로 보강판 -->
+<path d="M11 18 L37 18" stroke="white" stroke-width="1.2" opacity="0.2"/>
+<path d="M11 30 L37 30" stroke="white" stroke-width="1.2" opacity="0.2"/>
+<!-- 세로 중앙선 -->
+<path d="M24 6 L24 43" stroke="white" stroke-width="1" opacity="0.2"/>
+<!-- 상단 하이라이트 -->
+<path d="M14 6 Q24 4 34 6 Q28 12 24 14 Q20 12 14 6Z" fill="white" opacity="0.18"/>
+<!-- 중앙 보스 -->
+<circle cx="24" cy="24" r="6" fill="url(#boss)"/>
+<circle cx="24" cy="24" r="6" fill="none" stroke="white" stroke-width="0.7" opacity="0.3"/>
+<circle cx="22" cy="22" r="2" fill="white" opacity="0.35"/>
+`);
+
+ICO['⟨원형방패⟩'] = svg(defs(
+  bgDef('#101010','#080808'),
+  rg('shield',24,24,20,[[0,'#c0c8d8'],[40,'#808898'],[100,'#404858']]),
+  rg('boss',24,24,6,[[0,'#e8e0c0'],[50,'#c0a840'],[100,'#806010']]),
+  rg('glow3',24,24,22,[[0,'rgba(200,220,255,0.08)'],[100,'rgba(200,220,255,0)']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 글로우 -->
+<circle cx="24" cy="24" r="22" fill="url(#glow3)"/>
+<!-- 방패 테두리 -->
+<circle cx="24" cy="24" r="20" fill="#303848"/>
+<!-- 방패 판 -->
+<circle cx="24" cy="24" r="18" fill="url(#shield)"/>
+<!-- 동심원 장식 -->
+<circle cx="24" cy="24" r="14" fill="none" stroke="white" stroke-width="0.8" opacity="0.2"/>
+<circle cx="24" cy="24" r="9" fill="none" stroke="white" stroke-width="0.8" opacity="0.2"/>
+<!-- 4방향 선 -->
+<line x1="24" y1="6" x2="24" y2="42" stroke="white" stroke-width="0.8" opacity="0.2"/>
+<line x1="6" y1="24" x2="42" y2="24" stroke="white" stroke-width="0.8" opacity="0.2"/>
+<!-- 상단 하이라이트 -->
+<ellipse cx="20" cy="14" rx="7" ry="5" fill="white" opacity="0.15" transform="rotate(-20,20,14)"/>
+<!-- 보스 -->
+<circle cx="24" cy="24" r="6" fill="url(#boss)"/>
+<circle cx="24" cy="24" r="6" fill="none" stroke="white" stroke-width="0.6" opacity="0.4"/>
+<circle cx="22" cy="22" r="1.8" fill="white" opacity="0.5"/>
+`);
+
+ICO['⟨탑방패⟩'] = svg(defs(
+  bgDef('#0c1018','#080c10'),
+  lg('metal',16,4,32,44,[[0,'#b0b8c8'],[30,'#808898'],[70,'#505860'],[100,'#303840']]),
+  lg('emblem',20,18,28,36,[[0,'#e0c060'],[100,'#906820']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 방패 테두리 -->
+<path d="M12 2 L36 2 L36 36 Q36 46 24 47 Q12 46 12 36 Z" fill="#303840" opacity="0.9"/>
+<!-- 방패 판 -->
+<path d="M14 4 L34 4 L34 36 Q34 44 24 45 Q14 44 14 36 Z" fill="url(#metal)"/>
+<!-- 가로 보강 -->
+<line x1="14" y1="16" x2="34" y2="16" stroke="white" stroke-width="1" opacity="0.2"/>
+<line x1="14" y1="28" x2="34" y2="28" stroke="white" stroke-width="1" opacity="0.2"/>
+<line x1="14" y1="38" x2="34" y2="38" stroke="white" stroke-width="0.8" opacity="0.15"/>
+<!-- 세로 중앙선 -->
+<line x1="24" y1="4" x2="24" y2="44" stroke="white" stroke-width="1" opacity="0.2"/>
+<!-- 상단 하이라이트 -->
+<path d="M16 4 Q24 2.5 32 4 Q28 10 24 12 Q20 10 16 4Z" fill="white" opacity="0.2"/>
+<!-- 문장 -->
+<path d="M20 20 L28 20 L28 30 Q28 34 24 35 Q20 34 20 30 Z" fill="url(#emblem)" opacity="0.9"/>
+<path d="M24 21 L24 34 M20.5 26.5 L27.5 26.5" stroke="white" stroke-width="1.2" opacity="0.45"/>
+`);
+
+// ══════════════════════════════════════════
+// 장갑류
+// ══════════════════════════════════════════
+
+ICO['⟨천장갑⟩'] = svg(defs(
+  bgDef('#141010','#0c0808'),
+  lg('fabric',16,6,32,44,[[0,'#c8a870'],[50,'#a08050'],[100,'#705828']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 손가락 3개 -->
+<rect x="12" y="10" width="5.5" height="14" rx="2.7" fill="url(#fabric)"/>
+<rect x="12.5" y="10.5" width="2" height="7" rx="1" fill="white" opacity="0.2"/>
+<rect x="19.2" y="8" width="5.5" height="16" rx="2.7" fill="url(#fabric)"/>
+<rect x="19.7" y="8.5" width="2" height="7" rx="1" fill="white" opacity="0.2"/>
+<rect x="26.5" y="10" width="5.5" height="14" rx="2.7" fill="url(#fabric)"/>
+<rect x="27" y="10.5" width="2" height="7" rx="1" fill="white" opacity="0.2"/>
+<!-- 손등 -->
+<path d="M10 22 L38 22 L36 40 Q34 44 24 44 Q14 44 12 40 Z" fill="url(#fabric)"/>
+<path d="M12 24 Q24 22 36 24" fill="none" stroke="white" stroke-width="0.7" opacity="0.3"/>
+<!-- 손목 단 -->
+<rect x="10" y="39" width="28" height="4" rx="2" fill="#805830"/>
+<rect x="11" y="39.3" width="26" height="1.5" rx="0.7" fill="white" opacity="0.2"/>
+`);
+
+ICO['⟨철장갑⟩'] = svg(defs(
+  bgDef('#0c1014','#080c10'),
+  lg('metal',16,6,32,44,[[0,'#c0c8d8'],[40,'#888ea0'],[100,'#505664']]),
+  lg('knuckle',16,10,32,24,[[0,'#d8e0f0'],[100,'#909aac']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 손가락 판 -->
+<rect x="11" y="8" width="6" height="16" rx="3" fill="url(#metal)"/>
+<rect x="11.5" y="8.5" width="2.2" height="8" rx="1.1" fill="white" opacity="0.25"/>
+<rect x="19" y="6" width="6" height="18" rx="3" fill="url(#metal)"/>
+<rect x="19.5" y="6.5" width="2.2" height="8" rx="1.1" fill="white" opacity="0.25"/>
+<rect x="27" y="8" width="6" height="16" rx="3" fill="url(#metal)"/>
+<rect x="27.5" y="8.5" width="2.2" height="8" rx="1.1" fill="white" opacity="0.25"/>
+<!-- 너클 판 -->
+<rect x="10" y="20" width="28" height="6" rx="3" fill="url(#knuckle)"/>
+<rect x="11" y="20.5" width="26" height="2.5" rx="1.2" fill="white" opacity="0.3"/>
+<!-- 손등 -->
+<path d="M10 24 L38 24 L36 40 Q34 44 24 44 Q14 44 12 40 Z" fill="url(#metal)"/>
+<!-- 손등 선 -->
+<line x1="10" y1="30" x2="38" y2="30" stroke="white" stroke-width="0.8" opacity="0.2"/>
+<line x1="10" y1="36" x2="38" y2="36" stroke="white" stroke-width="0.8" opacity="0.2"/>
+<!-- 손목 -->
+<rect x="10" y="39" width="28" height="4.5" rx="2.2" fill="#606878"/>
+`);
+
+ICO['⟨가죽장갑⟩'] = svg(defs(
+  bgDef('#140e08','#0c0806'),
+  lg('leather',14,4,34,44,[[0,'#b87840'],[40,'#8c5828'],[100,'#5c3410']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 손가락 -->
+<rect x="12" y="10" width="5.5" height="14" rx="2.7" fill="url(#leather)"/>
+<rect x="12.5" y="10.5" width="2" height="7" rx="1" fill="white" opacity="0.18"/>
+<rect x="19" y="8" width="5.5" height="16" rx="2.7" fill="url(#leather)"/>
+<rect x="19.5" y="8.5" width="2" height="8" rx="1" fill="white" opacity="0.18"/>
+<rect x="26" y="10" width="5.5" height="14" rx="2.7" fill="url(#leather)"/>
+<rect x="26.5" y="10.5" width="2" height="7" rx="1" fill="white" opacity="0.18"/>
+<!-- 손등 -->
+<path d="M10 22 L38 22 L36 40 Q34 44 24 44 Q14 44 12 40 Z" fill="url(#leather)"/>
+<!-- 가죽 패치 장식 -->
+<path d="M14 26 Q24 24 34 26 Q30 30 24 31 Q18 30 14 26Z" fill="white" opacity="0.1"/>
+<path d="M14 26 Q24 24 34 26" fill="none" stroke="#7a4820" stroke-width="1" opacity="0.5"/>
+<!-- 손목 버클 -->
+<rect x="10" y="38" width="28" height="5" rx="2.5" fill="#6a3c14"/>
+<rect x="20" y="37.5" width="8" height="6" rx="1" fill="#c09030"/>
+<rect x="21" y="39.5" width="6" height="2" rx="1" fill="white" opacity="0.4"/>
+`);
+
+ICO['⟨전투장갑⟩'] = svg(defs(
+  bgDef('#0c0e18','#080810'),
+  lg('steel',14,4,34,44,[[0,'#b0b8cc'],[30,'#808898'],[100,'#484e60']]),
+  rg('knuck',24,22,8,[[0,'#d8e0f0'],[100,'#808898']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 손가락 (두껍고 날카로움) -->
+<rect x="10" y="7" width="7" height="17" rx="3.5" fill="url(#steel)"/>
+<rect x="10.5" y="7.5" width="2.5" height="9" rx="1.2" fill="white" opacity="0.25"/>
+<rect x="18.5" y="5" width="7" height="19" rx="3.5" fill="url(#steel)"/>
+<rect x="19" y="5.5" width="2.5" height="9" rx="1.2" fill="white" opacity="0.25"/>
+<rect x="27" y="7" width="7" height="17" rx="3.5" fill="url(#steel)"/>
+<rect x="27.5" y="7.5" width="2.5" height="9" rx="1.2" fill="white" opacity="0.25"/>
+<!-- 너클 돌기 -->
+<circle cx="13.5" cy="22" r="4" fill="url(#knuck)"/>
+<circle cx="13.5" cy="22" r="4" fill="none" stroke="white" stroke-width="0.6" opacity="0.3"/>
+<circle cx="22" cy="22" r="4" fill="url(#knuck)"/>
+<circle cx="22" cy="22" r="4" fill="none" stroke="white" stroke-width="0.6" opacity="0.3"/>
+<circle cx="30.5" cy="22" r="4" fill="url(#knuck)"/>
+<circle cx="30.5" cy="22" r="4" fill="none" stroke="white" stroke-width="0.6" opacity="0.3"/>
+<!-- 손등 -->
+<path d="M8 24 L40 24 L38 40 Q36 45 24 45 Q12 45 10 40 Z" fill="url(#steel)"/>
+<line x1="8" y1="32" x2="40" y2="32" stroke="white" stroke-width="0.8" opacity="0.2"/>
+<line x1="9" y1="38" x2="39" y2="38" stroke="white" stroke-width="0.8" opacity="0.2"/>
+`);
+
+// ══════════════════════════════════════════
+// 장화류
+// ══════════════════════════════════════════
+
+ICO['⟨천신발⟩'] = svg(defs(
+  bgDef('#141008','#0c0806'),
+  lg('cloth',16,4,30,44,[[0,'#c0a060'],[50,'#906c38'],[100,'#604410']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 부츠 몸체 -->
+<path d="M16 6 L16 34 Q16 40 22 42 L36 42 L36 38 Q28 38 26 36 L26 6 Z" fill="url(#cloth)"/>
+<!-- 하이라이트 -->
+<path d="M17 7 L25 7 L25 30 Q17 28 17 30 Z" fill="white" opacity="0.1"/>
+<!-- 재봉선 -->
+<path d="M21 6 L21 36" stroke="#7a5020" stroke-width="1" stroke-dasharray="2.5,2" opacity="0.5"/>
+<path d="M16 20 L26 20" stroke="#7a5020" stroke-width="1" stroke-dasharray="2,2" opacity="0.4"/>
+<!-- 밑창 -->
+<path d="M16 38 Q22 44 36 42 L36 44 Q22 46 14 40 Z" fill="#3a2808" opacity="0.9"/>
+<!-- 발목 끈 -->
+<rect x="14" y="30" width="14" height="3" rx="1.5" fill="#7a4820"/>
+<rect x="15" y="30.4" width="12" height="1.2" rx="0.6" fill="white" opacity="0.2"/>
+`);
+
+ICO['⟨가죽장화⟩'] = svg(defs(
+  bgDef('#120e06','#0a0804'),
+  lg('leather',14,4,30,44,[[0,'#b87830'],[40,'#8a5418'],[100,'#5c3408']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 부츠 주요 몸체 -->
+<path d="M14 4 L14 34 Q14 40 20 42 L36 42 L36 38 Q28 38 26 34 L26 4 Z" fill="url(#leather)"/>
+<!-- 앞 광택 -->
+<path d="M15 5 L25 5 L25 28 Q18 27 16 26 Q15 20 15 14 Z" fill="white" opacity="0.12"/>
+<!-- 가죽 접힌 부분 (상단 커프) -->
+<path d="M12 4 L28 4 L28 10 Q20 12 12 10 Z" fill="#c08838" opacity="0.8"/>
+<path d="M13 4.5 Q20 6 27 4.5" fill="none" stroke="white" stroke-width="0.8" opacity="0.3"/>
+<!-- 재봉선 -->
+<path d="M20 10 L20 34" stroke="#7a4818" stroke-width="1" stroke-dasharray="2,2" opacity="0.5"/>
+<!-- 밑창 -->
+<path d="M14 38 Q20 44 36 42 L36 44 Q20 47 12 40 Z" fill="#3a2006" opacity="0.9"/>
+<!-- 힐 -->
+<rect x="28" y="40" width="8" height="5" rx="1" fill="#2a1408"/>
+`);
+
+ICO['⟨강화장화⟩'] = svg(defs(
+  bgDef('#0c1018','#080c10'),
+  lg('boot',14,4,30,44,[[0,'#9098a8'],[40,'#686e80'],[100,'#404658']]),
+  lg('toe',20,32,32,44,[[0,'#c0c8d8'],[100,'#808898']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 부츠 몸체 -->
+<path d="M14 4 L14 34 Q14 40 20 42 L36 42 L36 38 Q28 38 26 34 L26 4 Z" fill="url(#boot)"/>
+<!-- 앞 하이라이트 -->
+<path d="M15 5 L25 5 L25 30 Q17 29 15 24 Z" fill="white" opacity="0.15"/>
+<!-- 금속 보강 밴드 -->
+<rect x="12" y="18" width="16" height="3" rx="1.5" fill="#9098b0"/>
+<rect x="12" y="28" width="16" height="3" rx="1.5" fill="#9098b0"/>
+<rect x="13" y="18.5" width="14" height="1.2" rx="0.6" fill="white" opacity="0.3"/>
+<rect x="13" y="28.5" width="14" height="1.2" rx="0.6" fill="white" opacity="0.3"/>
+<!-- 발코 (강화 앞코) -->
+<path d="M20 36 Q26 40 36 38 L36 42 Q26 44 18 40 Z" fill="url(#toe)"/>
+<ellipse cx="28" cy="40" rx="7" ry="2.5" fill="white" opacity="0.12"/>
+<!-- 밑창 -->
+<path d="M14 40 Q20 46 36 42 L36 44 Q20 48 12 42 Z" fill="#303840" opacity="0.9"/>
+`);
+
+ICO['⟨질풍장화⟩'] = svg(defs(
+  bgDef('#0c0c18','#080810'),
+  lg('boot',14,4,28,44,[[0,'#9090d8'],[40,'#6068b0'],[100,'#383868']]),
+  lg('wing',4,16,18,28,[[0,'#c0d0ff'],[100,'#6878c0']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 부츠 몸체 -->
+<path d="M14 4 L14 34 Q14 40 20 42 L36 42 L36 38 Q28 38 26 34 L26 4 Z" fill="url(#boot)"/>
+<!-- 앞 광택 -->
+<path d="M15 5 L25 5 L25 28 Q17 28 15 22 Z" fill="white" opacity="0.18"/>
+<!-- 날개 장식 (왼쪽) -->
+<path d="M13 18 Q4 12 5 8 Q9 14 13 16" fill="url(#wing)" opacity="0.9"/>
+<path d="M13 18 Q4 12 5 8" fill="none" stroke="white" stroke-width="0.6" opacity="0.4"/>
+<path d="M13 24 Q3 18 4 14 Q8 20 13 22" fill="url(#wing)" opacity="0.7"/>
+<path d="M13 24 Q3 18 4 14" fill="none" stroke="white" stroke-width="0.6" opacity="0.3"/>
+<!-- 속도감 선 장식 -->
+<path d="M16 10 Q14 10 12 8" fill="none" stroke="#a0b0ff" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+<path d="M16 14 Q13 14 10 12" fill="none" stroke="#a0b0ff" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+<!-- 밑창 -->
+<path d="M14 38 Q20 44 36 42 L36 44 Q20 47 12 40 Z" fill="#282848" opacity="0.9"/>
+`);
+
+// ══════════════════════════════════════════
+// 망토류
+// ══════════════════════════════════════════
+
+ICO['⟨낡은망토⟩'] = svg(defs(
+  bgDef('#100c10','#080608'),
+  lg('cloak',14,4,34,46,[[0,'#807880'],[50,'#585460'],[100,'#383440']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 망토 양쪽 패널 (헤진 끝) -->
+<path d="M14 8 C10 16 8 28 8 36 Q9 42 12 44 Q15 42 13 36 C12 28 14 16 18 10 Z" fill="url(#cloak)" opacity="0.85"/>
+<path d="M34 8 C38 16 40 28 40 36 Q39 42 36 44 Q33 42 35 36 C36 28 34 16 30 10 Z" fill="url(#cloak)" opacity="0.85"/>
+<!-- 헤진 끝 표현 -->
+<path d="M10 40 L9 45 M12 42 L11.5 47 M14 43 L13 47" stroke="#505060" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+<path d="M38 40 L39 45 M36 42 L36.5 47 M34 43 L35 47" stroke="#505060" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+<!-- 어깨 연결 -->
+<path d="M14 8 Q24 5 34 8" fill="none" stroke="#706870" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M14 8 Q24 5 34 8" fill="none" stroke="white" stroke-width="0.7" opacity="0.2"/>
+<!-- 브로치 -->
+<circle cx="24" cy="7" r="3" fill="#585060"/>
+<circle cx="24" cy="7" r="1.5" fill="#787080"/>
+<!-- 낡은 질감 선 -->
+<path d="M10 20 Q12 19 11 22" fill="none" stroke="#909090" stroke-width="0.8" opacity="0.3"/>
+`);
+
+ICO['⟨강화망토⟩'] = svg(defs(
+  bgDef('#10101c','#08080e'),
+  lg('cloak',14,4,34,46,[[0,'#5068b0'],[40,'#384890'],[100,'#202860']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<path d="M14 8 C10 16 7 28 7 36 Q8 43 12 45 Q15 43 13 36 C11 28 13 16 18 10 Z" fill="url(#cloak)" opacity="0.9"/>
+<path d="M34 8 C38 16 41 28 41 36 Q40 43 36 45 Q33 43 35 36 C37 28 35 16 30 10 Z" fill="url(#cloak)" opacity="0.9"/>
+<!-- 하이라이트 -->
+<path d="M14 10 C11 18 9 28 9 36" fill="none" stroke="white" stroke-width="1" opacity="0.2" stroke-linecap="round"/>
+<path d="M34 10 C37 18 39 28 39 36" fill="none" stroke="white" stroke-width="1" opacity="0.2" stroke-linecap="round"/>
+<!-- 어깨 연결선 -->
+<path d="M14 8 Q24 5 34 8" fill="none" stroke="#7080c0" stroke-width="3" stroke-linecap="round"/>
+<path d="M14 8 Q24 5 34 8" fill="none" stroke="white" stroke-width="0.8" opacity="0.3"/>
+<!-- 금 테두리 장식 -->
+<path d="M8 28 Q7 34 10 40" fill="none" stroke="#c0a830" stroke-width="1.2" opacity="0.6" stroke-linecap="round"/>
+<path d="M40 28 Q41 34 38 40" fill="none" stroke="#c0a830" stroke-width="1.2" opacity="0.6" stroke-linecap="round"/>
+<!-- 브로치 -->
+<circle cx="24" cy="7" r="3.5" fill="#c0a830"/>
+<circle cx="24" cy="7" r="2" fill="#e8c840"/>
+<circle cx="23" cy="6" r="0.8" fill="white" opacity="0.6"/>
+`);
+
+ICO['⟨전사망토⟩'] = svg(defs(
+  bgDef('#140c0c','#0c0808'),
+  lg('cloak',12,4,36,46,[[0,'#a04030'],[40,'#782818'],[100,'#401008']]),
+  lg('shoulder',8,4,18,18,[[0,'#c05030'],[100,'#802010']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 어깨판 -->
+<path d="M7 8 Q5 4 12 4 Q18 4 18 10 L14 12 Q10 12 7 8Z" fill="url(#shoulder)"/>
+<path d="M8 7.5 Q10 5 13 5 Q16 5 17 8" fill="none" stroke="white" stroke-width="0.7" opacity="0.3"/>
+<path d="M41 8 Q43 4 36 4 Q30 4 30 10 L34 12 Q38 12 41 8Z" fill="url(#shoulder)"/>
+<path d="M40 7.5 Q38 5 35 5 Q32 5 31 8" fill="none" stroke="white" stroke-width="0.7" opacity="0.3"/>
+<!-- 망토 -->
+<path d="M14 10 C10 18 7 30 7 38 Q8 44 12 46 Q15 44 13 38 C11 30 13 18 18 12 Z" fill="url(#cloak)"/>
+<path d="M34 10 C38 18 41 30 41 38 Q40 44 36 46 Q33 44 35 38 C37 30 35 18 30 12 Z" fill="url(#cloak)"/>
+<!-- 금테두리 -->
+<path d="M8 24 Q7 32 10 40" fill="none" stroke="#d0a828" stroke-width="1.5" opacity="0.7" stroke-linecap="round"/>
+<path d="M40 24 Q41 32 38 40" fill="none" stroke="#d0a828" stroke-width="1.5" opacity="0.7" stroke-linecap="round"/>
+<!-- 어깨 연결 -->
+<path d="M14 10 Q24 7 34 10" fill="none" stroke="#c05030" stroke-width="3" stroke-linecap="round"/>
+<!-- 브로치 -->
+<circle cx="24" cy="9" r="4" fill="#d0a828"/>
+<circle cx="24" cy="9" r="2.5" fill="#f0c040"/>
+<circle cx="23" cy="8" r="1" fill="white" opacity="0.6"/>
+`);
+
+ICO['⟨용사망토⟩'] = svg(defs(
+  bgDef('#100c18','#08060c'),
+  lg('cloak',12,4,36,46,[[0,'#7040a0'],[40,'#502878'],[100,'#280c40']]),
+  lg('shoulder',8,4,18,18,[[0,'#9050c0'],[100,'#502880']]),
+  rg('star',24,24,4,[[0,'#ffe070'],[100,'#c08010']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 어깨판 (화려) -->
+<path d="M6 8 Q4 3 13 4 Q20 4 20 11 L15 13 Q9 13 6 8Z" fill="url(#shoulder)"/>
+<path d="M7 7.5 Q10 4.5 14 4.5 Q17 4.5 18 8" fill="none" stroke="white" stroke-width="0.8" opacity="0.3"/>
+<path d="M42 8 Q44 3 35 4 Q28 4 28 11 L33 13 Q39 13 42 8Z" fill="url(#shoulder)"/>
+<!-- 망토 -->
+<path d="M15 11 C11 20 7 32 7 40 Q8 45 12 46 Q15 45 13 40 C11 32 13 20 18 13 Z" fill="url(#cloak)"/>
+<path d="M33 11 C37 20 41 32 41 40 Q40 45 36 46 Q33 45 35 40 C37 32 35 20 30 13 Z" fill="url(#cloak)"/>
+<!-- 금 테두리 (화려) -->
+<path d="M8 22 Q7 32 10 42" fill="none" stroke="#e8c030" stroke-width="2" opacity="0.75" stroke-linecap="round"/>
+<path d="M40 22 Q41 32 38 42" fill="none" stroke="#e8c030" stroke-width="2" opacity="0.75" stroke-linecap="round"/>
+<!-- 별 문장 -->
+<path d="M24 20 L25.8 25.5 L31.5 25.5 L27 29 L28.8 34.5 L24 31 L19.2 34.5 L21 29 L16.5 25.5 L22.2 25.5 Z" fill="url(#star)"/>
+<path d="M24 20 L25.8 25.5 L31.5 25.5 L27 29 L28.8 34.5 L24 31 L19.2 34.5 L21 29 L16.5 25.5 L22.2 25.5 Z" fill="none" stroke="white" stroke-width="0.6" opacity="0.5"/>
+<!-- 어깨 연결 -->
+<path d="M15 11 Q24 8 33 11" fill="none" stroke="#9050c0" stroke-width="3" stroke-linecap="round"/>
+<!-- 브로치 (화려) -->
+<circle cx="24" cy="10" r="4.5" fill="#e8c030"/>
+<circle cx="24" cy="10" r="3" fill="#f8d840"/>
+<circle cx="24" cy="10" r="1.5" fill="white" opacity="0.5"/>
+<circle cx="23" cy="9" r="0.6" fill="white" opacity="0.8"/>
+`);
+
+// ══════════════════════════════════════════
+// 반지류
+// ══════════════════════════════════════════
+
+ICO['⟨구리반지⟩'] = svg(defs(
+  bgDef('#100c08','#080604'),
+  rg('ring',24,24,18,[[0,'rgba(200,140,60,0.2)'],[100,'rgba(0,0,0,0)']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<circle cx="24" cy="24" r="18" fill="url(#ring)"/>
+<circle cx="24" cy="24" r="14" fill="none" stroke="#b87830" stroke-width="5" opacity="0.9"/>
+<circle cx="24" cy="24" r="14" fill="none" stroke="#e0a850" stroke-width="2" opacity="0.4"/>
+<circle cx="24" cy="24" r="14" fill="none" stroke="#7a4810" stroke-width="1" opacity="0.6"/>
+<!-- 하이라이트 호 -->
+<path d="M14 14 Q24 10 34 14" fill="none" stroke="white" stroke-width="1.5" opacity="0.35" stroke-linecap="round"/>
+<!-- 패인 자국 (낡음 표현) -->
+<path d="M36 20 Q38 24 36 28" fill="none" stroke="#7a4810" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/>
+`);
+
+ICO['⟨전투반지⟩'] = svg(defs(
+  bgDef('#0c1014','#080c0e'),
+  rg('ring',24,24,18,[[0,'rgba(80,120,180,0.2)'],[100,'rgba(0,0,0,0)']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<circle cx="24" cy="24" r="18" fill="url(#ring)"/>
+<circle cx="24" cy="24" r="14" fill="none" stroke="#707890" stroke-width="5" opacity="0.9"/>
+<circle cx="24" cy="24" r="14" fill="none" stroke="#a0b0c8" stroke-width="2" opacity="0.4"/>
+<!-- 하이라이트 -->
+<path d="M13 15 Q24 10 35 15" fill="none" stroke="white" stroke-width="1.5" opacity="0.3" stroke-linecap="round"/>
+<!-- 스파이크 장식 (3개) -->
+<path d="M24 8 L26 12 L24 10 L22 12 Z" fill="#9098b8"/>
+<path d="M24 8 L25 11.5 L24 10 L23 11.5 Z" fill="white" opacity="0.4"/>
+<path d="M36.5 16 L34 19 L35.5 17 L32 18 Z" fill="#9098b8"/>
+<path d="M11.5 16 L14 19 L12.5 17 L16 18 Z" fill="#9098b8"/>
+`);
+
+ICO['⟨수호반지⟩'] = svg(defs(
+  bgDef('#0c1018','#080c10'),
+  rg('ring',24,24,18,[[0,'rgba(60,140,100,0.2)'],[100,'rgba(0,0,0,0)']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<circle cx="24" cy="24" r="18" fill="url(#ring)"/>
+<circle cx="24" cy="24" r="14" fill="none" stroke="#507868" stroke-width="5" opacity="0.9"/>
+<circle cx="24" cy="24" r="14" fill="none" stroke="#80b898" stroke-width="2" opacity="0.35"/>
+<path d="M13 15 Q24 10 35 15" fill="none" stroke="white" stroke-width="1.5" opacity="0.3" stroke-linecap="round"/>
+<!-- 보석 (방패 모양) -->
+<path d="M20 6 L28 6 L28 12 Q28 15 24 16 Q20 15 20 12 Z" fill="#40a878"/>
+<path d="M20 6 L28 6 L28 12 Q28 15 24 16 Q20 15 20 12 Z" fill="none" stroke="white" stroke-width="0.7" opacity="0.4"/>
+<path d="M24 7 L24 15.5 M20.5 10.5 L27.5 10.5" stroke="white" stroke-width="0.8" opacity="0.4"/>
+<ellipse cx="22" cy="8.5" rx="2" ry="1.5" fill="white" opacity="0.3"/>
+`);
+
+ICO['⟨마력반지⟩'] = svg(defs(
+  bgDef('#10081c','#080610'),
+  rg('ring',24,24,18,[[0,'rgba(140,60,200,0.2)'],[100,'rgba(0,0,0,0)']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<circle cx="24" cy="24" r="18" fill="url(#ring)"/>
+<circle cx="24" cy="24" r="14" fill="none" stroke="#6040a0" stroke-width="5" opacity="0.9"/>
+<circle cx="24" cy="24" r="14" fill="none" stroke="#a070e0" stroke-width="2" opacity="0.35"/>
+<path d="M13 15 Q24 10 35 15" fill="none" stroke="white" stroke-width="1.5" opacity="0.3" stroke-linecap="round"/>
+<!-- 마력 오브 보석 -->
+<circle cx="24" cy="7" r="5.5" fill="#6030b0" opacity="0.9"/>
+<circle cx="24" cy="7" r="5.5" fill="none" stroke="#a070e0" stroke-width="1" opacity="0.5"/>
+<circle cx="24" cy="7" r="3" fill="#c090ff"/>
+<circle cx="22.5" cy="5.5" r="1.4" fill="white" opacity="0.55"/>
+<!-- 마력 파티클 -->
+<circle cx="16" cy="12" r="1.2" fill="#a070e0" opacity="0.6"/>
+<circle cx="32" cy="12" r="1.2" fill="#a070e0" opacity="0.6"/>
+`);
+
+// ══════════════════════════════════════════
+// 목걸이류
+// ══════════════════════════════════════════
+
+ICO['⟨가죽끈⟩'] = svg(defs(
+  bgDef('#120e08','#0a0804'),
+  lg('strap',10,6,14,40,[[0,'#b07830'],[100,'#703e10']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 목걸이 줄 (V자형) -->
+<path d="M8 6 Q10 20 24 30 Q38 20 40 6" fill="none" stroke="url(#strap)" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M8.5 6 Q10.5 19 24 29" fill="none" stroke="white" stroke-width="0.8" opacity="0.2" stroke-linecap="round"/>
+<!-- 가죽 재봉선 -->
+<path d="M10 10 Q12 18 24 27" fill="none" stroke="#8a5020" stroke-width="1" stroke-dasharray="1.5,2" opacity="0.5"/>
+<!-- 버클/매듭 -->
+<circle cx="24" cy="30" r="4" fill="#8a5020"/>
+<circle cx="24" cy="30" r="2.5" fill="#b07030"/>
+<circle cx="23" cy="29" r="1" fill="white" opacity="0.4"/>
+<!-- 줄 끝 금속 팁 -->
+<rect x="6" y="4" width="4" height="5" rx="1" fill="#a07830" opacity="0.8"/>
+<rect x="38" y="4" width="4" height="5" rx="1" fill="#a07830" opacity="0.8"/>
+`);
+
+ICO['⟨집중목걸이⟩'] = svg(defs(
+  bgDef('#080c14','#060810'),
+  rg('eye',24,36,5,[[0,'#e0e8ff'],[40,'#6090d0'],[100,'#304080']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 목걸이 줄 -->
+<path d="M8 5 Q10 18 24 26 Q38 18 40 5" fill="none" stroke="#8898c0" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M8.5 5 Q10.5 17 24 25" fill="none" stroke="white" stroke-width="0.7" opacity="0.25" stroke-linecap="round"/>
+<!-- 펜던트 연결 줄 -->
+<line x1="24" y1="26" x2="24" y2="30" stroke="#8898c0" stroke-width="2"/>
+<!-- 눈 모양 펜던트 -->
+<path d="M16 36 Q24 28 32 36 Q24 44 16 36Z" fill="#304080" opacity="0.9"/>
+<path d="M16 36 Q24 28 32 36 Q24 44 16 36Z" fill="none" stroke="#6090d0" stroke-width="1" opacity="0.5"/>
+<circle cx="24" cy="36" r="5" fill="url(#eye)"/>
+<circle cx="24" cy="36" r="5" fill="none" stroke="#80b0ff" stroke-width="0.8" opacity="0.4"/>
+<circle cx="24" cy="36" r="2.5" fill="#1030a0"/>
+<circle cx="24" cy="36" r="1.2" fill="#6090ff" opacity="0.8"/>
+<circle cx="22.5" cy="34.5" r="1" fill="white" opacity="0.6"/>
+`);
+
+ICO['⟨수호목걸이⟩'] = svg(defs(
+  bgDef('#08100c','#060a08'),
+  lg('shield_p',20,28,28,44,[[0,'#50a878'],[50,'#308058'],[100,'#184030']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 줄 -->
+<path d="M8 5 Q10 18 24 27 Q38 18 40 5" fill="none" stroke="#60a880" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M8.5 5 Q10.5 17 24 26" fill="none" stroke="white" stroke-width="0.7" opacity="0.25" stroke-linecap="round"/>
+<line x1="24" y1="27" x2="24" y2="31" stroke="#60a880" stroke-width="2"/>
+<!-- 방패 펜던트 -->
+<path d="M17 31 L31 31 L31 40 Q31 45 24 46 Q17 45 17 40 Z" fill="url(#shield_p)"/>
+<path d="M17 31 L31 31 L31 40 Q31 45 24 46 Q17 45 17 40 Z" fill="none" stroke="#80c8a0" stroke-width="1" opacity="0.5"/>
+<!-- 방패 십자 -->
+<path d="M24 32 L24 45.5 M17.5 38 L30.5 38" stroke="white" stroke-width="1" opacity="0.4"/>
+<!-- 방패 하이라이트 -->
+<path d="M18 31.5 Q24 29.5 30 31.5 Q27 35 24 36 Q21 35 18 31.5Z" fill="white" opacity="0.15"/>
+`);
+
+ICO['⟨투사목걸이⟩'] = svg(defs(
+  bgDef('#100c08','#080604'),
+  lg('sword_p',22,30,26,46,[[0,'#e8e0c0'],[40,'#b0a880'],[100,'#706840']]),
+  lg('hilt_p',20,42,28,46,[[0,'#b87820'],[100,'#704808']])
+)+
+`<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)"/>
+<!-- 줄 -->
+<path d="M8 5 Q10 18 24 27 Q38 18 40 5" fill="none" stroke="#c09040" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M8.5 5 Q10.5 17 24 26" fill="none" stroke="white" stroke-width="0.7" opacity="0.25" stroke-linecap="round"/>
+<line x1="24" y1="27" x2="24" y2="31" stroke="#c09040" stroke-width="2"/>
+<!-- 검 펜던트 -->
+<path d="M22.5 30 L25.5 30 L25.5 43 L24 46 L22.5 43 Z" fill="url(#sword_p)"/>
+<path d="M23 31 L23.8 31 L24 42" stroke="white" stroke-width="0.7" opacity="0.4" stroke-linecap="round"/>
+<!-- 가드 -->
+<rect x="18" y="40" width="12" height="2.5" rx="1.2" fill="url(#hilt_p)"/>
+<rect x="19" y="40.3" width="10" height="1" rx="0.5" fill="white" opacity="0.3"/>
+<!-- 손잡이 -->
+<rect x="22" y="42.5" width="4" height="3.5" rx="1.5" fill="#a06820"/>
+<!-- 보석 -->
+<circle cx="24" cy="33" r="2.5" fill="#e06020"/>
+<circle cx="23" cy="32" r="0.9" fill="white" opacity="0.55"/>
+`);
 
   function getItemIconHtml(icon, size=16) {
-    const ICO = window._SCANHERO_ICO || {};
     const svgStr = ICO[icon];
     if (svgStr) {
-      // size에 맞게 width/height 재조정
-      return svgStr.replace(/width="48" height="48"/, `width="${size}" height="${size}"`);
+      return svgStr.replace('width="48" height="48"', `width="${size}" height="${size}"`);
     }
     return `<span style="font-size:${Math.round(size*0.85)}px;line-height:1;">${icon}</span>`;
   }
@@ -3587,7 +4575,15 @@ const ICO = {};
 
     // 슬롯 라벨 (ring → ring1/ring2 고려)
     const dispSlot = item.slot === 'ring' ? '반지' : (slotLabels[item.slot] || item.slot);
-    els.itemDetailMeta.textContent  = `슬롯: ${dispSlot} · CP +${item.power} · ${getItemStatText(item)}`;
+    // 현재 장착된 슬롯의 power와 비교
+    const targetSlotForCP = item.slot === 'ring'
+      ? (!state.equipment.ring1 ? 'ring1' : 'ring2')
+      : item.slot;
+    const curEquipped = state.equipment[targetSlotForCP];
+    const cpDiff = curEquipped ? (item.power - curEquipped.power) : item.power;
+    const cpSign = cpDiff > 0 ? '+' : '';
+    const cpColor = cpDiff > 0 ? '#63d09a' : cpDiff < 0 ? '#ff7b7b' : '#a9b6d6';
+    els.itemDetailMeta.innerHTML = `슬롯: ${dispSlot} &nbsp;·&nbsp; <span id="cpDiffBadge" style="font-family:'Georgia',serif;font-weight:900;font-size:13px;color:${cpColor};text-shadow:0 0 8px ${cpColor}88;letter-spacing:0.5px;">⚡전투력 ${cpSign}${cpDiff}</span>`;
 
     // 스탯 비교 (착용 시 미리보기)
     const curStats     = getHeroBaseStats();
@@ -3611,9 +4607,10 @@ const ICO = {};
       const diff = after - before; totalDiff += diff;
       const cls  = diff>0?'stat-up': diff<0?'stat-down':'stat-same';
       const sign = diff>0?'+':'';
+      const diffText = diff!==0 ? `<span style="font-size:10px;font-weight:900;letter-spacing:0.3px;"> (${sign}${diff})</span>` : '';
       return `<div class="stat-compare-item">
         <div class="stat-compare-label">${label}</div>
-        <div class="stat-compare-value ${cls}">${after}${diff!==0?`<span style="font-size:9px;"> (${sign}${diff})</span>`:''}</div>
+        <div class="stat-compare-value ${cls}" style="font-family:'Georgia',serif;font-weight:900;">${after}${diffText}</div>
       </div>`;
     }).join('');
 
@@ -3629,10 +4626,10 @@ const ICO = {};
       els.itemStatChangeHint.textContent = '🚫 반지 슬롯이 가득 찼습니다 (최대 2개)';
     } else if (totalDiff > 0) {
       els.itemStatChangeHint.className = 'stat-change-hint positive';
-      els.itemStatChangeHint.textContent = `▲ 장착 시 전체 스탯 +${totalDiff} 향상!`;
+      els.itemStatChangeHint.innerHTML = `⬆ 장착 시 전투력 <b style="color:#63d09a;font-size:13px;">+${totalDiff}</b> 향상!`;
     } else if (totalDiff < 0) {
       els.itemStatChangeHint.className = 'stat-change-hint negative';
-      els.itemStatChangeHint.textContent = `▼ 장착 시 전체 스탯 ${totalDiff} 변화`;
+      els.itemStatChangeHint.innerHTML = `⬇ 장착 시 전투력 <b style="color:#ff7b7b;font-size:13px;">${totalDiff}</b> 변화`;
     } else {
       els.itemStatChangeHint.className = 'stat-change-hint neutral';
       els.itemStatChangeHint.textContent = '현재 장비와 동일한 스탯';
@@ -4329,5 +5326,7 @@ const ICO = {};
   // 인증 전까지 게임 화면은 숨겨져 있음
 });
 </script>
+  <!-- 게임 화면 나가기 버튼 (fixed 우상단) -->
+  <button type="button" class="game-logout-btn" id="gameLogoutBtn" title="로그아웃">⬅ 나가기</button>
 </body>
 </html>
