@@ -333,6 +333,20 @@
     .auth-btn:hover { transform: translateY(-1px); }
     .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     .auth-error { font-size: 11px; color: #ff7b7b; text-align: center; min-height: 16px; }
+    .auth-btn-google {
+      background: rgba(255,255,255,0.07) !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+      border: 1px solid rgba(255,255,255,0.12) !important;
+      color: #eef3ff !important; font-size: 13px !important;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .auth-btn-google:hover { background: rgba(255,255,255,0.13) !important; }
+    .auth-gm-badge {
+      position: absolute; top: 8px; right: 12px;
+      font-size: 9px; color: #ffcf63; font-weight: 700;
+      background: rgba(255,207,99,0.12); border: 1px solid rgba(255,207,99,0.3);
+      border-radius: 6px; padding: 2px 6px; letter-spacing: 0.5px;
+    }
 
     /* ===== 캐릭터 선택 화면 ===== */
     .char-screen {
@@ -872,20 +886,38 @@
         <div class="auth-tab active" id="authTabLogin" onclick="switchAuthTab('login')">로그인</div>
         <div class="auth-tab" id="authTabSignup" onclick="switchAuthTab('signup')">회원가입</div>
       </div>
+
       <!-- 로그인 폼 -->
       <div class="auth-form" id="loginForm">
-        <div class="auth-field"><label>이메일</label><input type="email" id="loginEmail" placeholder="이메일 입력" /></div>
-        <div class="auth-field"><label>비밀번호</label><input type="password" id="loginPw" placeholder="비밀번호 입력" /></div>
+        <div class="auth-field">
+          <label>이메일 또는 관리자 ID</label>
+          <input type="text" id="loginEmail" placeholder="이메일 입력" autocomplete="username" />
+        </div>
+        <div class="auth-field" id="loginPwField">
+          <label>비밀번호</label>
+          <input type="password" id="loginPw" placeholder="비밀번호 입력" autocomplete="current-password" />
+        </div>
         <div class="auth-error" id="loginError"></div>
         <button class="auth-btn" id="loginBtn">로그인</button>
+        <div class="auth-divider" style="text-align:center;color:#4a5a7a;font-size:11px;padding:4px 0;">또는</div>
+        <button class="auth-btn auth-btn-google" id="googleLoginBtn">
+          <svg width="18" height="18" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:8px;"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.5 30.2 0 24 0 14.7 0 6.7 5.4 2.7 13.3l7.9 6.1C12.5 13.1 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/><path fill="#FBBC05" d="M10.6 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.2 0-11.5-3.6-13.4-9l-7.9 6.1C6.7 42.6 14.7 48 24 48z"/></svg>
+          Google로 로그인
+        </button>
       </div>
+
       <!-- 회원가입 폼 -->
       <div class="auth-form" id="signupForm" style="display:none;">
-        <div class="auth-field"><label>이메일</label><input type="email" id="signupEmail" placeholder="이메일 입력" /></div>
-        <div class="auth-field"><label>비밀번호 (6자 이상)</label><input type="password" id="signupPw" placeholder="비밀번호 입력" /></div>
-        <div class="auth-field"><label>비밀번호 확인</label><input type="password" id="signupPw2" placeholder="비밀번호 재입력" /></div>
+        <div class="auth-field"><label>이메일</label><input type="email" id="signupEmail" placeholder="이메일 입력" autocomplete="email" /></div>
+        <div class="auth-field"><label>비밀번호 (6자 이상)</label><input type="password" id="signupPw" placeholder="비밀번호 입력" autocomplete="new-password" /></div>
+        <div class="auth-field"><label>비밀번호 확인</label><input type="password" id="signupPw2" placeholder="비밀번호 재입력" autocomplete="new-password" /></div>
         <div class="auth-error" id="signupError"></div>
         <button class="auth-btn" id="signupBtn">계정 만들기</button>
+        <div class="auth-divider" style="text-align:center;color:#4a5a7a;font-size:11px;padding:4px 0;">또는</div>
+        <button class="auth-btn auth-btn-google" id="googleSignupBtn">
+          <svg width="18" height="18" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:8px;"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.5 30.2 0 24 0 14.7 0 6.7 5.4 2.7 13.3l7.9 6.1C12.5 13.1 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/><path fill="#FBBC05" d="M10.6 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.2 0-11.5-3.6-13.4-9l-7.9 6.1C6.7 42.6 14.7 48 24 48z"/></svg>
+          Google로 가입
+        </button>
       </div>
     </div>
   </div>
@@ -1367,6 +1399,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // ═══════════════════════════════════════════════════════
   // 인증 UI
   // ═══════════════════════════════════════════════════════
+
+  // ── GM 마스터 계정 (비밀번호 없이 입장) ──
+  const GM_ID = 'gmmaster';
+  const GM_FAKE_USER = {
+    id: 'gm-master-0000-0000-000000000001',
+    email: 'gmmaster@scanhero.local',
+    isGM: true
+  };
+
   window.switchAuthTab = function(tab) {
     document.getElementById('authTabLogin').classList.toggle('active', tab === 'login');
     document.getElementById('authTabSignup').classList.toggle('active', tab === 'signup');
@@ -1376,18 +1417,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setAuthLoading(btnId, loading, label) {
     const btn = document.getElementById(btnId);
+    if (!btn) return;
     btn.disabled = loading;
     btn.textContent = loading ? '처리 중...' : label;
   }
 
+  // loginEmail 입력 감지 → gmmaster 입력 시 비밀번호 필드 숨김
+  document.getElementById('loginEmail').addEventListener('input', function() {
+    const isGM = this.value.trim().toLowerCase() === GM_ID;
+    const pwField = document.getElementById('loginPwField');
+    if (pwField) pwField.style.display = isGM ? 'none' : '';
+    // GM 뱃지 표시
+    let badge = document.getElementById('gmBadge');
+    if (isGM && !badge) {
+      badge = document.createElement('div');
+      badge.id = 'gmBadge';
+      badge.className = 'auth-gm-badge';
+      badge.textContent = '👑 GM';
+      document.getElementById('loginForm').style.position = 'relative';
+      document.getElementById('loginForm').appendChild(badge);
+    } else if (!isGM && badge) {
+      badge.remove();
+    }
+  });
+
+  // 로그인
   document.getElementById('loginBtn').addEventListener('click', async () => {
     const errEl = document.getElementById('loginError');
-    const email = document.getElementById('loginEmail').value.trim();
-    const pw    = document.getElementById('loginPw').value;
+    const input = document.getElementById('loginEmail').value.trim();
     errEl.textContent = ''; errEl.style.color = '#ff7b7b';
-    if (!email || !pw) { errEl.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
+
+    // GM 마스터 즉시 입장
+    if (input.toLowerCase() === GM_ID) {
+      CURRENT_USER = GM_FAKE_USER;
+      showScreen('char');
+      document.getElementById('charAccountInfo').innerHTML =
+        '👑 <b style="color:#ffcf63">GM 관리자</b> 계정으로 입장했습니다.';
+      await renderCharSlots();
+      return;
+    }
+
+    const pw = document.getElementById('loginPw').value;
+    if (!input || !pw) { errEl.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
     setAuthLoading('loginBtn', true, '로그인');
-    const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+    const { error } = await sb.auth.signInWithPassword({ email: input, password: pw });
     setAuthLoading('loginBtn', false, '로그인');
     if (error) errEl.textContent = (error.message === 'Invalid login credentials')
       ? '이메일 또는 비밀번호가 올바르지 않습니다.' : error.message;
@@ -1399,6 +1472,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // 회원가입
   document.getElementById('signupBtn').addEventListener('click', async () => {
     const errEl = document.getElementById('signupError');
     const email = document.getElementById('signupEmail').value.trim();
@@ -1406,22 +1480,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const pw2   = document.getElementById('signupPw2').value;
     errEl.textContent = ''; errEl.style.color = '#ff7b7b';
     if (!email || !pw) { errEl.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
-    if (pw.length < 6) { errEl.textContent = '비밀번호는 6자 이상이어야 합니다.'; return; }
-    if (pw !== pw2)    { errEl.textContent = '비밀번호가 일치하지 않습니다.'; return; }
+    if (pw.length < 6)  { errEl.textContent = '비밀번호는 6자 이상이어야 합니다.'; return; }
+    if (pw !== pw2)     { errEl.textContent = '비밀번호가 일치하지 않습니다.'; return; }
     setAuthLoading('signupBtn', true, '계정 만들기');
     const { error } = await sb.auth.signUp({ email, password: pw });
     setAuthLoading('signupBtn', false, '계정 만들기');
     if (error) errEl.textContent = error.message;
-    else { errEl.style.color = '#63d09a'; errEl.textContent = '가입 완료! 로그인해 주세요.'; window.switchAuthTab('login'); }
+    else {
+      errEl.style.color = '#63d09a';
+      errEl.textContent = '가입 완료! 바로 로그인해 주세요.';
+      window.switchAuthTab('login');
+      document.getElementById('loginEmail').value = email;
+    }
   });
 
+  // Google 로그인/가입 (같은 함수)
+  async function googleLogin() {
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.href }
+    });
+    if (error) showDbStatus('Google 로그인 실패: ' + error.message, 'error');
+  }
+  document.getElementById('googleLoginBtn').addEventListener('click', googleLogin);
+  document.getElementById('googleSignupBtn').addEventListener('click', googleLogin);
+
+  // 로그아웃
   document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await sb.auth.signOut();
+    if (!CURRENT_USER?.isGM) await sb.auth.signOut();
     PLAYER_ID = null; CURRENT_USER = null; CURRENT_CHAR_SLOT = null;
     showScreen('auth');
+    // GM 뱃지 초기화
+    const badge = document.getElementById('gmBadge');
+    if (badge) badge.remove();
+    document.getElementById('loginEmail').value = '';
+    const pwField = document.getElementById('loginPwField');
+    if (pwField) pwField.style.display = '';
   });
 
-  // ─── Supabase Auth 상태 감지 ───
+  // ─── Supabase Auth 상태 감지 ───  // ─── Supabase Auth 상태 감지 ───
   sb.auth.onAuthStateChange(async (event, session) => {
     if (session?.user) {
       CURRENT_USER = session.user;
@@ -1464,6 +1561,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // ═══════════════════════════════════════════════════════
   async function loadMyHeroes() {
     if (!CURRENT_USER) return [];
+    // GM은 전체 영웅 목록 조회 (관리자 모드)
+    if (CURRENT_USER.isGM) {
+      const { data, error } = await sb
+        .from('heroes')
+        .select('player_id, hero_name, hero_class, level, gold, char_slot, account_id, updated_at')
+        .order('char_slot');
+      if (error) { console.error(error); return []; }
+      return data || [];
+    }
     const { data, error } = await sb
       .from('heroes')
       .select('player_id, hero_name, hero_class, level, gold, char_slot, updated_at')
@@ -1477,10 +1583,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('charSlots');
     container.innerHTML = '<div style="color:#5a7090;font-size:12px;text-align:center;padding:30px;">불러오는 중...</div>';
     const heroes = await loadMyHeroes();
-    const MAX_SLOTS = 3;
+    // GM은 모든 캐릭터를 슬롯 번호 기준으로 표시
+    const isGM = CURRENT_USER?.isGM;
+    const MAX_SLOTS = isGM ? Math.max(3, heroes.length) : 3;
     let html = '';
+    if (isGM) {
+      html += `<div style="padding:8px 12px;margin-bottom:4px;background:rgba(255,207,99,0.08);border:1px solid rgba(255,207,99,0.25);border-radius:12px;font-size:11px;color:#ffcf63;font-weight:700;">
+        👑 GM 관리자 모드 — 전체 캐릭터 ${heroes.length}개 표시 중
+      </div>`;
+    }
     for (let slot = 1; slot <= MAX_SLOTS; slot++) {
-      const hero = heroes.find(h => h.char_slot === slot);
+      const hero = isGM ? heroes[slot-1] : heroes.find(h => h.char_slot === slot);
       if (hero) {
         const classIcon = { '전사':'⚔️','궁사':'🏹','마법사':'🔮' }[hero.hero_class] || '🧙';
         const spriteHtml = getHeroVisualHtml(hero.hero_class);
@@ -1625,6 +1738,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 영웅 저장 (upsert)
   async function dbSaveHero() {
     if (!PLAYER_ID || !CURRENT_USER) return;
+    if (CURRENT_USER.isGM) return; // GM은 DB 저장 안 함
     try {
       const { error } = await sb.from('heroes').upsert({
         player_id:     PLAYER_ID,
