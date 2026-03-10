@@ -1618,10 +1618,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const pw = document.getElementById('loginPw').value;
     if (!input || !pw) { errEl.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
     setAuthLoading('loginBtn', true, '로그인');
-    const { error } = await sb.auth.signInWithPassword({ email: input, password: pw });
+    const { data: loginData, error } = await sb.auth.signInWithPassword({ email: input, password: pw });
     setAuthLoading('loginBtn', false, '로그인');
-    if (error) errEl.textContent = (error.message === 'Invalid login credentials')
-      ? '이메일 또는 비밀번호가 올바르지 않습니다.' : error.message;
+
+    console.log('[로그인 결과] error:', error, '/ user:', loginData?.user?.email, '/ session:', !!loginData?.session);
+
+    if (error) {
+      const msg = error.message || '';
+      if (msg.includes('Invalid login credentials') || msg.includes('invalid_credentials')) {
+        errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
+      } else if (msg.includes('Email not confirmed')) {
+        errEl.textContent = '이메일 인증이 필요합니다. Supabase 대시보드에서 Confirm email을 OFF로 설정해 주세요.';
+      } else if (msg.includes('User not found')) {
+        errEl.textContent = '가입되지 않은 이메일입니다. 먼저 회원가입을 해주세요.';
+      } else if (msg.includes('rate limit') || msg.includes('too many')) {
+        errEl.textContent = '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.';
+      } else if (msg.includes('network') || msg.includes('fetch')) {
+        errEl.textContent = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해 주세요.';
+      } else {
+        errEl.textContent = '로그인 실패: ' + msg;
+      }
+      return;
+    }
+
+    // 오류 없는데 세션이 없는 경우 (이메일 미인증 등)
+    if (!loginData?.session) {
+      errEl.textContent = '로그인은 됐지만 세션이 없습니다. Supabase 대시보드 Authentication → Users 에서 해당 계정의 "Confirm user" 를 클릭해 주세요.';
+      console.warn('[로그인] session null - 이메일 미인증 가능성');
+      return;
+    }
+
+    // 성공 — onAuthStateChange가 안 잡힐 경우 수동으로 처리
+    if (loginData.session?.user) {
+      CURRENT_USER = loginData.session.user;
+      showScreen('char');
+      document.getElementById('charAccountInfo').textContent = '계정: ' + CURRENT_USER.email;
+      await renderCharSlots();
+    }
   });
 
   ['loginEmail','loginPw'].forEach(id => {
