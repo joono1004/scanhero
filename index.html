@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
 
@@ -1032,8 +1033,10 @@
       </div>
 
       <div style="margin-top:16px; display:flex; gap:8px;">
+        <button id="devSaveBtn" style="flex:1; padding:10px; border-radius:12px; background:rgba(99,208,154,0.18); border:1px solid rgba(99,208,154,0.35); color:#63d09a; font-size:13px; font-weight:900; cursor:pointer;">💾 지금 저장</button>
         <button id="devModeCloseBtn" style="flex:1; padding:10px; border-radius:12px; background:rgba(79,124,255,0.18); border:1px solid rgba(79,124,255,0.3); color:#9fbfff; font-size:13px; font-weight:900; cursor:pointer;">닫기</button>
       </div>
+      <div style="margin-top:10px; padding:8px 10px; background:rgba(14,21,38,0.8); border-radius:8px; font-size:9px; color:rgba(120,149,220,0.5); word-break:break-all;" id="playerIdDisplay"></div>
     </div>
   </div>
 
@@ -1194,6 +1197,241 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+
+  // ═══════════════════════════════════════════════════════
+  // SUPABASE 설정
+  // ═══════════════════════════════════════════════════════
+  const SUPABASE_URL = 'https://svyxrnwjxhwtsanexuht.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_IC07F5YFaruLMKsTEAPA8Q_ewH7l1ez';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // 기기 고유 player_id (localStorage에 영구 보관)
+  function getPlayerId() {
+    let id = localStorage.getItem('scanhero_player_id');
+    if (!id) {
+      id = 'player_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+      localStorage.setItem('scanhero_player_id', id);
+    }
+    return id;
+  }
+  const PLAYER_ID = getPlayerId();
+
+  // ── DB 상태 표시 UI ──
+  function showDbStatus(msg, type = 'info') {
+    const colors = { info:'#63a8ff', ok:'#63d09a', error:'#ff7b7b', saving:'#ffcf63' };
+    const icons  = { info:'🔵', ok:'✅', error:'❌', saving:'💾' };
+    console.log(`[DB] ${icons[type]} ${msg}`);
+    // 화면 상단에 잠깐 표시
+    let toast = document.getElementById('db-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'db-toast';
+      toast.style.cssText = `position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;
+        background:rgba(10,16,32,0.95);border:1px solid rgba(120,149,220,0.3);border-radius:10px;
+        padding:6px 14px;font-size:11px;font-weight:700;color:#eef3ff;
+        pointer-events:none;transition:opacity 0.4s;white-space:nowrap;`;
+      document.body.appendChild(toast);
+    }
+    toast.style.color = colors[type] || '#eef3ff';
+    toast.style.borderColor = (colors[type] || '#eef3ff').replace(')', ',0.4)').replace('rgb','rgba');
+    toast.style.opacity = '1';
+    toast.textContent = `${icons[type]} ${msg}`;
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, type === 'error' ? 4000 : 2000);
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // DB 저장 함수들
+  // ═══════════════════════════════════════════════════════
+
+  // 영웅 저장 (upsert)
+  async function dbSaveHero() {
+    try {
+      const { error } = await sb.from('heroes').upsert({
+        player_id:     PLAYER_ID,
+        hero_name:     state.heroName,
+        hero_class:    state.heroClass,
+        level:         state.level,
+        exp:           state.exp,
+        gold:          state.gold,
+        used_barcodes: [...state.usedBarcodes],
+        dev_mode:      state.devMode
+      }, { onConflict: 'player_id' });
+      if (error) throw error;
+    } catch (e) { showDbStatus('영웅 저장 실패: ' + e.message, 'error'); }
+  }
+
+  // 인벤토리 전체 동기화 (전체 교체)
+  async function dbSaveInventory() {
+    try {
+      // 기존 삭제 후 전체 insert
+      await sb.from('inventory_items').delete().eq('player_id', PLAYER_ID);
+      if (!state.inventory.length) return;
+      const equippedIds = Object.values(state.equipment).filter(Boolean).map(i => i.id);
+      const equippedSlotMap = {};
+      Object.entries(state.equipment).forEach(([slot, item]) => {
+        if (item) equippedSlotMap[item.id] = slot;
+      });
+      const rows = state.inventory.map(item => ({
+        player_id:    PLAYER_ID,
+        item_id:      item.id,
+        item_name:    item.name,
+        base_name:    item.baseName || item.name,
+        slot:         item.slot,
+        slot_label:   item.slotLabel || item.slot,
+        icon:         item.icon,
+        rarity:       item.rarity,
+        rarity_label: item.rarityLabel,
+        power:        item.power || 0,
+        stats:        item.stats || {},
+        weapon_type:  item.weaponType || null,
+        is_equipped:  equippedIds.includes(item.id),
+        equipped_slot: equippedSlotMap[item.id] || null
+      }));
+      const { error } = await sb.from('inventory_items').insert(rows);
+      if (error) throw error;
+    } catch (e) { showDbStatus('인벤토리 저장 실패: ' + e.message, 'error'); }
+  }
+
+  // 전투 기록 1건 저장
+  async function dbSaveBattleLog({ enemyName, enemyGrade, enemyAmount, result, turns, expGained, goldGained, itemDropped }) {
+    try {
+      const { error } = await sb.from('battle_logs').insert({
+        player_id:    PLAYER_ID,
+        enemy_name:   enemyName,
+        enemy_grade:  enemyGrade,
+        enemy_amount: enemyAmount,
+        result,
+        turns,
+        exp_gained:   expGained,
+        gold_gained:  goldGained,
+        item_dropped: itemDropped || null,
+        hero_level:   state.level
+      });
+      if (error) throw error;
+    } catch (e) { showDbStatus('전투 기록 실패: ' + e.message, 'error'); }
+  }
+
+  // 탐험 기록 1건 저장
+  async function dbSaveExploreLog({ barcode, decodedCode, eventType, eventTitle, eventDetail, lat, lng, address, expGained, goldGained }) {
+    try {
+      const { error } = await sb.from('explore_logs').insert({
+        player_id:    PLAYER_ID,
+        barcode,
+        decoded_code: decodedCode,
+        event_type:   eventType,
+        event_title:  eventTitle,
+        event_detail: eventDetail,
+        latitude:     lat,
+        longitude:    lng,
+        address,
+        exp_gained:   expGained,
+        gold_gained:  goldGained
+      });
+      if (error) throw error;
+    } catch (e) { showDbStatus('탐험 기록 실패: ' + e.message, 'error'); }
+  }
+
+  // 상점 구매 기록 저장
+  async function dbSaveShopLog(item) {
+    try {
+      const { error } = await sb.from('shop_logs').insert({
+        player_id: PLAYER_ID,
+        item_name: item.name,
+        rarity:    item.rarity,
+        slot:      item.slot,
+        price:     item.shopPrice || 0,
+        stats:     item.stats || {}
+      });
+      if (error) throw error;
+    } catch (e) { showDbStatus('상점 기록 실패: ' + e.message, 'error'); }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // DB 불러오기 함수들
+  // ═══════════════════════════════════════════════════════
+
+  async function dbLoadAll() {
+    showDbStatus('저장된 데이터 불러오는 중...', 'info');
+    try {
+      // 영웅 정보
+      const { data: heroData, error: heroErr } = await sb
+        .from('heroes').select('*').eq('player_id', PLAYER_ID).single();
+      if (heroErr && heroErr.code !== 'PGRST116') throw heroErr; // PGRST116 = not found
+
+      if (heroData) {
+        state.heroName  = heroData.hero_name;
+        state.heroClass = heroData.hero_class;
+        state.level     = heroData.level;
+        state.exp       = heroData.exp;
+        state.gold      = heroData.gold;
+        state.usedBarcodes = new Set(heroData.used_barcodes || []);
+        if (heroData.dev_mode) state.devMode = { ...state.devMode, ...heroData.dev_mode };
+      }
+
+      // 인벤토리
+      const { data: invData, error: invErr } = await sb
+        .from('inventory_items').select('*').eq('player_id', PLAYER_ID)
+        .order('obtained_at', { ascending: false });
+      if (invErr) throw invErr;
+
+      if (invData && invData.length) {
+        state.inventory = invData.map(row => ({
+          id:         row.item_id,
+          name:       row.item_name,
+          baseName:   row.base_name,
+          slot:       row.slot,
+          slotLabel:  row.slot_label,
+          icon:       row.icon,
+          rarity:     row.rarity,
+          rarityLabel: row.rarity_label,
+          power:      row.power,
+          stats:      row.stats || {},
+          weaponType: row.weapon_type,
+          classes:    row.classes || null
+        }));
+        // 착용 장비 복원
+        invData.filter(r => r.is_equipped && r.equipped_slot).forEach(row => {
+          const item = state.inventory.find(i => i.id === row.item_id);
+          if (item) state.equipment[row.equipped_slot] = item;
+        });
+      }
+
+      if (heroData) {
+        showDbStatus(`${heroData.hero_name} (Lv.${heroData.level}) 불러오기 완료!`, 'ok');
+        // 영웅 생성 화면 건너뛰기
+        const backdrop = document.getElementById('heroStartBackdrop');
+        if (backdrop) backdrop.style.display = 'none';
+      } else {
+        showDbStatus('새 영웅을 만들어 모험을 시작하세요!', 'info');
+      }
+
+    } catch (e) {
+      showDbStatus('불러오기 실패: ' + e.message, 'error');
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // 자동 저장 (30초마다 영웅 + 인벤토리)
+  // ═══════════════════════════════════════════════════════
+  let autoSaveTimer = null;
+  function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(async () => {
+      showDbStatus('자동 저장 중...', 'saving');
+      await dbSaveHero();
+      await dbSaveInventory();
+      showDbStatus('자동 저장 완료', 'ok');
+    }, 30000);
+  }
+
+  // 즉시 전체 저장
+  async function dbSaveAll(silent = false) {
+    if (!silent) showDbStatus('저장 중...', 'saving');
+    await dbSaveHero();
+    await dbSaveInventory();
+    if (!silent) showDbStatus('저장 완료!', 'ok');
+  }
   const rankTable = [
     { minLevel:1,  rank:'견습',  soldiers:2 },
     { minLevel:3,  rank:'전사',  soldiers:3 },
@@ -1633,6 +1871,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openDevMode() {
     updateDevModeUI();
+    const pidEl = document.getElementById('playerIdDisplay');
+    if (pidEl) pidEl.textContent = '플레이어 ID: ' + PLAYER_ID;
     document.getElementById('devModeBackdrop').classList.add('show');
   }
   function closeDevMode() {
@@ -1750,6 +1990,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderShopGrid();
     updateGoblinSpeech(`${item.name} 구매 완료! 좋은 선택이에요! ✨`);
     showDropNotification(`🛒 ${item.name} 구매! -${item.shopPrice}G`, getRarityHex(item.rarity));
+    // DB 저장
+    dbSaveShopLog(item);
+    dbSaveAll(true);
+    scheduleAutoSave();
   }
 
   function updateGoblinSpeech(text) {
@@ -2207,6 +2451,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showEquipEffect(item);
     closeModal(els.itemDetailBackdrop);
     renderHero();
+    dbSaveInventory(); scheduleAutoSave();
     openHeroStatsModal();
   }
 
@@ -2216,6 +2461,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showDropNotification(`🔓 ${item.name} 해제됨`, '#a4b4db');
     closeModal(els.itemDetailBackdrop);
     renderHero();
+    dbSaveInventory(); scheduleAutoSave();
     openHeroStatsModal();
   }
 
@@ -2228,6 +2474,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeModal(els.itemDetailBackdrop);
     renderHero();
     showDropNotification(`🪙 ${item.name} 판매! +${price}G`);
+    dbSaveAll(true); scheduleAutoSave();
     openHeroStatsModal();
   }
 
@@ -2339,6 +2586,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     state.mapHistory = state.mapHistory.slice(0,100);
     saveMapHistory(); renderMapHistoryList(); renderMapMarkers();
+    // DB 탐험 기록 저장
+    await dbSaveExploreLog({
+      barcode,
+      decodedCode:  decoded.code,
+      eventType:    decoded.eventType,
+      eventTitle:   decoded.title,
+      eventDetail:  detail,
+      lat, lng, address,
+      expGained:    exp || 0,
+      goldGained:   gold || 0
+    });
   }
   function makeInfoWindowHtml(item) {
     return `<div style="min-width:180px;max-width:220px;color:#111827;font-size:12px;line-height:1.5;"><div style="font-weight:900;font-size:13px;margin-bottom:6px;">${item.icon} ${item.title}</div><div style="color:#374151;margin-bottom:4px;">${item.detail}</div><div style="font-size:11px;color:#6b7280;">📍 ${shortAddress(item.address||'')}</div></div>`;
@@ -2495,6 +2753,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function endBattle({title, desc, exp=0, gold=0, resultType='success', logTitle='', logDetail='', dropItem=null}) {
     const decoded = state.battle.decoded;
+    const b       = state.battle;
     const leveled = addReward(exp, gold);
     let dropLog = '';
 
@@ -2507,6 +2766,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logTitle) addLog(logTitle, `${logDetail}${dropLog}${leveled?' / 레벨업!':''}`);
 
     await addMapHistory({ barcode:onlyDigits(els.barcodeInput.value), decoded, detail:logDetail||desc, exp, gold });
+
+    // ── DB 저장 ──
+    const enemy = b?.setup?.enemy;
+    if (enemy) {
+      await dbSaveBattleLog({
+        enemyName:   enemy.name,
+        enemyGrade:  enemy.grade,
+        enemyAmount: enemy.amount,
+        result:      resultType === 'success' ? 'win' : (resultType === 'fail' && title === '패배' ? 'lose' : 'run'),
+        turns:       b.turn || 0,
+        expGained:   exp,
+        goldGained:  gold,
+        itemDropped: dropItem ? { name:dropItem.name, rarity:dropItem.rarity, slot:dropItem.slot, icon:dropItem.icon } : null
+      });
+    }
+    await dbSaveAll(true); // silent=true (토스트 숨김)
+    scheduleAutoSave();
 
     renderHero(); renderLogs();
     if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
@@ -2678,11 +2954,15 @@ document.addEventListener('DOMContentLoaded', () => {
     state.heroName  = (els.startHeroName.value||'').trim()||'주인님의 영웅';
     state.heroClass = els.startHeroClass.value||'전사';
     renderHero(); els.startHeroBackdrop.style.display='none'; requestCurrentLocation();
+    dbSaveAll(); // 새 영웅 DB 저장
   }
 
   // 게임 타이틀 클릭 → 개발자 모드
   document.getElementById('gameTitleBtn').addEventListener('click', openDevMode);
   document.getElementById('devModeCloseBtn').addEventListener('click', closeDevMode);
+  document.getElementById('devSaveBtn').addEventListener('click', async () => {
+    await dbSaveAll();
+  });
   document.getElementById('devModeBackdrop').addEventListener('click', e => {
     if (e.target === document.getElementById('devModeBackdrop')) closeDevMode();
   });
@@ -2756,7 +3036,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap();
+  loadMapHistory(); renderLogs(); renderMapHistoryList(); initMap();
+
+  // Supabase에서 저장된 데이터 불러오기 후 화면 갱신
+  dbLoadAll().then(() => {
+    renderHero();
+    renderLogs();
+    renderMapHistoryList();
+    // 30초마다 자동 저장 시작
+    setInterval(async () => {
+      await dbSaveAll(true);
+    }, 30000);
+  });
 });
 </script>
 </body>
