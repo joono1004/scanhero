@@ -522,14 +522,14 @@
     .hero-preview-wrap { position: relative; z-index: 4; display: flex; align-items: flex-end; justify-content: center; width: 160px; min-height: 190px; }
     .hero-preview-wrap .hero-visual-wrap { transform: scale(2.0); transform-origin: bottom center; }
     /* 장비 오버레이 레이어 */
-    .equip-overlay-cloak { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); z-index:3; pointer-events:none; filter:drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }
-    .equip-overlay-necklace { position:absolute; z-index:6; pointer-events:none; bottom:144px; left:50%; transform:translateX(-50%); }
-    .equip-overlay-glove-l { position:absolute; z-index:6; pointer-events:none; bottom:80px; left:calc(50% - 68px); }
-    .equip-overlay-glove-r { position:absolute; z-index:6; pointer-events:none; bottom:80px; left:calc(50% + 36px); }
-    .equip-overlay-boot-l  { position:absolute; z-index:6; pointer-events:none; bottom:24px; left:calc(50% - 58px); }
-    .equip-overlay-boot-r  { position:absolute; z-index:6; pointer-events:none; bottom:24px; left:calc(50% + 14px); }
-    .equip-overlay-ring-l  { position:absolute; z-index:7; pointer-events:none; bottom:84px; left:calc(50% - 80px); }
-    .equip-overlay-ring-r  { position:absolute; z-index:7; pointer-events:none; bottom:84px; left:calc(50% + 52px); }
+    .equip-overlay-cloak { position:absolute; bottom:80px; left:50%; transform:translateX(-50%); z-index:3; pointer-events:none; filter:drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }
+    .equip-overlay-necklace { position:absolute; z-index:6; pointer-events:none; bottom:190px; left:50%; transform:translateX(-50%); }
+    .equip-overlay-glove-l { position:absolute; z-index:6; pointer-events:none; bottom:130px; left:calc(50% - 68px); }
+    .equip-overlay-glove-r { position:absolute; z-index:6; pointer-events:none; bottom:130px; left:calc(50% + 36px); }
+    .equip-overlay-boot-l  { position:absolute; z-index:6; pointer-events:none; bottom:74px; left:calc(50% - 58px); }
+    .equip-overlay-boot-r  { position:absolute; z-index:6; pointer-events:none; bottom:74px; left:calc(50% + 14px); }
+    .equip-overlay-ring-l  { position:absolute; z-index:7; pointer-events:none; bottom:134px; left:calc(50% - 80px); }
+    .equip-overlay-ring-r  { position:absolute; z-index:7; pointer-events:none; bottom:134px; left:calc(50% + 52px); }
     @keyframes ringSparkle { 0%,100%{opacity:.7;transform:scale(1) rotate(0deg);} 33%{opacity:1;transform:scale(1.4) rotate(15deg);} 66%{opacity:.8;transform:scale(.9) rotate(-10deg);} }
     .ring-sparkle { animation: ringSparkle 1.4s ease-in-out infinite; display: inline-block; font-size: 11px; }
 
@@ -556,7 +556,7 @@
     }
     /* 캐릭터 — 중앙 배경 */
     .equip-doll-hero {
-      position: absolute; left: 50%; top: 46%;
+      position: absolute; left: 50%; top: calc(46% + 32px);
       transform: translate(-50%, -50%);
       z-index: 0; pointer-events: none;
     }
@@ -571,31 +571,37 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 3px; transition: all 0.15s; padding: 6px 4px;
     }
-    .equip-slot-btn:hover { border-color: rgba(99,168,255,0.65); background: rgba(25,40,90,0.8); transform: scale(1.08); }
-    .equip-slot-btn.has-item { border-color: rgba(99,208,154,0.55); background: rgba(12,38,25,0.82); }
-    .equip-slot-btn.has-item.rarity-uncommon { border-color: rgba(99,208,154,0.65); }
-    .equip-slot-btn.has-item.rarity-rare     { border-color: rgba(99,168,255,0.7);  background: rgba(12,25,58,0.82); }
-    .equip-slot-btn.has-item.rarity-epic     { border-color: rgba(178,125,255,0.7); background: rgba(25,12,52,0.82); }
-    .equip-slot-btn.has-item.rarity-legendary{ border-color: rgba(255,207,99,0.8);  background: rgba(42,28,5,0.82); box-shadow:0 0 12px rgba(255,207,99,0.3); }
+    /* 미장착: 회색+흐릿, 인터랙션 없음 */
+    .equip-slot-btn { filter: grayscale(0.7); opacity: 0.5; cursor: default; }
+    /* 장착됨: 선명 + 호버/클릭 효과 */
+    .equip-slot-btn.has-item { filter: none; opacity: 1; cursor: pointer; }
+    .equip-slot-btn.has-item:hover { transform: scale(1.07); }
+    .equip-slot-btn.has-item:active { transform: scale(0.95); }
+    .equip-slot-btn.has-item.rarity-common    { border-color: rgba(169,182,214,0.5);  background: rgba(18,24,42,0.88); }
+    .equip-slot-btn.has-item.rarity-uncommon  { border-color: rgba(99,208,154,0.7);   background: rgba(10,36,22,0.88); }
+    .equip-slot-btn.has-item.rarity-uncommon:hover  { box-shadow: 0 4px 16px rgba(99,208,154,0.3); }
+    .equip-slot-btn.has-item.rarity-rare      { border-color: rgba(99,168,255,0.75);  background: rgba(10,22,55,0.88); }
+    .equip-slot-btn.has-item.rarity-rare:hover      { box-shadow: 0 4px 16px rgba(99,168,255,0.35); }
+    .equip-slot-btn.has-item.rarity-epic      { border-color: rgba(178,125,255,0.75); background: rgba(24,10,52,0.88); }
+    .equip-slot-btn.has-item.rarity-epic:hover      { box-shadow: 0 4px 16px rgba(178,125,255,0.35); }
+    .equip-slot-btn.has-item.rarity-legendary { border-color: rgba(255,207,99,0.85);  background: rgba(42,28,4,0.88); box-shadow: 0 0 14px rgba(255,207,99,0.35); }
+    .equip-slot-btn.has-item.rarity-legendary:hover { box-shadow: 0 0 22px rgba(255,207,99,0.55); }
 
     /* 각 슬롯 위치 (stage 340px 기준) */
-    /* 상단: 투구 좌, 목걸이 우 */
-    #eqSlot_helmet   { top: 8px;  left: 8px; }
-    #eqSlot_necklace { top: 8px;  right: 8px; }
+    /* 상단: 투구/목걸이 중앙 나란히 */
+    #eqSlot_helmet   { top: 8px; left: 50%; transform: translateX(calc(-100% - 4px)); }
+    #eqSlot_necklace { top: 8px; left: 50%; transform: translateX(4px); }
     /* 중단 좌: 무기 위, 장갑 아래 */
-    #eqSlot_weapon   { top: 100px; left: 8px; }
-    #eqSlot_gloves   { top: 178px; left: 8px; }
+    #eqSlot_weapon   { top: 110px; left: 8px; }
+    #eqSlot_gloves   { top: 188px; left: 8px; }
     /* 중단 우: 방패 위, 반지 아래 */
-    #eqSlot_shield   { top: 100px; right: 8px; }
-    #eqSlot_ring1    { top: 178px; right: 8px; }
-    /* 하단: 장화 좌, 망토 우 */
-    #eqSlot_boots    { bottom: 56px; left: 8px; }
-    #eqSlot_cloak    { bottom: 56px; right: 8px; }
-    /* 갑옷 — 하단 중앙 가로 전체 */
-    #eqSlot_armor    {
-      bottom: 8px; left: 8px; right: 8px;
-      width: auto; height: 42px; flex-direction: row; gap: 8px; border-radius: 10px;
-    }
+    #eqSlot_shield   { top: 110px; right: 8px; }
+    #eqSlot_ring1    { top: 188px; right: 8px; }
+    /* 갑옷 — 캐릭터 정중앙 */
+    #eqSlot_armor    { top: calc(50% + 15px); left: 50%; transform: translate(-50%, -50%); }
+    /* 하단: 장화/망토 중앙 나란히 */
+    #eqSlot_boots    { bottom: 8px; left: 50%; transform: translateX(calc(-100% - 4px)); }
+    #eqSlot_cloak    { bottom: 8px; left: 50%; transform: translateX(4px); }
 
     .eq-slot-icon { font-size: 22px; line-height: 1; }
     .eq-slot-label {
@@ -629,10 +635,10 @@
       transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     }
     .inv-icon-slot:hover { transform: scale(1.08); border-color: rgba(140,170,255,0.5); box-shadow: 0 4px 14px rgba(79,124,255,0.25); }
-    .inv-icon-slot.rarity-uncommon { border-color: rgba(99,208,154,.4); }
-    .inv-icon-slot.rarity-rare     { border-color: rgba(99,168,255,.5); }
-    .inv-icon-slot.rarity-epic     { border-color: rgba(178,125,255,.5); }
-    .inv-icon-slot.rarity-legendary { border-color: rgba(255,207,99,.6); box-shadow: 0 0 10px rgba(255,207,99,0.25), inset 0 0 8px rgba(255,207,99,0.1); }
+    .inv-icon-slot.rarity-uncommon { border-color: rgba(99,208,154,.6);  background: linear-gradient(180deg, rgba(10,35,22,0.98), rgba(15,45,28,0.98)); }
+    .inv-icon-slot.rarity-rare     { border-color: rgba(99,168,255,.7);  background: linear-gradient(180deg, rgba(10,20,48,0.98), rgba(14,28,62,0.98)); box-shadow: inset 0 0 8px rgba(99,168,255,0.1); }
+    .inv-icon-slot.rarity-epic     { border-color: rgba(178,125,255,.7); background: linear-gradient(180deg, rgba(22,10,48,0.98), rgba(30,14,62,0.98)); box-shadow: inset 0 0 8px rgba(178,125,255,0.12); }
+    .inv-icon-slot.rarity-legendary{ border-color: rgba(255,207,99,.82); background: linear-gradient(180deg, rgba(45,32,5,0.98),  rgba(58,40,6,0.98));  box-shadow: 0 0 12px rgba(255,207,99,0.3), inset 0 0 10px rgba(255,207,99,0.14); }
     /* 착용 중 표식 */
     .inv-empty-slot { cursor: default; opacity: 0.35; }
     .inv-icon-slot.is-equipped { box-shadow: inset 0 0 0 2px rgba(99,208,154,0.7), 0 0 8px rgba(99,208,154,0.2); }
@@ -1372,6 +1378,15 @@
           <!-- 캐릭터 배경 -->
           <div class="equip-doll-hero" id="heroPreviewWrap"></div>
 
+          <!-- 장비 오버레이 (캐릭터 위에 표시) -->
+          <div class="equip-overlay-cloak"    id="overlayCloak"></div>
+          <div class="equip-overlay-necklace" id="overlayNecklace"></div>
+          <div class="equip-overlay-glove-l"  id="overlayGloveL"></div>
+          <div class="equip-overlay-glove-r"  id="overlayGloveR"></div>
+          <div class="equip-overlay-boot-l"   id="overlayBootL"></div>
+          <div class="equip-overlay-boot-r"   id="overlayBootR"></div>
+          <div class="equip-overlay-ring-l"   id="overlayRingL"></div>
+          <div class="equip-overlay-ring-r"   id="overlayRingR"></div>
           <!-- 슬롯들 absolute 오버레이 -->
           <div class="equip-slot-btn" id="eqSlot_helmet"   data-slot="helmet"   title="투구">   <div class="eq-slot-icon" id="eqIcon_helmet">🪖</div>  <div class="eq-slot-label">투구</div></div>
           <div class="equip-slot-btn" id="eqSlot_necklace" data-slot="necklace" title="목걸이"> <div class="eq-slot-icon" id="eqIcon_necklace">📿</div><div class="eq-slot-label">목걸이</div></div>
@@ -2562,12 +2577,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let autoSaveTimer = null;
   function scheduleAutoSave() {
     clearTimeout(autoSaveTimer);
+    // 이벤트 후 1.5초 디바운스로 즉시 저장
     autoSaveTimer = setTimeout(async () => {
-      showDbStatus('자동 저장 중...', 'saving');
-      await dbSaveHero();
-      await dbSaveInventory();
-      showDbStatus('자동 저장 완료', 'ok');
-    }, 30000);
+      await dbSaveAll(true);
+      showDbStatus('✅ 자동 저장 완료', 'ok');
+    }, 1500);
   }
 
   // ── 저장 실패 카운터 ──
@@ -3311,6 +3325,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function obtainItem(item) {
+    // 동일 id 중복 방지
+    state.inventory = state.inventory.filter(i => i.id !== item.id);
     state.inventory.unshift(item);
     state.inventory = state.inventory.slice(0,60);
     const cur = state.equipment[item.slot];
@@ -4569,8 +4585,14 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
 
   function renderInventoryGrid() {
     const equippedIds = getAllEquippedIds();
-    // 보관 중 그리드만 렌더 (착용 중은 equip-doll에서 표시)
-    const unequipped = state.inventory.filter(i => !equippedIds.has(i.id));
+    // 중복 id 제거 후 보관 중만 표시
+    const seen = new Set();
+    const unequipped = state.inventory.filter(i => {
+      if (equippedIds.has(i.id)) return false;
+      if (seen.has(i.id)) return false;
+      seen.add(i.id);
+      return true;
+    });
     if (!unequipped.length) {
       // 빈 슬롯 6개 미리 표시
       els.inventoryGrid.innerHTML = Array(6).fill('<div class="inv-icon-slot inv-empty-slot"></div>').join('');
@@ -4626,7 +4648,7 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
           iconEl.innerHTML = getItemIconHtml(item.icon, 26);
           const labelEl = btn.querySelector('.eq-slot-label');
           if (labelEl) labelEl.textContent = item.name.length > 10 ? item.name.slice(0,10)+'…' : item.name;
-          btn.onclick = () => { closeModal(els.heroStatsBackdrop); openItemDetailModal(item); };
+          btn.onclick = () => { closeModal(els.heroStatsBackdrop); state._fromHeroStats = true; openItemDetailModal(item); };
         } else {
           iconEl.textContent = '🛡️'; iconEl.style.fontSize = '22px';
           const labelEl = btn.querySelector('.eq-slot-label');
@@ -4645,7 +4667,7 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
           const nm = item.name.length > 5 ? item.name.slice(0,5)+'…' : item.name;
           labelEl.textContent = nm;
         }
-        btn.onclick = () => { closeModal(els.heroStatsBackdrop); openItemDetailModal(item); };
+        btn.onclick = () => { closeModal(els.heroStatsBackdrop); state._fromHeroStats = true; openItemDetailModal(item); };
       } else {
         btn.className = 'equip-slot-btn';
         iconEl.textContent = slotDefaultIcon[slot] || '○';
@@ -4656,6 +4678,7 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
       }
     });
 
+    renderEquipOverlays();
     renderInventoryGrid();
     openModal(els.heroStatsBackdrop);
   }
@@ -4781,7 +4804,10 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
       q('itemEquipBtn').addEventListener('click', () => equipItemFromModal(item));
       q('itemSellBtn').addEventListener('click', () => showSellConfirm(item));
     }
-    q('itemCloseBtn').addEventListener('click', () => closeModal(els.itemDetailBackdrop));
+    q('itemCloseBtn').addEventListener('click', () => {
+      closeModal(els.itemDetailBackdrop);
+      if (state._fromHeroStats) { state._fromHeroStats = false; openModal(els.heroStatsBackdrop); }
+    });
     openModal(els.itemDetailBackdrop);
   }
 
@@ -4813,7 +4839,7 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
     showEquipEffect(item);
     closeModal(els.itemDetailBackdrop);
     renderHero();
-    dbSaveInventory(); scheduleAutoSave();
+    scheduleAutoSave();
     openHeroStatsModal();
   }
 
@@ -4823,7 +4849,7 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
     showDropNotification(`🔓 ${item.name} 해제됨`, '#a4b4db');
     closeModal(els.itemDetailBackdrop);
     renderHero();
-    dbSaveInventory(); scheduleAutoSave();
+    scheduleAutoSave();
     openHeroStatsModal();
   }
 
@@ -5247,6 +5273,7 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
     renderHero(leveled); renderLogs();
     if (decoded.item) els.eventDesc.textContent += state.equipment[decoded.item.slot]?.id===decoded.item.id?' 더 강한 장비라 자동 장착되었습니다!':" 인벤토리에 보관되었습니다.";
     if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
+    scheduleAutoSave(); // 이벤트 발생 후 즉시 저장
   }
 
   async function stopCameraScanner() {
