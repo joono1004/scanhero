@@ -213,12 +213,12 @@
 
     /* ── 지도 버튼: 경험치바 영역과 동일한 세로 크기 (padding 7+8=15px + head fontSize/lineheight~16px + margin 5px + bar 9px = ~45px total, match with height:auto stretching) ── */
     .game-logout-btn {
-      padding: 5px 12px; border-radius: 10px;
-      border: 1px solid rgba(255,80,80,0.3);
-      background: rgba(255,50,50,0.08);
-      color: rgba(255,130,110,0.9); font-size: 11px; font-weight: 700;
+      padding: 5px 14px; border-radius: 10px;
+      border: 1px solid rgba(255,80,80,0.35);
+      background: rgba(255,50,50,0.1);
+      color: rgba(255,140,120,0.95); font-size: 11px; font-weight: 700;
       cursor: pointer; transition: all 0.2s;
-      display: none; width: auto;
+      display: inline-flex; width: auto;
       align-items: center; justify-content: center; gap: 4px;
       white-space: nowrap; flex-shrink: 0;
     }
@@ -1834,8 +1834,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function showScreen(screen) {
     document.getElementById('authScreen').style.display  = screen === 'auth' ? 'flex' : 'none';
     document.getElementById('charScreen').style.display  = screen === 'char' ? 'flex' : 'none';
-    const logoutBtn = document.getElementById('gameLogoutBtn');
-    if (logoutBtn) logoutBtn.style.display = (screen !== 'auth' && screen !== 'char') ? 'inline-flex' : 'none';
+    // 나가기 버튼은 게임 wrap 안에 항상 표시됨
     if (screen !== 'char' && screen !== 'auth') {
       document.getElementById('charScreen').style.display = 'none';
       document.getElementById('authScreen').style.display = 'none';
@@ -5361,4 +5360,3 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
 </script>
 </body>
 </html>
-
