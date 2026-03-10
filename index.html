@@ -1561,45 +1561,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // ═══════════════════════════════════════════════════════
   // 버전 체크 — 캐시된 구버전 자동 새로고침
   // ═══════════════════════════════════════════════════════
-  const APP_VERSION = '1773121860';
+
+  // ═══════════════════════════════════════════════════════
+  // 버전 체크 — 캐시된 구버전 자동 새로고침
+  // ═══════════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════════
+  // 버전 체크 — 캐시된 구버전 자동 새로고침
+  // ═══════════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════════
+  // 버전 체크 — 구버전 캐시 자동 새로고침
+  // ═══════════════════════════════════════════════════════
   (function() {
-    const saved = localStorage.getItem('scanhero_version');
-    if (saved && saved !== APP_VERSION) {
-      console.log('[ScanHero] 새 버전 감지 (' + saved + ' → ' + APP_VERSION + '), 새로고침...');
-      localStorage.setItem('scanhero_version', APP_VERSION);
-      window.location.reload(true); // 강제 서버 새로고침
+    const VER = '1773122166';
+    const saved = localStorage.getItem('sh_ver');
+    if (saved && saved !== VER) {
+      localStorage.setItem('sh_ver', VER);
+      location.reload(true);
       return;
     }
-    localStorage.setItem('scanhero_version', APP_VERSION);
-  })();
-
-  // ═══════════════════════════════════════════════════════
-  // 버전 체크 — 캐시된 구버전 자동 새로고침
-  // ═══════════════════════════════════════════════════════
-  const APP_VERSION = '1773121873';
-  (function checkVersion() {
-    const saved = localStorage.getItem('scanhero_version');
-    if (saved && saved !== APP_VERSION) {
-      console.log('[ScanHero] 새 버전 감지 (' + saved + ' → ' + APP_VERSION + '), 자동 새로고침...');
-      localStorage.setItem('scanhero_version', APP_VERSION);
-      window.location.reload(true);
-      return;
-    }
-    localStorage.setItem('scanhero_version', APP_VERSION);
-  })();
-
-  // ═══════════════════════════════════════════════════════
-  // 버전 체크 — 캐시된 구버전 자동 새로고침
-  // ═══════════════════════════════════════════════════════
-  const APP_VERSION = '1773121883';
-  (function checkVersion() {
-    const saved = localStorage.getItem('scanhero_version');
-    if (saved && saved !== APP_VERSION) {
-      localStorage.setItem('scanhero_version', APP_VERSION);
-      window.location.reload(true);
-      return;
-    }
-    localStorage.setItem('scanhero_version', APP_VERSION);
+    localStorage.setItem('sh_ver', VER);
   })();
 
   // ═══════════════════════════════════════════════════════
