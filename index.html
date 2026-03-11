@@ -1890,6 +1890,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 앱 시작 시 아이템 카탈로그 로드 (로그인 전에 미리)
   loadItemCatalog();   // await 불필요 — 플레이 시작 전에 충분히 로드됨
+  loadEventCatalog();  // 이벤트 카탈로그 (몬스터/보물/특수) DB 로드
 
   // 초기 세션 체크
   (async () => {
@@ -2864,9 +2865,116 @@ document.addEventListener('DOMContentLoaded', () => {
     { minLevel:12, rank:'전설',  soldiers:6 }
   ];
 
-  const monsterTypes  = ['슬라임','늑대','고블린','해골','오크','거미','좀비','도적','트롤','악마'];
-  const specialTypes  = ['고대 유적','숨겨진 제단','길 잃은 상인','빛의 축복','어둠의 저주','용사의 흔적','전장의 잔해','수상한 포탈','비밀 금고','미스터리 균열'];
   const markerIcons   = { 몬스터:'⚔️', 보물:'🎁', 장비:'🧰', 특수:'✨' };
+
+  // ── 이벤트 카탈로그 (DB에서 로드) ──
+  let eventCatalog = { monster:[], treasure:[], special:[] };
+
+  // 폴백: DB 연결 실패 시 사용
+  const FALLBACK_EVENT_CATALOG = {
+    monster: [
+      { d4_index:0, name:'슬라임', emoji:'🟢', base_atk:6,  base_def:4,  base_hp:20, base_speed:3,  base_crit:3,
+        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
+        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
+        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+      { d4_index:1, name:'늑대',   emoji:'🐺', base_atk:9,  base_def:5,  base_hp:25, base_speed:8,  base_crit:6,
+        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
+        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
+        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+      { d4_index:2, name:'고블린', emoji:'👺', base_atk:8,  base_def:6,  base_hp:30, base_speed:6,  base_crit:5,
+        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
+        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
+        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+      { d4_index:3, name:'해골',   emoji:'💀', base_atk:10, base_def:7,  base_hp:35, base_speed:5,  base_crit:4,
+        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
+        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
+        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+      { d4_index:4, name:'오크',   emoji:'👹', base_atk:14, base_def:10, base_hp:45, base_speed:4,  base_crit:6,
+        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
+        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
+        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+      { d4_index:5, name:'거미',   emoji:'🕷️', base_atk:8,  base_def:5,  base_hp:24, base_speed:10, base_crit:7,
+        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
+        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
+        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+      { d4_index:6, name:'좀비',   emoji:'🧟', base_atk:11, base_def:8,  base_hp:42, base_speed:2,  base_crit:3,
+        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
+        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
+        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+      { d4_index:7, name:'도적',   emoji:'🥷', base_atk:12, base_def:6,  base_hp:28, base_speed:11, base_crit:10,
+        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
+        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
+        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+      { d4_index:8, name:'트롤',   emoji:'🪨', base_atk:18, base_def:12, base_hp:70, base_speed:2,  base_crit:4,
+        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
+        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
+        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+      { d4_index:9, name:'악마',   emoji:'😈', base_atk:20, base_def:14, base_hp:80, base_speed:7,  base_crit:12,
+        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
+        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
+        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+    ],
+    treasure: [
+      { d4_index:0, name:'낡은 보물상자',  emoji:'📦', gold_formula:'20+d2*4+d3*3+d5*2' },
+      { d4_index:1, name:'은빛 보물상자',  emoji:'🎁', gold_formula:'20+d2*8+d3*5+d5*3' },
+      { d4_index:2, name:'황금 보물상자',  emoji:'💰', gold_formula:'40+d2*12+d3*8+d5*5' },
+      { d4_index:3, name:'고대 보물상자',  emoji:'🏺', gold_formula:'60+d2*15+d3*10+d5*7' },
+    ],
+    special: [
+      { d4_index:0, name:'고대 유적',    emoji:'🏛️', exp_formula:'15+d2*2+d5', gold_formula:'15+d3*4' },
+      { d4_index:1, name:'숨겨진 제단',  emoji:'⛩️', exp_formula:'18+d2*2+d5', gold_formula:'18+d3*4' },
+      { d4_index:2, name:'길 잃은 상인', emoji:'🧙', exp_formula:'12+d2*2+d5', gold_formula:'25+d3*6' },
+      { d4_index:3, name:'빛의 축복',    emoji:'✨', exp_formula:'20+d2*3+d5', gold_formula:'10+d3*3' },
+      { d4_index:4, name:'어둠의 저주',  emoji:'🌑', exp_formula:'22+d2*2+d5', gold_formula:'12+d3*3' },
+      { d4_index:5, name:'용사의 흔적',  emoji:'⚔️', exp_formula:'25+d2*3+d5', gold_formula:'15+d3*4' },
+      { d4_index:6, name:'전장의 잔해',  emoji:'🪖', exp_formula:'14+d2*2+d5', gold_formula:'20+d3*5' },
+      { d4_index:7, name:'수상한 포탈',  emoji:'🌀', exp_formula:'28+d2*3+d5', gold_formula:'8+d3*2'  },
+      { d4_index:8, name:'비밀 금고',    emoji:'🔒', exp_formula:'10+d2*2+d5', gold_formula:'35+d3*8' },
+      { d4_index:9, name:'미스터리 균열',emoji:'🕳️', exp_formula:'30+d2*3+d5', gold_formula:'20+d3*5' },
+    ]
+  };
+
+  async function loadEventCatalog() {
+    try {
+      const { data, error } = await sb
+        .from('event_catalog')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order');
+      if (error) throw error;
+      eventCatalog.monster  = data.filter(r => r.event_type === 'monster' ).sort((a,b) => a.d4_index - b.d4_index);
+      eventCatalog.treasure = data.filter(r => r.event_type === 'treasure').sort((a,b) => a.d4_index - b.d4_index);
+      eventCatalog.special  = data.filter(r => r.event_type === 'special' ).sort((a,b) => a.d4_index - b.d4_index);
+      console.log(`[이벤트카탈로그] 몬스터 ${eventCatalog.monster.length}종 / 보물 ${eventCatalog.treasure.length}종 / 특수 ${eventCatalog.special.length}종 로드 완료`);
+    } catch(e) {
+      console.warn('[이벤트카탈로그] DB 로드 실패, 폴백 사용:', e.message);
+      eventCatalog = FALLBACK_EVENT_CATALOG;
+    }
+  }
+
+  // 이벤트 카탈로그 헬퍼: d4_index로 항목 조회 (없으면 0번)
+  function getMonsterEntry(d4)  { return eventCatalog.monster[d4]  || eventCatalog.monster[0]  || FALLBACK_EVENT_CATALOG.monster[0]; }
+  function getTreasureEntry(d4) { return eventCatalog.treasure[d4 % eventCatalog.treasure.length] || FALLBACK_EVENT_CATALOG.treasure[0]; }
+  function getSpecialEntry(d4)  { return eventCatalog.special[d4]  || eventCatalog.special[0]   || FALLBACK_EVENT_CATALOG.special[0]; }
+
+  // 수식 문자열 계산 (d2~d5 파라미터)
+  function evalFormula(formula, d2, d3, d5) {
+    if (!formula) return 0;
+    return Math.max(0, Math.round(
+      formula.replace(/d2/g, d2).replace(/d3/g, d3).replace(/d5/g, d5)
+        .split('+').reduce((acc, term) => acc + eval(term.trim()), 0) // eslint-disable-line
+    ));
+  }
   const rarityOrder   = ['common','uncommon','rare','epic','legendary'];
 
   // ── 아이템 카탈로그 (DB에서 로드) ──
@@ -2953,32 +3061,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // slotPinMap 제거 (핀 UI 대신 오버레이 방식 사용)
 
   // 기본 드롭 테이블 (보통 난이도)
-  const BASE_DROP_TABLE = {
-    일반:  [30, 32, 22, 12, 4 ],
-    강화:  [18, 28, 28, 18, 8 ],
-    엘리트:[8,  20, 30, 28, 14],
-    보스:  [2,  8,  22, 36, 32]
-  };
   // luck 레벨에 따라 희귀도 가중치를 조정 (높을수록 희귀템 더 많이)
-  function getDropTable(grade) {
-    const base = BASE_DROP_TABLE[grade] || BASE_DROP_TABLE.일반;
-    const luck = state.devMode.luckLevel; // 0~3
-    if (luck === 0) { // 최악: 공통 쪽으로 편향
-      const shift = [15, 10, -5, -12, -8];
-      return base.map((v,i) => Math.max(1, v + shift[i]));
-    }
-    if (luck === 2) { // 행운: 고급 쪽으로 편향
-      const shift = [-10, -8, 2, 10, 6];
-      return base.map((v,i) => Math.max(1, v + shift[i]));
-    }
-    if (luck === 3) { // 대박: 에픽/전설 대폭 증가
-      const shift = [-18, -14, -4, 18, 18];
-      return base.map((v,i) => Math.max(1, v + shift[i]));
-    }
-    return base; // 보통
+  function getDropTable(grade, monsterEntry) {
+    const entry = monsterEntry || eventCatalog.monster[0] || FALLBACK_EVENT_CATALOG.monster[0];
+    const dropTbl = entry.drop_table || FALLBACK_EVENT_CATALOG.monster[0].drop_table;
+    const base = dropTbl[grade] || dropTbl['일반'];
+    const luck = state.devMode.luckLevel;
+    if (luck === 0) { const shift=[15,10,-5,-12,-8];  return base.map((v,i)=>Math.max(1,v+shift[i])); }
+    if (luck === 2) { const shift=[-10,-8,2,10,6];    return base.map((v,i)=>Math.max(1,v+shift[i])); }
+    if (luck === 3) { const shift=[-18,-14,-4,18,18]; return base.map((v,i)=>Math.max(1,v+shift[i])); }
+    return base;
   }
-  function getDropChance(grade) {
-    const base = { 일반:0.75, 강화:0.88, 엘리트:0.96, 보스:1.00 }[grade] || 0.75;
+  function getDropChance(grade, monsterEntry) {
+    const entry = monsterEntry || eventCatalog.monster[0] || FALLBACK_EVENT_CATALOG.monster[0];
+    const chanceTbl = entry.drop_chance || FALLBACK_EVENT_CATALOG.monster[0].drop_chance;
+    const base = chanceTbl[grade] || 0.75;
     const luck = state.devMode.luckLevel;
     if (luck === 0) return base * 0.7;
     if (luck === 2) return Math.min(1, base * 1.15);
@@ -3076,6 +3173,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return String((N + Math.floor(N/7) + Math.floor(N/13)) % 100000).padStart(5,'0');
   }
   function getEnemyVisual(name) {
+    const entry = eventCatalog.monster.find(m => m.name === name);
+    if (entry) return entry.emoji;
     return { 슬라임:'🟢',늑대:'🐺',고블린:'👺',해골:'💀',오크:'👹',거미:'🕷️',좀비:'🧟',도적:'🥷',트롤:'🪨',악마:'😈' }[name] || '👹';
   }
   function getRarityFromDigit(d2) {
@@ -4000,9 +4099,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function rollMonsterDrop(enemy) {
-    const dropChance = getDropChance(enemy.grade);
+    const dropChance = getDropChance(enemy.grade, enemy._entry);
     if (Math.random() > dropChance) return null;
-    const table = getDropTable(enemy.grade);
+    const table = getDropTable(enemy.grade, enemy._entry);
     // 정규화
     const total = table.reduce((a,b)=>a+b, 0);
     const roll  = Math.random() * total;
@@ -4014,22 +4113,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function makeEnemy(name, grade, amount, special, d4) {
-    const baseStats = [
-      {atk:6,def:4,hp:20,speed:3,crit:3},{atk:9,def:5,hp:25,speed:8,crit:6},
-      {atk:8,def:6,hp:30,speed:6,crit:5},{atk:10,def:7,hp:35,speed:5,crit:4},
-      {atk:14,def:10,hp:45,speed:4,crit:6},{atk:8,def:5,hp:24,speed:10,crit:7},
-      {atk:11,def:8,hp:42,speed:2,crit:3},{atk:12,def:6,hp:28,speed:11,crit:10},
-      {atk:18,def:12,hp:70,speed:2,crit:4},{atk:20,def:14,hp:80,speed:7,crit:12}
-    ][d4];
-    const gradeMult = (grade==='일반'?1.12: grade==='강화'?1.34: grade==='엘리트'?1.62: 2.12) * getDifficultyMult();
-    let atk=Math.round(baseStats.atk*gradeMult), def=Math.round(baseStats.def*gradeMult),
-        hp=Math.round((baseStats.hp+amount*10)*gradeMult), speed=Math.round(baseStats.speed*gradeMult),
-        crit=baseStats.crit+(grade==='강화'?3:grade==='엘리트'?5:grade==='보스'?8:1);
+    const entry = getMonsterEntry(d4);
+    const mults  = entry.grade_mults || {일반:1.12,강화:1.34,엘리트:1.62,보스:2.12};
+    const gradeMult = (mults[grade] || 1.12) * getDifficultyMult();
+    let atk=Math.round(entry.base_atk*gradeMult), def=Math.round(entry.base_def*gradeMult),
+        hp=Math.round((entry.base_hp+amount*10)*gradeMult), speed=Math.round(entry.base_speed*gradeMult),
+        crit=entry.base_crit+(grade==='강화'?3:grade==='엘리트'?5:grade==='보스'?8:1);
     if (special==='공격 증가') atk=Math.round(atk*1.18);
     if (special==='방어 증가') def=Math.round(def*1.18);
     if (special==='속도 증가') speed=Math.round(speed*1.22);
     if (special==='희귀 보상') crit+=10;
-    return { name, grade, amount, atk, def, hp, speed, crit, special };
+    return { name, grade, amount, atk, def, hp, speed, crit, special, _entry:entry };
   }
 
   function getTacticMod(t) {
@@ -4049,8 +4143,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (critical) v *= 2;
     return { value:v, critical };
   }
-  function getBattleExp(enemy) { return (enemy.grade==='일반'?11:enemy.grade==='강화'?19:enemy.grade==='엘리트'?30:43) + enemy.amount*3; }
-  function getBattleGold(enemy) { return (enemy.grade==='일반'?8:enemy.grade==='강화'?15:enemy.grade==='엘리트'?24:35) + enemy.amount*2; }
+  function getBattleExp(enemy) {
+    const expBase = (enemy._entry?.exp_base) || {일반:11,강화:19,엘리트:30,보스:43};
+    return (expBase[enemy.grade] || 11) + enemy.amount*3;
+  }
+  function getBattleGold(enemy) {
+    const goldBase = (enemy._entry?.gold_base) || {일반:8,강화:15,엘리트:24,보스:35};
+    return (goldBase[enemy.grade] || 8) + enemy.amount*2;
+  }
 
   function addReward(exp, gold) {
     state.exp += exp; state.gold = Math.max(0, state.gold+gold);
@@ -5564,21 +5664,26 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
     let title='', desc='', badges=[], enemy=null, reward=null, item=null;
 
     if (eventType==='몬스터') {
-      const mn = monsterTypes[d4];
+      const entry = getMonsterEntry(d4);
+      const mn = entry.name;
       title=`${grade} ${mn} 출현`; desc=`${mn} ${amount}마리가 나타났습니다. 특수 효과: ${special}.`;
       badges=[eventType, grade, `${amount}마리`, special]; enemy=makeEnemy(mn, grade, amount, special, d4);
     } else if (eventType==='보물') {
-      const gold=20+d2*8+d3*5+d5*3;
-      title='보물 발견'; desc=`숨겨진 보물상자를 발견했습니다. 골드 ${gold}를 획득합니다.`;
+      const tEntry = getTreasureEntry(d4 % (eventCatalog.treasure.length || 4));
+      const gold = evalFormula(tEntry.gold_formula, d2, d3, d5) || (20+d2*8+d3*5+d5*3);
+      title=tEntry.name || '보물 발견'; desc=`${tEntry.name||'보물상자'}를 발견했습니다. 골드 ${gold}를 획득합니다.`;
       badges=[eventType, `골드 +${gold}`, special]; reward={exp:8+d2, gold};
     } else if (eventType==='장비') {
       item=createEquipmentItem(d2, d4, false); const exp=12+d2*2+d5;
       title='장비 발견'; desc=`${item.name}을(를) 획득했습니다. ${item.slotLabel} 슬롯 장비입니다.`;
       badges=[eventType, item.rarityLabel, item.slotLabel, item.baseName]; reward={exp, gold:10+d3*3};
     } else {
-      const sp=specialTypes[d4]; const exp=15+d2*2+d5;
+      const sEntry = getSpecialEntry(d4);
+      const exp  = evalFormula(sEntry.exp_formula,  d2, d3, d5) || (15+d2*2+d5);
+      const gold = evalFormula(sEntry.gold_formula, d2, d3, d5) || (15+d3*4);
+      const sp   = sEntry.name || '특수 이벤트';
       title='특수 이벤트'; desc=`${sp}을(를) 발견했습니다. 탐험의 기운으로 영웅이 크게 성장합니다.`;
-      badges=[eventType, sp, `경험치 +${exp}`]; reward={exp, gold:15+d3*4};
+      badges=[eventType, sp, `경험치 +${exp}`]; reward={exp, gold};
     }
     return {code,d1,d2,d3,d4,d5,eventType,grade,amount,special,title,desc,badges,enemy,reward,item};
   }
@@ -5588,11 +5693,13 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
     els.eventTitle.textContent = decoded.title;
     els.eventDesc.textContent  = decoded.desc;
     els.eventBadges.innerHTML  = decoded.badges.map(b=>`<div class="badge">${b}</div>`).join('');
+    const monsterName = decoded.eventType==='몬스터' ? getMonsterEntry(decoded.d4).name : '';
+    const specialName = decoded.eventType==='특수'   ? getSpecialEntry(decoded.d4).name : '';
     els.decodeBox.innerHTML =
       `1번째 자리 <b>${decoded.d1}</b> = ${decoded.eventType}<br>`+
       `2번째 자리 <b>${decoded.d2}</b> = ${decoded.grade}${decoded.item?` / ${decoded.item.rarityLabel}`:''}<br>`+
       `3번째 자리 <b>${decoded.d3}</b> = ${decoded.amount}${decoded.eventType==='몬스터'?'마리 규모':'단계'}<br>`+
-      `4번째 자리 <b>${decoded.d4}</b> = ${decoded.eventType==='몬스터'?monsterTypes[decoded.d4]:decoded.eventType==='특수'?specialTypes[decoded.d4]:decoded.item?decoded.item.baseName:'세부 타입'}<br>`+
+      `4번째 자리 <b>${decoded.d4}</b> = ${decoded.eventType==='몬스터'?monsterName:decoded.eventType==='특수'?specialName:decoded.item?decoded.item.baseName:'세부 타입'}<br>`+
       `5번째 자리 <b>${decoded.d5}</b> = ${decoded.special}`;
   }
 
