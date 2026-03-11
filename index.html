@@ -743,8 +743,8 @@
     .scan-modal-body { padding: 10px 14px 14px; display: grid; gap: 10px; }
     #scanner {
       width: 100%;
-      min-height: 280px;
-      height: 280px;
+      min-height: 360px;
+      height: 360px;
       border-radius: 16px;
       overflow: hidden;
       background: #0b1220;
@@ -756,28 +756,29 @@
       position: absolute; inset: 0; z-index: 10; pointer-events: none;
       display: flex; align-items: center; justify-content: center;
     }
+    /* 바코드(가로)+QR(정사각형) 동시 커버하는 정사각형에 가까운 박스 */
     .scan-guide-box {
-      width: 82%; height: 90px;
+      width: 80%; aspect-ratio: 1 / 1;
       border: 2px solid rgba(99,168,255,0.85);
       border-radius: 8px;
-      box-shadow: 0 0 0 2000px rgba(0,0,0,0.45);
+      box-shadow: 0 0 0 2000px rgba(0,0,0,0.4);
       position: relative;
     }
     .scan-guide-box::before {
       content: '';
       position: absolute; left: 0; right: 0; top: 50%; height: 2px;
       background: linear-gradient(90deg, transparent, rgba(99,168,255,0.9), transparent);
-      animation: scanLine 1.6s ease-in-out infinite;
+      animation: scanLine 2s ease-in-out infinite;
     }
     .scan-guide-corner {
-      position: absolute; width: 14px; height: 14px;
+      position: absolute; width: 18px; height: 18px;
       border-color: #63a8ff; border-style: solid;
     }
     .scan-guide-corner.tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
     .scan-guide-corner.tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
     .scan-guide-corner.bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
     .scan-guide-corner.br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
-    @keyframes scanLine { 0%,100% { top: 10%; opacity: 0.6; } 50% { top: 88%; opacity: 1; } }
+    @keyframes scanLine { 0%,100% { top: 5%; opacity: 0.5; } 50% { top: 93%; opacity: 1; } }
 
     .mini-current-marker { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #7ea7ff 0%, #557dff 100%); border: 2px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(0,0,0,0.35); font-size: 14px; }
 
@@ -1599,8 +1600,8 @@
   <div class="modal-backdrop" id="scanModalBackdrop">
     <div class="modal">
       <div class="modal-head">
-        <div class="modal-title">바코드 스캔</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:3px;" id="scanStatusText">바코드를 아래 박스 안에 맞춰 주세요.</div>
+        <div class="modal-title">바코드 / QR 스캔</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;" id="scanStatusText">막대바코드 또는 QR코드를 박스 안에 맞춰 주세요.</div>
       </div>
       <div class="scan-modal-body">
         <div id="scanner">
@@ -6027,57 +6028,104 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
       const el=q('scanner'); if (el) el.innerHTML='';
     }
   }
+  // 모든 포맷 동시 인식 — 바코드 + QR 통합
+  const ALL_SCAN_FORMATS = [
+    Html5QrcodeSupportedFormats.QR_CODE,
+    Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
+    Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
+    Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E,
+    Html5QrcodeSupportedFormats.ITF, Html5QrcodeSupportedFormats.CODABAR,
+    Html5QrcodeSupportedFormats.CODE_93,
+    Html5QrcodeSupportedFormats.AZTEC, Html5QrcodeSupportedFormats.DATA_MATRIX
+  ];
+
+  // 임의 문자열 → 00000~99999 해시 변환 (QR용)
+  function hashToFiveCode(str) {
+    const s = str.toLowerCase().trim(); // 대소문자 통일
+    let h = 0;
+    for (let i = 0; i < s.length; i++) {
+      h = (Math.imul(h, 31) + s.charCodeAt(i)) >>> 0; // 32비트 unsigned 유지
+    }
+    return String(h % 100000).padStart(5, '0');
+  }
+
+  // 스캔 결과 → 5자리 코드 변환 (바코드: 숫자추출, QR: 해시)
+  function scanResultToCode(rawText) {
+    const digits = onlyDigits(rawText);
+    if (digits.length >= 5) {
+      // 숫자가 충분하면 기존 toFiveCode (바코드)
+      return toFiveCode(digits);
+    }
+    // 숫자가 없거나 부족하면 해시 (QR)
+    return hashToFiveCode(rawText);
+  }
+
   async function startCameraScanner() {
     if (typeof Html5Qrcode==='undefined') { els.scanStatusText.textContent='스캐너 라이브러리를 불러오지 못했습니다.'; return; }
     await stopCameraScanner();
     const guideEl = document.getElementById('scanGuideOverlay');
     state.html5QrCode = new Html5Qrcode('scanner');
     els.scanStatusText.textContent='카메라를 준비 중입니다...';
-    const formats = [
-      Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
-      Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
-      Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E,
-      Html5QrcodeSupportedFormats.ITF, Html5QrcodeSupportedFormats.CODABAR,
-      Html5QrcodeSupportedFormats.CODE_93
-    ];
     try {
-      const scannerWidth = document.getElementById('scanner').offsetWidth || 320;
-      const qrboxW = Math.round(scannerWidth * 0.82);
+      const scannerEl = document.getElementById('scanner');
+      const scannerWidth  = scannerEl.offsetWidth  || 320;
+      const scannerHeight = scannerEl.offsetHeight || 360;
+      const boxSize = Math.round(Math.min(scannerWidth, scannerHeight) * 0.80);
       await state.html5QrCode.start(
         { facingMode: 'environment' },
-        { fps: 20, qrbox: { width: qrboxW, height: 90 }, aspectRatio: 1.5, formatsToSupport: formats, experimentalFeatures: { useBarCodeDetectorIfSupported: true } },
-        async decodedText => {
-          const barcode = onlyDigits(decodedText); if (!barcode) return;
-          els.barcodeInput.value = barcode;
-          els.scanStatusText.textContent = `✅ 인식 성공: ${barcode}`;
+        { fps: 15, qrbox: { width: boxSize, height: boxSize },
+          aspectRatio: 1.0,
+          formatsToSupport: ALL_SCAN_FORMATS,
+          experimentalFeatures: { useBarCodeDetectorIfSupported: true } },
+        async rawText => {
+          const code = scanResultToCode(rawText);
+          els.barcodeInput.value = onlyDigits(rawText) || rawText.slice(0, 20);
+          els.scanStatusText.textContent = `✅ 인식 성공`;
           await stopCameraScanner();
-          closeModal(els.scanModalBackdrop); handleScan();
+          closeModal(els.scanModalBackdrop);
+          handleScanWithCode(code, rawText);
         },
         () => {}
       );
       state.scannerRunning = true;
-      const scannerEl = document.getElementById('scanner');
       if (guideEl && scannerEl && !scannerEl.contains(guideEl)) scannerEl.appendChild(guideEl);
-      els.scanStatusText.textContent = '📦 바코드를 파란 박스 안에 맞추세요.';
+      els.scanStatusText.textContent = '막대바코드 또는 QR코드를 박스 안에 맞추세요.';
     } catch(err) {
       console.error(err);
       els.scanStatusText.textContent = '카메라 실행 실패. 아래에 바코드 숫자를 직접 입력해 주세요.';
     }
   }
 
+  // 카메라 스캔 콜백 — rawText 그대로 전달 (바코드 숫자 or QR 문자열)
+  function handleScanWithCode(code, rawText) {
+    const key = rawText.trim(); // 중복 체크 키: 원본 텍스트
+    if (!state.currentLocation)  { alert('현재 위치 확인 후 다시 시도해 주세요.'); return; }
+    if (!state.devMode.allowDupe && state.usedBarcodes.has(key)) {
+      alert(`⚠️ 이미 사용한 코드입니다!\n(개발자 모드에서 중복 허용 옵션을 켤 수 있습니다)`);
+      return;
+    }
+    state.usedBarcodes.add(key);
+    renderHero();
+    const decoded = decodeEvent(code);
+    renderEvent(decoded); showEventModal(decoded);
+  }
+
+  // 수동 입력 버튼 — 숫자 입력 처리
   function handleScan() {
     renderHero();
-    const barcode=onlyDigits(els.barcodeInput.value);
-    if (!barcode)                { alert('바코드 숫자를 입력하거나 카메라로 스캔해 주세요.'); return; }
-    if (!state.currentLocation)  { alert('현재 위치 확인 후 다시 시도해 주세요.'); return; }
-    // 중복 바코드 체크
-    if (!state.devMode.allowDupe && state.usedBarcodes.has(barcode)) {
+    const raw = els.barcodeInput.value.trim();
+    if (!raw) { alert('바코드 숫자를 입력하거나 카메라로 스캔해 주세요.'); return; }
+    if (!state.currentLocation) { alert('현재 위치 확인 후 다시 시도해 주세요.'); return; }
+    const key = raw;
+    if (!state.devMode.allowDupe && state.usedBarcodes.has(key)) {
       alert(`⚠️ 이미 사용한 바코드입니다!\n(개발자 모드에서 중복 허용 옵션을 켤 수 있습니다)`);
       return;
     }
-    state.usedBarcodes.add(barcode);
+    state.usedBarcodes.add(key);
     closeModal(els.scanModalBackdrop);
-    const code=toFiveCode(barcode), decoded=decodeEvent(code);
+    const digits = onlyDigits(raw);
+    const code = digits.length >= 5 ? toFiveCode(digits) : hashToFiveCode(raw);
+    const decoded = decodeEvent(code);
     renderEvent(decoded); showEventModal(decoded);
   }
 
@@ -6185,6 +6233,7 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
 
   els.scanFab.addEventListener('click', async ()=>{ els.scanStatusText.textContent='카메라 스캔 또는 바코드 숫자 직접 입력을 사용할 수 있습니다.'; els.barcodeInput.value=''; openModal(els.scanModalBackdrop); await startCameraScanner(); });
   els.scanModalCloseBtn.addEventListener('click', async ()=>{ await stopCameraScanner(); closeModal(els.scanModalBackdrop); });
+
   els.scanStartBtn.addEventListener('click', async ()=>{ await stopCameraScanner(); handleScan(); });
   els.heroMapBtn.addEventListener('click', ()=>{ openModal(els.mapBackdrop); setTimeout(()=>{ if(state.map)state.map.invalidateSize(); },200); });
   els.mapCloseBtn.addEventListener('click', ()=>closeModal(els.mapBackdrop));
