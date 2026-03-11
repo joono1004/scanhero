@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0"></script>
   <style>
     * { box-sizing: border-box; }
 
@@ -523,6 +523,7 @@
     .hero-preview-wrap { position: relative; z-index: 4; display: flex; align-items: flex-end; justify-content: center; width: 160px; min-height: 190px; }
     .hero-preview-wrap .hero-visual-wrap { transform: scale(2.0); transform-origin: bottom center; image-rendering: pixelated; }
     /* 장비 오버레이 레이어 */
+    .equip-overlay-helmet { position:absolute; bottom:200px; left:50%; transform:translateX(-50%); z-index:7; pointer-events:none; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
     .equip-overlay-cloak { position:absolute; bottom:80px; left:50%; transform:translateX(-50%); z-index:3; pointer-events:none; filter:drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }
     .equip-overlay-necklace { position:absolute; z-index:6; pointer-events:none; bottom:190px; left:50%; transform:translateX(-50%); }
     .equip-overlay-glove-l { position:absolute; z-index:6; pointer-events:none; bottom:130px; left:calc(50% - 68px); }
@@ -1132,7 +1133,7 @@
 <body>
 
   <!-- ══ 인증 화면 ══ -->
-  <div class="auth-screen" id="authScreen">
+  <div class="auth-screen" id="authScreen" style="display:none;">
     <div class="auth-logo">⚔️ ScanHero</div>
     <div class="auth-tagline">바코드로 세계를 탐험하는 모바일 RPG</div>
     <div class="auth-card">
@@ -1381,6 +1382,7 @@
           <div class="equip-doll-hero" id="heroPreviewWrap"></div>
 
           <!-- 장비 오버레이 (캐릭터 위에 표시) -->
+          <div class="equip-overlay-helmet"   id="overlayHelmet"></div>
           <div class="equip-overlay-cloak"    id="overlayCloak"></div>
           <div class="equip-overlay-necklace" id="overlayNecklace"></div>
           <div class="equip-overlay-glove-l"  id="overlayGloveL"></div>
@@ -1672,6 +1674,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const SUPABASE_URL = 'https://svyxrnwjxhwtsanexuht.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_IC07F5YFaruLMKsTEAPA8Q_ewH7l1ez';
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  // Key 형식 검사 — sb_publishable_ 키는 최신 Supabase 대시보드 형식
+  // supabase-js@2 최신 버전에서 지원하나 문제가 있으면 Supabase 대시보드
+  // Project Settings → API → anon public 키(eyJ...JWT 형식)로 교체하세요.
+  if (!SUPABASE_KEY.startsWith('eyJ') && SUPABASE_KEY.startsWith('sb_')) {
+    console.warn('[ScanHero] Supabase key가 sb_publishable_ 형식입니다.',
+      '로그인 오류 시 Supabase 대시보드 → Project Settings → API → anon public 키(eyJ...로 시작)로 교체하세요.');
+  }
 
   // ── 현재 플레이 중인 캐릭터 player_id (로그인+캐릭선택 후 설정) ──
   let PLAYER_ID = null;
@@ -1767,8 +1776,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const pw = document.getElementById('loginPw').value;
     if (!input || !pw) { errEl.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
+    
+    // 디버그: sb 객체 상태 확인
+    console.log('[디버그] sb 객체:', typeof sb, '/ auth:', typeof sb?.auth);
+    console.log('[디버그] 입력 이메일:', input, '/ PW 길이:', pw.length);
+    
     setAuthLoading('loginBtn', true, '로그인');
-    const { data: loginData, error } = await sb.auth.signInWithPassword({ email: input, password: pw });
+    let loginData, error;
+    try {
+      const result = await sb.auth.signInWithPassword({ email: input, password: pw });
+      loginData = result.data;
+      error = result.error;
+    } catch(e) {
+      console.error('[디버그] signInWithPassword 예외:', e);
+      errEl.textContent = '로그인 중 예외 발생: ' + e.message;
+      setAuthLoading('loginBtn', false, '로그인');
+      return;
+    }
     setAuthLoading('loginBtn', false, '로그인');
     // 로그인 성공 시 이메일 기억
     if (!error) localStorage.setItem('scanhero_last_email', input);
@@ -1776,20 +1800,23 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('[로그인 결과] error:', error, '/ user:', loginData?.user?.email, '/ session:', !!loginData?.session);
 
     if (error) {
-      const msg = error.message || '';
-      if (msg.includes('Invalid login credentials') || msg.includes('invalid_credentials')) {
+      const msg  = error.message || '';
+      const code = error.code    || '';
+      if (msg.includes('Invalid login credentials') || msg.includes('invalid_credentials')
+          || code === 'invalid_credentials') {
         errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
-      } else if (msg.includes('Email not confirmed')) {
-        errEl.textContent = '이메일 인증이 필요합니다. Supabase 대시보드에서 Confirm email을 OFF로 설정해 주세요.';
-      } else if (msg.includes('User not found')) {
+      } else if (msg.includes('Email not confirmed') || code === 'email_not_confirmed') {
+        errEl.textContent = '이메일 인증이 필요합니다. Supabase 대시보드 Authentication → Email 에서 Confirm email을 OFF로 설정해 주세요.';
+      } else if (msg.includes('User not found') || code === 'user_not_found') {
         errEl.textContent = '가입되지 않은 이메일입니다. 먼저 회원가입을 해주세요.';
-      } else if (msg.includes('rate limit') || msg.includes('too many')) {
+      } else if (msg.includes('rate limit') || msg.includes('too many') || code === 'over_request_rate_limit') {
         errEl.textContent = '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.';
-      } else if (msg.includes('network') || msg.includes('fetch')) {
-        errEl.textContent = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해 주세요.';
+      } else if (msg.includes('network') || msg.includes('fetch') || msg.includes('Failed to fetch')) {
+        errEl.textContent = '네트워크 오류입니다. 인터넷 연결을 확인해 주세요.';
       } else {
-        errEl.textContent = '로그인 실패: ' + msg;
+        errEl.textContent = '로그인 실패: ' + (msg || code || '알 수 없는 오류');
       }
+      console.error('[로그인 에러] code:', code, '/ message:', msg);
       return;
     }
 
@@ -1800,8 +1827,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // 성공 — onAuthStateChange가 안 잡힐 경우 수동으로 처리
-    if (loginData.session?.user) {
+    // 성공 — onAuthStateChange 가 처리함 (이중 실행 방지)
+    // 단, onAuthStateChange 가 트리거 안될 경우를 대비한 fallback
+    if (loginData.session?.user && document.getElementById('charScreen').style.display === 'none') {
       CURRENT_USER = loginData.session.user;
       showScreen('char');
       document.getElementById('charAccountInfo').textContent = '계정: ' + CURRENT_USER.email;
@@ -1826,13 +1854,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pw.length < 6)  { errEl.textContent = '비밀번호는 6자 이상이어야 합니다.'; return; }
     if (pw !== pw2)     { errEl.textContent = '비밀번호가 일치하지 않습니다.'; return; }
     setAuthLoading('signupBtn', true, '계정 만들기');
-    const { error } = await sb.auth.signUp({ email, password: pw, options: { emailRedirectTo: null, data: {} } });
+    const { data: signupData, error } = await sb.auth.signUp({ email, password: pw, options: { emailRedirectTo: null, data: {} } });
     // 이메일 인증 없이 즉시 사용 (Supabase 대시보드에서 Confirm email OFF 필요)
     setAuthLoading('signupBtn', false, '계정 만들기');
     if (error) errEl.textContent = error.message;
     else {
+      // 이메일 인증 OFF 상태면 signUp 시 세션 발급됨 → 자동 로그인
+      if (signupData?.session?.user) {
+        CURRENT_USER = signupData.session.user;
+        showScreen('char');
+        document.getElementById('charAccountInfo').textContent = '계정: ' + CURRENT_USER.email;
+        await renderCharSlots();
+        return;
+      }
+      // 이메일 인증 ON 상태 → 수동 로그인 안내
       errEl.style.color = '#63d09a';
-      errEl.textContent = '가입 완료! 바로 로그인해 주세요.';
+      errEl.textContent = '가입 완료! 로그인 탭에서 로그인해 주세요.';
       window.switchAuthTab('login');
       document.getElementById('loginEmail').value = email;
     }
@@ -1920,7 +1957,10 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       showScreen('auth');
     }
-  })();
+  })().catch(e => {
+    console.error('[초기화 오류]', e);
+    showScreen('auth'); // 오류 시 로그인 화면 강제 표시
+  });
 
   // ═══════════════════════════════════════════════════════
   // 화면 전환
@@ -1973,18 +2013,22 @@ document.addEventListener('DOMContentLoaded', () => {
       return rows;
     } catch(e) {
       console.error('영웅 로드 실패:', e);
-      showCharError('영웅 목록을 불러오지 못했습니다.<br>' + e.message + '<br><br><small>Supabase 프로젝트가 일시 정지됐을 수 있습니다.<br>supabase.com 대시보드를 확인해 주세요.</small>');
-      return null;
+      // null 대신 [] 반환 → 빈 슬롯은 표시되어 새 영웅 생성 가능
+      showCharError('영웅 목록 로드 실패: ' + e.message + '<br><small style="color:#ffcf63">새 영웅 생성은 아래에서 가능합니다.</small>');
+      return [];
     }
   }
 
   function showCharError(msg) {
+    // 에러 배너를 charSlots 앞에 삽입 (슬롯 UI는 유지)
+    const existing = document.getElementById('charErrorBanner');
+    if (existing) existing.remove();
+    const banner = document.createElement('div');
+    banner.id = 'charErrorBanner';
+    banner.style.cssText = 'padding:10px 14px;margin-bottom:10px;background:rgba(255,80,80,0.12);border:1px solid rgba(255,80,80,0.3);border-radius:12px;color:#ff9090;font-size:11px;line-height:1.7;text-align:center;';
+    banner.innerHTML = `❌ ${msg}<br><button onclick="renderCharSlots()" style="margin-top:6px;padding:5px 14px;border-radius:8px;background:rgba(79,124,255,0.2);border:1px solid rgba(79,124,255,0.4);color:#9fbfff;font-size:11px;font-weight:700;cursor:pointer;">🔄 다시 시도</button>`;
     const container = document.getElementById('charSlots');
-    container.innerHTML = `<div style="padding:20px;text-align:center;color:#ff7b7b;font-size:12px;line-height:1.8;">
-      ❌ ${msg}
-      <br>
-      <button onclick="renderCharSlots()" style="margin-top:12px;padding:8px 20px;border-radius:10px;background:rgba(79,124,255,0.2);border:1px solid rgba(79,124,255,0.4);color:#9fbfff;font-size:12px;font-weight:700;cursor:pointer;">🔄 다시 시도</button>
-    </div>`;
+    container.prepend(banner);
   }
 
   async function renderCharSlots() {
@@ -2101,368 +2145,246 @@ document.addEventListener('DOMContentLoaded', () => {
     const sc = LEGEND_SHIELD;
     const se = '#fff8d0';
 
-    if (heroClass === '전사') return `<svg viewBox="0 0 64 80" width="72" height="90" shape-rendering="crispEdges" style="image-rendering:pixelated" aria-hidden="true">
-  <defs><filter id="gw"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-  <ellipse cx="32" cy="77" rx="14" ry="3" fill="rgba(0,0,0,0.28)"/>
-  <!-- boots gold -->
-  <rect x="20" y="65" width="11" height="10" fill="#0a0a0a"/>
-  <rect x="21" y="66" width="9" height="8" fill="#8a5a00"/>
-  <rect x="21" y="66" width="9" height="3" fill="${wc}" opacity="0.9"/>
-  <rect x="21" y="66" width="4" height="2" fill="rgba(255,255,255,0.3)"/>
-  <rect x="20" y="73" width="11" height="2" fill="#5a3a00"/>
-  <rect x="33" y="65" width="11" height="10" fill="#0a0a0a"/>
-  <rect x="34" y="66" width="9" height="8" fill="#8a5a00"/>
-  <rect x="34" y="66" width="9" height="3" fill="${wc}" opacity="0.9"/>
-  <rect x="34" y="66" width="4" height="2" fill="rgba(255,255,255,0.3)"/>
-  <rect x="33" y="73" width="11" height="2" fill="#5a3a00"/>
-  <!-- legs gold -->
-  <rect x="20" y="51" width="11" height="16" fill="#0a0a0a"/>
-  <rect x="21" y="52" width="9" height="14" fill="#7a5000"/>
-  <rect x="21" y="52" width="4" height="14" fill="${wc}" opacity="0.8"/>
-  <rect x="21" y="52" width="2" height="14" fill="rgba(255,255,255,0.2)"/>
-  <rect x="20" y="57" width="11" height="4" fill="#5a3a00"/>
-  <rect x="21" y="58" width="9" height="2" fill="${wc}" opacity="0.7"/>
-  <rect x="33" y="51" width="11" height="16" fill="#0a0a0a"/>
-  <rect x="34" y="52" width="9" height="14" fill="#7a5000"/>
-  <rect x="34" y="52" width="4" height="14" fill="${wc}" opacity="0.8"/>
-  <rect x="34" y="52" width="2" height="14" fill="rgba(255,255,255,0.2)"/>
-  <rect x="33" y="57" width="11" height="4" fill="#5a3a00"/>
-  <rect x="34" y="58" width="9" height="2" fill="${wc}" opacity="0.7"/>
-  <!-- tasset gold -->
-  <rect x="19" y="47" width="26" height="7" fill="#0a0a0a"/>
-  <rect x="20" y="48" width="24" height="6" fill="#7a5000"/>
-  <rect x="20" y="48" width="24" height="2" fill="${wc}"/>
-  <rect x="20" y="48" width="12" height="1" fill="rgba(255,255,255,0.3)"/>
-  <!-- torso armor gold -->
-  <rect x="18" y="28" width="28" height="21" fill="#0a0a0a"/>
-  <rect x="19" y="29" width="26" height="19" fill="#7a5200"/>
-  <rect x="19" y="29" width="26" height="5" fill="${wc}"/>
-  <rect x="19" y="29" width="13" height="4" fill="rgba(255,255,255,0.3)"/>
-  <rect x="31" y="29" width="2" height="19" fill="#5a3a00"/>
-  <rect x="21" y="35" width="22" height="1" fill="rgba(255,255,255,0.15)"/>
-  <rect x="21" y="39" width="22" height="1" fill="rgba(255,255,255,0.1)"/>
-  <!-- shoulder pads gold -->
-  <rect x="13" y="26" width="8" height="10" fill="#0a0a0a"/>
-  <rect x="14" y="27" width="6" height="9" fill="#8a5a00"/>
-  <rect x="14" y="27" width="6" height="3" fill="${wc}"/>
-  <rect x="14" y="27" width="3" height="2" fill="rgba(255,255,255,0.4)"/>
-  <rect x="12" y="24" width="4" height="4" fill="#0a0a0a"/>
-  <rect x="13" y="25" width="2" height="3" fill="${wc}"/>
-  <rect x="43" y="26" width="8" height="10" fill="#0a0a0a"/>
-  <rect x="44" y="27" width="6" height="9" fill="#8a5a00"/>
-  <rect x="44" y="27" width="6" height="3" fill="${wc}"/>
-  <rect x="47" y="27" width="3" height="2" fill="rgba(255,255,255,0.4)"/>
-  <rect x="48" y="24" width="4" height="4" fill="#0a0a0a"/>
-  <rect x="49" y="25" width="2" height="3" fill="${wc}"/>
-  <!-- arms -->
-  <rect x="10" y="24" width="6" height="16" fill="#0a0a0a"/>
-  <rect x="11" y="25" width="4" height="14" fill="#f0c090"/>
-  <rect x="11" y="25" width="2" height="5" fill="#f8d8b0" opacity="0.7"/>
-  <rect x="10" y="37" width="7" height="5" fill="#0a0a0a"/>
-  <rect x="11" y="38" width="5" height="4" fill="${wc}"/>
-  <rect x="11" y="38" width="5" height="2" fill="rgba(255,255,255,0.3)"/>
-  <rect x="48" y="29" width="6" height="16" fill="#0a0a0a"/>
-  <rect x="49" y="30" width="4" height="14" fill="#f0c090"/>
-  <rect x="49" y="30" width="2" height="5" fill="#f8d8b0" opacity="0.7"/>
-  <rect x="48" y="42" width="7" height="5" fill="#0a0a0a"/>
-  <rect x="49" y="43" width="5" height="4" fill="${wc}"/>
-  <rect x="49" y="43" width="5" height="2" fill="rgba(255,255,255,0.3)"/>
-  <!-- neck/head -->
-  <rect x="28" y="24" width="8" height="6" fill="#0a0a0a"/>
-  <rect x="29" y="25" width="6" height="5" fill="#f0c090"/>
-  <rect x="27" y="27" width="10" height="3" fill="${wc}" opacity="0.8"/>
-  <rect x="22" y="10" width="20" height="16" fill="#0a0a0a"/>
-  <rect x="23" y="11" width="18" height="14" fill="#f0c090"/>
-  <rect x="23" y="11" width="8" height="5" fill="#f8d8b0" opacity="0.6"/>
-  <rect x="25" y="17" width="4" height="3" fill="#1a1a30"/>
-  <rect x="35" y="17" width="4" height="3" fill="#1a1a30"/>
-  <rect x="25" y="17" width="2" height="2" fill="#e8eeff"/>
-  <rect x="35" y="17" width="2" height="2" fill="#e8eeff"/>
-  <rect x="26" y="18" width="2" height="1" fill="#1a1a30"/>
-  <rect x="36" y="18" width="2" height="1" fill="#1a1a30"/>
-  <rect x="25" y="17" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
-  <rect x="35" y="17" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
-  <rect x="27" y="23" width="10" height="1" fill="#b06040"/>
-  <!-- golden helmet -->
-  <rect x="21" y="4" width="22" height="12" fill="#0a0a0a"/>
-  <rect x="22" y="5" width="20" height="11" fill="#8a5a00"/>
-  <rect x="22" y="5" width="20" height="4" fill="${wc}"/>
-  <rect x="22" y="5" width="10" height="3" fill="rgba(255,255,255,0.35)"/>
-  <rect x="23" y="13" width="18" height="5" fill="#5a3a00"/>
-  <rect x="23" y="13" width="18" height="2" fill="#3a2000"/>
-  <rect x="21" y="10" width="4" height="8" fill="#7a5000"/>
-  <rect x="39" y="10" width="4" height="8" fill="#7a5000"/>
-  <rect x="29" y="2" width="6" height="5" fill="#0a0a0a"/>
-  <rect x="30" y="3" width="4" height="4" fill="${wc}"/>
-  <rect x="30" y="0" width="4" height="4" fill="#ff9030"/>
-  <rect x="31" y="0" width="2" height="3" fill="${wc}"/>
-  <!-- legendary sword — glow -->
-  <g filter="url(#gw)">
-    <rect x="3" y="2" width="9" height="38" fill="#0a0a0a"/>
-    <rect x="4" y="3" width="7" height="36" fill="${wc}"/>
-    <rect x="4" y="3" width="2" height="36" fill="rgba(255,255,255,0.55)"/>
-    <rect x="6" y="5" width="2" height="30" fill="rgba(255,255,255,0.3)"/>
-    <rect x="5" y="2" width="5" height="3" fill="${wc}"/>
-    <rect x="6" y="1" width="3" height="2" fill="${wc}"/>
-    <rect x="7" y="0" width="1" height="2" fill="rgba(255,255,255,0.9)"/>
-    <rect x="0" y="37" width="15" height="4" fill="#0a0a0a"/>
-    <rect x="1" y="38" width="13" height="3" fill="${wc}"/>
-    <rect x="1" y="38" width="13" height="1" fill="rgba(255,255,255,0.5)"/>
-    <rect x="5" y="41" width="5" height="9" fill="#0a0a0a"/>
-    <rect x="6" y="42" width="3" height="8" fill="#5a3a1a"/>
-    <rect x="5" y="43" width="5" height="1" fill="#3a2010"/>
-    <rect x="5" y="45" width="5" height="1" fill="#3a2010"/>
-    <rect x="4" y="50" width="7" height="4" fill="#0a0a0a"/>
-    <rect x="5" y="51" width="5" height="3" fill="${wc}"/>
-    <rect x="5" y="51" width="2" height="1" fill="rgba(255,255,255,0.6)"/>
+    if (heroClass === '전사') return `<svg viewBox="0 0 64 80" width="72" height="90" class="class-warrior" aria-hidden="true">
+  <!-- 그림자 -->
+  <ellipse cx="32" cy="72" rx="14" ry="3.5" fill="rgba(0,0,0,0.28)"/>
+
+  <!-- 망토 -->
+  <path d="M22 37 Q32 30 42 37 L45 59 Q32 67 19 59Z" fill="#c43c3c"/>
+  <path d="M25 40 Q32 35 40 40 L41 55 Q32 60 23 55Z" fill="#a83030" opacity="0.5"/>
+
+  <!-- 다리 -->
+  <rect x="25" y="53" width="6" height="14" rx="3" fill="#5b3d2e"/>
+  <rect x="33" y="53" width="6" height="14" rx="3" fill="#5b3d2e"/>
+
+  <!-- 신발 -->
+  <ellipse cx="28" cy="67" rx="5" ry="3" fill="#211810"/>
+  <ellipse cx="36" cy="67" rx="5" ry="3" fill="#211810"/>
+  <ellipse cx="27" cy="66" rx="2" ry="1.2" fill="#2e2014" opacity="0.6"/>
+  <ellipse cx="35" cy="66" rx="2" ry="1.2" fill="#2e2014" opacity="0.6"/>
+
+  <!-- 몸통 갑옷 -->
+  <rect x="21" y="32" width="22" height="25" rx="7" fill="#3a7be0"/>
+  <!-- 금 세로선 -->
+  <rect x="29" y="33" width="6" height="23" rx="2" fill="#ffd34d"/>
+  <!-- 흉갑 -->
+  <rect x="22" y="34" width="20" height="14" rx="4" fill="#2d68c8"/>
+  <rect x="24" y="36" width="16" height="10" rx="3" fill="#3579d8"/>
+  <!-- 허리띠 -->
+  <rect x="23" y="47" width="19" height="5" rx="2.5" fill="#6b3f20"/>
+  <rect x="23" y="47" width="19" height="2.5" rx="2" fill="#7d4d28" opacity="0.6"/>
+  <circle cx="32" cy="49.5" r="2.5" fill="#ffd34d"/>
+  <circle cx="32" cy="49.5" r="1.5" fill="#ffea88"/>
+
+  <!-- 어깨 갑옷 -->
+  <circle cx="22" cy="36" r="4.5" fill="#b9c6d8"/>
+  <circle cx="22" cy="36" r="3.5" fill="#cdd8e8"/>
+  <circle cx="22" cy="34.5" r="1.5" fill="#e8eef6"/>
+  <circle cx="42" cy="36" r="4.5" fill="#b9c6d8"/>
+  <circle cx="42" cy="36" r="3.5" fill="#cdd8e8"/>
+  <circle cx="42" cy="34.5" r="1.5" fill="#e8eef6"/>
+
+  <!-- 왼팔 -->
+  <rect x="14" y="36" width="8" height="17" rx="4" fill="#f0c087" transform="rotate(8 14 36)"/>
+  <!-- 오른팔 -->
+  <rect x="42" y="36" width="8" height="17" rx="4" fill="#f0c087" transform="rotate(-12 42 36)"/>
+
+  <!-- 왼손 -->
+  <circle cx="19" cy="53" r="3.5" fill="#f0c087"/>
+  <!-- 오른손 -->
+  <circle cx="46" cy="52" r="3.5" fill="#f0c087"/>
+
+  <!-- 방패 (왼쪽) -->
+  <g transform="translate(7 38)">
+    <path d="M7 0 Q15 2.5 15 9 Q15 19 7 25 Q-1 19-1 9 Q-1 2.5 7 0Z" fill="${sc}" stroke="#5c6778" stroke-width="1"/>
+    <path d="M7 1.5 Q14 4 14 9 Q14 18 7 23 Q0 18 0 9 Q0 4 7 1.5Z" fill="${sc}" opacity="0.65"/>
+    <circle cx="7" cy="9" r="3" fill="#ffd34d"/>
+    <circle cx="7" cy="9" r="1.8" fill="#ffea88"/>
+    <line x1="7" y1="3" x2="7" y2="15" stroke="${se}" stroke-width="1" opacity="0.6"/>
+    <line x1="1" y1="9" x2="13" y2="9" stroke="${se}" stroke-width="1" opacity="0.6"/>
   </g>
-  <!-- legendary shield — glow -->
-  <g filter="url(#gw)">
-    <rect x="51" y="22" width="13" height="20" fill="#0a0a0a"/>
-    <rect x="52" y="23" width="11" height="18" fill="${sc}"/>
-    <rect x="52" y="23" width="11" height="4" fill="rgba(255,255,255,0.35)"/>
-    <rect x="52" y="23" width="5" height="3" fill="rgba(255,255,255,0.25)"/>
-    <rect x="53" y="24" width="1" height="15" fill="${se}" opacity="0.5"/>
-    <rect x="61" y="24" width="1" height="15" fill="${se}" opacity="0.5"/>
-    <rect x="53" y="24" width="9" height="1" fill="${se}" opacity="0.5"/>
-    <rect x="53" y="38" width="9" height="1" fill="${se}" opacity="0.5"/>
-    <rect x="55" y="29" width="5" height="5" fill="#0a0a0a"/>
-    <rect x="56" y="30" width="3" height="3" fill="${se}"/>
-    <rect x="56" y="30" width="2" height="1" fill="rgba(255,255,255,0.8)"/>
+
+  <!-- 검: 손잡이 중간이 오른손(46,52)에 위치 -->
+  <g transform="translate(37 19) rotate(15)">
+    <!-- 날 -->
+    <path d="M3.5 0 L7 28 L0 28Z" fill="#e9eef5" stroke="#a7b4c4" stroke-width="0.8"/>
+    <path d="M3.5 1 L6.5 28 L3.5 28Z" fill="#fff" opacity="0.3"/>
+    <line x1="3.5" y1="2" x2="3.5" y2="25" stroke="#c8d2dd" stroke-width="0.6"/>
+    <rect x="2.5" y="4" width="1.5" height="18" rx="0.7" fill="${wc}" opacity="0.4"/>
+    <!-- 가드 -->
+    <rect x="0" y="28" width="7" height="2.5" rx="1.5" fill="#ffd34d"/>
+    <!-- 손잡이 (middle=34.5) -->
+    <rect x="2" y="30.5" width="3" height="8" rx="1.5" fill="#6b3f20"/>
   </g>
+
+  <!-- 목 (반으로 줄임: height=2.5) -->
+  <rect x="28.5" y="29" width="7" height="2.5" rx="1.5" fill="#f0c087"/>
+
+  <!-- 머리 (세로 키움: ry=11→13.5, cy=17) -->
+  <ellipse cx="32" cy="17" rx="13" ry="13" fill="#f0c087"/>
+  <!-- 얼굴 하이라이트 -->
+  <ellipse cx="28" cy="11" rx="3" ry="2.2" fill="#f8d4a0" opacity="0.4"/>
+
+  <!-- 귀 -->
+  <ellipse cx="19.5" cy="17" rx="2.5" ry="3.5" fill="#f0c087"/>
+  <ellipse cx="44.5" cy="17" rx="2.5" ry="3.5" fill="#f0c087"/>
+
+  <!-- 머리카락 -->
+  <path d="M20 17 Q20 5 32 4.5 Q44 5 44 17 Q42 10 38 9 Q35 13 32 13.5 Q29 13 26 9.5 Q22 11 20 17Z" fill="#3d2510"/>
+  <path d="M20 17 Q19 12 20.5 8 Q22.5 5.5 26 5" stroke="#4d3020" stroke-width="1" fill="none" opacity="0.5"/>
+
+  <!-- 눈썹 -->
+  <rect x="26" y="13.5" width="4.5" height="1.5" rx="0.8" fill="#2e1a0e" transform="rotate(-6 26 13.5)"/>
+  <rect x="33.5" y="13.5" width="4.5" height="1.5" rx="0.8" fill="#2e1a0e" transform="rotate(6 33.5 13.5)"/>
+
+  <!-- 눈 흰자 -->
+  <ellipse cx="28.5" cy="17" rx="2.5" ry="3" fill="#fff"/>
+  <ellipse cx="35.5" cy="17" rx="2.5" ry="3" fill="#fff"/>
+  <!-- 눈동자 -->
+  <ellipse cx="28.5" cy="17.5" rx="1.7" ry="2.3" fill="#1a2030"/>
+  <ellipse cx="35.5" cy="17.5" rx="1.7" ry="2.3" fill="#1a2030"/>
+  <!-- 눈 하이라이트 -->
+  <circle cx="29.4" cy="15.8" r="0.8" fill="#fff" opacity="0.9"/>
+  <circle cx="36.4" cy="15.8" r="0.8" fill="#fff" opacity="0.9"/>
+
+  <!-- 코 -->
+  <ellipse cx="32" cy="21" rx="1.3" ry="1" fill="#deab74"/>
+
+  <!-- 입 -->
+  <path d="M29 24.5 Q32 26.5 35 24.5" stroke="#8f4f43" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+
+  <!-- 볼 -->
+  <circle cx="23.5" cy="21.5" r="2.5" fill="#e9907a" opacity="0.35"/>
+  <circle cx="40.5" cy="21.5" r="2.5" fill="#e9907a" opacity="0.35"/>
+
+  <!-- 가슴 별 문양 -->
+  <circle cx="32" cy="40" r="3.5" fill="#ffd34d"/>
+  <path d="M32 36.5 L32.8 38.8 L35.2 38.8 L33.3 40.2 L34 42.5 L32 41.1 L30 42.5 L30.7 40.2 L28.8 38.8 L31.2 38.8Z" fill="#fff8d0"/>
 </svg>`;
-    if (heroClass === '궁사') return `<svg viewBox="0 0 64 80" width="72" height="90" shape-rendering="crispEdges" style="image-rendering:pixelated" aria-hidden="true">
-  <defs><filter id="ga"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-  <ellipse cx="32" cy="77" rx="14" ry="3" fill="rgba(0,0,0,0.28)"/>
-  <!-- boots gold -->
-  <rect x="20" y="64" width="11" height="11" fill="#0a0a0a"/>
-  <rect x="21" y="65" width="9" height="9" fill="#8a5a00"/>
-  <rect x="21" y="65" width="9" height="3" fill="${wc}" opacity="0.9"/>
-  <rect x="20" y="73" width="12" height="2" fill="#5a3a00"/>
-  <rect x="33" y="64" width="11" height="11" fill="#0a0a0a"/>
-  <rect x="34" y="65" width="9" height="9" fill="#8a5a00"/>
-  <rect x="34" y="65" width="9" height="3" fill="${wc}" opacity="0.9"/>
-  <rect x="33" y="73" width="12" height="2" fill="#5a3a00"/>
-  <!-- legs -->
-  <rect x="20" y="50" width="11" height="16" fill="#0a0a0a"/>
-  <rect x="21" y="51" width="9" height="14" fill="#1e4a30"/>
-  <rect x="21" y="51" width="4" height="14" fill="#2a6040"/>
-  <rect x="33" y="50" width="11" height="16" fill="#0a0a0a"/>
-  <rect x="34" y="51" width="9" height="14" fill="#1e4a30"/>
-  <rect x="34" y="51" width="4" height="14" fill="#2a6040"/>
-  <!-- gold belt -->
-  <rect x="19" y="45" width="26" height="7" fill="#0a0a0a"/>
-  <rect x="20" y="46" width="24" height="6" fill="#1a3a28"/>
-  <rect x="20" y="46" width="24" height="2" fill="#2a5038"/>
-  <rect x="29" y="46" width="6" height="4" fill="#0a0a0a"/>
-  <rect x="30" y="47" width="4" height="2" fill="${wc}"/>
-  <rect x="30" y="47" width="2" height="1" fill="rgba(255,255,255,0.5)"/>
-  <!-- torso gold accent -->
-  <rect x="18" y="27" width="28" height="20" fill="#0a0a0a"/>
-  <rect x="19" y="28" width="26" height="18" fill="#2a5038"/>
-  <rect x="19" y="28" width="26" height="4" fill="#3a6048"/>
-  <rect x="19" y="28" width="13" height="3" fill="#4a7058" opacity="0.6"/>
-  <rect x="19" y="28" width="26" height="2" fill="${wc}" opacity="0.5"/>
-  <rect x="31" y="28" width="2" height="18" fill="#1a3828"/>
-  <!-- arms gold bracer -->
-  <rect x="8" y="28" width="7" height="18" fill="#0a0a0a"/>
-  <rect x="9" y="29" width="5" height="16" fill="#f0c090"/>
-  <rect x="8" y="40" width="7" height="7" fill="#0a0a0a"/>
-  <rect x="9" y="41" width="5" height="6" fill="${wc}"/>
-  <rect x="9" y="41" width="5" height="2" fill="rgba(255,255,255,0.35)"/>
-  <rect x="49" y="30" width="7" height="15" fill="#0a0a0a"/>
-  <rect x="50" y="31" width="5" height="13" fill="#f0c090"/>
-  <rect x="49" y="41" width="7" height="6" fill="#0a0a0a"/>
-  <rect x="50" y="42" width="5" height="5" fill="${wc}"/>
-  <rect x="50" y="42" width="5" height="2" fill="rgba(255,255,255,0.35)"/>
-  <!-- shoulder gold -->
-  <rect x="13" y="26" width="7" height="9" fill="#0a0a0a"/>
-  <rect x="14" y="27" width="5" height="8" fill="#8a5a00"/>
-  <rect x="14" y="27" width="5" height="3" fill="${wc}"/>
-  <rect x="44" y="26" width="7" height="9" fill="#0a0a0a"/>
-  <rect x="45" y="27" width="5" height="8" fill="#8a5a00"/>
-  <rect x="45" y="27" width="5" height="3" fill="${wc}"/>
-  <!-- neck/head -->
-  <rect x="28" y="23" width="8" height="6" fill="#0a0a0a"/>
-  <rect x="29" y="24" width="6" height="5" fill="#f0c090"/>
-  <rect x="22" y="9" width="20" height="16" fill="#0a0a0a"/>
-  <rect x="23" y="10" width="18" height="14" fill="#f0c090"/>
-  <rect x="23" y="10" width="8" height="5" fill="#f8d8b0" opacity="0.6"/>
-  <rect x="25" y="16" width="5" height="2" fill="#1a1a30"/>
-  <rect x="34" y="16" width="5" height="2" fill="#1a1a30"/>
-  <rect x="25" y="16" width="2" height="1" fill="#e8eeff"/>
-  <rect x="34" y="16" width="2" height="1" fill="#e8eeff"/>
-  <rect x="25" y="16" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
-  <rect x="34" y="16" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
-  <rect x="30" y="20" width="4" height="1" fill="#b06040" opacity="0.8"/>
-  <!-- gold hood -->
-  <rect x="20" y="3" width="24" height="12" fill="#0a0a0a"/>
-  <rect x="21" y="4" width="22" height="11" fill="#1a3a28"/>
-  <rect x="21" y="4" width="22" height="3" fill="#2a5038"/>
-  <rect x="20" y="8" width="5" height="10" fill="#1a3a28"/>
-  <rect x="39" y="8" width="5" height="10" fill="#1a3a28"/>
-  <rect x="22" y="13" width="20" height="2" fill="#0e2218"/>
-  <!-- gold headband -->
-  <rect x="21" y="10" width="22" height="3" fill="#0a0a0a"/>
-  <rect x="22" y="11" width="20" height="2" fill="${wc}"/>
-  <rect x="22" y="11" width="10" height="1" fill="rgba(255,255,255,0.35)"/>
-  <rect x="29" y="0" width="6" height="5" fill="#1a3a28"/>
-  <!-- golden bow — glow -->
-  <g filter="url(#ga)">
-    <rect x="2" y="8"  width="4" height="4" fill="${wc}"/>
-    <rect x="1" y="12" width="4" height="5" fill="${wc}"/>
-    <rect x="1" y="17" width="4" height="6" fill="${wc}"/>
-    <rect x="1" y="23" width="4" height="6" fill="${wc}"/>
-    <rect x="1" y="29" width="4" height="6" fill="${wc}"/>
-    <rect x="1" y="35" width="4" height="5" fill="${wc}"/>
-    <rect x="2" y="40" width="4" height="4" fill="${wc}"/>
-    <rect x="2" y="8"  width="2" height="4" fill="rgba(255,255,255,0.45)"/>
-    <rect x="1" y="12" width="2" height="30" fill="rgba(255,255,255,0.25)"/>
-    <rect x="0" y="22" width="5" height="8" fill="#8a5a00"/>
-    <rect x="0" y="22" width="5" height="2" fill="${wc}" opacity="0.8"/>
-    <rect x="4" y="9"  width="1" height="13" fill="#f8e8a0" opacity="0.9"/>
-    <rect x="4" y="30" width="1" height="13" fill="#f8e8a0" opacity="0.9"/>
-    <rect x="4" y="22" width="10" height="1" fill="#f8e8a0" opacity="0.9"/>
-    <rect x="14" y="21" width="1" height="3" fill="#f8e8a0" opacity="0.7"/>
-    <!-- golden arrow -->
-    <rect x="5" y="23" width="30" height="2" fill="${wc}"/>
-    <rect x="5" y="23" width="30" height="1" fill="rgba(255,255,255,0.4)"/>
-    <rect x="33" y="21" width="4" height="4" fill="#0a0a0a"/>
-    <rect x="34" y="22" width="3" height="2" fill="${wc}"/>
-    <rect x="35" y="22" width="2" height="1" fill="rgba(255,255,255,0.6)"/>
-    <rect x="31" y="21" width="4" height="4" fill="rgba(255,220,80,0.4)"/>
-    <rect x="4" y="21" width="3" height="1" fill="#ff5050"/>
-    <rect x="4" y="25" width="3" height="1" fill="#ff5050"/>
-  </g>
-  <!-- quiver gold trim -->
-  <rect x="42" y="20" width="9" height="22" fill="#0a0a0a"/>
-  <rect x="43" y="21" width="7" height="20" fill="#5a3a10"/>
-  <rect x="43" y="21" width="7" height="3" fill="${wc}" opacity="0.9"/>
-  <rect x="44" y="10" width="2" height="12" fill="${wc}"/>
-  <rect x="47" y="8"  width="2" height="14" fill="${wc}"/>
-  <rect x="50" y="11" width="2" height="11" fill="${wc}"/>
-  <rect x="44" y="9"  width="2" height="2" fill="rgba(255,255,255,0.6)"/>
-  <rect x="47" y="7"  width="2" height="2" fill="rgba(255,255,255,0.6)"/>
-  <rect x="50" y="10" width="2" height="2" fill="rgba(255,255,255,0.6)"/>
+    if (heroClass === '궁사') return `<svg viewBox="0 0 64 80" width="72" height="90" class="class-archer" aria-hidden="true">
+  <ellipse cx="32" cy="77" rx="11" ry="3" fill="rgba(0,0,0,0.28)"/>
+  <rect x="43" y="31" width="5" height="16" rx="2" fill="#7a4e28"/>
+  <rect x="44" y="32" width="3.5" height="14" rx="1.5" fill="#8b5c30"/>
+  <path d="M44 32 Q41 36 41 41" stroke="#6a3e1e" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <line x1="44.5" y1="31" x2="44" y2="27" stroke="#c8a060" stroke-width="0.6"/>
+  <line x1="46" y1="31" x2="45.5" y2="27" stroke="#c8a060" stroke-width="0.6"/>
+  <line x1="47.5" y1="31" x2="47" y2="28" stroke="#c8a060" stroke-width="0.6"/>
+  <path d="M25 35 Q32 30 39 35 L40 54 Q32 60 24 54Z" fill="#1e6038"/>
+  <path d="M27 37 Q32 33 37 37 L38 52 Q32 56 26 52Z" fill="#256840" opacity="0.5"/>
+  <rect x="27.5" y="54" width="5" height="14" rx="2.5" fill="#2e2010"/>
+  <rect x="34" y="54" width="5" height="14" rx="2.5" fill="#2e2010"/>
+  <rect x="26.5" y="64" width="6.5" height="4" rx="2" fill="#1a1008"/>
+  <rect x="33.5" y="64" width="6.5" height="4" rx="2" fill="#1a1008"/>
+  <ellipse cx="29.8" cy="68" rx="3.8" ry="1.5" fill="#110c04"/>
+  <ellipse cx="36.8" cy="68" rx="3.8" ry="1.5" fill="#110c04"/>
+  <rect x="24" y="32" width="16" height="23" rx="5.5" fill="#4a7830"/>
+  <rect x="25.5" y="33.5" width="13" height="21" rx="4" fill="#567a34"/>
+  <path d="M32 33.5 L28.5 40 L32 39 L35.5 40Z" fill="#3a5e24" opacity="0.55"/>
+  <rect x="24.5" y="46" width="15" height="3.5" rx="1.8" fill="#4a3010"/>
+  <circle cx="32" cy="47.8" r="1.8" fill="#3dd68c"/>
+  <ellipse cx="25.5" cy="35" rx="3" ry="2.5" fill="#5a8e3a"/>
+  <ellipse cx="38.5" cy="35" rx="3" ry="2.5" fill="#5a8e3a"/>
+  <path d="M23.5 36 Q22 41 19 46 Q21 47 22.5 46 Q25.5 41 27 37Z" fill="#f0c087"/>
+  <circle cx="19.5" cy="46" r="2.5" fill="#f0c087"/>
+  <path d="M18.5 46 Q17.5 43 15.5 40 Q17 39 18 40 Q19.5 43 20.5 46Z" fill="#f0c087"/>
+  <path d="M37 36 Q40 41 44 46 Q45 45.5 45.5 44.5 Q43 39 40 37Z" fill="#f0c087"/>
+  <circle cx="44" cy="46" r="2.5" fill="#f0c087"/>
+  <path d="M43.5 45.5 Q45 42 47.5 40 Q48.5 41 48 42 Q46.5 44.5 44.5 46.5Z" fill="#f0c087"/>
+  <circle cx="15.5" cy="39.5" r="2.8" fill="#f0c087"/>
+  <circle cx="47.5" cy="39.5" r="2.8" fill="#f0c087"/>
+  <path d="M9 26 Q3 45 9 66" fill="none" stroke="#5a3c18" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M9 26 Q15 45 9 66" fill="none" stroke="#7a5428" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M9 27 Q7 45 9 65" fill="none" stroke="#d4c890" stroke-width="0.6" stroke-linecap="round"/>
+  <rect x="6.5" y="43" width="5" height="5" rx="1.5" fill="#4a2e10"/>
+  <circle cx="9" cy="45.5" r="1.4" fill="#3dd68c"/>
+  <rect x="29" y="27" width="6" height="6" rx="3" fill="#f0c087"/>
+  <ellipse cx="32" cy="20" rx="9" ry="10" fill="#f0c087"/>
+  <path d="M23 18 Q23 8 32 6.5 Q41 8 41 18 Q39 12 36.5 11 Q34 13.5 30 14 Q26.5 14.5 23 18Z" fill="#e8b820"/>
+  <path d="M23 17 Q20 22 20 31 Q19.5 40 21 48 Q22 52 21 57" stroke="#e8b820" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M41 17 Q44 22 44 30 Q43.5 38 42 46 Q41 50 42 55" stroke="#e8b820" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M24 16 Q26 11 29 12 Q27.5 15 27 18Z" fill="#d4a418"/>
+  <path d="M27 12 Q30 9 32.5 10 Q31 13 30 16Z" fill="#e8b820"/>
+  <path d="M23 20 Q18.5 18.5 18 15.5 Q19.5 17 22 18.5Z" fill="#f0c087"/>
+  <path d="M41 20 Q45.5 18.5 46 15.5 Q44.5 17 42 18.5Z" fill="#f0c087"/>
+  <path d="M26 15 Q28.5 13.5 30.5 14.5" stroke="#a07820" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+  <path d="M33.5 14.5 Q35.5 13.5 38 15" stroke="#a07820" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+  <path d="M25.5 20 Q28 17.5 30.5 20 Q28 22.5 25.5 20Z" fill="#fff"/>
+  <ellipse cx="28" cy="20" rx="1.3" ry="1.5" fill="#1a4a20"/>
+  <circle cx="28.6" cy="19.4" r="0.5" fill="#fff" opacity="0.9"/>
+  <path d="M33.5 20 Q36 17.5 38.5 20 Q36 22.5 33.5 20Z" fill="#fff"/>
+  <ellipse cx="36" cy="20" rx="1.3" ry="1.5" fill="#1a4a20"/>
+  <circle cx="36.6" cy="19.4" r="0.5" fill="#fff" opacity="0.9"/>
+  <path d="M31 23 Q32 24.5 33 23" stroke="#deab74" stroke-width="0.6" fill="none" stroke-linecap="round"/>
+  <path d="M29.5 26 Q32 27.5 34.5 26" stroke="#c87060" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+  <circle cx="25.5" cy="22.5" r="1.5" fill="#f0a090" opacity="0.28"/>
+  <circle cx="38.5" cy="22.5" r="1.5" fill="#f0a090" opacity="0.28"/>
+  <path d="M23.5 15 Q32 12 40.5 15" stroke="#3dd68c" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+  <path d="M27.5 13.5 L32 9.5 L36.5 13.5" stroke="#3dd68c" stroke-width="0.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="32" cy="9" r="1.4" fill="#3dd68c"/>
+  <circle cx="32" cy="9" r="0.6" fill="#88ffcc"/>
 </svg>`;
-    return `<svg viewBox="0 0 64 80" width="72" height="90" shape-rendering="crispEdges" style="image-rendering:pixelated" aria-hidden="true">
-  <defs><filter id="gm"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-  <ellipse cx="32" cy="77" rx="14" ry="3" fill="rgba(0,0,0,0.28)"/>
-  <!-- robe bottom gold trim -->
-  <rect x="16" y="50" width="32" height="18" fill="#0a0a0a"/>
-  <rect x="17" y="51" width="30" height="17" fill="#2a1a5a"/>
-  <rect x="17" y="51" width="30" height="4" fill="#3a2070"/>
-  <rect x="16" y="66" width="32" height="3" fill="#0a0a0a"/>
-  <rect x="17" y="67" width="30" height="2" fill="${wc}"/>
-  <rect x="17" y="67" width="15" height="1" fill="rgba(255,255,255,0.35)"/>
-  <rect x="20" y="56" width="2" height="2" fill="${wc}" opacity="0.6"/>
-  <rect x="42" y="56" width="2" height="2" fill="${wc}" opacity="0.6"/>
-  <rect x="30" y="58" width="4" height="1" fill="${wc}" opacity="0.5"/>
-  <rect x="31" y="57" width="2" height="3" fill="${wc}" opacity="0.4"/>
-  <rect x="20" y="68" width="9" height="7" fill="#0a0a0a"/>
-  <rect x="21" y="69" width="7" height="6" fill="#1a0e3a"/>
-  <rect x="35" y="68" width="9" height="7" fill="#0a0a0a"/>
-  <rect x="36" y="69" width="7" height="6" fill="#1a0e3a"/>
-  <!-- torso -->
-  <rect x="17" y="27" width="30" height="25" fill="#0a0a0a"/>
-  <rect x="18" y="28" width="28" height="23" fill="#3a2080"/>
-  <rect x="18" y="28" width="28" height="5" fill="#5030a0"/>
-  <rect x="18" y="28" width="14" height="4" fill="#6038b0" opacity="0.6"/>
-  <rect x="31" y="28" width="2" height="23" fill="#281860"/>
-  <rect x="25" y="28" width="14" height="3" fill="${wc}" opacity="0.6"/>
-  <rect x="20" y="34" width="24" height="1" fill="${wc}" opacity="0.4"/>
-  <rect x="20" y="38" width="24" height="1" fill="${wc}" opacity="0.3"/>
-  <!-- sleeves gold cuff -->
-  <rect x="11" y="27" width="8" height="20" fill="#0a0a0a"/>
-  <rect x="12" y="28" width="6" height="18" fill="#3a2080"/>
-  <rect x="11" y="44" width="9" height="5" fill="#0a0a0a"/>
-  <rect x="12" y="45" width="7" height="4" fill="${wc}"/>
-  <rect x="12" y="45" width="7" height="2" fill="rgba(255,255,255,0.3)"/>
-  <rect x="12" y="49" width="6" height="5" fill="#0a0a0a"/>
-  <rect x="13" y="50" width="4" height="4" fill="#f0c090"/>
-  <rect x="45" y="27" width="8" height="20" fill="#0a0a0a"/>
-  <rect x="46" y="28" width="6" height="18" fill="#3a2080"/>
-  <rect x="44" y="44" width="9" height="5" fill="#0a0a0a"/>
-  <rect x="45" y="45" width="7" height="4" fill="${wc}"/>
-  <rect x="45" y="45" width="7" height="2" fill="rgba(255,255,255,0.3)"/>
-  <rect x="45" y="49" width="7" height="5" fill="#0a0a0a"/>
-  <rect x="46" y="50" width="5" height="4" fill="#f0c090"/>
-  <rect x="44" y="48" width="9" height="7" fill="${wc}" opacity="0.2"/>
-  <!-- neck/head -->
-  <rect x="28" y="23" width="8" height="6" fill="#0a0a0a"/>
-  <rect x="29" y="24" width="6" height="5" fill="#f0c090"/>
-  <rect x="22" y="9" width="20" height="16" fill="#0a0a0a"/>
-  <rect x="23" y="10" width="18" height="14" fill="#f0c090"/>
-  <rect x="23" y="10" width="8" height="5" fill="#f8d8b0" opacity="0.6"/>
-  <!-- glowing eyes -->
-  <rect x="25" y="16" width="4" height="3" fill="#0a0820"/>
-  <rect x="35" y="16" width="4" height="3" fill="#0a0820"/>
-  <rect x="25" y="16" width="3" height="2" fill="#8030e0"/>
-  <rect x="35" y="16" width="3" height="2" fill="#8030e0"/>
-  <rect x="25" y="16" width="2" height="1" fill="#c060ff"/>
-  <rect x="35" y="16" width="2" height="1" fill="#c060ff"/>
-  <rect x="25" y="16" width="1" height="1" fill="rgba(255,255,255,0.95)"/>
-  <rect x="35" y="16" width="1" height="1" fill="rgba(255,255,255,0.95)"/>
-  <rect x="30" y="20" width="4" height="1" fill="#b06040" opacity="0.7"/>
-  <!-- gold hat -->
-  <rect x="19" y="3" width="26" height="8" fill="#0a0a0a"/>
-  <rect x="20" y="4" width="24" height="7" fill="#1a0a40"/>
-  <rect x="19" y="9" width="26" height="2" fill="${wc}" opacity="0.8"/>
-  <rect x="19" y="9" width="13" height="1" fill="rgba(255,255,255,0.35)"/>
-  <rect x="24" y="-1" width="16" height="6" fill="#0a0a0a"/>
-  <rect x="25" y="0" width="14" height="5" fill="#1a0a40"/>
-  <rect x="29" y="-4" width="6" height="5" fill="#1a0a40"/>
-  <rect x="30" y="-5" width="4" height="4" fill="#0a0a0a"/>
-  <rect x="28" y="2" width="2" height="2" fill="${wc}" opacity="0.9"/>
-  <rect x="27" y="3" width="4" height="1" fill="${wc}" opacity="0.7"/>
-  <rect x="37" y="5" width="2" height="2" fill="${wc}" opacity="0.7"/>
-  <rect x="21" y="5" width="2" height="2" fill="${wc}" opacity="0.6"/>
-  <!-- legendary staff + orb — strong glow -->
-  <g filter="url(#gm)">
-    <rect x="5" y="14" width="5" height="48" fill="#0a0a0a"/>
-    <rect x="6" y="15" width="3" height="46" fill="${wc}" opacity="0.9"/>
-    <rect x="6" y="15" width="1" height="46" fill="rgba(255,255,255,0.35)"/>
-    <rect x="5" y="22" width="5" height="2" fill="${wc}"/>
-    <rect x="5" y="35" width="5" height="2" fill="${wc}"/>
-    <rect x="5" y="48" width="5" height="2" fill="${wc}"/>
-    <rect x="4" y="60" width="7" height="3" fill="#0a0a0a"/>
-    <rect x="5" y="61" width="5" height="2" fill="${wc}"/>
-    <!-- large orb -->
-    <rect x="0" y="2"  width="15" height="15" fill="#0a0a0a"/>
-    <rect x="1" y="3"  width="13" height="13" fill="${wc}"/>
-    <rect x="2" y="4"  width="9" height="9" fill="rgba(255,255,255,0.4)"/>
-    <rect x="3" y="5"  width="7" height="7" fill="rgba(255,255,255,0.55)"/>
-    <rect x="4" y="6"  width="5" height="5" fill="rgba(255,255,255,0.7)"/>
-    <rect x="2" y="4"  width="4" height="3" fill="rgba(255,255,255,0.85)"/>
-    <!-- orb ring -->
-    <rect x="-1" y="5" width="17" height="1" fill="${wc}" opacity="0.5"/>
-    <rect x="-1" y="14" width="17" height="1" fill="${wc}" opacity="0.5"/>
-    <rect x="-1" y="5" width="1" height="10" fill="${wc}" opacity="0.5"/>
-    <rect x="15" y="5" width="1" height="10" fill="${wc}" opacity="0.5"/>
-    <!-- magic sparks -->
-    <rect x="15" y="3"  width="3" height="2" fill="${wc}" opacity="0.8"/>
-    <rect x="17" y="1"  width="2" height="2" fill="${wc}" opacity="0.6"/>
-    <rect x="-2" y="3"  width="3" height="2" fill="${wc}" opacity="0.7"/>
-    <rect x="6"  y="0"  width="3" height="2" fill="${wc}" opacity="0.7"/>
-    <rect x="18" y="7"  width="2" height="1" fill="${wc}" opacity="0.5"/>
-    <rect x="-3" y="9"  width="2" height="1" fill="${wc}" opacity="0.5"/>
-  </g>
-  <!-- spellbook gold accents -->
-  <rect x="42" y="34" width="14" height="18" fill="#0a0a0a"/>
-  <rect x="43" y="35" width="12" height="16" fill="#0e0828"/>
-  <rect x="44" y="36" width="10" height="14" fill="#1e1248"/>
-  <rect x="43" y="35" width="3" height="16" fill="#0a0618"/>
-  <rect x="47" y="38" width="7" height="1" fill="${wc}" opacity="0.7"/>
-  <rect x="47" y="40" width="6" height="1" fill="${wc}" opacity="0.6"/>
-  <rect x="47" y="42" width="7" height="1" fill="${wc}" opacity="0.6"/>
-  <rect x="47" y="44" width="5" height="1" fill="${wc}" opacity="0.5"/>
-  <rect x="44" y="36" width="10" height="2" fill="${wc}" opacity="0.4"/>
-  <rect x="48" y="46" width="5" height="1" fill="${wc}" opacity="0.8"/>
-  <rect x="47" y="47" width="7" height="1" fill="${wc}" opacity="0.8"/>
-  <rect x="50" y="46" width="1" height="3" fill="${wc}" opacity="0.8"/>
-  <rect x="48" y="47" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
-</svg>`;
-  }
+    return `<svg viewBox="0 0 64 80" width="72" height="90" class="class-mage" aria-hidden="true">
+  <ellipse cx="32" cy="77" rx="12" ry="3" fill="rgba(0,0,0,0.28)"/>
+  <rect x="42.5" y="9" width="2.5" height="65" rx="1.2" fill="#5a3e1c"/>
+  <rect x="43" y="9" width="1" height="64" rx="0.5" fill="#7a5428" opacity="0.5"/>
+  <path d="M43.7 10 Q46 5.5 49 4" stroke="#5a3e1c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M43.7 10 Q41.5 5 38.5 4" stroke="#5a3e1c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M43.7 9 Q44 4 43.7 1" stroke="#5a3e1c" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <circle cx="43.7" cy="0.8" r="2.5" fill="#3a3a4a" stroke="#8a8aaa" stroke-width="0.6"/>
+  <circle cx="43.7" cy="0.8" r="1.4" fill="#6a6a8a"/>
+  <ellipse cx="43.7" cy="74" rx="1.4" ry="0.8" fill="#3a2a10"/>
+  <path d="M22 42 Q20 57 20.5 75 Q32 79 43.5 75 Q44 57 42 42 Q32 38 22 42Z" fill="#7a7a7a"/>
+  <path d="M23.5 44 Q22 57 22.5 73 Q32 77 41.5 73 Q42 57 40.5 44 Q32 40 23.5 44Z" fill="#888"/>
+  <line x1="27" y1="43.5" x2="24.5" y2="73" stroke="#666" stroke-width="0.7" opacity="0.45"/>
+  <line x1="32" y1="42.5" x2="32" y2="74" stroke="#666" stroke-width="0.7" opacity="0.45"/>
+  <line x1="37" y1="43.5" x2="39.5" y2="73" stroke="#666" stroke-width="0.7" opacity="0.45"/>
+  <rect x="24.5" y="32.5" width="15" height="23" rx="5" fill="#888"/>
+  <rect x="26" y="34" width="12" height="20" rx="4" fill="#969696"/>
+  <circle cx="32" cy="38" r="2.5" fill="#6a6a7a"/>
+  <circle cx="32" cy="38" r="1.6" fill="#8a8aaa"/>
+  <line x1="32" y1="33.5" x2="32" y2="55" stroke="#777" stroke-width="0.7" opacity="0.45"/>
+  <rect x="24.5" y="46" width="15" height="4" rx="2" fill="#4a3010"/>
+  <rect x="29.5" y="45.5" width="5" height="5" rx="1.2" fill="#5a3e18"/>
+  <circle cx="32" cy="48" r="1.2" fill="#c8a040"/>
+  <ellipse cx="25" cy="35" rx="3.5" ry="3" fill="#969696"/>
+  <ellipse cx="39" cy="35" rx="3.5" ry="3" fill="#969696"/>
+  <path d="M23 36 Q21 41 18 47 Q20 48 21.5 47.5 Q24 42 26 37Z" fill="#888"/>
+  <circle cx="18.5" cy="47.5" r="2.5" fill="#888"/>
+  <path d="M17.5 47 Q18 44 21 41.5 Q22.5 42 22.5 43.5 Q21 45.5 18.5 48Z" fill="#888"/>
+  <path d="M37.5 36 Q40 41 43 46 Q44.5 45.5 45 44.5 Q43 39 40.5 37Z" fill="#888"/>
+  <circle cx="43.5" cy="46.5" r="2.5" fill="#888"/>
+  <path d="M42.5 46 Q43 42 44 38.5 Q45.5 38 46 39 Q45.5 43 43.5 47Z" fill="#888"/>
+  <ellipse cx="21" cy="41" rx="3" ry="2.5" fill="#d4a870"/>
+  <ellipse cx="44.5" cy="38.5" rx="3" ry="2.5" fill="#d4a870"/>
+  <rect x="29" y="27" width="6" height="6" rx="3" fill="#d4a870"/>
+  <ellipse cx="32" cy="21" rx="9.5" ry="10.5" fill="#d4a870"/>
+  <path d="M23 22 Q19 21 18 17.5 Q20 19 22.5 21Z" fill="#e8e8e8"/>
+  <path d="M22.5 24.5 Q18 24.5 17 21 Q19.5 22 22 23Z" fill="#ddd"/>
+  <path d="M41 22 Q45 21 46 17.5 Q44 19 41.5 21Z" fill="#e8e8e8"/>
+  <path d="M41.5 24.5 Q46 24.5 47 21 Q44.5 22 42 23Z" fill="#ddd"/>
+  <path d="M25 19 Q27.5 17 29.5 18" stroke="#e8e8e8" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M34.5 18 Q36.5 17 39 19" stroke="#e8e8e8" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <ellipse cx="28.5" cy="21.5" rx="1.8" ry="1.5" fill="#fff"/>
+  <ellipse cx="35.5" cy="21.5" rx="1.8" ry="1.5" fill="#fff"/>
+  <ellipse cx="28.5" cy="21.8" rx="1.2" ry="1.2" fill="#3a3020"/>
+  <ellipse cx="35.5" cy="21.8" rx="1.2" ry="1.2" fill="#3a3020"/>
+  <circle cx="29" cy="21.2" r="0.5" fill="#fff" opacity="0.8"/>
+  <circle cx="36" cy="21.2" r="0.5" fill="#fff" opacity="0.8"/>
+  <path d="M30.5 24.5 Q32 26.5 33.5 24.5" stroke="#c09060" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+  <path d="M29 27.5 Q32 29.5 35 27.5" stroke="#a07050" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+  <path d="M25 27 Q22 34 21.5 42 Q23 50.5 26 56 Q28.5 62.5 32 65 Q35.5 62.5 38 56 Q41 50.5 42.5 42 Q42 34 39 27 Q35.5 29.5 32 30 Q28.5 29.5 25 27Z" fill="#e8e8e8"/>
+  <path d="M26 28.5 Q23.5 35 23 42.5 Q24.5 50.5 27.5 55.5 Q30 62 32 64 Q34 62 36.5 55.5 Q39.5 50.5 41 42.5 Q40.5 35 38 28.5 Q35 30.5 32 31 Q29 30.5 26 28.5Z" fill="#f0f0f0"/>
+  <line x1="32" y1="30.5" x2="32" y2="63.5" stroke="#d0d0d0" stroke-width="0.6" opacity="0.5"/>
+  <path d="M28.5 58.5 Q32 65.5 35.5 58.5 Q33.5 63 32 64.5 Q30.5 63 28.5 58.5Z" fill="#e0e0e0"/>
+  <path d="M28 27 Q30 30 32 29 Q34 30 36 27" fill="#e0e0e0"/>
+  <ellipse cx="32" cy="11" rx="16" ry="4" fill="#555560"/>
+  <ellipse cx="32" cy="10.5" rx="14.5" ry="3" fill="#666670"/>
+  <path d="M23 11 Q25 6 27.5 2.5 Q30 -0.5 32 -1.5 Q34 -0.5 36.5 2.5 Q39 6 41 11Z" fill="#555560"/>
+  <path d="M24.5 11 Q26.5 6.5 29 3 Q31 0.5 32 -0.5 Q33 0.5 35 3 Q37.5 6.5 39.5 11Z" fill="#666670"/>
+  <rect x="23" y="9.5" width="18" height="2.5" rx="1" fill="#443830"/>
+  <rect x="29.5" y="9" width="5" height="3.5" rx="1" fill="#554030"/>
+  <rect x="30" y="9.5" width="4" height="2.5" rx="0.8" fill="#c8a040" opacity="0.7"/>
+</svg>`  }
 
   function renderClassSelectCards(currentClass) {
     const container = document.getElementById('classSelectCards');
@@ -2579,7 +2501,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.level = hero.level;
     state.gold = hero.gold;
     state.inventory = [];
-    state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null };
+    state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null, helmet:null };
     state.usedBarcodes = new Set();
     // 카탈로그 미로드 상태라면 재시도
     if (gearCatalog.length === 0) await loadItemCatalog();
@@ -3062,6 +2984,11 @@ document.addEventListener('DOMContentLoaded', () => {
     { name:'집중 목걸이',   slot:'necklace', weaponType:null, icon:'⟨집중목걸이⟩', classes:null,            stats:{atk:0,def:0,hp:0,speed:1,crit:2} },
     { name:'수호 목걸이',   slot:'necklace', weaponType:null, icon:'⟨수호목걸이⟩', classes:null,            stats:{atk:0,def:2,hp:6,speed:0,crit:0} },
     { name:'투사의 목걸이', slot:'necklace', weaponType:null, icon:'⟨투사목걸이⟩', classes:null,            stats:{atk:2,def:0,hp:3,speed:0,crit:1} },
+    // ── 투구 ──
+    { name:'가죽 투구',   slot:'helmet', weaponType:null, icon:'⟨가죽투구⟩',  classes:null, stats:{atk:0,def:2,hp: 5,speed:0,crit:0} },
+    { name:'철 투구',     slot:'helmet', weaponType:null, icon:'⟨철투구⟩',    classes:null, stats:{atk:0,def:4,hp: 6,speed:0,crit:0} },
+    { name:'전투 투구',   slot:'helmet', weaponType:null, icon:'⟨전투투구⟩',  classes:null, stats:{atk:0,def:5,hp: 8,speed:0,crit:0} },
+    { name:'기사 투구',   slot:'helmet', weaponType:null, icon:'⟨기사투구⟩',  classes:null, stats:{atk:0,def:7,hp:10,speed:-1,crit:0} },
   ];
 
     const slotLabels = { weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑', boots:'장화', ring1:'반지1', ring2:'반지2', necklace:'목걸이', cloak:'망토' };
@@ -3152,7 +3079,7 @@ document.addEventListener('DOMContentLoaded', () => {
     heroStatsSoldiers:q('heroStatsSoldiers'), heroPreviewWrap:q('heroPreviewWrap'),
     equippedGrid: document.getElementById('equippedGrid'),
     inventoryGrid:q('inventoryGrid'),
-    overlayCloak:q('overlayCloak'), overlayNecklace:q('overlayNecklace'),
+    overlayHelmet:q('overlayHelmet'), overlayCloak:q('overlayCloak'), overlayNecklace:q('overlayNecklace'),
     overlayGloveL:q('overlayGloveL'), overlayGloveR:q('overlayGloveR'),
     overlayBootL:q('overlayBootL'),  overlayBootR:q('overlayBootR'),
     overlayRingL:q('overlayRingL'),  overlayRingR:q('overlayRingR'),
@@ -3241,582 +3168,255 @@ document.addEventListener('DOMContentLoaded', () => {
       : '#c5d5f0';
     const extraClass = [getWeaponGlowClass(), getArmorGlowClass(), getShieldGlowClass()].filter(Boolean).join(' ');
 
-    if (heroClass === '전사') return `<svg viewBox="0 0 64 80" width="64" height="80" shape-rendering="crispEdges" style="image-rendering:pixelated" class="class-warrior${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
-  <!-- shadow -->
-  <ellipse cx="32" cy="77" rx="14" ry="3" fill="rgba(0,0,0,0.28)"/>
+    if (heroClass === '전사') return `<svg viewBox="0 0 64 80" width="64" height="80" class="class-warrior${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
+  <!-- 그림자 -->
+  <ellipse cx="32" cy="72" rx="14" ry="3.5" fill="rgba(0,0,0,0.28)"/>
 
-  <!-- ── BOOTS ── -->
-  <!-- left boot outline -->
-  <rect x="20" y="65" width="11" height="10" fill="#0a0a0a"/>
-  <!-- left boot base -->
-  <rect x="21" y="66" width="9" height="8" fill="#2a1e0e"/>
-  <rect x="21" y="66" width="9" height="4" fill="#3d2c14"/>
-  <rect x="21" y="66" width="4" height="2" fill="#5a4020" opacity="0.7"/>
-  <!-- left boot sole -->
-  <rect x="20" y="73" width="11" height="2" fill="#1a1008"/>
-  <!-- right boot outline -->
-  <rect x="33" y="65" width="11" height="10" fill="#0a0a0a"/>
-  <rect x="34" y="66" width="9" height="8" fill="#2a1e0e"/>
-  <rect x="34" y="66" width="9" height="4" fill="#3d2c14"/>
-  <rect x="34" y="66" width="4" height="2" fill="#5a4020" opacity="0.7"/>
-  <rect x="33" y="73" width="11" height="2" fill="#1a1008"/>
+  <!-- 망토 -->
+  <path d="M22 37 Q32 30 42 37 L45 59 Q32 67 19 59Z" fill="#c43c3c"/>
+  <path d="M25 40 Q32 35 40 40 L41 55 Q32 60 23 55Z" fill="#a83030" opacity="0.5"/>
 
-  <!-- ── LEGS ── -->
-  <!-- left leg outline -->
-  <rect x="20" y="51" width="11" height="16" fill="#0a0a0a"/>
-  <rect x="21" y="52" width="9" height="14" fill="#2a3a8a"/>
-  <rect x="21" y="52" width="4" height="14" fill="#3a50b8"/>
-  <rect x="21" y="52" width="2" height="14" fill="#4a60c8" opacity="0.6"/>
-  <!-- knee guard -->
-  <rect x="20" y="57" width="11" height="4" fill="#3050a0"/>
-  <rect x="21" y="58" width="9" height="2" fill="#5070c0"/>
-  <rect x="21" y="58" width="4" height="1" fill="#7090e0" opacity="0.5"/>
-  <!-- right leg outline -->
-  <rect x="33" y="51" width="11" height="16" fill="#0a0a0a"/>
-  <rect x="34" y="52" width="9" height="14" fill="#2a3a8a"/>
-  <rect x="34" y="52" width="4" height="14" fill="#3a50b8"/>
-  <rect x="34" y="52" width="2" height="14" fill="#4a60c8" opacity="0.6"/>
-  <rect x="33" y="57" width="11" height="4" fill="#3050a0"/>
-  <rect x="34" y="58" width="9" height="2" fill="#5070c0"/>
-  <rect x="34" y="58" width="4" height="1" fill="#7090e0" opacity="0.5"/>
+  <!-- 다리 -->
+  <rect x="25" y="53" width="6" height="14" rx="3" fill="#5b3d2e"/>
+  <rect x="33" y="53" width="6" height="14" rx="3" fill="#5b3d2e"/>
 
-  <!-- ── SKIRT / TASSET ── -->
-  <rect x="19" y="47" width="26" height="7" fill="#0a0a0a"/>
-  <rect x="20" y="48" width="24" height="6" fill="#1e2e80"/>
-  <rect x="20" y="48" width="24" height="2" fill="#3040a0"/>
-  <!-- tasset center piece -->
-  <rect x="28" y="48" width="8" height="6" fill="#2838a0"/>
-  <rect x="28" y="48" width="8" height="2" fill="#4858c0"/>
-  <!-- rivet detail -->
-  <rect x="22" y="49" width="2" height="2" fill="#5060b0"/>
-  <rect x="40" y="49" width="2" height="2" fill="#5060b0"/>
+  <!-- 신발 -->
+  <ellipse cx="28" cy="67" rx="5" ry="3" fill="#211810"/>
+  <ellipse cx="36" cy="67" rx="5" ry="3" fill="#211810"/>
+  <ellipse cx="27" cy="66" rx="2" ry="1.2" fill="#2e2014" opacity="0.6"/>
+  <ellipse cx="35" cy="66" rx="2" ry="1.2" fill="#2e2014" opacity="0.6"/>
 
-  <!-- ── TORSO ARMOR ── -->
-  <rect x="18" y="28" width="28" height="21" fill="#0a0a0a"/>
-  <rect x="19" y="29" width="26" height="19" fill="#3a5ac0"/>
-  <!-- chest highlight -->
-  <rect x="19" y="29" width="26" height="4" fill="#5878e0"/>
-  <rect x="19" y="29" width="13" height="4" fill="#6888ee" opacity="0.6"/>
-  <!-- chest center line -->
-  <rect x="31" y="29" width="2" height="19" fill="#2848a8"/>
-  <!-- chest detail lines -->
-  <rect x="21" y="34" width="22" height="1" fill="#2848a8" opacity="0.8"/>
-  <rect x="21" y="38" width="22" height="1" fill="#2848a8" opacity="0.6"/>
-  <!-- pectoral plates -->
-  <rect x="20" y="30" width="10" height="8" fill="#4a6ad0" opacity="0.7"/>
-  <rect x="20" y="30" width="5" height="3" fill="#6888ee" opacity="0.4"/>
-  <rect x="34" y="30" width="10" height="8" fill="#4a6ad0" opacity="0.7"/>
-  <rect x="34" y="30" width="5" height="3" fill="#6888ee" opacity="0.4"/>
-  <!-- belly guard -->
-  <rect x="22" y="41" width="20" height="5" fill="#2a4aaa"/>
-  <rect x="22" y="41" width="20" height="2" fill="#3a5ac0"/>
+  <!-- 몸통 갑옷 -->
+  <rect x="21" y="32" width="22" height="25" rx="7" fill="#3a7be0"/>
+  <!-- 금 세로선 -->
+  <rect x="29" y="33" width="6" height="23" rx="2" fill="#ffd34d"/>
+  <!-- 흉갑 -->
+  <rect x="22" y="34" width="20" height="14" rx="4" fill="#2d68c8"/>
+  <rect x="24" y="36" width="16" height="10" rx="3" fill="#3579d8"/>
+  <!-- 허리띠 -->
+  <rect x="23" y="47" width="19" height="5" rx="2.5" fill="#6b3f20"/>
+  <rect x="23" y="47" width="19" height="2.5" rx="2" fill="#7d4d28" opacity="0.6"/>
+  <circle cx="32" cy="49.5" r="2.5" fill="#ffd34d"/>
+  <circle cx="32" cy="49.5" r="1.5" fill="#ffea88"/>
 
-  <!-- ── SHOULDER PADS ── -->
-  <!-- left shoulder -->
-  <rect x="13" y="26" width="8" height="10" fill="#0a0a0a"/>
-  <rect x="14" y="27" width="6" height="9" fill="#4a6ad0"/>
-  <rect x="14" y="27" width="6" height="3" fill="#7090ee"/>
-  <rect x="14" y="27" width="3" height="2" fill="#9ab0ff" opacity="0.5"/>
-  <!-- left shoulder spike -->
-  <rect x="12" y="24" width="4" height="4" fill="#0a0a0a"/>
-  <rect x="13" y="25" width="2" height="3" fill="#5878e0"/>
-  <!-- right shoulder -->
-  <rect x="43" y="26" width="8" height="10" fill="#0a0a0a"/>
-  <rect x="44" y="27" width="6" height="9" fill="#4a6ad0"/>
-  <rect x="44" y="27" width="6" height="3" fill="#7090ee"/>
-  <rect x="47" y="27" width="3" height="2" fill="#9ab0ff" opacity="0.5"/>
-  <!-- right shoulder spike -->
-  <rect x="48" y="24" width="4" height="4" fill="#0a0a0a"/>
-  <rect x="49" y="25" width="2" height="3" fill="#5878e0"/>
+  <!-- 어깨 갑옷 -->
+  <circle cx="22" cy="36" r="4.5" fill="#b9c6d8"/>
+  <circle cx="22" cy="36" r="3.5" fill="#cdd8e8"/>
+  <circle cx="22" cy="34.5" r="1.5" fill="#e8eef6"/>
+  <circle cx="42" cy="36" r="4.5" fill="#b9c6d8"/>
+  <circle cx="42" cy="36" r="3.5" fill="#cdd8e8"/>
+  <circle cx="42" cy="34.5" r="1.5" fill="#e8eef6"/>
 
-  <!-- ── ARMS ── -->
-  <!-- left arm (sword arm — raised) -->
-  <rect x="10" y="24" width="6" height="16" fill="#0a0a0a"/>
-  <rect x="11" y="25" width="4" height="14" fill="#f0c090"/>
-  <rect x="11" y="25" width="2" height="5" fill="#f8d8b0" opacity="0.7"/>
-  <!-- left gauntlet -->
-  <rect x="10" y="37" width="7" height="5" fill="#0a0a0a"/>
-  <rect x="11" y="38" width="5" height="4" fill="#3a5ac0"/>
-  <rect x="11" y="38" width="5" height="2" fill="#5878e0"/>
+  <!-- 왼팔 -->
+  <rect x="14" y="36" width="8" height="17" rx="4" fill="#f0c087" transform="rotate(8 14 36)"/>
+  <!-- 오른팔 -->
+  <rect x="42" y="36" width="8" height="17" rx="4" fill="#f0c087" transform="rotate(-12 42 36)"/>
 
-  <!-- right arm (shield arm) -->
-  <rect x="48" y="29" width="6" height="16" fill="#0a0a0a"/>
-  <rect x="49" y="30" width="4" height="14" fill="#f0c090"/>
-  <rect x="49" y="30" width="2" height="5" fill="#f8d8b0" opacity="0.7"/>
-  <!-- right gauntlet -->
-  <rect x="48" y="42" width="7" height="5" fill="#0a0a0a"/>
-  <rect x="49" y="43" width="5" height="4" fill="#3a5ac0"/>
-  <rect x="49" y="43" width="5" height="2" fill="#5878e0"/>
+  <!-- 왼손 -->
+  <circle cx="19" cy="53" r="3.5" fill="#f0c087"/>
+  <!-- 오른손 -->
+  <circle cx="46" cy="52" r="3.5" fill="#f0c087"/>
 
-  <!-- ── NECK ── -->
-  <rect x="28" y="24" width="8" height="6" fill="#0a0a0a"/>
-  <rect x="29" y="25" width="6" height="5" fill="#f0c090"/>
-  <!-- gorget (neck armor) -->
-  <rect x="27" y="27" width="10" height="3" fill="#3a5ac0"/>
-  <rect x="27" y="27" width="10" height="1" fill="#5878e0"/>
-
-  <!-- ── HEAD ── -->
-  <rect x="22" y="10" width="20" height="16" fill="#0a0a0a"/>
-  <rect x="23" y="11" width="18" height="14" fill="#f0c090"/>
-  <!-- face highlight -->
-  <rect x="23" y="11" width="8" height="5" fill="#f8d8b0" opacity="0.6"/>
-  <!-- eyes -->
-  <rect x="25" y="17" width="4" height="3" fill="#1a1a30"/>
-  <rect x="35" y="17" width="4" height="3" fill="#1a1a30"/>
-  <!-- eye whites -->
-  <rect x="25" y="17" width="2" height="2" fill="#e8eeff"/>
-  <rect x="35" y="17" width="2" height="2" fill="#e8eeff"/>
-  <!-- pupils -->
-  <rect x="26" y="18" width="2" height="1" fill="#1a1a30"/>
-  <rect x="36" y="18" width="2" height="1" fill="#1a1a30"/>
-  <!-- eye shine -->
-  <rect x="25" y="17" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
-  <rect x="35" y="17" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
-  <!-- nose -->
-  <rect x="31" y="20" width="2" height="2" fill="#d4a070" opacity="0.7"/>
-  <!-- mouth -->
-  <rect x="27" y="23" width="10" height="1" fill="#b06040"/>
-  <rect x="29" y="22" width="6" height="1" fill="#b06040" opacity="0.5"/>
-
-  <!-- ── HELMET ── -->
-  <rect x="21" y="4" width="22" height="12" fill="#0a0a0a"/>
-  <rect x="22" y="5" width="20" height="11" fill="#3a5ac0"/>
-  <!-- helmet top highlight -->
-  <rect x="22" y="5" width="20" height="3" fill="#6888ee"/>
-  <rect x="22" y="5" width="10" height="2" fill="#8aa8ff" opacity="0.5"/>
-  <!-- visor -->
-  <rect x="23" y="13" width="18" height="5" fill="#2a3a90"/>
-  <rect x="23" y="13" width="18" height="2" fill="#1a2a70"/>
-  <rect x="24" y="14" width="16" height="1" fill="#0a1a50" opacity="0.7"/>
-  <!-- cheek guards -->
-  <rect x="21" y="10" width="4" height="8" fill="#3050a8"/>
-  <rect x="39" y="10" width="4" height="8" fill="#3050a8"/>
-  <!-- helmet crest base -->
-  <rect x="29" y="2" width="6" height="5" fill="#0a0a0a"/>
-  <rect x="30" y="3" width="4" height="4" fill="#ffcf63"/>
-  <!-- crest plume -->
-  <rect x="30" y="0" width="4" height="4" fill="#ff9030"/>
-  <rect x="31" y="0" width="2" height="3" fill="#ffcf63"/>
-
-  <!-- ── SWORD (left, raised high) ── -->
-  <g class="hero-weapon">
-    <!-- blade outline -->
-    <rect x="3" y="2" width="9" height="38" fill="#0a0a0a"/>
-    <!-- blade main -->
-    <rect x="4" y="3" width="7" height="36" fill="${weaponColor}"/>
-    <!-- blade edge highlight -->
-    <rect x="4" y="3" width="2" height="36" fill="rgba(255,255,255,0.5)"/>
-    <!-- blade center fuller -->
-    <rect x="6" y="5" width="2" height="30" fill="rgba(255,255,255,0.2)"/>
-    <!-- blade tip -->
-    <rect x="5" y="2" width="5" height="3" fill="${weaponColor}"/>
-    <rect x="6" y="1" width="3" height="2" fill="${weaponColor}"/>
-    <rect x="7" y="0" width="1" height="2" fill="${weaponColor}"/>
-    <!-- crossguard -->
-    <rect x="0" y="37" width="15" height="4" fill="#0a0a0a"/>
-    <rect x="1" y="38" width="13" height="3" fill="${weaponColor}"/>
-    <rect x="1" y="38" width="13" height="1" fill="rgba(255,255,255,0.4)"/>
-    <!-- grip -->
-    <rect x="5" y="41" width="5" height="9" fill="#0a0a0a"/>
-    <rect x="6" y="42" width="3" height="8" fill="#5a3a1a"/>
-    <rect x="6" y="42" width="1" height="8" fill="#7a5a30" opacity="0.6"/>
-    <!-- grip wrap -->
-    <rect x="5" y="43" width="5" height="1" fill="#3a2010"/>
-    <rect x="5" y="45" width="5" height="1" fill="#3a2010"/>
-    <rect x="5" y="47" width="5" height="1" fill="#3a2010"/>
-    <!-- pommel -->
-    <rect x="4" y="50" width="7" height="4" fill="#0a0a0a"/>
-    <rect x="5" y="51" width="5" height="3" fill="${weaponColor}"/>
-    <rect x="5" y="51" width="2" height="1" fill="rgba(255,255,255,0.5)"/>
+  <!-- 방패 (왼쪽) -->
+  <g transform="translate(7 38)">
+    <path d="M7 0 Q15 2.5 15 9 Q15 19 7 25 Q-1 19-1 9 Q-1 2.5 7 0Z" fill="${shieldColor}" stroke="#5c6778" stroke-width="1"/>
+    <path d="M7 1.5 Q14 4 14 9 Q14 18 7 23 Q0 18 0 9 Q0 4 7 1.5Z" fill="${shieldColor}" opacity="0.65"/>
+    <circle cx="7" cy="9" r="3" fill="#ffd34d"/>
+    <circle cx="7" cy="9" r="1.8" fill="#ffea88"/>
+    <line x1="7" y1="3" x2="7" y2="15" stroke="${shieldEdge}" stroke-width="1" opacity="0.6"/>
+    <line x1="1" y1="9" x2="13" y2="9" stroke="${shieldEdge}" stroke-width="1" opacity="0.6"/>
   </g>
 
-  <!-- ── SHIELD (right, forward) ── -->
-  <g class="hero-shield">
-    <!-- shield outline -->
-    <rect x="51" y="22" width="13" height="20" fill="#0a0a0a"/>
-    <!-- shield body -->
-    <rect x="52" y="23" width="11" height="18" fill="${shieldColor}"/>
-    <!-- shield highlight -->
-    <rect x="52" y="23" width="11" height="4" fill="rgba(255,255,255,0.3)"/>
-    <rect x="52" y="23" width="5" height="3" fill="rgba(255,255,255,0.2)"/>
-    <!-- shield border inner -->
-    <rect x="53" y="24" width="9" height="16" fill="none"/>
-    <rect x="53" y="24" width="9" height="1" fill="${shieldEdge}" opacity="0.5"/>
-    <rect x="53" y="38" width="9" height="1" fill="${shieldEdge}" opacity="0.5"/>
-    <rect x="53" y="24" width="1" height="15" fill="${shieldEdge}" opacity="0.4"/>
-    <rect x="61" y="24" width="1" height="15" fill="${shieldEdge}" opacity="0.4"/>
-    <!-- boss (center emblem) -->
-    <rect x="55" y="29" width="5" height="5" fill="#0a0a0a"/>
-    <rect x="56" y="30" width="3" height="3" fill="${shieldEdge}"/>
-    <rect x="56" y="30" width="2" height="1" fill="rgba(255,255,255,0.7)"/>
-    <!-- shield shadow side -->
-    <rect x="60" y="24" width="3" height="17" fill="rgba(0,0,0,0.2)"/>
+  <!-- 검: 손잡이 중간이 오른손(46,52)에 위치 -->
+  <g transform="translate(37 19) rotate(15)">
+    <!-- 날 -->
+    <path d="M3.5 0 L7 28 L0 28Z" fill="#e9eef5" stroke="#a7b4c4" stroke-width="0.8"/>
+    <path d="M3.5 1 L6.5 28 L3.5 28Z" fill="#fff" opacity="0.3"/>
+    <line x1="3.5" y1="2" x2="3.5" y2="25" stroke="#c8d2dd" stroke-width="0.6"/>
+    <rect x="2.5" y="4" width="1.5" height="18" rx="0.7" fill="${weaponColor}" opacity="0.4"/>
+    <!-- 가드 -->
+    <rect x="0" y="28" width="7" height="2.5" rx="1.5" fill="#ffd34d"/>
+    <!-- 손잡이 (middle=34.5) -->
+    <rect x="2" y="30.5" width="3" height="8" rx="1.5" fill="#6b3f20"/>
   </g>
+
+  <!-- 목 (반으로 줄임: height=2.5) -->
+  <rect x="28.5" y="29" width="7" height="2.5" rx="1.5" fill="#f0c087"/>
+
+  <!-- 머리 (세로 키움: ry=11→13.5, cy=17) -->
+  <ellipse cx="32" cy="17" rx="13" ry="13" fill="#f0c087"/>
+  <!-- 얼굴 하이라이트 -->
+  <ellipse cx="28" cy="11" rx="3" ry="2.2" fill="#f8d4a0" opacity="0.4"/>
+
+  <!-- 귀 -->
+  <ellipse cx="19.5" cy="17" rx="2.5" ry="3.5" fill="#f0c087"/>
+  <ellipse cx="44.5" cy="17" rx="2.5" ry="3.5" fill="#f0c087"/>
+
+  <!-- 머리카락 -->
+  <path d="M20 17 Q20 5 32 4.5 Q44 5 44 17 Q42 10 38 9 Q35 13 32 13.5 Q29 13 26 9.5 Q22 11 20 17Z" fill="#3d2510"/>
+  <path d="M20 17 Q19 12 20.5 8 Q22.5 5.5 26 5" stroke="#4d3020" stroke-width="1" fill="none" opacity="0.5"/>
+
+  <!-- 눈썹 -->
+  <rect x="26" y="13.5" width="4.5" height="1.5" rx="0.8" fill="#2e1a0e" transform="rotate(-6 26 13.5)"/>
+  <rect x="33.5" y="13.5" width="4.5" height="1.5" rx="0.8" fill="#2e1a0e" transform="rotate(6 33.5 13.5)"/>
+
+  <!-- 눈 흰자 -->
+  <ellipse cx="28.5" cy="17" rx="2.5" ry="3" fill="#fff"/>
+  <ellipse cx="35.5" cy="17" rx="2.5" ry="3" fill="#fff"/>
+  <!-- 눈동자 -->
+  <ellipse cx="28.5" cy="17.5" rx="1.7" ry="2.3" fill="#1a2030"/>
+  <ellipse cx="35.5" cy="17.5" rx="1.7" ry="2.3" fill="#1a2030"/>
+  <!-- 눈 하이라이트 -->
+  <circle cx="29.4" cy="15.8" r="0.8" fill="#fff" opacity="0.9"/>
+  <circle cx="36.4" cy="15.8" r="0.8" fill="#fff" opacity="0.9"/>
+
+  <!-- 코 -->
+  <ellipse cx="32" cy="21" rx="1.3" ry="1" fill="#deab74"/>
+
+  <!-- 입 -->
+  <path d="M29 24.5 Q32 26.5 35 24.5" stroke="#8f4f43" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+
+  <!-- 볼 -->
+  <circle cx="23.5" cy="21.5" r="2.5" fill="#e9907a" opacity="0.35"/>
+  <circle cx="40.5" cy="21.5" r="2.5" fill="#e9907a" opacity="0.35"/>
+
+  <!-- 가슴 별 문양 -->
+  <circle cx="32" cy="40" r="3.5" fill="#ffd34d"/>
+  <path d="M32 36.5 L32.8 38.8 L35.2 38.8 L33.3 40.2 L34 42.5 L32 41.1 L30 42.5 L30.7 40.2 L28.8 38.8 L31.2 38.8Z" fill="#fff8d0"/>
 </svg>`;
-    if (heroClass === '궁사') return `<svg viewBox="0 0 64 80" width="64" height="80" shape-rendering="crispEdges" style="image-rendering:pixelated" class="class-archer${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
-  <ellipse cx="32" cy="77" rx="14" ry="3" fill="rgba(0,0,0,0.28)"/>
-
-  <!-- ── BOOTS ── -->
-  <rect x="20" y="64" width="11" height="11" fill="#0a0a0a"/>
-  <rect x="21" y="65" width="9" height="9" fill="#2a1a0a"/>
-  <rect x="21" y="65" width="9" height="4" fill="#3d2a10"/>
-  <rect x="21" y="65" width="4" height="2" fill="#5a3a18" opacity="0.7"/>
-  <rect x="20" y="73" width="12" height="2" fill="#1a0e04"/>
-  <rect x="33" y="64" width="11" height="11" fill="#0a0a0a"/>
-  <rect x="34" y="65" width="9" height="9" fill="#2a1a0a"/>
-  <rect x="34" y="65" width="9" height="4" fill="#3d2a10"/>
-  <rect x="34" y="65" width="4" height="2" fill="#5a3a18" opacity="0.7"/>
-  <rect x="33" y="73" width="12" height="2" fill="#1a0e04"/>
-
-  <!-- ── LEGS ── -->
-  <rect x="20" y="50" width="11" height="16" fill="#0a0a0a"/>
-  <rect x="21" y="51" width="9" height="14" fill="#1e4a30"/>
-  <rect x="21" y="51" width="4" height="14" fill="#2a6040"/>
-  <rect x="21" y="51" width="2" height="14" fill="#3a7050" opacity="0.6"/>
-  <!-- knee guard leather -->
-  <rect x="20" y="57" width="11" height="4" fill="#0a0a0a"/>
-  <rect x="21" y="58" width="9" height="3" fill="#3a2510"/>
-  <rect x="21" y="58" width="9" height="1" fill="#5a3a1e"/>
-  <rect x="33" y="50" width="11" height="16" fill="#0a0a0a"/>
-  <rect x="34" y="51" width="9" height="14" fill="#1e4a30"/>
-  <rect x="34" y="51" width="4" height="14" fill="#2a6040"/>
-  <rect x="34" y="51" width="2" height="14" fill="#3a7050" opacity="0.6"/>
-  <rect x="33" y="57" width="11" height="4" fill="#0a0a0a"/>
-  <rect x="34" y="58" width="9" height="3" fill="#3a2510"/>
-  <rect x="34" y="58" width="9" height="1" fill="#5a3a1e"/>
-
-  <!-- ── LOWER BODY / BELT ── -->
-  <rect x="19" y="45" width="26" height="7" fill="#0a0a0a"/>
-  <rect x="20" y="46" width="24" height="6" fill="#1a3a28"/>
-  <rect x="20" y="46" width="24" height="2" fill="#2a5038"/>
-  <!-- belt buckle -->
-  <rect x="29" y="46" width="6" height="4" fill="#8a6020"/>
-  <rect x="30" y="47" width="4" height="2" fill="#c09030"/>
-  <rect x="30" y="47" width="2" height="1" fill="rgba(255,255,255,0.4)"/>
-  <!-- quiver strap -->
-  <rect x="37" y="30" width="2" height="20" fill="#5a3a10"/>
-  <rect x="37" y="30" width="1" height="20" fill="#7a5a20" opacity="0.5"/>
-
-  <!-- ── TORSO (leather armor) ── -->
-  <rect x="18" y="27" width="28" height="20" fill="#0a0a0a"/>
-  <rect x="19" y="28" width="26" height="18" fill="#2a5038"/>
-  <!-- chest highlight -->
-  <rect x="19" y="28" width="26" height="4" fill="#3a6048"/>
-  <rect x="19" y="28" width="13" height="3" fill="#4a7058" opacity="0.6"/>
-  <!-- chest center -->
-  <rect x="31" y="28" width="2" height="18" fill="#1a3828"/>
-  <!-- leather stitching -->
-  <rect x="21" y="33" width="9" height="1" fill="#1a3028" opacity="0.8"/>
-  <rect x="34" y="33" width="9" height="1" fill="#1a3028" opacity="0.8"/>
-  <rect x="21" y="37" width="22" height="1" fill="#1a3028" opacity="0.6"/>
-  <!-- shoulder leather -->
-  <rect x="19" y="28" width="5" height="10" fill="#3a5a40" opacity="0.5"/>
-
-  <!-- ── SHOULDER PADS (light leather) ── -->
-  <rect x="13" y="26" width="7" height="9" fill="#0a0a0a"/>
-  <rect x="14" y="27" width="5" height="8" fill="#3a5a40"/>
-  <rect x="14" y="27" width="5" height="3" fill="#4a6a50"/>
-  <rect x="14" y="27" width="2" height="2" fill="#6a8a68" opacity="0.5"/>
-  <rect x="44" y="26" width="7" height="9" fill="#0a0a0a"/>
-  <rect x="45" y="27" width="5" height="8" fill="#3a5a40"/>
-  <rect x="45" y="27" width="5" height="3" fill="#4a6a50"/>
-  <rect x="48" y="27" width="2" height="2" fill="#6a8a68" opacity="0.5"/>
-
-  <!-- ── ARMS ── -->
-  <!-- left arm (bow arm — stretched forward) -->
-  <rect x="8" y="28" width="7" height="18" fill="#0a0a0a"/>
-  <rect x="9" y="29" width="5" height="16" fill="#f0c090"/>
-  <rect x="9" y="29" width="2" height="7" fill="#f8d8b0" opacity="0.6"/>
-  <!-- bracer left -->
-  <rect x="8" y="40" width="7" height="7" fill="#0a0a0a"/>
-  <rect x="9" y="41" width="5" height="6" fill="#5a3a10"/>
-  <rect x="9" y="41" width="5" height="2" fill="#8a5a20"/>
-  <rect x="9" y="43" width="2" height="1" fill="#aa7a30" opacity="0.6"/>
-
-  <!-- right arm (draw arm) -->
-  <rect x="49" y="30" width="7" height="15" fill="#0a0a0a"/>
-  <rect x="50" y="31" width="5" height="13" fill="#f0c090"/>
-  <rect x="50" y="31" width="2" height="5" fill="#f8d8b0" opacity="0.6"/>
-  <!-- bracer right -->
-  <rect x="49" y="41" width="7" height="6" fill="#0a0a0a"/>
-  <rect x="50" y="42" width="5" height="5" fill="#5a3a10"/>
-  <rect x="50" y="42" width="5" height="2" fill="#8a5a20"/>
-
-  <!-- ── NECK / HEAD ── -->
-  <rect x="28" y="23" width="8" height="6" fill="#0a0a0a"/>
-  <rect x="29" y="24" width="6" height="5" fill="#f0c090"/>
-  <!-- neck scarf -->
-  <rect x="27" y="26" width="10" height="3" fill="#1a3a28"/>
-  <rect x="27" y="26" width="10" height="1" fill="#2a5038"/>
-
-  <rect x="22" y="9" width="20" height="16" fill="#0a0a0a"/>
-  <rect x="23" y="10" width="18" height="14" fill="#f0c090"/>
-  <rect x="23" y="10" width="8" height="5" fill="#f8d8b0" opacity="0.6"/>
-  <!-- eyes (focused, narrowed) -->
-  <rect x="25" y="16" width="5" height="2" fill="#1a1a30"/>
-  <rect x="34" y="16" width="5" height="2" fill="#1a1a30"/>
-  <rect x="25" y="16" width="2" height="1" fill="#e8eeff"/>
-  <rect x="34" y="16" width="2" height="1" fill="#e8eeff"/>
-  <rect x="26" y="16" width="2" height="1" fill="#2a3060"/>
-  <rect x="35" y="16" width="2" height="1" fill="#2a3060"/>
-  <rect x="25" y="16" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
-  <rect x="34" y="16" width="1" height="1" fill="rgba(255,255,255,0.9)"/>
-  <!-- focused brow -->
-  <rect x="24" y="15" width="7" height="1" fill="#5a3a20" opacity="0.7"/>
-  <rect x="33" y="15" width="7" height="1" fill="#5a3a20" opacity="0.7"/>
-  <rect x="30" y="20" width="4" height="1" fill="#b06040" opacity="0.8"/>
-
-  <!-- ── HOOD ── -->
-  <rect x="20" y="3" width="24" height="12" fill="#0a0a0a"/>
-  <rect x="21" y="4" width="22" height="11" fill="#1a3a28"/>
-  <rect x="21" y="4" width="22" height="3" fill="#2a5038"/>
-  <rect x="21" y="4" width="11" height="2" fill="#3a6048" opacity="0.6"/>
-  <!-- hood sides -->
-  <rect x="20" y="8" width="5" height="10" fill="#1a3a28"/>
-  <rect x="39" y="8" width="5" height="10" fill="#1a3a28"/>
-  <!-- hood shadow rim -->
-  <rect x="22" y="13" width="20" height="2" fill="#0e2218"/>
-  <!-- gold headband -->
-  <rect x="21" y="10" width="22" height="3" fill="#0a0a0a"/>
-  <rect x="22" y="11" width="20" height="2" fill="${weaponColor}"/>
-  <rect x="22" y="11" width="10" height="1" fill="rgba(255,255,255,0.3)"/>
-  <!-- hood tip -->
-  <rect x="29" y="0" width="6" height="5" fill="#1a3a28"/>
-  <rect x="30" y="0" width="4" height="4" fill="#2a5038"/>
-
-  <!-- ── BOW (left side, drawn) ── -->
-  <g class="hero-weapon">
-    <!-- bow limbs — curved with blocks -->
-    <rect x="2" y="8"  width="4" height="4" fill="${weaponColor}"/>
-    <rect x="1" y="12" width="4" height="5" fill="${weaponColor}"/>
-    <rect x="1" y="17" width="4" height="6" fill="${weaponColor}"/>
-    <rect x="1" y="23" width="4" height="6" fill="${weaponColor}"/>
-    <rect x="1" y="29" width="4" height="6" fill="${weaponColor}"/>
-    <rect x="1" y="35" width="4" height="5" fill="${weaponColor}"/>
-    <rect x="2" y="40" width="4" height="4" fill="${weaponColor}"/>
-    <rect x="3" y="43" width="3" height="3" fill="${weaponColor}"/>
-    <!-- bow highlight -->
-    <rect x="2" y="8"  width="2" height="4" fill="rgba(255,255,255,0.3)"/>
-    <rect x="1" y="12" width="2" height="30" fill="rgba(255,255,255,0.2)"/>
-    <!-- handle wrap -->
-    <rect x="0" y="22" width="5" height="8" fill="#5a3a10"/>
-    <rect x="0" y="22" width="5" height="2" fill="#8a5a20"/>
-    <rect x="0" y="25" width="5" height="1" fill="#3a2010"/>
-    <rect x="0" y="27" width="5" height="1" fill="#3a2010"/>
-    <!-- bowstring (taut — drawn back) -->
-    <rect x="4" y="9"  width="1" height="13" fill="#f0e8c0" opacity="0.9"/>
-    <rect x="4" y="30" width="1" height="13" fill="#f0e8c0" opacity="0.9"/>
-    <!-- string to draw point -->
-    <rect x="4" y="22" width="10" height="1" fill="#f0e8c0" opacity="0.9"/>
-    <rect x="14" y="21" width="1" height="3" fill="#f0e8c0" opacity="0.7"/>
-    <!-- nocked arrow -->
-    <rect x="5" y="23" width="30" height="2" fill="#c8a050"/>
-    <rect x="5" y="23" width="30" height="1" fill="#e0c070" opacity="0.6"/>
-    <!-- arrowhead -->
-    <rect x="33" y="21" width="4" height="4" fill="#0a0a0a"/>
-    <rect x="34" y="22" width="3" height="2" fill="${weaponColor}"/>
-    <rect x="35" y="22" width="2" height="1" fill="rgba(255,255,255,0.5)"/>
-    <!-- fletching -->
-    <rect x="4" y="21" width="3" height="1" fill="#c03030"/>
-    <rect x="4" y="25" width="3" height="1" fill="#c03030"/>
-    <rect x="3" y="21" width="2" height="1" fill="#e04040" opacity="0.7"/>
-    <rect x="3" y="25" width="2" height="1" fill="#e04040" opacity="0.7"/>
-  </g>
-
-  <!-- ── QUIVER (right side) ── -->
-  <rect x="42" y="20" width="9" height="22" fill="#0a0a0a"/>
-  <rect x="43" y="21" width="7" height="20" fill="#5a3a10"/>
-  <rect x="43" y="21" width="7" height="4" fill="#8a5a20"/>
-  <rect x="43" y="21" width="3" height="2" fill="#aa7a30" opacity="0.5"/>
-  <!-- arrows in quiver -->
-  <rect x="44" y="10" width="2" height="12" fill="#c8a050"/>
-  <rect x="47" y="8"  width="2" height="14" fill="#c8a050"/>
-  <rect x="50" y="11" width="2" height="11" fill="#c8a050"/>
-  <rect x="44" y="9"  width="2" height="2" fill="${weaponColor}"/>
-  <rect x="47" y="7"  width="2" height="2" fill="${weaponColor}"/>
-  <rect x="50" y="10" width="2" height="2" fill="${weaponColor}"/>
+    if (heroClass === '궁사') return `<svg viewBox="0 0 64 80" width="64" height="80" class="class-archer${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
+  <ellipse cx="32" cy="77" rx="11" ry="3" fill="rgba(0,0,0,0.28)"/>
+  <rect x="43" y="31" width="5" height="16" rx="2" fill="#7a4e28"/>
+  <rect x="44" y="32" width="3.5" height="14" rx="1.5" fill="#8b5c30"/>
+  <path d="M44 32 Q41 36 41 41" stroke="#6a3e1e" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <line x1="44.5" y1="31" x2="44" y2="27" stroke="#c8a060" stroke-width="0.6"/>
+  <line x1="46" y1="31" x2="45.5" y2="27" stroke="#c8a060" stroke-width="0.6"/>
+  <line x1="47.5" y1="31" x2="47" y2="28" stroke="#c8a060" stroke-width="0.6"/>
+  <path d="M44 28 Q42.5 26.5 44 27" fill="#e84040"/>
+  <path d="M45.5 27 Q44 25.5 45.5 27" fill="#e84040"/>
+  <path d="M47 28 Q45.5 26.5 47 28" fill="#e84040"/>
+  <path d="M25 35 Q32 30 39 35 L40 54 Q32 60 24 54Z" fill="#1e6038"/>
+  <path d="M27 37 Q32 33 37 37 L38 52 Q32 56 26 52Z" fill="#256840" opacity="0.5"/>
+  <rect x="27.5" y="54" width="5" height="14" rx="2.5" fill="#2e2010"/>
+  <rect x="34" y="54" width="5" height="14" rx="2.5" fill="#2e2010"/>
+  <rect x="26.5" y="64" width="6.5" height="4" rx="2" fill="#1a1008"/>
+  <rect x="33.5" y="64" width="6.5" height="4" rx="2" fill="#1a1008"/>
+  <ellipse cx="29.8" cy="68" rx="3.8" ry="1.5" fill="#110c04"/>
+  <ellipse cx="36.8" cy="68" rx="3.8" ry="1.5" fill="#110c04"/>
+  <rect x="24" y="32" width="16" height="23" rx="5.5" fill="#4a7830"/>
+  <rect x="25.5" y="33.5" width="13" height="21" rx="4" fill="#567a34"/>
+  <path d="M32 33.5 L28.5 40 L32 39 L35.5 40Z" fill="#3a5e24" opacity="0.55"/>
+  <line x1="32" y1="33.5" x2="32" y2="55" stroke="#3a5e24" stroke-width="0.7" opacity="0.45"/>
+  <rect x="24.5" y="46" width="15" height="3.5" rx="1.8" fill="#4a3010"/>
+  <circle cx="32" cy="47.8" r="1.8" fill="#3dd68c"/>
+  <circle cx="32" cy="47.8" r="0.9" fill="#88ffcc"/>
+  <ellipse cx="25.5" cy="35" rx="3" ry="2.5" fill="#5a8e3a"/>
+  <ellipse cx="38.5" cy="35" rx="3" ry="2.5" fill="#5a8e3a"/>
+  <path d="M23.5 36 Q22 41 19 46 Q21 47 22.5 46 Q25.5 41 27 37Z" fill="#f0c087"/>
+  <circle cx="19.5" cy="46" r="2.5" fill="#f0c087"/>
+  <path d="M18.5 46 Q17.5 43 15.5 40 Q17 39 18 40 Q19.5 43 20.5 46Z" fill="#f0c087"/>
+  <path d="M37 36 Q40 41 44 46 Q45 45.5 45.5 44.5 Q43 39 40 37Z" fill="#f0c087"/>
+  <circle cx="44" cy="46" r="2.5" fill="#f0c087"/>
+  <path d="M43.5 45.5 Q45 42 47.5 40 Q48.5 41 48 42 Q46.5 44.5 44.5 46.5Z" fill="#f0c087"/>
+  <circle cx="15.5" cy="39.5" r="2.8" fill="#f0c087"/>
+  <circle cx="47.5" cy="39.5" r="2.8" fill="#f0c087"/>
+  <path d="M9 26 Q3 45 9 66" fill="none" stroke="#5a3c18" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M9 26 Q15 45 9 66" fill="none" stroke="#7a5428" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M9 27 Q7 45 9 65" fill="none" stroke="#d4c890" stroke-width="0.6" stroke-linecap="round"/>
+  <rect x="6.5" y="43" width="5" height="5" rx="1.5" fill="#4a2e10"/>
+  <circle cx="9" cy="45.5" r="1.4" fill="#3dd68c"/>
+  <circle cx="9" cy="25.5" r="1" fill="#3dd68c" opacity="0.8"/>
+  <circle cx="9" cy="65.5" r="1" fill="#3dd68c" opacity="0.8"/>
+  <rect x="29" y="27" width="6" height="6" rx="3" fill="#f0c087"/>
+  <ellipse cx="32" cy="20" rx="9" ry="10" fill="#f0c087"/>
+  <path d="M23 18 Q23 8 32 6.5 Q41 8 41 18 Q39 12 36.5 11 Q34 13.5 30 14 Q26.5 14.5 23 18Z" fill="#e8b820"/>
+  <path d="M23 17 Q20 22 20 31 Q19.5 40 21 48 Q22 52 21 57" stroke="#e8b820" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M23 17 Q20 22 20 31 Q19.5 40 21 48 Q22 52 21 57" stroke="#f0cc40" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.55"/>
+  <path d="M41 17 Q44 22 44 30 Q43.5 38 42 46 Q41 50 42 55" stroke="#e8b820" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M41 17 Q44 22 44 30 Q43.5 38 42 46 Q41 50 42 55" stroke="#f0cc40" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.55"/>
+  <path d="M24 16 Q26 11 29 12 Q27.5 15 27 18Z" fill="#d4a418"/>
+  <path d="M27 12 Q30 9 32.5 10 Q31 13 30 16Z" fill="#e8b820"/>
+  <path d="M23 20 Q18.5 18.5 18 15.5 Q19.5 17 22 18.5Z" fill="#f0c087"/>
+  <path d="M41 20 Q45.5 18.5 46 15.5 Q44.5 17 42 18.5Z" fill="#f0c087"/>
+  <path d="M26 15 Q28.5 13.5 30.5 14.5" stroke="#a07820" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+  <path d="M33.5 14.5 Q35.5 13.5 38 15" stroke="#a07820" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+  <path d="M25.5 20 Q28 17.5 30.5 20 Q28 22.5 25.5 20Z" fill="#fff"/>
+  <ellipse cx="28" cy="20" rx="1.3" ry="1.5" fill="#1a4a20"/>
+  <circle cx="28.6" cy="19.4" r="0.5" fill="#fff" opacity="0.9"/>
+  <path d="M33.5 20 Q36 17.5 38.5 20 Q36 22.5 33.5 20Z" fill="#fff"/>
+  <ellipse cx="36" cy="20" rx="1.3" ry="1.5" fill="#1a4a20"/>
+  <circle cx="36.6" cy="19.4" r="0.5" fill="#fff" opacity="0.9"/>
+  <path d="M31 23 Q32 24.5 33 23" stroke="#deab74" stroke-width="0.6" fill="none" stroke-linecap="round"/>
+  <path d="M29.5 26 Q32 27.5 34.5 26" stroke="#c87060" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+  <circle cx="25.5" cy="22.5" r="1.5" fill="#f0a090" opacity="0.28"/>
+  <circle cx="38.5" cy="22.5" r="1.5" fill="#f0a090" opacity="0.28"/>
+  <path d="M23.5 15 Q32 12 40.5 15" stroke="#3dd68c" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+  <path d="M27.5 13.5 L32 9.5 L36.5 13.5" stroke="#3dd68c" stroke-width="0.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="32" cy="9" r="1.4" fill="#3dd68c"/>
+  <circle cx="32" cy="9" r="0.6" fill="#88ffcc"/>
 </svg>`;
-    return `<svg viewBox="0 0 64 80" width="64" height="80" shape-rendering="crispEdges" style="image-rendering:pixelated" class="class-mage${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
-  <ellipse cx="32" cy="77" rx="14" ry="3" fill="rgba(0,0,0,0.28)"/>
-
-  <!-- ── ROBE BOTTOM ── -->
-  <rect x="16" y="50" width="32" height="18" fill="#0a0a0a"/>
-  <rect x="17" y="51" width="30" height="17" fill="#2a1a5a"/>
-  <rect x="17" y="51" width="30" height="4" fill="#3a2070"/>
-  <rect x="17" y="51" width="15" height="3" fill="#4a2880" opacity="0.6"/>
-  <!-- robe panels -->
-  <rect x="17" y="51" width="9" height="17" fill="#281858"/>
-  <rect x="38" y="51" width="9" height="17" fill="#281858"/>
-  <rect x="26" y="51" width="12" height="17" fill="#321e6e"/>
-  <!-- gold trim bottom -->
-  <rect x="16" y="66" width="32" height="3" fill="#0a0a0a"/>
-  <rect x="17" y="67" width="30" height="2" fill="${weaponColor}" opacity="0.8"/>
-  <rect x="17" y="67" width="15" height="1" fill="rgba(255,255,255,0.3)"/>
-  <!-- rune patterns -->
-  <rect x="20" y="56" width="2" height="2" fill="${weaponColor}" opacity="0.5"/>
-  <rect x="20" y="60" width="2" height="2" fill="${weaponColor}" opacity="0.4"/>
-  <rect x="42" y="56" width="2" height="2" fill="${weaponColor}" opacity="0.5"/>
-  <rect x="42" y="60" width="2" height="2" fill="${weaponColor}" opacity="0.4"/>
-  <rect x="30" y="58" width="4" height="1" fill="${weaponColor}" opacity="0.4"/>
-  <rect x="31" y="57" width="2" height="3" fill="${weaponColor}" opacity="0.3"/>
-  <!-- feet -->
-  <rect x="20" y="68" width="9" height="7" fill="#0a0a0a"/>
-  <rect x="21" y="69" width="7" height="6" fill="#1a0e3a"/>
-  <rect x="35" y="68" width="9" height="7" fill="#0a0a0a"/>
-  <rect x="36" y="69" width="7" height="6" fill="#1a0e3a"/>
-
-  <!-- ── TORSO ROBE ── -->
-  <rect x="17" y="27" width="30" height="25" fill="#0a0a0a"/>
-  <rect x="18" y="28" width="28" height="23" fill="#3a2080"/>
-  <!-- chest highlight -->
-  <rect x="18" y="28" width="28" height="5" fill="#5030a0"/>
-  <rect x="18" y="28" width="14" height="4" fill="#6038b0" opacity="0.6"/>
-  <!-- robe center seam -->
-  <rect x="31" y="28" width="2" height="23" fill="#281860"/>
-  <!-- robe collar -->
-  <rect x="25" y="28" width="14" height="4" fill="#4028a0"/>
-  <rect x="25" y="28" width="14" height="2" fill="#5838b0"/>
-  <!-- robe decoration -->
-  <rect x="20" y="34" width="24" height="1" fill="${weaponColor}" opacity="0.4"/>
-  <rect x="20" y="38" width="24" height="1" fill="${weaponColor}" opacity="0.3"/>
-  <rect x="20" y="42" width="24" height="1" fill="${weaponColor}" opacity="0.25"/>
-  <!-- chest rune -->
-  <rect x="29" y="33" width="6" height="1" fill="${weaponColor}" opacity="0.6"/>
-  <rect x="31" y="31" width="2" height="5" fill="${weaponColor}" opacity="0.5"/>
-
-  <!-- ── SLEEVES ── -->
-  <!-- left sleeve -->
-  <rect x="11" y="27" width="8" height="20" fill="#0a0a0a"/>
-  <rect x="12" y="28" width="6" height="18" fill="#3a2080"/>
-  <rect x="12" y="28" width="6" height="4" fill="#5030a0"/>
-  <rect x="12" y="28" width="3" height="3" fill="#6038b0" opacity="0.5"/>
-  <!-- sleeve cuff left -->
-  <rect x="11" y="44" width="9" height="5" fill="#0a0a0a"/>
-  <rect x="12" y="45" width="7" height="4" fill="${weaponColor}" opacity="0.85"/>
-  <rect x="12" y="45" width="7" height="2" fill="rgba(255,255,255,0.25)"/>
-  <!-- hand left -->
-  <rect x="12" y="49" width="6" height="5" fill="#0a0a0a"/>
-  <rect x="13" y="50" width="4" height="4" fill="#f0c090"/>
-  <!-- right sleeve -->
-  <rect x="45" y="27" width="8" height="20" fill="#0a0a0a"/>
-  <rect x="46" y="28" width="6" height="18" fill="#3a2080"/>
-  <rect x="46" y="28" width="6" height="4" fill="#5030a0"/>
-  <rect x="49" y="28" width="3" height="3" fill="#6038b0" opacity="0.5"/>
-  <!-- sleeve cuff right -->
-  <rect x="44" y="44" width="9" height="5" fill="#0a0a0a"/>
-  <rect x="45" y="45" width="7" height="4" fill="${weaponColor}" opacity="0.85"/>
-  <rect x="45" y="45" width="7" height="2" fill="rgba(255,255,255,0.25)"/>
-  <!-- hand right (casting pose — open) -->
-  <rect x="45" y="49" width="7" height="5" fill="#0a0a0a"/>
-  <rect x="46" y="50" width="5" height="4" fill="#f0c090"/>
-  <!-- casting glow around hand -->
-  <rect x="44" y="48" width="9" height="7" fill="${weaponColor}" opacity="0.15"/>
-
-  <!-- ── NECK / HEAD ── -->
-  <rect x="28" y="23" width="8" height="6" fill="#0a0a0a"/>
-  <rect x="29" y="24" width="6" height="5" fill="#f0c090"/>
-
-  <rect x="22" y="9" width="20" height="16" fill="#0a0a0a"/>
-  <rect x="23" y="10" width="18" height="14" fill="#f0c090"/>
-  <rect x="23" y="10" width="8" height="5" fill="#f8d8b0" opacity="0.6"/>
-  <!-- eyes (glowing magical) -->
-  <rect x="25" y="16" width="4" height="3" fill="#0a0820"/>
-  <rect x="35" y="16" width="4" height="3" fill="#0a0820"/>
-  <rect x="25" y="16" width="3" height="2" fill="#6020c0"/>
-  <rect x="35" y="16" width="3" height="2" fill="#6020c0"/>
-  <rect x="25" y="16" width="2" height="1" fill="#a050ff"/>
-  <rect x="35" y="16" width="2" height="1" fill="#a050ff"/>
-  <rect x="25" y="16" width="1" height="1" fill="rgba(255,255,255,0.95)"/>
-  <rect x="35" y="16" width="1" height="1" fill="rgba(255,255,255,0.95)"/>
-  <!-- eyebrows (arched) -->
-  <rect x="24" y="14" width="6" height="1" fill="#5a3a20" opacity="0.8"/>
-  <rect x="34" y="14" width="6" height="1" fill="#5a3a20" opacity="0.8"/>
-  <rect x="30" y="20" width="4" height="1" fill="#b06040" opacity="0.7"/>
-  <!-- nose -->
-  <rect x="31" y="19" width="2" height="2" fill="#d4a070" opacity="0.6"/>
-
-  <!-- ── HAT ── -->
-  <rect x="19" y="3" width="26" height="8" fill="#0a0a0a"/>
-  <rect x="20" y="4" width="24" height="7" fill="#1a0a40"/>
-  <rect x="20" y="4" width="24" height="3" fill="#2a1060"/>
-  <rect x="20" y="4" width="12" height="2" fill="#3a1878" opacity="0.6"/>
-  <!-- hat brim gold trim -->
-  <rect x="19" y="9" width="26" height="2" fill="${weaponColor}" opacity="0.7"/>
-  <rect x="19" y="9" width="13" height="1" fill="rgba(255,255,255,0.3)"/>
-  <!-- hat tower -->
-  <rect x="24" y="-1" width="16" height="6" fill="#0a0a0a"/>
-  <rect x="25" y="0" width="14" height="5" fill="#1a0a40"/>
-  <rect x="25" y="0" width="14" height="2" fill="#2a1060"/>
-  <rect x="25" y="0" width="7" height="1" fill="#3a1878" opacity="0.5"/>
-  <!-- hat tip -->
-  <rect x="29" y="-4" width="6" height="5" fill="#1a0a40"/>
-  <rect x="30" y="-5" width="4" height="4" fill="#0a0a0a"/>
-  <rect x="31" y="-5" width="2" height="3" fill="#1a0a40"/>
-  <!-- hat star decoration -->
-  <rect x="28" y="2" width="2" height="2" fill="${weaponColor}" opacity="0.8"/>
-  <rect x="27" y="3" width="4" height="1" fill="${weaponColor}" opacity="0.6"/>
-  <rect x="37" y="5" width="2" height="2" fill="${weaponColor}" opacity="0.6"/>
-  <rect x="21" y="5" width="2" height="2" fill="${weaponColor}" opacity="0.5"/>
-
-  <!-- ── STAFF (left, raised) ── -->
-  <g class="hero-weapon">
-    <!-- staff pole -->
-    <rect x="5" y="14" width="5" height="48" fill="#0a0a0a"/>
-    <rect x="6" y="15" width="3" height="46" fill="#5a3a18"/>
-    <rect x="6" y="15" width="1" height="46" fill="#8a6030" opacity="0.6"/>
-    <!-- gold rings on staff -->
-    <rect x="5" y="22" width="5" height="2" fill="${weaponColor}" opacity="0.8"/>
-    <rect x="5" y="35" width="5" height="2" fill="${weaponColor}" opacity="0.7"/>
-    <rect x="5" y="48" width="5" height="2" fill="${weaponColor}" opacity="0.6"/>
-    <!-- staff base -->
-    <rect x="4" y="60" width="7" height="3" fill="#0a0a0a"/>
-    <rect x="5" y="61" width="5" height="2" fill="${weaponColor}" opacity="0.8"/>
-    <!-- ORB (top) -->
-    <rect x="1" y="3"  width="13" height="13" fill="#0a0a0a"/>
-    <rect x="2" y="4"  width="11" height="11" fill="${weaponColor}"/>
-    <!-- orb inner glow -->
-    <rect x="3" y="5"  width="7" height="7" fill="rgba(255,255,255,0.35)"/>
-    <rect x="4" y="6"  width="5" height="5" fill="rgba(255,255,255,0.5)"/>
-    <rect x="5" y="7"  width="3" height="3" fill="rgba(255,255,255,0.7)"/>
-    <rect x="3" y="5"  width="3" height="2" fill="rgba(255,255,255,0.8)"/>
-    <!-- orb outer ring -->
-    <rect x="0" y="6"  width="15" height="1" fill="${weaponColor}" opacity="0.4"/>
-    <rect x="0" y="13" width="15" height="1" fill="${weaponColor}" opacity="0.4"/>
-    <rect x="0" y="6"  width="1" height="8" fill="${weaponColor}" opacity="0.4"/>
-    <rect x="14" y="6" width="1" height="8" fill="${weaponColor}" opacity="0.4"/>
-    <!-- magic sparkles from orb -->
-    <rect x="14" y="4" width="2" height="2" fill="${weaponColor}" opacity="0.7"/>
-    <rect x="16" y="2" width="1" height="1" fill="${weaponColor}" opacity="0.5"/>
-    <rect x="0"  y="4" width="2" height="2" fill="${weaponColor}" opacity="0.6"/>
-    <rect x="7"  y="1" width="2" height="2" fill="${weaponColor}" opacity="0.6"/>
-  </g>
-
-  <!-- ── SPELLBOOK (right hand) ── -->
-  <rect x="42" y="34" width="14" height="18" fill="#0a0a0a"/>
-  <rect x="43" y="35" width="12" height="16" fill="#0e0828"/>
-  <rect x="44" y="36" width="10" height="14" fill="#1e1248"/>
-  <rect x="44" y="36" width="10" height="3" fill="rgba(255,255,255,0.1)"/>
-  <!-- book spine -->
-  <rect x="43" y="35" width="3" height="16" fill="#0a0618"/>
-  <rect x="43" y="38" width="3" height="2" fill="#1a0e30"/>
-  <rect x="43" y="42" width="3" height="2" fill="#1a0e30"/>
-  <rect x="43" y="46" width="3" height="2" fill="#1a0e30"/>
-  <!-- book pages lines -->
-  <rect x="47" y="38" width="7" height="1" fill="${weaponColor}" opacity="0.6"/>
-  <rect x="47" y="40" width="6" height="1" fill="${weaponColor}" opacity="0.5"/>
-  <rect x="47" y="42" width="7" height="1" fill="${weaponColor}" opacity="0.5"/>
-  <rect x="47" y="44" width="5" height="1" fill="${weaponColor}" opacity="0.4"/>
-  <!-- magic circle on book -->
-  <rect x="48" y="46" width="5" height="1" fill="${weaponColor}" opacity="0.7"/>
-  <rect x="47" y="47" width="7" height="1" fill="${weaponColor}" opacity="0.7"/>
-  <rect x="50" y="46" width="1" height="3" fill="${weaponColor}" opacity="0.7"/>
-  <rect x="48" y="47" width="1" height="1" fill="rgba(255,255,255,0.8)"/>
-  <!-- casting magic effect from right hand -->
-  <rect x="51" y="49" width="3" height="1" fill="${weaponColor}" opacity="0.6"/>
-  <rect x="53" y="47" width="2" height="2" fill="${weaponColor}" opacity="0.5"/>
-  <rect x="55" y="46" width="2" height="1" fill="${weaponColor}" opacity="0.4"/>
-</svg>`;
-  }
+    return `<svg viewBox="0 0 64 80" width="64" height="80" class="class-mage${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
+  <ellipse cx="32" cy="77" rx="12" ry="3" fill="rgba(0,0,0,0.28)"/>
+  <rect x="42.5" y="9" width="2.5" height="65" rx="1.2" fill="#5a3e1c"/>
+  <rect x="43" y="9" width="1" height="64" rx="0.5" fill="#7a5428" opacity="0.5"/>
+  <path d="M43.7 10 Q46 5.5 49 4" stroke="#5a3e1c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M43.7 10 Q41.5 5 38.5 4" stroke="#5a3e1c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M43.7 9 Q44 4 43.7 1" stroke="#5a3e1c" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <circle cx="43.7" cy="0.8" r="2.5" fill="#3a3a4a" stroke="#8a8aaa" stroke-width="0.6"/>
+  <circle cx="43.7" cy="0.8" r="1.4" fill="#6a6a8a"/>
+  <ellipse cx="43.7" cy="74" rx="1.4" ry="0.8" fill="#3a2a10"/>
+  <path d="M22 42 Q20 57 20.5 75 Q32 79 43.5 75 Q44 57 42 42 Q32 38 22 42Z" fill="#7a7a7a"/>
+  <path d="M23.5 44 Q22 57 22.5 73 Q32 77 41.5 73 Q42 57 40.5 44 Q32 40 23.5 44Z" fill="#888"/>
+  <line x1="27" y1="43.5" x2="24.5" y2="73" stroke="#666" stroke-width="0.7" opacity="0.45"/>
+  <line x1="32" y1="42.5" x2="32" y2="74" stroke="#666" stroke-width="0.7" opacity="0.45"/>
+  <line x1="37" y1="43.5" x2="39.5" y2="73" stroke="#666" stroke-width="0.7" opacity="0.45"/>
+  <rect x="24.5" y="32.5" width="15" height="23" rx="5" fill="#888"/>
+  <rect x="26" y="34" width="12" height="20" rx="4" fill="#969696"/>
+  <circle cx="32" cy="38" r="2.5" fill="#6a6a7a"/>
+  <circle cx="32" cy="38" r="1.6" fill="#8a8aaa"/>
+  <line x1="32" y1="33.5" x2="32" y2="55" stroke="#777" stroke-width="0.7" opacity="0.45"/>
+  <rect x="24.5" y="46" width="15" height="4" rx="2" fill="#4a3010"/>
+  <rect x="29.5" y="45.5" width="5" height="5" rx="1.2" fill="#5a3e18"/>
+  <circle cx="32" cy="48" r="1.2" fill="#c8a040"/>
+  <ellipse cx="25" cy="35" rx="3.5" ry="3" fill="#969696"/>
+  <ellipse cx="39" cy="35" rx="3.5" ry="3" fill="#969696"/>
+  <path d="M23 36 Q21 41 18 47 Q20 48 21.5 47.5 Q24 42 26 37Z" fill="#888"/>
+  <circle cx="18.5" cy="47.5" r="2.5" fill="#888"/>
+  <path d="M17.5 47 Q18 44 21 41.5 Q22.5 42 22.5 43.5 Q21 45.5 18.5 48Z" fill="#888"/>
+  <path d="M37.5 36 Q40 41 43 46 Q44.5 45.5 45 44.5 Q43 39 40.5 37Z" fill="#888"/>
+  <circle cx="43.5" cy="46.5" r="2.5" fill="#888"/>
+  <path d="M42.5 46 Q43 42 44 38.5 Q45.5 38 46 39 Q45.5 43 43.5 47Z" fill="#888"/>
+  <ellipse cx="21" cy="41" rx="3" ry="2.5" fill="#d4a870"/>
+  <ellipse cx="44.5" cy="38.5" rx="3" ry="2.5" fill="#d4a870"/>
+  <rect x="29" y="27" width="6" height="6" rx="3" fill="#d4a870"/>
+  <ellipse cx="32" cy="21" rx="9.5" ry="10.5" fill="#d4a870"/>
+  <path d="M23 22 Q19 21 18 17.5 Q20 19 22.5 21Z" fill="#e8e8e8"/>
+  <path d="M22.5 24.5 Q18 24.5 17 21 Q19.5 22 22 23Z" fill="#ddd"/>
+  <path d="M41 22 Q45 21 46 17.5 Q44 19 41.5 21Z" fill="#e8e8e8"/>
+  <path d="M41.5 24.5 Q46 24.5 47 21 Q44.5 22 42 23Z" fill="#ddd"/>
+  <path d="M25 19 Q27.5 17 29.5 18" stroke="#e8e8e8" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M34.5 18 Q36.5 17 39 19" stroke="#e8e8e8" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <ellipse cx="28.5" cy="21.5" rx="1.8" ry="1.5" fill="#fff"/>
+  <ellipse cx="35.5" cy="21.5" rx="1.8" ry="1.5" fill="#fff"/>
+  <ellipse cx="28.5" cy="21.8" rx="1.2" ry="1.2" fill="#3a3020"/>
+  <ellipse cx="35.5" cy="21.8" rx="1.2" ry="1.2" fill="#3a3020"/>
+  <circle cx="29" cy="21.2" r="0.5" fill="#fff" opacity="0.8"/>
+  <circle cx="36" cy="21.2" r="0.5" fill="#fff" opacity="0.8"/>
+  <path d="M30.5 24.5 Q32 26.5 33.5 24.5" stroke="#c09060" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+  <path d="M29 27.5 Q32 29.5 35 27.5" stroke="#a07050" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+  <path d="M25 27 Q22 34 21.5 42 Q23 50.5 26 56 Q28.5 62.5 32 65 Q35.5 62.5 38 56 Q41 50.5 42.5 42 Q42 34 39 27 Q35.5 29.5 32 30 Q28.5 29.5 25 27Z" fill="#e8e8e8"/>
+  <path d="M26 28.5 Q23.5 35 23 42.5 Q24.5 50.5 27.5 55.5 Q30 62 32 64 Q34 62 36.5 55.5 Q39.5 50.5 41 42.5 Q40.5 35 38 28.5 Q35 30.5 32 31 Q29 30.5 26 28.5Z" fill="#f0f0f0"/>
+  <line x1="32" y1="30.5" x2="32" y2="63.5" stroke="#d0d0d0" stroke-width="0.6" opacity="0.5"/>
+  <path d="M28.5 58.5 Q32 65.5 35.5 58.5 Q33.5 63 32 64.5 Q30.5 63 28.5 58.5Z" fill="#e0e0e0"/>
+  <path d="M28 27 Q30 30 32 29 Q34 30 36 27" fill="#e0e0e0"/>
+  <ellipse cx="32" cy="11" rx="16" ry="4" fill="#555560"/>
+  <ellipse cx="32" cy="10.5" rx="14.5" ry="3" fill="#666670"/>
+  <path d="M23 11 Q25 6 27.5 2.5 Q30 -0.5 32 -1.5 Q34 -0.5 36.5 2.5 Q39 6 41 11Z" fill="#555560"/>
+  <path d="M24.5 11 Q26.5 6.5 29 3 Q31 0.5 32 -0.5 Q33 0.5 35 3 Q37.5 6.5 39.5 11Z" fill="#666670"/>
+  <rect x="23" y="9.5" width="18" height="2.5" rx="1" fill="#443830"/>
+  <rect x="29.5" y="9" width="5" height="3.5" rx="1" fill="#554030"/>
+  <rect x="30" y="9.5" width="4" height="2.5" rx="0.8" fill="#c8a040" opacity="0.7"/>
+</svg>`  }
 
   function getHeroVisualHtml(heroClass) {
     return `<div class="hero-visual-wrap ${getHeroAuraClass()}">${getHeroSprite(heroClass)}</div>`;
@@ -5206,6 +4806,28 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
     }
     return `<span style="font-size:${Math.round(size*0.85)}px;line-height:1;">${icon}</span>`;
   }
+  function buildHelmetOverlay(item) {
+    const colors = {
+      common:'#9ab0c8', uncommon:'#5cb85c', rare:'#4a90d9', epic:'#9b59b6', legendary:'#f0a500'
+    };
+    const c = colors[item.rarity] || colors.common;
+    // 투구: 캐릭터 머리 위에 작은 투구 SVG 오버레이
+    return `<svg viewBox="0 0 64 30" width="64" height="30" style="position:absolute;top:0;left:0;">
+      <!-- 투구 본체 -->
+      <path d="M20 28 Q20 8 32 6 Q44 8 44 28Z" fill="${c}" opacity="0.88"/>
+      <path d="M22 28 Q22 10 32 8 Q42 10 42 28Z" fill="${c}" opacity="0.55"/>
+      <!-- 투구 테두리 -->
+      <path d="M20 28 Q20 8 32 6 Q44 8 44 28" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.2"/>
+      <!-- 투구 챙 -->
+      <rect x="17" y="26" width="30" height="4" rx="2" fill="${c}" opacity="0.9"/>
+      <rect x="17" y="26" width="30" height="2" rx="1" fill="rgba(255,255,255,0.25)"/>
+      <!-- 중앙 장식 -->
+      <rect x="30.5" y="8" width="3" height="18" rx="1.5" fill="rgba(255,255,255,0.30)"/>
+      <!-- 광택 -->
+      <ellipse cx="27" cy="14" rx="3" ry="5" fill="rgba(255,255,255,0.15)" transform="rotate(-15 27 14)"/>
+    </svg>`;
+  }
+
   function buildCloakOverlay(item) {
     const c = getRarityHex(item.rarity);
     // 망토 SVG — 양쪽으로 흘러내리는 망토 형태
@@ -5298,6 +4920,8 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
   // ─────────────────────────────────────────
   function renderEquipOverlays() {
     const eq = state.equipment;
+    // 투구
+    els.overlayHelmet.innerHTML    = eq.helmet   ? buildHelmetOverlay(eq.helmet)     : '';
     // 망토
     els.overlayCloak.innerHTML     = eq.cloak    ? buildCloakOverlay(eq.cloak)       : '';
     // 목걸이
@@ -6142,7 +5766,7 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
     state.heroClass = heroClass;
     state.level = 1; state.exp = 0; state.gold = 0;
     state.inventory = [];
-    state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null };
+    state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null, helmet:null };
     state.usedBarcodes = new Set();
 
     // GM은 DB에 저장하지 않고 바로 게임 진입
@@ -6169,7 +5793,12 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
       used_barcodes: [],
       dev_mode: state.devMode
     });
-    if (error) { showDbStatus('영웅 생성 실패: ' + error.message, 'error'); return; }
+    if (error) {
+      // DB 저장 실패해도 로컬 상태로 게임 진입 (나중에 자동저장)
+      console.error('영웅 DB 저장 실패:', error);
+      showDbStatus('⚠️ DB 저장 실패 (로컬 임시 저장): ' + error.message, 'error');
+      localStorage.setItem('scanhero_save_failed', '1');
+    }
     showDbStatus('✅ ' + heroName + ' 탄생!', 'ok');
     pendingNewSlot = null;
     document.getElementById('heroStartBackdrop').style.display = 'none';
