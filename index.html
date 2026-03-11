@@ -2970,9 +2970,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // 수식 문자열 계산 (d2~d5 파라미터)
   function evalFormula(formula, d2, d3, d5) {
     if (!formula) return 0;
+    // d2/d3/d5를 숫자로 치환 후 안전한 산술 파싱 (eval 미사용)
+    const expr = formula.replace(/d2/g, Number(d2)).replace(/d3/g, Number(d3)).replace(/d5/g, Number(d5));
+    // 허용 패턴: 숫자, +, *, -, 공백만
+    if (!/^[\d\s\+\-\*]+$/.test(expr)) return 0;
     return Math.max(0, Math.round(
-      formula.replace(/d2/g, d2).replace(/d3/g, d3).replace(/d5/g, d5)
-        .split('+').reduce((acc, term) => acc + eval(term.trim()), 0) // eslint-disable-line
+      expr.split('+').reduce((acc, term) => {
+        const parts = term.trim().split('*');
+        return acc + parts.reduce((p, v) => p * Number(v.trim()), 1);
+      }, 0)
     ));
   }
   const rarityOrder   = ['common','uncommon','rare','epic','legendary'];
@@ -3908,9 +3914,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function getDifficultyMult() {
     return [0.75, 1.0, 1.35][state.devMode.difficulty] || 1.0;
   }
-  function getDifficultyRewardMult() {
-    return [0.8, 1.0, 1.25][state.devMode.difficulty] || 1.0;
-  }
 
   // ─────────────────────────────────────────
   // 상점 시스템
@@ -4166,38 +4169,6 @@ document.addEventListener('DOMContentLoaded', () => {
     els.soldierFront.innerHTML   = Array.from({length:soldierCount}, ()=>getSoldierSprite(soldierClass)).join('');
   }
 
-  // ── 메인 패널 장비 배지 렌더 ──
-  function renderMainHeroEquipBadges() {
-    const el = document.getElementById('mainEquipBadges');
-    if (!el) return;
-    const eq = state.equipment;
-    const slotIcons = { weapon:'⚔️', armor:'⟨철판갑옷⟩', shield:'🔰', gloves:'🧤', boots:'👟', ring1:'💍', ring2:'💍', necklace:'📿', cloak:'⟨강화망토⟩' };
-    const rarityColors = { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' };
-
-    // 장착된 슬롯만 배지로 표시
-    const badges = Object.entries(eq)
-      .filter(([, item]) => item)
-      .map(([slot, item]) => {
-        const col = rarityColors[item.rarity] || '#a9b6d6';
-        return `<span title="${item.name}" style="
-          display:inline-flex;align-items:center;gap:3px;
-          padding:2px 6px;border-radius:8px;font-size:10px;font-weight:700;
-          background:rgba(${slot==='weapon'?'255,138,106':'slot'==='armor'?'99,168,255':'120,149,220'},0.1);
-          border:1px solid ${col}44;color:${col};cursor:default;
-        ">${item.icon||slotIcons[slot]} ${item.name}</span>`;
-      }).join('');
-
-    if (badges) {
-      el.innerHTML = badges;
-      el.style.display = 'flex';
-    } else {
-      el.innerHTML = '<span style="font-size:10px;color:#3a4a6a;">장착 장비 없음</span>';
-      el.style.display = 'flex';
-    }
-  }
-
-  let _lastExpLevel = null; // 레벨업 감지용
-
   function renderHero(leveled = false) {
     const stats = getHeroBaseStats();
     const expNeed = getExpNeed(state.level);
@@ -4254,7 +4225,7 @@ function lg(id, x1,y1,x2,y2, stops){ return `<linearGradient id="${id}" x1="${x1
 function rg(id, cx,cy,r, stops){ return `<radialGradient id="${id}" cx="${cx}" cy="${cy}" r="${r}" gradientUnits="userSpaceOnUse">${stops.map(([o,c,a])=>`<stop offset="${o}%" stop-color="${c}" stop-opacity="${a??1}"/>`).join('')}</radialGradient>`; }
 function svg(content, w=48, h=48){ return `<svg viewBox="0 0 48 48" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">${content}</svg>`; }
 // bg pill
-function bg(col1, col2){ return `<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)" opacity="0.9"/>`; }
+function bg(c1, c2){ return `${bgDef(c1,c2)}<rect x="2" y="2" width="44" height="44" rx="10" fill="url(#bg)" opacity="0.9"/>`; }
 function bgDef(c1,c2){ return lg('bg',24,2,24,46,[[0,c1],[100,c2]]); }
 
 const ICO = {};
@@ -5376,7 +5347,6 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
     });
   }
 
-  function renderEquipPins() { /* 핀 UI 제거 - 오버레이로 대체 */ }
 
   function openHeroStatsModal() {
     const stats = getHeroBaseStats();
@@ -5669,7 +5639,7 @@ ICO['⟨투사목걸이⟩'] = svg(defs(
       title=`${grade} ${mn} 출현`; desc=`${mn} ${amount}마리가 나타났습니다. 특수 효과: ${special}.`;
       badges=[eventType, grade, `${amount}마리`, special]; enemy=makeEnemy(mn, grade, amount, special, d4);
     } else if (eventType==='보물') {
-      const tEntry = getTreasureEntry(d4 % (eventCatalog.treasure.length || 4));
+      const tEntry = getTreasureEntry(d4);
       const gold = evalFormula(tEntry.gold_formula, d2, d3, d5) || (20+d2*8+d3*5+d5*3);
       title=tEntry.name || '보물 발견'; desc=`${tEntry.name||'보물상자'}를 발견했습니다. 골드 ${gold}를 획득합니다.`;
       badges=[eventType, `골드 +${gold}`, special]; reward={exp:8+d2, gold};
