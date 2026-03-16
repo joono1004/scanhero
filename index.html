@@ -114,20 +114,17 @@
       background: radial-gradient(circle at 50% 25%, rgba(255,255,255,0.08), transparent 24%),
         linear-gradient(180deg, rgba(16,24,43,0.15), rgba(6,10,18,0.24));
     }
-    /* formation-doll-overlay: 340px 도감을 캐릭터 위에 scale 축소해서 겹침 */
+    /* formation-doll-overlay: 장비 이미지 레이어 오버레이 */
     .formation-doll-overlay {
       position: absolute;
-      /* hero-unit: left:56px bottom:20px, sprite:78x90px → 중심 x=56+39=95, bottom=20 */
-      left: 0; bottom: 0;
-      width: 340px; height: 340px;
-      transform-origin: left bottom;
-      transform: scale(0.31);   /* 90px / 290px(캐릭터 실효높이 기준) */
+      left: 14px; bottom: 20px;
+      width: 78px; height: 90px;
       pointer-events: none;
       z-index: 5;
       background: none !important; border: none !important;
     }
-    /* formation-doll-overlay 안의 캐릭터(hero-doll-char)는 숨김 — hero-unit이 담당 */
-    .formation-doll-overlay .hero-doll-char { display: none !important; }
+    /* formation: 몸통(body)레이어 숨김 — hero-unit의 getHeroVisualHtml이 담당 */
+    .formation-doll-overlay .img-layer-body { display: none !important; }
     .formation-ground {
       position: absolute; left: -10%; right: -10%; bottom: 10px; height: 70px; border-radius: 50%;
       background: radial-gradient(circle, rgba(245,201,107,0.20), rgba(55,77,123,0.26) 45%, rgba(7,11,20,0.02) 70%);
@@ -422,11 +419,9 @@
       display: flex; align-items: center; justify-content: center;
       overflow: hidden; position: relative;
     }
-    /* hero-doll-thumb: char-slot-sprite 안에 340px 도감을 scale 축소해서 삽입 */
+    /* hero-doll-thumb: char-slot-sprite 안에 이미지 레이어로 표시 */
     .hero-doll-thumb {
-      position: absolute; left: 0; top: 0; width: 340px; height: 340px;
-      transform-origin: left top;
-      transform: scale(0.271);  /* 92/340 */
+      position: absolute; inset: 0;
       pointer-events: none;
       background: none !important; border: none !important;
     }
@@ -606,6 +601,50 @@
     }
     .equip-doll-hero .hero-visual-wrap,
     .hero-doll-char .hero-visual-wrap { transform: scale(2.8); transform-origin: center center; image-rendering: pixelated; }
+
+    /* ── 이미지 기반 레이어 시스템 ── */
+    .img-doll-stage {
+      position: absolute; inset: 0;
+      pointer-events: none;
+    }
+    /* 각 레이어: 1024×1024 기준 좌표를 % 단위로 배치 */
+    .img-layer {
+      position: absolute;
+      pointer-events: none;
+      /* 이미지 없을 때 투명 처리 */
+    }
+    .img-layer img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    /* 이미지 로드 실패 시 완전 투명 */
+    .img-layer img.img-missing { opacity: 0; }
+
+    /* 레이어별 z-index (레이어 순서: 망토→몸통→갑옷→장갑→신발→무기→투구) */
+    .img-layer-cape     { z-index: 1; }
+    .img-layer-body     { z-index: 2; }
+    .img-layer-armor    { z-index: 3; }
+    .img-layer-gloves   { z-index: 4; }
+    .img-layer-boots    { z-index: 5; }
+    .img-layer-shield   { z-index: 6; }
+    .img-layer-weapon   { z-index: 7; }
+    .img-layer-necklace { z-index: 8; }
+    .img-layer-helmet   { z-index: 9; }
+    .img-layer-ring     { z-index: 10; }
+
+    /* legendary 레이어 글로우 */
+    .img-layer.rarity-legendary img { filter: drop-shadow(0 0 8px rgba(255,207,99,0.7)); }
+    .img-layer.rarity-epic      img { filter: drop-shadow(0 0 6px rgba(178,125,255,0.6)); }
+    .img-layer.rarity-rare      img { filter: drop-shadow(0 0 4px rgba(99,168,255,0.5)); }
+
+    /* 반지 스파클 (이미지 위에 오버레이) */
+    .ring-img-sparkle {
+      position: absolute; pointer-events: none; z-index: 11;
+      animation: ringSparkle 1.4s ease-in-out infinite;
+      font-size: 14px; color: #ffe39c;
+      text-shadow: 0 0 8px rgba(255,207,99,0.9);
+    }
 
     /* 슬롯 버튼 공통 */
     .equip-slot-btn {
@@ -1509,7 +1548,7 @@
           <div class="inventory-scroll"><div class="inventory-grid" id="inventoryGrid"></div></div>
         </div>
       </div>
-      <div class="modal-actions two"><button class="modal-secondary" id="heroOverlayEditorBtn" style="font-size:11px;">🛠 오버레이 편집</button><button class="modal-primary" id="heroStatsCloseBtn">닫기</button></div>
+      <div class="modal-actions two"><button class="modal-secondary" id="heroOverlayEditorBtn" style="font-size:11px;display:none;">🛠 오버레이 편집</button><button class="modal-primary" id="heroStatsCloseBtn">닫기</button></div>
     </div>
   </div>
 
@@ -1879,6 +1918,68 @@ document.addEventListener('DOMContentLoaded', () => {
   const SUPABASE_URL = 'https://svyxrnwjxhwtsanexuht.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_IC07F5YFaruLMKsTEAPA8Q_ewH7l1ez';
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ══════════════════════════════════════════════════════
+  // 이미지 에셋 시스템 — Supabase Storage 기반
+  // ══════════════════════════════════════════════════════
+  // 버킷명: scanhero-assets (Supabase Storage에서 public 설정 필요)
+  const STORAGE_BUCKET = 'scanhero-assets';
+  const STORAGE_BASE   = `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}`;
+
+  // 클래스 코드 매핑
+  const CLASS_CODE = { '전사': 'warrior', '궁사': 'archer', '마법사': 'mage' };
+
+  // 슬롯별 폴더명
+  const SLOT_FOLDER = {
+    weapon: 'weapon', armor: 'armor', shield: 'shield',
+    gloves: 'gloves', boots: 'boots', helmet: 'helmet',
+    cloak: 'cape', ring1: 'ring', necklace: 'necklace'
+  };
+
+  // 아이템 이미지 URL 생성
+  // 규칙: {슬롯}/{클래스접두}_{슬롯명}_{순번}.png
+  // 공용 슬롯(망토/반지/목걸이): common_{슬롯명}_{순번}.png
+  // 예: weapon/warrior_weapon_01.png / cape/common_cape_01.png
+  function getEquipImageUrl(item, heroClass) {
+    if (!item) return null;
+    const folder = SLOT_FOLDER[item.slot] || item.slot;
+    const cls    = CLASS_CODE[heroClass] || 'warrior';
+    // 공용 슬롯
+    const isCommon = ['cloak', 'ring1', 'necklace'].includes(item.slot);
+    const prefix   = isCommon ? 'common' : cls;
+    // 아이템 순번: baseName 기준으로 카탈로그 내 같은 슬롯+클래스 중 몇 번째인지
+    const idx = getItemSortIndex(item, heroClass);
+    const num  = String(idx).padStart(2, '0');
+    return `${STORAGE_BASE}/equip/${folder}/${prefix}_${folder}_${num}.png`;
+  }
+
+  // 캐릭터 몸통 이미지 URL
+  function getBodyImageUrl(heroClass) {
+    const cls = CLASS_CODE[heroClass] || 'warrior';
+    return `${STORAGE_BASE}/char/${cls}_body.png`;
+  }
+
+  // 아이템 순번 계산 (카탈로그에서 같은 슬롯+클래스 중 순서)
+  function getItemSortIndex(item, heroClass) {
+    const catalog = gearCatalog.length ? gearCatalog : FALLBACK_CATALOG;
+    const sameGroup = catalog.filter(g => {
+      if (g.slot !== item.slot) return false;
+      if (!g.classes) return ['cloak','ring1','necklace'].includes(item.slot);
+      return g.classes.includes(heroClass);
+    });
+    const idx = sameGroup.findIndex(g => g.name === (item.baseName || item.name));
+    return idx >= 0 ? idx + 1 : 1;
+  }
+
+  // 이미지 엘리먼트 생성 (로드 실패 시 투명 처리)
+  function makeLayerImg(url, alt) {
+    const img = document.createElement('img');
+    img.alt = alt || '';
+    img.onerror = () => img.classList.add('img-missing');
+    if (url) img.src = url;
+    else img.classList.add('img-missing');
+    return img;
+  }
   // Key 형식 검사 — sb_publishable_ 키는 최신 Supabase 대시보드 형식
   // supabase-js@2 최신 버전에서 지원하나 문제가 있으면 Supabase 대시보드
   // Project Settings → API → anon public 키(eyJ...JWT 형식)로 교체하세요.
@@ -2287,19 +2388,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     container.innerHTML = html;
-    // char-slot-sprite에 캐릭터+오버레이 렌더
+    // char-slot 썸네일: 이미지 기반 렌더
     container.querySelectorAll('.hero-doll-thumb').forEach(thumbEl => {
       const hClass = thumbEl.dataset.heroClass || '전사';
-      let overlayPos = {};
-      try { overlayPos = JSON.parse(thumbEl.dataset.overlayPos || '{}'); } catch {}
       let eq = {};
       try { eq = JSON.parse(thumbEl.dataset.equipment || '{}'); } catch {}
-      // overlay_pos를 임시 oeCustom으로 적용 후 렌더, 이후 복원
-      const savedCustom = JSON.parse(JSON.stringify(oeCustom));
-      if (overlayPos && Object.keys(overlayPos).length) Object.assign(oeCustom, overlayPos);
-      // 340px 도감을 CSS scale(0.271)로 축소 → ratio=1 그대로 사용
-      renderHeroDoll(thumbEl, { heroClass: hClass, equipment: eq, ratio: 1 });
-      oeCustom = savedCustom;
+      renderHeroDoll(thumbEl, { heroClass: hClass, equipment: eq });
     });
 
     // 플레이 버튼
@@ -2652,8 +2746,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const infoEl = document.getElementById('classPreviewInfo');
     if (!sprite || !infoEl) return;
 
-    // 스프라이트 + 애니메이션 클래스
+    // 이미지 우선, 없으면 SVG fallback
+    const bodyUrl = getBodyImageUrl(cls);
+    const imgTest = new Image();
     sprite.className = `class-preview-sprite class-preview-anim-${cls}`;
+    imgTest.onload = () => {
+      sprite.innerHTML = `<img src="${bodyUrl}" alt="${cls}" style="width:80px;height:80px;object-fit:contain;">`;
+    };
+    imgTest.onerror = () => {
+      sprite.innerHTML = getClassPreviewSprite(cls);
+    };
+    imgTest.src = bodyUrl;
+    // 즉시 SVG로 표시해두고 이미지 로드 시 교체
     sprite.innerHTML = getClassPreviewSprite(cls);
 
     // 스탯 바
@@ -3914,8 +4018,15 @@ document.addEventListener('DOMContentLoaded', () => {
   <rect x="30" y="9.5" width="4" height="2.5" rx="0.8" fill="#c8a040" opacity="0.7"/>
 </svg>`  }
 
+  // getHeroVisualHtml: 메인/전투 화면 소형 캐릭터 표시용
+  // formation 스테이지에선 작게 표시되므로 이미지 단일 레이어 사용
   function getHeroVisualHtml(heroClass) {
-    return `<div class="hero-visual-wrap ${getHeroAuraClass()}">${getHeroSprite(heroClass)}</div>`;
+    const bodyUrl = getBodyImageUrl(heroClass);
+    const aura    = getHeroAuraClass();
+    return `<div class="hero-visual-wrap ${aura}" style="position:relative;width:64px;height:80px;">
+      <img src="${bodyUrl}" alt="${heroClass}" style="width:100%;height:100%;object-fit:contain;"
+        onerror="this.style.opacity=0">
+    </div>`;
   }
 
   // ═══════════════════════════════════════════════════════
@@ -3925,105 +4036,113 @@ document.addEventListener('DOMContentLoaded', () => {
   // equipment  : 장비 객체 (기본 state.equipment)
   // applyPos   : 오버레이 위치/크기 적용 여부 (기본 true)
   // ═══════════════════════════════════════════════════════
-  // BASE_STAGE_H: oeApply의 bottom/크기값 기준 스테이지 높이 (340px)
-  const BASE_STAGE_H = 340;
-
-  function renderHeroDoll(stageEl, { heroClass = state.heroClass, equipment = state.equipment, applyPos = true, ratio = null } = {}) {
+  // ══════════════════════════════════════════════════════════
+  // 공용 영웅 도감 렌더러 — 이미지 레이어 방식
+  // stageEl: .equip-doll-stage 또는 .hero-doll-stage
+  // heroClass: 영웅 클래스 (기본 state.heroClass)
+  // equipment: 장비 객체 (기본 state.equipment)
+  // ══════════════════════════════════════════════════════════
+  function renderHeroDoll(stageEl, { heroClass = state.heroClass, equipment = state.equipment } = {}) {
     if (!stageEl) return;
 
-    // ratio 미지정시 stageEl 실제 높이 기준 자동 계산
-    const stageH = stageEl.offsetHeight || parseInt(stageEl.style.height) || BASE_STAGE_H;
-    const r = ratio !== null ? ratio : (stageH / BASE_STAGE_H);
-
-    // ── 캐릭터 ──
-    let charEl = stageEl.querySelector('.hero-doll-char, .equip-doll-hero');
-    if (!charEl) {
-      charEl = document.createElement('div');
-      charEl.className = 'hero-doll-char';
-      stageEl.appendChild(charEl);
+    // 기존 img-doll-stage 재사용 또는 생성
+    let dollStage = stageEl.querySelector('.img-doll-stage');
+    if (!dollStage) {
+      dollStage = document.createElement('div');
+      dollStage.className = 'img-doll-stage';
+      stageEl.appendChild(dollStage);
     }
-    charEl.innerHTML = getHeroVisualHtml(heroClass);
+    dollStage.innerHTML = '';
 
-    // ── 오버레이 레이어 정의 ──
-    const OVERLAY_DEFS = [
-      { cls:'equip-overlay-helmet',   key:'helmet',   build: () => equipment.helmet   ? buildHelmetOverlay(equipment.helmet)    : '' },
-      { cls:'equip-overlay-cloak',    key:'cloak',    build: () => equipment.cloak    ? buildCloakOverlay(equipment.cloak)      : '' },
-      { cls:'equip-overlay-necklace', key:'necklace', build: () => equipment.necklace ? buildNecklaceOverlay(equipment.necklace): '' },
-      { cls:'equip-overlay-glove-l',  key:null,       build: () => '' },
-      { cls:'equip-overlay-glove-r',  key:'gloveR',   build: () => equipment.gloves   ? buildGloveOverlay(equipment.gloves,'r') : '' },
-      { cls:'equip-overlay-boot-l',   key:'bootL',    build: () => equipment.boots    ? buildBootOverlay(equipment.boots,'l')   : '' },
-      { cls:'equip-overlay-boot-r',   key:'bootR',    build: () => equipment.boots    ? buildBootOverlay(equipment.boots,'r')   : '' },
-      { cls:'equip-overlay-ring-l',   key:'ringL',    build: () => equipment.ring1    ? buildRingSparkle(equipment.ring1)       : '' },
-      { cls:'equip-overlay-ring-r',   key:'ringR',    build: () => '' },
+    // ── 레이어 정의 (아래→위 순서) ──────────────────────────
+    // 각 레이어: { cls, slot, item, url, customStyle }
+    // position은 CSS %로 지정 (1024×1024 기준 비율)
+    // 기본은 inset:0 (전체 스테이지 채움) — 슬롯별 미세 조정 가능
+    const LAYER_DEFS = [
+      {
+        cls: 'img-layer-cape',
+        item: equipment.cloak,
+        url: equipment.cloak ? getEquipImageUrl(equipment.cloak, heroClass) : null,
+        style: 'inset:0;'   // 망토: 캐릭터 뒤 전체
+      },
+      {
+        cls: 'img-layer-body',
+        item: null,
+        url: getBodyImageUrl(heroClass),
+        style: 'inset:0;'   // 몸통: 기준 레이어
+      },
+      {
+        cls: 'img-layer-armor',
+        item: equipment.armor,
+        url: equipment.armor ? getEquipImageUrl(equipment.armor, heroClass) : null,
+        style: 'inset:0;'
+      },
+      {
+        cls: 'img-layer-gloves',
+        item: equipment.gloves,
+        url: equipment.gloves ? getEquipImageUrl(equipment.gloves, heroClass) : null,
+        style: 'inset:0;'
+      },
+      {
+        cls: 'img-layer-boots',
+        item: equipment.boots,
+        url: equipment.boots ? getEquipImageUrl(equipment.boots, heroClass) : null,
+        style: 'inset:0;'
+      },
+      {
+        cls: 'img-layer-shield',
+        item: equipment.shield,
+        url: equipment.shield ? getEquipImageUrl(equipment.shield, heroClass) : null,
+        style: 'inset:0;'
+      },
+      {
+        cls: 'img-layer-weapon',
+        item: equipment.weapon,
+        url: equipment.weapon ? getEquipImageUrl(equipment.weapon, heroClass) : null,
+        style: 'inset:0;'
+      },
+      {
+        cls: 'img-layer-necklace',
+        item: equipment.necklace,
+        url: equipment.necklace ? getEquipImageUrl(equipment.necklace, heroClass) : null,
+        style: 'inset:0;'
+      },
+      {
+        cls: 'img-layer-helmet',
+        item: equipment.helmet,
+        url: equipment.helmet ? getEquipImageUrl(equipment.helmet, heroClass) : null,
+        style: 'inset:0;'
+      },
+      {
+        cls: 'img-layer-ring',
+        item: equipment.ring1,
+        url: equipment.ring1 ? getEquipImageUrl(equipment.ring1, heroClass) : null,
+        style: 'inset:0;'
+      },
     ];
 
-    // ── 오버레이 el 생성/재사용 및 내용 + 위치 적용 ──
-    const applyOne = (el, key) => {
-      if (!el || !key) return;
-      oeApplyScaled(el, key, r);
-    };
+    LAYER_DEFS.forEach(({ cls, item, url, style }) => {
+      const layerEl = document.createElement('div');
+      layerEl.className = `img-layer ${cls}${item ? ' rarity-' + item.rarity : ''}`;
+      layerEl.style.cssText = `position:absolute; ${style}`;
+      const img = makeLayerImg(url, cls);
+      layerEl.appendChild(img);
+      dollStage.appendChild(layerEl);
 
-    OVERLAY_DEFS.forEach(({ cls, key, build }) => {
-      let el = stageEl.querySelector('.' + cls);
-      if (!el) {
-        el = document.createElement('div');
-        el.className = cls;
-        stageEl.appendChild(el);
-      }
-      el.innerHTML = build();
-      if (applyPos) applyOne(el, key);
-    });
-
-    // display:flex 확정 후 재적용
-    if (applyPos) {
-      requestAnimationFrame(() => {
-        OVERLAY_DEFS.forEach(({ cls, key }) => {
-          if (!key) return;
-          const el = stageEl.querySelector('.' + cls);
-          applyOne(el, key);
+      // legendary 스파클 (반지는 별도 위치)
+      if (item?.rarity === 'legendary') {
+        ['', 'b', 'c'].forEach((type, i) => {
+          const sp = document.createElement('span');
+          sp.className = `ov-sparkle${type ? ' ' + type : ''}`;
+          const positions = [
+            'top:-8px;right:10%;', 'top:5px;left:8%;', 'top:-4px;left:50%;'
+          ];
+          sp.style.cssText = positions[i] || positions[0];
+          sp.textContent = '✦';
+          layerEl.appendChild(sp);
         });
-      });
-    }
-  }
-
-  // ratio를 반영한 oeApply 래퍼
-  function oeApplyScaled(el, key, ratio) {
-    if (!el) return;
-    if (ratio === 1 || ratio == null) { oeApply(el, key); return; }
-    const v = oeVal(key);
-
-    // 위치 (bottom, left) 비율 스케일
-    el.style.bottom  = (v.bottom * ratio) + 'px';
-    el.style.zIndex  = v.zIndex;
-    if (key === 'helmet' || key === 'cloak' || key === 'necklace') {
-      el.style.left      = '50%';
-      el.style.transform = `translateX(calc(-50% + ${v.leftOffset * ratio}px))`;
-    } else {
-      el.style.left      = `calc(50% + ${v.leftOffset * ratio}px)`;
-      el.style.transform = 'none';
-    }
-
-    // 크기 스케일
-    const base = OE_BASE_PX[key];
-    if (base) {
-      const w = Math.round(base.w * v.scale / 100 * v.scaleW / 100 * ratio);
-      const h = Math.round(base.h * v.scale / 100 * v.scaleH / 100 * ratio);
-      el.style.width  = w + 'px';
-      el.style.height = h + 'px';
-      const svgEl = el.querySelector('svg');
-      if (svgEl) {
-        svgEl.setAttribute('width', w);  svgEl.setAttribute('height', h);
-        svgEl.style.width = w + 'px';    svgEl.style.height = h + 'px';
-        if (!svgEl.getAttribute('viewBox')) {
-          svgEl.setAttribute('viewBox', `0 0 ${base.w} ${base.h}`);
-        }
-        svgEl.setAttribute('preserveAspectRatio', 'none');
       }
-      const spanEl = el.querySelector('span');
-      if (spanEl && !el.querySelector('svg')) {
-        spanEl.style.fontSize = Math.round(11 * v.scale / 100 * v.scaleW / 100 * ratio) + 'px';
-      }
-    }
+    });
   }
 
   function getSoldierSprite(soldierClass, size='normal') {
@@ -4383,9 +4502,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderHeroFormation(heroClass, soldierClass, soldierCount) {
     els.heroSpriteWrap.innerHTML = getHeroVisualHtml(heroClass);
     els.soldierFront.innerHTML   = Array.from({length:soldierCount}, ()=>getSoldierSprite(soldierClass)).join('');
-    // 340px 도감을 scale(0.31)로 축소해서 캐릭터 위에 겹침
+    // formation 오버레이: 장비 레이어 렌더 (이미지 기반)
     const overlay = document.getElementById('formationDollOverlay');
-    if (overlay) renderHeroDoll(overlay, { heroClass, ratio: 1 });
+    if (overlay) renderHeroDoll(overlay, { heroClass });
   }
 
   function renderHero(leveled = false) {
