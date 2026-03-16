@@ -2721,7 +2721,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.level = hero.level;
     state.gold = hero.gold;
     state.inventory = [];
-    state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null, helmet:null };
+    state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, necklace:null, cloak:null, helmet:null };
     state.usedBarcodes = new Set();
     // 카탈로그 미로드 상태라면 재시도
     if (gearCatalog.length === 0) await loadItemCatalog();
@@ -3410,55 +3410,86 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 폴백용 하드코딩 카탈로그 (DB 연결 실패 시)
   const FALLBACK_CATALOG = [
-    { name:'단검',        slot:'weapon', weaponType:'sword', icon:'⟨단검⟩',      classes:['전사'],           stats:{atk:2,def:0,hp:0,speed:1,crit:0} },
-    { name:'외날검',      slot:'weapon', weaponType:'sword', icon:'⟨외날검⟩',    classes:['전사'],           stats:{atk:3,def:0,hp:0,speed:0,crit:1} },
-    { name:'장검',        slot:'weapon', weaponType:'sword', icon:'⟨장검⟩',      classes:['전사'],           stats:{atk:4,def:1,hp:0,speed:0,crit:0} },
-    { name:'양손검',      slot:'weapon', weaponType:'sword', icon:'⟨양손검⟩',    classes:['전사'],           stats:{atk:6,def:0,hp:5,speed:0,crit:0} },
-    { name:'기사검',      slot:'weapon', weaponType:'sword', icon:'⟨기사검⟩',    classes:['전사'],           stats:{atk:4,def:1,hp:0,speed:0,crit:2} },
-    { name:'단궁',        slot:'weapon', weaponType:'bow',   icon:'⟨단궁⟩',      classes:['궁사'],           stats:{atk:2,def:0,hp:0,speed:2,crit:0} },
-    { name:'장궁',        slot:'weapon', weaponType:'bow',   icon:'⟨장궁⟩',      classes:['궁사'],           stats:{atk:4,def:0,hp:0,speed:1,crit:0} },
-    { name:'복합궁',      slot:'weapon', weaponType:'bow',   icon:'⟨복합궁⟩',    classes:['궁사'],           stats:{atk:3,def:0,hp:0,speed:1,crit:2} },
-    { name:'강화 석궁',   slot:'weapon', weaponType:'bow',   icon:'⟨석궁⟩',      classes:['궁사'],           stats:{atk:5,def:0,hp:0,speed:0,crit:2} },
-    { name:'나무 지팡이', slot:'weapon', weaponType:'staff', icon:'⟨나무지팡이⟩', classes:['마법사'],         stats:{atk:2,def:0,hp:0,speed:0,crit:1} },
-    { name:'수정 지팡이', slot:'weapon', weaponType:'staff', icon:'⟨수정지팡이⟩', classes:['마법사'],         stats:{atk:3,def:0,hp:0,speed:0,crit:2} },
-    { name:'강철 지팡이', slot:'weapon', weaponType:'staff', icon:'⟨강철지팡이⟩', classes:['마법사'],         stats:{atk:4,def:1,hp:0,speed:0,crit:1} },
-    { name:'마법 지팡이', slot:'weapon', weaponType:'staff', icon:'⟨마법지팡이⟩', classes:['마법사'],         stats:{atk:5,def:0,hp:0,speed:0,crit:3} },
-    { name:'가죽 갑옷',   slot:'armor',  weaponType:null,    icon:'⟨가죽갑옷⟩',  classes:null,               stats:{atk:0,def:2,hp: 8,speed: 0,crit:0} },
-    { name:'사슬 갑옷',   slot:'armor',  weaponType:null,    icon:'⟨사슬갑옷⟩',  classes:null,               stats:{atk:0,def:4,hp:10,speed: 0,crit:0} },
-    { name:'철판 갑옷',   slot:'armor',  weaponType:null,    icon:'⟨철판갑옷⟩',  classes:null,               stats:{atk:0,def:6,hp:12,speed: 0,crit:0} },
-    { name:'기사 흉갑',   slot:'armor',  weaponType:null,    icon:'⟨기사흉갑⟩',  classes:null,               stats:{atk:0,def:7,hp:10,speed:-1,crit:0} },
-    { name:'나무 방패',   slot:'shield', weaponType:null,    icon:'⟨나무방패⟩',  classes:['전사','마법사'],  stats:{atk:0,def:3,hp: 6,speed: 0,crit:0} },
-    { name:'철 방패',     slot:'shield', weaponType:null,    icon:'⟨철방패⟩',    classes:['전사','마법사'],  stats:{atk:0,def:5,hp: 8,speed: 0,crit:0} },
-    { name:'원형 방패',   slot:'shield', weaponType:null,    icon:'⟨원형방패⟩',  classes:['전사','마법사'],  stats:{atk:0,def:4,hp: 6,speed: 0,crit:1} },
-    { name:'탑 방패',     slot:'shield', weaponType:null,    icon:'⟨탑방패⟩',    classes:['전사','마법사'],  stats:{atk:0,def:7,hp:10,speed:-1,crit:0} },
-    { name:'천 장갑',     slot:'gloves', weaponType:null,    icon:'⟨천장갑⟩',   classes:null,               stats:{atk:0,def:0,hp:4,speed:1,crit:0} },
-    { name:'철 장갑',     slot:'gloves', weaponType:null,    icon:'⟨철장갑⟩',   classes:null,               stats:{atk:2,def:2,hp:0,speed:0,crit:0} },
-    { name:'가죽 장갑',   slot:'gloves', weaponType:null,    icon:'⟨가죽장갑⟩', classes:null,               stats:{atk:1,def:0,hp:0,speed:0,crit:2} },
-    { name:'전투 장갑',   slot:'gloves', weaponType:null,    icon:'⟨전투장갑⟩', classes:null,               stats:{atk:3,def:0,hp:0,speed:0,crit:1} },
-    { name:'천 신발',     slot:'boots',  weaponType:null,    icon:'⟨천신발⟩',   classes:null,               stats:{atk:0,def:0,hp:3,speed:1,crit:0} },
-    { name:'가죽 장화',   slot:'boots',  weaponType:null,    icon:'⟨가죽장화⟩', classes:null,               stats:{atk:0,def:0,hp:4,speed:2,crit:0} },
-    { name:'강화 장화',   slot:'boots',  weaponType:null,    icon:'⟨강화장화⟩', classes:null,               stats:{atk:0,def:1,hp:0,speed:3,crit:0} },
-    { name:'질풍 장화',   slot:'boots',  weaponType:null,    icon:'⟨질풍장화⟩', classes:null,               stats:{atk:0,def:0,hp:0,speed:4,crit:1} },
-    { name:'낡은 망토',   slot:'cloak',  weaponType:null,    icon:'⟨낡은망토⟩', classes:null,               stats:{atk:0,def:1,hp:5,speed:0,crit:0} },
-    { name:'강화 망토',   slot:'cloak',  weaponType:null,    icon:'⟨강화망토⟩', classes:null,               stats:{atk:0,def:2,hp:8,speed:0,crit:0} },
-    { name:'전사의 망토', slot:'cloak',  weaponType:null,    icon:'⟨전사망토⟩', classes:null,               stats:{atk:1,def:3,hp:6,speed:0,crit:0} },
-    { name:'용사의 망토', slot:'cloak',  weaponType:null,    icon:'⟨용사망토⟩', classes:null,               stats:{atk:2,def:2,hp:6,speed:0,crit:1} },
-    { name:'구리 반지',   slot:'ring',   weaponType:null,    icon:'⟨구리반지⟩',   classes:null,             stats:{atk:0,def:0,hp:4,speed:0,crit:0} },
-    { name:'전투 반지',   slot:'ring',   weaponType:null,    icon:'⟨전투반지⟩',   classes:null,             stats:{atk:1,def:0,hp:0,speed:0,crit:3} },
-    { name:'수호 반지',   slot:'ring',   weaponType:null,    icon:'⟨수호반지⟩',   classes:null,             stats:{atk:0,def:1,hp:6,speed:0,crit:0} },
-    { name:'마력 반지',   slot:'ring',   weaponType:null,    icon:'⟨마력반지⟩',   classes:null,             stats:{atk:2,def:0,hp:0,speed:0,crit:2} },
-    { name:'가죽 끈',       slot:'necklace', weaponType:null, icon:'⟨가죽끈⟩',     classes:null,            stats:{atk:0,def:0,hp:5,speed:0,crit:0} },
-    { name:'집중 목걸이',   slot:'necklace', weaponType:null, icon:'⟨집중목걸이⟩', classes:null,            stats:{atk:0,def:0,hp:0,speed:1,crit:2} },
-    { name:'수호 목걸이',   slot:'necklace', weaponType:null, icon:'⟨수호목걸이⟩', classes:null,            stats:{atk:0,def:2,hp:6,speed:0,crit:0} },
-    { name:'투사의 목걸이', slot:'necklace', weaponType:null, icon:'⟨투사목걸이⟩', classes:null,            stats:{atk:2,def:0,hp:3,speed:0,crit:1} },
-    // ── 투구 ──
-    { name:'가죽 투구',   slot:'helmet', weaponType:null, icon:'⟨가죽투구⟩',  classes:null, stats:{atk:0,def:2,hp: 5,speed:0,crit:0} },
-    { name:'철 투구',     slot:'helmet', weaponType:null, icon:'⟨철투구⟩',    classes:null, stats:{atk:0,def:4,hp: 6,speed:0,crit:0} },
-    { name:'전투 투구',   slot:'helmet', weaponType:null, icon:'⟨전투투구⟩',  classes:null, stats:{atk:0,def:5,hp: 8,speed:0,crit:0} },
-    { name:'기사 투구',   slot:'helmet', weaponType:null, icon:'⟨기사투구⟩',  classes:null, stats:{atk:0,def:7,hp:10,speed:-1,crit:0} },
+    // ── 무기: 전사 ──────────────────────────────────
+    { name:'단검',         slot:'weapon', weaponType:'sword', icon:'⟨단검⟩',         classes:['전사'],   stats:{atk:3,def:0,hp:0,speed:1,crit:1} },
+    { name:'장검',         slot:'weapon', weaponType:'sword', icon:'⟨장검⟩',         classes:['전사'],   stats:{atk:5,def:1,hp:0,speed:0,crit:0} },
+    { name:'기사검',       slot:'weapon', weaponType:'sword', icon:'⟨기사검⟩',       classes:['전사'],   stats:{atk:7,def:1,hp:0,speed:0,crit:2} },
+    // ── 무기: 궁사 ──────────────────────────────────
+    { name:'단궁',         slot:'weapon', weaponType:'bow',   icon:'⟨단궁⟩',         classes:['궁사'],   stats:{atk:3,def:0,hp:0,speed:2,crit:1} },
+    { name:'장궁',         slot:'weapon', weaponType:'bow',   icon:'⟨장궁⟩',         classes:['궁사'],   stats:{atk:5,def:0,hp:0,speed:1,crit:1} },
+    { name:'석궁',         slot:'weapon', weaponType:'bow',   icon:'⟨석궁⟩',         classes:['궁사'],   stats:{atk:6,def:0,hp:0,speed:0,crit:3} },
+    // ── 무기: 마법사 ────────────────────────────────
+    { name:'나무 지팡이',  slot:'weapon', weaponType:'staff', icon:'⟨나무지팡이⟩',   classes:['마법사'], stats:{atk:3,def:0,hp:0,speed:0,crit:2} },
+    { name:'마법 지팡이',  slot:'weapon', weaponType:'staff', icon:'⟨마법지팡이⟩',   classes:['마법사'], stats:{atk:5,def:0,hp:0,speed:0,crit:3} },
+    { name:'수정 지팡이',  slot:'weapon', weaponType:'staff', icon:'⟨수정지팡이⟩',   classes:['마법사'], stats:{atk:7,def:0,hp:0,speed:0,crit:4} },
+    // ── 갑옷: 전사 ──────────────────────────────────
+    { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'⟨가죽갑옷⟩',     classes:['전사'],   stats:{atk:0,def:3,hp:10,speed:0, crit:0} },
+    { name:'강철 갑옷',    slot:'armor',  weaponType:null,    icon:'⟨철판갑옷⟩',     classes:['전사'],   stats:{atk:0,def:6,hp:14,speed:0, crit:0} },
+    { name:'기사 갑옷',    slot:'armor',  weaponType:null,    icon:'⟨기사흉갑⟩',     classes:['전사'],   stats:{atk:0,def:9,hp:18,speed:-1,crit:0} },
+    // ── 갑옷: 궁사 ──────────────────────────────────
+    { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'⟨가죽갑옷⟩',     classes:['궁사'],   stats:{atk:0,def:2,hp:8, speed:1, crit:0} },
+    { name:'사슬 갑옷',    slot:'armor',  weaponType:null,    icon:'⟨사슬갑옷⟩',     classes:['궁사'],   stats:{atk:0,def:4,hp:10,speed:0, crit:0} },
+    { name:'사냥꾼 갑옷',  slot:'armor',  weaponType:null,    icon:'⟨사슬갑옷⟩',     classes:['궁사'],   stats:{atk:1,def:5,hp:10,speed:1, crit:1} },
+    // ── 갑옷: 마법사 ────────────────────────────────
+    { name:'천 갑옷',      slot:'armor',  weaponType:null,    icon:'⟨가죽갑옷⟩',     classes:['마법사'], stats:{atk:0,def:1,hp:6, speed:1, crit:1} },
+    { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'⟨가죽갑옷⟩',     classes:['마법사'], stats:{atk:0,def:2,hp:8, speed:0, crit:1} },
+    { name:'마법사 로브',  slot:'armor',  weaponType:null,    icon:'⟨기사흉갑⟩',     classes:['마법사'], stats:{atk:2,def:2,hp:8, speed:0, crit:3} },
+    // ── 방패: 전사 전용 ─────────────────────────────
+    { name:'나무 방패',    slot:'shield', weaponType:null,    icon:'⟨나무방패⟩',     classes:['전사'],   stats:{atk:0,def:3,hp:6, speed:0, crit:0} },
+    { name:'원형 방패',    slot:'shield', weaponType:null,    icon:'⟨원형방패⟩',     classes:['전사'],   stats:{atk:0,def:5,hp:8, speed:0, crit:1} },
+    { name:'강철 방패',    slot:'shield', weaponType:null,    icon:'⟨철방패⟩',       classes:['전사'],   stats:{atk:0,def:7,hp:10,speed:-1,crit:0} },
+    // ── 장갑: 전사 ──────────────────────────────────
+    { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'⟨가죽장갑⟩',     classes:['전사'],   stats:{atk:1,def:1,hp:0,speed:0,crit:1} },
+    { name:'강철 장갑',    slot:'gloves', weaponType:null,    icon:'⟨철장갑⟩',       classes:['전사'],   stats:{atk:2,def:3,hp:0,speed:0,crit:0} },
+    { name:'기사 장갑',    slot:'gloves', weaponType:null,    icon:'⟨전투장갑⟩',     classes:['전사'],   stats:{atk:3,def:3,hp:0,speed:0,crit:1} },
+    // ── 장갑: 궁사 ──────────────────────────────────
+    { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'⟨가죽장갑⟩',     classes:['궁사'],   stats:{atk:1,def:0,hp:0,speed:1,crit:2} },
+    { name:'사슬 장갑',    slot:'gloves', weaponType:null,    icon:'⟨철장갑⟩',       classes:['궁사'],   stats:{atk:1,def:2,hp:0,speed:0,crit:2} },
+    { name:'사냥꾼 장갑',  slot:'gloves', weaponType:null,    icon:'⟨전투장갑⟩',     classes:['궁사'],   stats:{atk:2,def:1,hp:0,speed:1,crit:3} },
+    // ── 장갑: 마법사 ────────────────────────────────
+    { name:'천 장갑',      slot:'gloves', weaponType:null,    icon:'⟨천장갑⟩',       classes:['마법사'], stats:{atk:0,def:0,hp:4,speed:1,crit:1} },
+    { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'⟨가죽장갑⟩',     classes:['마법사'], stats:{atk:1,def:0,hp:2,speed:0,crit:2} },
+    { name:'마법사 장갑',  slot:'gloves', weaponType:null,    icon:'⟨전투장갑⟩',     classes:['마법사'], stats:{atk:2,def:0,hp:2,speed:0,crit:4} },
+    // ── 장화: 전사 ──────────────────────────────────
+    { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'⟨가죽장화⟩',     classes:['전사'],   stats:{atk:0,def:1,hp:4,speed:1, crit:0} },
+    { name:'강철 장화',    slot:'boots',  weaponType:null,    icon:'⟨강화장화⟩',     classes:['전사'],   stats:{atk:0,def:3,hp:6,speed:0, crit:0} },
+    { name:'기사 장화',    slot:'boots',  weaponType:null,    icon:'⟨강화장화⟩',     classes:['전사'],   stats:{atk:0,def:4,hp:8,speed:0, crit:0} },
+    // ── 장화: 궁사 ──────────────────────────────────
+    { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'⟨가죽장화⟩',     classes:['궁사'],   stats:{atk:0,def:0,hp:4,speed:2, crit:0} },
+    { name:'사슬 장화',    slot:'boots',  weaponType:null,    icon:'⟨강화장화⟩',     classes:['궁사'],   stats:{atk:0,def:1,hp:4,speed:2, crit:0} },
+    { name:'사냥꾼 장화',  slot:'boots',  weaponType:null,    icon:'⟨질풍장화⟩',     classes:['궁사'],   stats:{atk:0,def:1,hp:4,speed:3, crit:1} },
+    // ── 장화: 마법사 ────────────────────────────────
+    { name:'천 장화',      slot:'boots',  weaponType:null,    icon:'⟨천신발⟩',       classes:['마법사'], stats:{atk:0,def:0,hp:4,speed:1, crit:1} },
+    { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'⟨가죽장화⟩',     classes:['마법사'], stats:{atk:0,def:1,hp:4,speed:1, crit:1} },
+    { name:'마법사 장화',  slot:'boots',  weaponType:null,    icon:'⟨질풍장화⟩',     classes:['마법사'], stats:{atk:1,def:0,hp:4,speed:1, crit:2} },
+    // ── 투구: 전사 ──────────────────────────────────
+    { name:'가죽 투구',    slot:'helmet', weaponType:null,    icon:'⟨가죽투구⟩',     classes:['전사'],   stats:{atk:0,def:2,hp:5, speed:0, crit:0} },
+    { name:'강철 투구',    slot:'helmet', weaponType:null,    icon:'⟨철투구⟩',       classes:['전사'],   stats:{atk:0,def:4,hp:8, speed:0, crit:0} },
+    { name:'기사 투구',    slot:'helmet', weaponType:null,    icon:'⟨기사투구⟩',     classes:['전사'],   stats:{atk:0,def:6,hp:10,speed:-1,crit:0} },
+    // ── 투구: 궁사 ──────────────────────────────────
+    { name:'가죽 모자',    slot:'helmet', weaponType:null,    icon:'⟨가죽투구⟩',     classes:['궁사'],   stats:{atk:0,def:1,hp:4, speed:1, crit:1} },
+    { name:'써클렛',       slot:'helmet', weaponType:null,    icon:'⟨철투구⟩',       classes:['궁사'],   stats:{atk:0,def:2,hp:4, speed:1, crit:2} },
+    { name:'강철 투구',    slot:'helmet', weaponType:null,    icon:'⟨전투투구⟩',     classes:['궁사'],   stats:{atk:0,def:4,hp:6, speed:0, crit:1} },
+    // ── 투구: 마법사 ────────────────────────────────
+    { name:'천 모자',      slot:'helmet', weaponType:null,    icon:'⟨가죽투구⟩',     classes:['마법사'], stats:{atk:0,def:0,hp:4, speed:1, crit:2} },
+    { name:'써클렛',       slot:'helmet', weaponType:null,    icon:'⟨철투구⟩',       classes:['마법사'], stats:{atk:1,def:1,hp:4, speed:0, crit:3} },
+    { name:'마법사 모자',  slot:'helmet', weaponType:null,    icon:'⟨기사투구⟩',     classes:['마법사'], stats:{atk:2,def:1,hp:4, speed:0, crit:4} },
+    // ── 망토: 공용 ──────────────────────────────────
+    { name:'용병 망토',    slot:'cloak',  weaponType:null,    icon:'⟨낡은망토⟩',     classes:null,       stats:{atk:1,def:1,hp:5,speed:0,crit:0} },
+    { name:'기사 망토',    slot:'cloak',  weaponType:null,    icon:'⟨강화망토⟩',     classes:null,       stats:{atk:1,def:3,hp:8,speed:0,crit:0} },
+    { name:'용사 망토',    slot:'cloak',  weaponType:null,    icon:'⟨용사망토⟩',     classes:null,       stats:{atk:2,def:3,hp:8,speed:1,crit:1} },
+    // ── 반지: 공용 (ring1 단일) ──────────────────────
+    { name:'공격력 반지',  slot:'ring',   weaponType:null,    icon:'⟨전투반지⟩',     classes:null,       stats:{atk:3,def:0,hp:0, speed:0,crit:2} },
+    { name:'방어력 반지',  slot:'ring',   weaponType:null,    icon:'⟨수호반지⟩',     classes:null,       stats:{atk:0,def:3,hp:6, speed:0,crit:0} },
+    { name:'체력 반지',    slot:'ring',   weaponType:null,    icon:'⟨구리반지⟩',     classes:null,       stats:{atk:0,def:1,hp:10,speed:0,crit:0} },
+    { name:'만능 반지',    slot:'ring',   weaponType:null,    icon:'⟨마력반지⟩',     classes:null,       stats:{atk:2,def:2,hp:6, speed:0,crit:2} },
+    // ── 목걸이: 공용 ────────────────────────────────
+    { name:'속도 목걸이',  slot:'necklace',weaponType:null,   icon:'⟨집중목걸이⟩',   classes:null,       stats:{atk:0,def:0,hp:4,speed:4,crit:1} },
+    { name:'치명타 목걸이',slot:'necklace',weaponType:null,   icon:'⟨투사목걸이⟩',   classes:null,       stats:{atk:2,def:0,hp:0,speed:1,crit:5} },
+    { name:'만능 목걸이',  slot:'necklace',weaponType:null,   icon:'⟨수호목걸이⟩',   classes:null,       stats:{atk:1,def:1,hp:4,speed:2,crit:3} },
   ];
 
-    const slotLabels = { weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑', boots:'장화', ring1:'반지1', ring2:'반지2', necklace:'목걸이', cloak:'망토' };
+    const slotLabels = { weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑', boots:'장화', ring1:'반지', necklace:'목걸이', cloak:'망토', helmet:'투구' };
   // slotPinMap 제거 (핀 UI 대신 오버레이 방식 사용)
 
   // 기본 드롭 테이블 (보통 난이도)
@@ -3492,7 +3523,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pendingDecoded:null, battle:null,
     html5QrCode:null, scannerRunning:false,
     inventory:[],
-    equipment:{ weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null },
+    equipment:{ weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, necklace:null, cloak:null, helmet:null },
     selectedItemId: null,
     usedBarcodes: new Set(),
     shopStock: [],
@@ -3923,7 +3954,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { cls:'equip-overlay-boot-l',   key:'bootL',    build: () => equipment.boots    ? buildBootOverlay(equipment.boots,'l')   : '' },
       { cls:'equip-overlay-boot-r',   key:'bootR',    build: () => equipment.boots    ? buildBootOverlay(equipment.boots,'r')   : '' },
       { cls:'equip-overlay-ring-l',   key:'ringL',    build: () => equipment.ring1    ? buildRingSparkle(equipment.ring1)       : '' },
-      { cls:'equip-overlay-ring-r',   key:'ringR',    build: () => equipment.ring2    ? buildRingSparkle(equipment.ring2)       : '' },
+      { cls:'equip-overlay-ring-r',   key:'ringR',    build: () => '' },
     ];
 
     // ── 오버레이 el 생성/재사용 및 내용 + 위치 적용 ──
@@ -4271,7 +4302,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.inventory.unshift(item);
     state.inventory = state.inventory.slice(0,60);
     const targetSlot = item.slot === 'ring'
-      ? (!state.equipment.ring1 ? 'ring1' : !state.equipment.ring2 ? 'ring2' : null)
+      ? (!state.equipment.ring1 ? 'ring1' : null)
       : item.slot;
     const cur = targetSlot ? state.equipment[targetSlot] : null;
     if (targetSlot && (!cur || item.power > (cur?.power||0))) {
@@ -4395,7 +4426,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (item.weaponType === 'staff'  && hc !== '마법사') return { ok:false, reason:'마법사만 지팡이 장착 가능' };
       if (item.classes && !item.classes.includes(hc))     return { ok:false, reason:`${item.classes.join('/')}만 사용 가능` };
     }
-    if (item.slot === 'shield' && hc === '궁사') return { ok:false, reason:'궁사는 방패 착용 불가' };
+    if (item.slot === 'shield' && hc !== '전사') return { ok:false, reason:'전사만 방패 착용 가능' };
     return { ok:true };
   }
 
@@ -5624,13 +5655,13 @@ ICO['⟨기사투구⟩'] = svg(defs(
   function updateEquipSlotUI() {
     const slotDefaultIcon = {
       weapon:'⚔️', armor:'🛡️', shield:'🔰', gloves:'🧤',
-      boots:'👟', ring1:'💍', ring2:'💍', necklace:'📿', cloak:'🧥', helmet:'🪖'
+      boots:'👟', ring1:'💍', necklace:'📿', cloak:'🧥', helmet:'🪖'
     };
     const slotDefaultLabel = {
       weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑',
-      boots:'장화', ring1:'반지', ring2:'반지', necklace:'목걸이', cloak:'망토', helmet:'투구'
+      boots:'장화', ring1:'반지', necklace:'목걸이', cloak:'망토', helmet:'투구'
     };
-    ['weapon','armor','shield','gloves','boots','ring1','ring2','necklace','cloak','helmet'].forEach(slot => {
+    ['weapon','armor','shield','gloves','boots','ring1','necklace','cloak','helmet'].forEach(slot => {
       const btn = document.getElementById(`eqSlot_${slot}`);
       const iconEl = document.getElementById(`eqIcon_${slot}`);
       if (!btn || !iconEl) return;
@@ -5709,11 +5740,11 @@ ICO['⟨기사투구⟩'] = svg(defs(
     els.itemDetailName.className    = `item-detail-name rarity-${item.rarity}`;
     els.itemDetailName.textContent  = item.name;
 
-    // 슬롯 라벨 (ring → ring1/ring2 고려)
+    // 슬롯 라벨
     const dispSlot = item.slot === 'ring' ? '반지' : (slotLabels[item.slot] || item.slot);
     // 현재 장착된 슬롯의 power와 비교
     const targetSlotForCP = item.slot === 'ring'
-      ? (!state.equipment.ring1 ? 'ring1' : 'ring2')
+      ? 'ring1'
       : item.slot;
     const curEquipped = state.equipment[targetSlotForCP];
     const cpDiff = curEquipped ? (item.power - curEquipped.power) : item.power;
@@ -5748,9 +5779,9 @@ ICO['⟨기사투구⟩'] = svg(defs(
       const equippedSlot = Object.keys(state.equipment).find(k => state.equipment[k]?.id === item.id);
       if (equippedSlot) previewEquip[equippedSlot] = null;
     } else {
-      // 반지는 ring1 비어있으면 ring1, 아니면 ring2
+      // 반지는 ring1 단일
       const targetSlot = item.slot === 'ring'
-        ? (!state.equipment.ring1 ? 'ring1' : 'ring2')
+        ? (!state.equipment.ring1 ? 'ring1' : null)
         : item.slot;
       previewEquip[targetSlot] = item;
     }
@@ -5776,7 +5807,7 @@ ICO['⟨기사투구⟩'] = svg(defs(
     } else if (!check.ok) {
       els.itemStatChangeHint.className = 'stat-change-hint negative';
       els.itemStatChangeHint.textContent = `🚫 ${check.reason}`;
-    } else if (item.slot === 'ring' && state.equipment.ring1 && state.equipment.ring2) {
+    } else if (item.slot === 'ring' && !!state.equipment.ring1) {
       els.itemStatChangeHint.className = 'stat-change-hint negative';
       els.itemStatChangeHint.textContent = '🚫 반지 슬롯이 가득 찼습니다 (최대 2개)';
     } else if (totalDiff > 0) {
@@ -5794,7 +5825,7 @@ ICO['⟨기사투구⟩'] = svg(defs(
     els.itemSellPriceRow.innerHTML = `🪙 판매가 <b style="color:#ffcf63;">${sellPrice}G</b>`;
 
     // 버튼 렌더
-    const ringFull = item.slot === 'ring' && state.equipment.ring1 && state.equipment.ring2;
+    const ringFull = item.slot === 'ring' && !!state.equipment.ring1;
     if (isEquipped) {
       els.itemDetailActions.className = 'modal-actions two';
       els.itemDetailActions.innerHTML = `
@@ -5842,10 +5873,10 @@ ICO['⟨기사투구⟩'] = svg(defs(
   function equipItemFromModal(item) {
     const check = canEquipItem(item);
     if (!check.ok) { showDropNotification(`⚠️ ${check.reason}`, '#ff9b7f'); return; }
-    const ringFull = item.slot === 'ring' && state.equipment.ring1 && state.equipment.ring2;
+    const ringFull = item.slot === 'ring' && !!state.equipment.ring1;
     if (ringFull) { showDropNotification('⚠️ 반지 슬롯이 가득 찼습니다!', '#ff9b7f'); return; }
     const targetSlot = item.slot === 'ring'
-      ? (!state.equipment.ring1 ? 'ring1' : 'ring2')
+      ? 'ring1'
       : item.slot;
     state.equipment[targetSlot] = item;
     showEquipEffect(item);
@@ -6418,7 +6449,7 @@ ICO['⟨기사투구⟩'] = svg(defs(
     state.heroClass = heroClass;
     state.level = 1; state.exp = 0; state.gold = 0;
     state.inventory = [];
-    state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, ring2:null, necklace:null, cloak:null, helmet:null };
+    state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, necklace:null, cloak:null, helmet:null };
     state.usedBarcodes = new Set();
 
     // GM은 DB에 저장하지 않고 바로 게임 진입
