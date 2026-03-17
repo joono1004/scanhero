@@ -114,14 +114,15 @@
       background: radial-gradient(circle at 50% 25%, rgba(255,255,255,0.08), transparent 24%),
         linear-gradient(180deg, rgba(16,24,43,0.15), rgba(6,10,18,0.24));
     }
-    /* formation-doll-overlay: 장비 이미지 레이어 오버레이 */
+    /* formation-doll-overlay: hero-unit과 동일한 위치/크기/애니메이션 */
     .formation-doll-overlay {
       position: absolute;
-      left: 14px; bottom: 20px;
+      left: 56px; bottom: 20px;
       width: 78px; height: 90px;
       pointer-events: none;
       z-index: 5;
       background: none !important; border: none !important;
+      animation: heroFloat 2.6s ease-in-out infinite;
     }
     /* formation: 몸통(body)레이어 숨김 — hero-unit의 getHeroVisualHtml이 담당 */
     .formation-doll-overlay .img-layer-body { display: none !important; }
