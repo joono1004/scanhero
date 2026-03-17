@@ -1922,9 +1922,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // ══════════════════════════════════════════════════════
   // 이미지 에셋 시스템 — Supabase Storage 기반
   // ══════════════════════════════════════════════════════
-  // 버킷명: scanhero-assets (Supabase Storage에서 public 설정 필요)
-  const STORAGE_BUCKET = 'scanhero-assets';
-  const STORAGE_BASE   = `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}`;
+  // GitHub Pages 이미지 호스팅
+  // 레포: github.com/joono1004/scanhero → Pages 활성화 후 아래 URL 사용
+  // 폴더 구조: scanhero/assets/char/, scanhero/assets/equip/...
+  const STORAGE_BASE = 'https://joono1004.github.io/scanhero/assets';
 
   // 클래스 코드 매핑
   const CLASS_CODE = { '전사': 'warrior', '궁사': 'archer', '마법사': 'mage' };
