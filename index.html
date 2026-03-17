@@ -409,42 +409,41 @@
       height: 64px;
     }
     .char-slot.empty:hover { border-color: rgba(79,124,255,0.5); color: #7a9abb; background: rgba(79,124,255,0.06); }
+    /* 슬롯 내부: 캐릭터(좌) + 정보(우) 나란히 */
     .char-slot-inner {
-      display: flex; align-items: flex-start; gap: 12px;
+      display: flex; flex-direction: row;
+      align-items: stretch; gap: 0;
     }
+    /* 캐릭터 이미지 영역 — 고정 너비, 독립 공간 */
     .char-slot-sprite {
-      width: 120px; height: 150px; border-radius: 14px; flex-shrink: 0;
-      background: linear-gradient(180deg, rgba(30,48,100,0.85), rgba(12,20,50,0.95));
-      border: 1px solid rgba(120,149,220,0.3);
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; position: relative;
+      width: 120px; min-height: 150px; flex-shrink: 0;
+      border-radius: 12px 0 0 12px;
+      background: linear-gradient(180deg, rgba(20,32,72,0.9), rgba(10,18,44,0.98));
+      border-right: 1px solid rgba(80,110,180,0.2);
+      position: relative; overflow: hidden;
     }
-    /* hero-doll-thumb: char-slot-sprite 안에 이미지 레이어로 표시 */
+    /* hero-doll-thumb: sprite 안을 꽉 채우는 이미지 컨테이너 */
     .hero-doll-thumb {
       position: absolute; inset: 0;
       pointer-events: none;
       background: none !important; border: none !important;
     }
     .char-slot-sprite::after {
-      content:''; position:absolute; bottom:0; left:0; right:0; height:20px;
-      border-radius: 0 0 14px 14px;
-      background: radial-gradient(ellipse at 50% 100%, rgba(79,124,255,0.22) 0%, transparent 70%);
-      pointer-events: none;
+      content:''; position:absolute; bottom:0; left:0; right:0; height:28px;
+      background: linear-gradient(to top, rgba(10,18,44,0.7), transparent);
+      pointer-events: none; z-index: 5;
     }
-    .char-slot-sprite .hero-visual-wrap {
-      transform: scale(0.95); transform-origin: center center;
-      position: relative; z-index: 1;
-    }
+    /* 정보 영역 — 남은 공간 차지, 캐릭터와 겹치지 않음 */
     .char-slot-info {
       flex: 1; min-width: 0;
-      min-height: 150px;
       display: flex; flex-direction: column;
       justify-content: center;
-      padding: 6px 0;
+      padding: 10px 12px;
+      gap: 4px;
     }
-    .char-slot-name { font-size: 14px; font-weight: 900; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .char-slot-meta { font-size: 10px; color: #7a90be; margin-bottom: 6px; }
-    .char-slot-stats { display: flex; gap: 4px; flex-wrap: wrap; }
+    .char-slot-name { font-size: 15px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .char-slot-meta { font-size: 11px; color: #7a90be; }
+    .char-slot-stats { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px; }
     .char-stat-pill {
       font-size: 9px; padding: 1px 6px; border-radius: 6px;
       background: rgba(79,124,255,0.12); border: 1px solid rgba(79,124,255,0.22); color: #9fbfff;
