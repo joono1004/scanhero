@@ -754,7 +754,7 @@
     #eqSlot_gloves   { top: 144px; left: 8px;              transform: none; }
     #eqSlot_ring1    { top: 144px; right: 8px; left: auto; transform: none; }
     #eqSlot_armor    { top: 212px; left: 8px;  bottom: auto; transform: none; }
-    #eqSlot_boots    { top: 212px; left: 50%;  bottom: auto; transform: translateX(-50%); }
+    #eqSlot_boots    { top: 212px; left: 76px; bottom: auto; transform: none; }
     #eqSlot_cloak    { top: 212px; right: 8px; left: auto; bottom: auto; transform: none; }
 
     .eq-slot-icon { font-size: 22px; line-height: 1; }
@@ -2908,15 +2908,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (seenIds.has(i.id)) return false;
         seenIds.add(i.id); return true;
       });
-      // 기존 삭제 후 전체 insert
+      // 기존 삭제 후 전체 insert (isDefault 아이템은 저장 제외)
       await sb.from('inventory_items').delete().eq('player_id', PLAYER_ID);
-      if (!state.inventory.length) return;
-      const equippedIds = Object.values(state.equipment).filter(Boolean).map(i => i.id);
+      const saveableInv = state.inventory.filter(i => !i.isDefault);
+      if (!saveableInv.length) return;
+      const equippedIds = Object.values(state.equipment).filter(Boolean).filter(i => !i.isDefault).map(i => i.id);
       const equippedSlotMap = {};
       Object.entries(state.equipment).forEach(([slot, item]) => {
         if (item) equippedSlotMap[item.id] = slot;
       });
-      const rows = state.inventory.map(item => ({
+      const rows = saveableInv.map(item => ({
         player_id:    PLAYER_ID,
         item_id:      item.id,
         item_name:    item.name,
@@ -3973,8 +3974,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function getHeroVisualHtml(heroClass) {
     const bodyUrl = getBodyImageUrl(heroClass);
     const aura    = getHeroAuraClass();
-    // 헬멧 미착용 시 기본 머리를 몸통과 동일 크기/위치로 오버레이
-    const headLayer = !state.equipment.helmet
+    // 헬멧 미착용 또는 isDefault(기본 머리)일 때 기본 머리 레이어 표시
+    const headLayer = (!state.equipment.helmet || state.equipment.helmet.isDefault)
       ? `<img src="${getDefaultHeadUrl(heroClass)}" alt="head"
            style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"
            onerror="this.style.opacity=0">`
@@ -4067,8 +4068,8 @@ document.addEventListener('DOMContentLoaded', () => {
       {
         cls: 'img-layer-helmet',
         item: equipment.helmet,
-        // 헬멧 미착용 시 기본 머리 이미지 표시, 착용 시 헬멧 이미지 표시
-        url: equipment.helmet
+        // 헬멧 미착용 또는 isDefault(기본 머리)일 때 기본 머리 이미지 표시
+        url: (equipment.helmet && !equipment.helmet.isDefault)
           ? getEquipImageUrl(equipment.helmet, heroClass)
           : getDefaultHeadUrl(heroClass),
         style: 'inset:0;'
@@ -4590,7 +4591,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           iconEl.textContent = '🛡️'; iconEl.style.fontSize = '22px';
           const labelEl = btn.querySelector('.eq-slot-label');
-          if (labelEl) labelEl.textContent = '갑옷 없음';
+          if (labelEl) labelEl.textContent = '갑옷';
           btn.onclick = null;
         }
         return;
