@@ -1522,11 +1522,11 @@
           <div class="equip-slot-btn" id="eqSlot_necklace" data-slot="necklace" title="목걸이"> <div class="eq-slot-icon" id="eqIcon_necklace">📿</div><div class="eq-slot-label">목걸이</div></div>
           <div class="equip-slot-btn" id="eqSlot_weapon"   data-slot="weapon"   title="무기">   <div class="eq-slot-icon" id="eqIcon_weapon">⚔️</div>  <div class="eq-slot-label">무기</div></div>
           <div class="equip-slot-btn" id="eqSlot_gloves"   data-slot="gloves"   title="장갑">   <div class="eq-slot-icon" id="eqIcon_gloves">🧤</div>  <div class="eq-slot-label">장갑</div></div>
-          <div class="equip-slot-btn" id="eqSlot_shield"   data-slot="shield"   title="방패">   <div class="eq-slot-icon" id="eqIcon_shield">🔰</div>  <div class="eq-slot-label">방패</div></div>
+          <div class="equip-slot-btn" id="eqSlot_shield"   data-slot="shield"   title="방패">   <div class="eq-slot-icon" id="eqIcon_shield">🛡️</div>  <div class="eq-slot-label">방패</div></div>
           <div class="equip-slot-btn" id="eqSlot_ring1"    data-slot="ring1"    title="반지">   <div class="eq-slot-icon" id="eqIcon_ring1">💍</div>   <div class="eq-slot-label">반지</div></div>
           <div class="equip-slot-btn" id="eqSlot_boots"    data-slot="boots"    title="장화">   <div class="eq-slot-icon" id="eqIcon_boots">👟</div>   <div class="eq-slot-label">장화</div></div>
           <div class="equip-slot-btn" id="eqSlot_cloak"    data-slot="cloak"    title="망토">   <div class="eq-slot-icon" id="eqIcon_cloak">🧥</div>   <div class="eq-slot-label">망토</div></div>
-          <div class="equip-slot-btn" id="eqSlot_armor"    data-slot="armor"    title="갑옷">   <div class="eq-slot-icon" id="eqIcon_armor">🛡️</div>  <div class="eq-slot-label">갑옷</div></div>
+          <div class="equip-slot-btn" id="eqSlot_armor"    data-slot="armor"    title="갑옷">   <div class="eq-slot-icon" id="eqIcon_armor">🥋</div>  <div class="eq-slot-label">갑옷</div></div>
         </div>
 
         <!-- 보관 중 인벤토리만 -->
@@ -4327,7 +4327,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateEquipSlotUI() {
     const slotDefaultIcon = {
-      weapon:'⚔️', armor:'🛡️', shield:'🔰', gloves:'🧤',
+      weapon:'⚔️', armor:'🥋', shield:'🛡️', gloves:'🧤',
       boots:'👟', ring1:'💍', necklace:'📿', cloak:'🧥', helmet:'🪖'
     };
     const slotDefaultLabel = {
@@ -4347,7 +4347,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (labelEl) labelEl.textContent = item.name.length > 10 ? item.name.slice(0,10)+'…' : item.name;
           btn.onclick = () => { closeModal(els.heroStatsBackdrop); state._fromHeroStats = true; openItemDetailModal(item); };
         } else {
-          iconEl.textContent = '🛡️'; iconEl.style.fontSize = '22px';
+          iconEl.textContent = '🥋'; iconEl.style.fontSize = '22px';
           const labelEl = btn.querySelector('.eq-slot-label');
           if (labelEl) labelEl.textContent = '갑옷';
           btn.onclick = null;
