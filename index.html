@@ -410,7 +410,7 @@
     }
     .char-slot.empty:hover { border-color: rgba(79,124,255,0.5); color: #7a9abb; background: rgba(79,124,255,0.06); }
     .char-slot-inner {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: flex-start; gap: 12px;
     }
     .char-slot-sprite {
       width: 120px; height: 150px; border-radius: 14px; flex-shrink: 0;
@@ -435,9 +435,15 @@
       transform: scale(0.95); transform-origin: center center;
       position: relative; z-index: 1;
     }
-    .char-slot-info { flex: 1; min-width: 0; }
-    .char-slot-name { font-size: 14px; font-weight: 900; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .char-slot-meta { font-size: 10px; color: #7a90be; margin-bottom: 4px; }
+    .char-slot-info {
+      flex: 1; min-width: 0;
+      min-height: 150px;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 6px 0;
+    }
+    .char-slot-name { font-size: 14px; font-weight: 900; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .char-slot-meta { font-size: 10px; color: #7a90be; margin-bottom: 6px; }
     .char-slot-stats { display: flex; gap: 4px; flex-wrap: wrap; }
     .char-stat-pill {
       font-size: 9px; padding: 1px 6px; border-radius: 6px;
