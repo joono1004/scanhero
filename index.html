@@ -2368,7 +2368,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="char-slot has-char" data-slot="${slot}">
             <button class="char-slot-delete-btn" data-del-slot="${slot}" title="캐릭터 삭제">🗑</button>
             <div class="char-slot-inner">
-              <div class="char-slot-sprite hero-doll-thumb" data-hero-class="${hero.hero_class}" data-overlay-pos='${JSON.stringify(hero.overlay_pos||{})}' data-equipment='${JSON.stringify(hero.equipment||{})}'></div>
+              <div class="char-slot-sprite">
+                <div class="hero-doll-thumb" data-hero-class="${hero.hero_class}" data-overlay-pos='${JSON.stringify(hero.overlay_pos||{})}' data-equipment='${JSON.stringify(hero.equipment||{})}'></div>
+              </div>
               <div class="char-slot-info">
                 <div style="font-size:9px;color:#4a6090;font-weight:700;margin-bottom:2px;">슬롯 ${slot}</div>
                 <div class="char-slot-name">${hero.hero_name}</div>
