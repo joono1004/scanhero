@@ -3220,12 +3220,12 @@ document.addEventListener('DOMContentLoaded', () => {
           speed: row.base_speed || 0,
           crit:  row.base_crit  || 0,
         }
-      }));
+      })).filter(g => !(g.name === '기본 머리' && g.slot === 'helmet')); // 기본 머리 제외
       console.log(`[카탈로그] ${gearCatalog.length}종 아이템 로드 완료`);
     } catch (e) {
       console.error('[카탈로그] 로드 실패, 폴백 사용:', e.message);
       // 폴백: DB 연결 실패 시 하드코딩 사용
-      gearCatalog = FALLBACK_CATALOG;
+      gearCatalog = FALLBACK_CATALOG.filter(g => !g.isDefault);
     }
   }
 
