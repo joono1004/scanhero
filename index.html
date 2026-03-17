@@ -544,27 +544,7 @@
     .hero-preview-wrap .hero-visual-wrap { transform: scale(2.0); transform-origin: bottom center; image-rendering: pixelated; }
     /* 장비 오버레이 레이어 */
 
-    /* ── 오버레이 편집기 ── */
-    .oe-adj-btn {
-      padding:5px 2px; border-radius:7px; font-size:10px; font-weight:700;
-      background:rgba(30,50,90,0.8); border:1px solid rgba(100,150,220,0.3);
-      color:#a0c0f0; cursor:pointer; transition:background 0.15s;
-      min-width:0; text-align:center; white-space:nowrap;
-    }
-    .oe-adj-btn:active { background:rgba(60,100,180,0.6); }
-    .oe-item-sel-btn {
-      padding:3px 7px; border-radius:7px; font-size:10px; font-weight:700;
-      background:rgba(20,35,65,0.8); border:1px solid rgba(80,120,180,0.3);
-      color:#8aabcc; cursor:pointer; transition:all 0.15s; white-space:nowrap;
-    }
-    .oe-item-sel-btn.active {
-      background:rgba(50,100,200,0.5); border-color:rgba(100,160,255,0.6); color:#eef3ff;
-    }
-    .modal-secondary {
-      background:rgba(30,50,90,0.7); border:1px solid rgba(100,150,220,0.3);
-      color:#8aabcc; border-radius:12px; padding:10px 14px; font-size:12px;
-      font-weight:700; cursor:pointer;
-    }
+
 
     .equip-overlay-helmet { position:absolute; pointer-events:none; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5)); overflow:visible; }
     .equip-overlay-cloak { position:absolute; pointer-events:none; filter:drop-shadow(0 8px 16px rgba(0,0,0,0.4)); overflow:visible; }
@@ -1555,90 +1535,10 @@
           <div class="inventory-scroll"><div class="inventory-grid" id="inventoryGrid"></div></div>
         </div>
       </div>
-      <div class="modal-actions two"><button class="modal-secondary" id="heroOverlayEditorBtn" style="font-size:11px;">🛠 오버레이 편집</button><button class="modal-primary" id="heroStatsCloseBtn">닫기</button></div>
+      <div class="modal-actions center-single"><button class="modal-primary" id="heroStatsCloseBtn">닫기</button></div>
     </div>
   </div>
 
-  <!-- 이미지 레이어 위치 편집 모달 -->
-  <div class="modal-backdrop" id="overlayEditorBackdrop">
-    <div class="modal" style="max-width:390px;width:97vw;max-height:96dvh;overflow:hidden;display:flex;flex-direction:column;">
-      <div class="modal-head"><div class="modal-title" style="font-size:13px;">🖼 이미지 레이어 편집</div></div>
-
-      <!-- 미리보기 스테이지 -->
-      <div id="oePreviewStage" class="hero-doll-stage" style="flex-shrink:0;width:calc(100% - 24px);margin:10px 12px 0;"></div>
-
-      <!-- 조정 패널 -->
-      <div style="padding:10px 12px;overflow-y:auto;overflow-x:hidden;flex:1;">
-
-        <!-- 레이어 선택 -->
-        <div style="margin-bottom:8px;">
-          <div style="font-size:10px;color:#7a9acc;margin-bottom:5px;">레이어 선택</div>
-          <div id="oeItemSelector" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
-        </div>
-
-        <!-- 조정 컨트롤 -->
-        <div id="oeControls" style="display:none;">
-          <div style="font-size:11px;color:#eef3ff;font-weight:900;margin-bottom:8px;" id="oeSelectedLabel">선택된 레이어</div>
-
-          <!-- 상하 위치 (top %) -->
-          <div style="margin-bottom:6px;">
-            <div style="font-size:10px;color:#5a7aaa;margin-bottom:3px;">↕ 상하 위치 (%)</div>
-            <div style="display:flex;align-items:center;gap:3px;">
-              <button class="oe-adj-btn" style="flex:1;" data-axis="top" data-delta="5">▼5</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="top" data-delta="1">▼1</button>
-              <span id="oeTopVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:38px;text-align:center;flex-shrink:0;">0%</span>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="top" data-delta="-1">▲1</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="top" data-delta="-5">▲5</button>
-            </div>
-          </div>
-
-          <!-- 좌우 위치 (left %) -->
-          <div style="margin-bottom:6px;">
-            <div style="font-size:10px;color:#5a7aaa;margin-bottom:3px;">↔ 좌우 위치 (%)</div>
-            <div style="display:flex;align-items:center;gap:3px;">
-              <button class="oe-adj-btn" style="flex:1;" data-axis="left" data-delta="-5">◀5</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="left" data-delta="-1">◀1</button>
-              <span id="oeLeftVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:38px;text-align:center;flex-shrink:0;">0%</span>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="left" data-delta="1">▶1</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="left" data-delta="5">▶5</button>
-            </div>
-          </div>
-
-          <!-- 가로 크기 (width %) -->
-          <div style="margin-bottom:6px;">
-            <div style="font-size:10px;color:#5a7aaa;margin-bottom:3px;">↔ 가로 크기 (%)</div>
-            <div style="display:flex;align-items:center;gap:3px;">
-              <button class="oe-adj-btn" style="flex:1;" data-axis="w" data-delta="-10">－10</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="w" data-delta="-5">－5</button>
-              <span id="oeWidthVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:38px;text-align:center;flex-shrink:0;">100%</span>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="w" data-delta="5">＋5</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="w" data-delta="10">＋10</button>
-            </div>
-          </div>
-
-          <!-- 세로 크기 (height %) -->
-          <div style="margin-bottom:6px;">
-            <div style="font-size:10px;color:#5a7aaa;margin-bottom:3px;">↕ 세로 크기 (%)</div>
-            <div style="display:flex;align-items:center;gap:3px;">
-              <button class="oe-adj-btn" style="flex:1;" data-axis="h" data-delta="-10">－10</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="h" data-delta="-5">－5</button>
-              <span id="oeHeightVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:38px;text-align:center;flex-shrink:0;">100%</span>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="h" data-delta="5">＋5</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="h" data-delta="10">＋10</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-actions two">
-        <button id="oeResetBtn" class="modal-danger" style="font-size:11px;">↺ 초기화</button>
-        <button id="oeSaveBtn" class="modal-primary" style="font-size:11px;">💾 저장</button>
-      </div>
-      <div style="padding:0 12px 10px;">
-        <button id="oeCloseBtn" style="width:100%;padding:8px;border-radius:10px;background:rgba(30,45,80,0.7);border:1px solid rgba(100,140,200,0.2);color:#7a9acc;font-size:12px;cursor:pointer;">닫기</button>
-      </div>
-    </div>
-  </div>
 
   <!-- 아이템 상세 모달 -->
   <div class="modal-backdrop" id="itemDetailBackdrop">
@@ -2843,7 +2743,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 카탈로그 미로드 상태라면 재시도
     if (gearCatalog.length === 0) await loadItemCatalog();
     await dbLoadAll();
-    loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap(); initOverlayEditor();
+    loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap();
     requestCurrentLocation();
     // 30초마다 자동 저장
     setInterval(async () => { await dbSaveAll(true); }, 30000);
@@ -2893,7 +2793,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gold:          state.gold,
         used_barcodes: [...state.usedBarcodes],
         dev_mode:      state.devMode,
-        overlay_pos:   oeCustom
       }, { onConflict: 'player_id' });
       if (error) throw error;
     } catch (e) { showDbStatus('영웅 저장 실패: ' + e.message, 'error'); }
@@ -3012,7 +2911,6 @@ document.addEventListener('DOMContentLoaded', () => {
         state.gold      = heroData.gold;
         state.usedBarcodes = new Set(heroData.used_barcodes || []);
         if (heroData.dev_mode) state.devMode = { ...state.devMode, ...heroData.dev_mode };
-        if (heroData.overlay_pos) { oeCustom = heroData.overlay_pos; oeSaveCustom(); }
       }
 
       // 인벤토리
@@ -3064,186 +2962,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  // ═══════════════════════════════════════════════════════
-  // 이미지 레이어 위치 편집기 (이미지 기반)
-  // ═══════════════════════════════════════════════════════
-
-  // 레이어 키 → CSS 클래스명 + 라벨 매핑
-  const IMG_LAYER_MAP = {
-    body:     { cls: 'img-layer-body',     label: '👤 몸통'   },
-    cape:     { cls: 'img-layer-cape',     label: '🧥 망토'   },
-    armor:    { cls: 'img-layer-armor',    label: '🛡 갑옷'   },
-    gloves:   { cls: 'img-layer-gloves',   label: '🧤 장갑'   },
-    boots:    { cls: 'img-layer-boots',    label: '👟 장화'   },
-    shield:   { cls: 'img-layer-shield',   label: '🔰 방패'   },
-    weapon:   { cls: 'img-layer-weapon',   label: '⚔️ 무기'   },
-    necklace: { cls: 'img-layer-necklace', label: '📿 목걸이' },
-    helmet:   { cls: 'img-layer-helmet',   label: '🪖 투구'   },
-    ring:     { cls: 'img-layer-ring',     label: '💍 반지'   },
-  };
-
-  // 각 레이어 기본값 (top/left/w/h 모두 % 단위, 0=기본=inset:0)
-  const IMG_LAYER_DEFAULTS = {
-    body:     { top:0, left:0, w:100, h:100 },
-    cape:     { top:0, left:0, w:100, h:100 },
-    armor:    { top:0, left:0, w:100, h:100 },
-    gloves:   { top:0, left:0, w:100, h:100 },
-    boots:    { top:0, left:0, w:100, h:100 },
-    shield:   { top:0, left:0, w:100, h:100 },
-    weapon:   { top:0, left:0, w:100, h:100 },
-    necklace: { top:0, left:0, w:100, h:100 },
-    helmet:   { top:0, left:0, w:100, h:100 },
-    ring:     { top:0, left:0, w:100, h:100 },
-  };
-
-  // 커스텀 위치 저장소 (oeCustom 재사용 — DB/localStorage 키 동일)
-  let oeCustom = {};
-  let oeCurrentKey = null;
-
-  function oeLoadCustom() {
-    try { oeCustom = JSON.parse(localStorage.getItem('scanhero_overlay_pos') || '{}'); } catch { oeCustom = {}; }
-  }
-  function oeSaveCustom() {
-    localStorage.setItem('scanhero_overlay_pos', JSON.stringify(oeCustom));
-  }
-
-  // key의 현재 실효값 반환 (커스텀 없으면 기본값)
-  function oeVal(key) {
-    const d = IMG_LAYER_DEFAULTS[key] || { top:0, left:0, w:100, h:100 };
-    const c = oeCustom[key] || {};
-    return {
-      top:  c.top  !== undefined ? c.top  : d.top,
-      left: c.left !== undefined ? c.left : d.left,
-      w:    c.w    !== undefined ? c.w    : d.w,
-      h:    c.h    !== undefined ? c.h    : d.h,
-    };
-  }
-
-  // 레이어 엘리먼트에 현재 값 적용
-  function oeApplyToLayer(el, key) {
-    if (!el) return;
-    const v = oeVal(key);
-    el.style.top    = v.top  + '%';
-    el.style.left   = v.left + '%';
-    el.style.width  = v.w    + '%';
-    el.style.height = v.h    + '%';
-    // inset 제거 (개별 지정으로 대체)
-    el.style.inset  = '';
-  }
-
-  // 모든 레이어에 커스텀 위치 일괄 적용
-  function oeApplyAll(stageEl) {
-    if (!stageEl) return;
-    Object.entries(IMG_LAYER_MAP).forEach(([key, { cls }]) => {
-      const el = stageEl.querySelector('.' + cls);
-      if (el) oeApplyToLayer(el, key);
-    });
-  }
-
-  // 편집기 숫자 UI 갱신
-  function oeRefreshUI() {
-    if (!oeCurrentKey) return;
-    const v = oeVal(oeCurrentKey);
-    const topEl    = document.getElementById('oeTopVal');
-    const leftEl   = document.getElementById('oeLeftVal');
-    const widthEl  = document.getElementById('oeWidthVal');
-    const heightEl = document.getElementById('oeHeightVal');
-    if (topEl)    topEl.textContent    = v.top  + '%';
-    if (leftEl)   leftEl.textContent   = v.left + '%';
-    if (widthEl)  widthEl.textContent  = v.w    + '%';
-    if (heightEl) heightEl.textContent = v.h    + '%';
-    document.getElementById('oeSelectedLabel').textContent =
-      (IMG_LAYER_MAP[oeCurrentKey]?.label || oeCurrentKey) + ' 조정 중';
-    document.getElementById('oeControls').style.display = 'block';
-  }
-
-  // 값 변경 + 미리보기 즉시 반영
-  function oeAdjust(axis, delta) {
-    if (!oeCurrentKey) return;
-    if (!oeCustom[oeCurrentKey]) oeCustom[oeCurrentKey] = {};
-    const c = oeCustom[oeCurrentKey];
-    const d = IMG_LAYER_DEFAULTS[oeCurrentKey] || { top:0, left:0, w:100, h:100 };
-    if (axis === 'top')  c.top  = Math.round(((c.top  !== undefined ? c.top  : d.top)  + delta) * 10) / 10;
-    if (axis === 'left') c.left = Math.round(((c.left !== undefined ? c.left : d.left) + delta) * 10) / 10;
-    if (axis === 'w')    c.w    = Math.max(10, Math.min(200, (c.w !== undefined ? c.w : d.w) + delta));
-    if (axis === 'h')    c.h    = Math.max(10, Math.min(200, (c.h !== undefined ? c.h : d.h) + delta));
-    oeRefreshUI();
-    // 미리보기 즉시 반영
-    const previewStage = document.getElementById('oePreviewStage');
-    if (previewStage) {
-      const cls = IMG_LAYER_MAP[oeCurrentKey]?.cls;
-      if (cls) oeApplyToLayer(previewStage.querySelector('.' + cls), oeCurrentKey);
-    }
-  }
-
-  // 편집기 열기
-  function openOverlayEditor() {
-    oeLoadCustom();
-    // 미리보기 렌더
-    const previewStage = document.getElementById('oePreviewStage');
-    renderHeroDoll(previewStage);
-    requestAnimationFrame(() => oeApplyAll(previewStage));
-
-    // 레이어 선택 버튼 생성 (장착 중인 레이어만 활성)
-    const sel = document.getElementById('oeItemSelector');
-    sel.innerHTML = Object.entries(IMG_LAYER_MAP).map(([key, { cls, label }]) => {
-      // 해당 레이어가 실제 렌더됐는지 확인
-      const layerEl = previewStage?.querySelector('.' + cls);
-      const hasImg  = layerEl?.querySelector('img:not(.img-missing)');
-      const active  = key === 'body' || hasImg;
-      return `<button class="oe-item-sel-btn${oeCurrentKey===key?' active':''}"
-        data-key="${key}" ${!active ? 'style="opacity:0.4;"' : ''}>${label}</button>`;
-    }).join('');
-
-    sel.querySelectorAll('.oe-item-sel-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        oeCurrentKey = btn.dataset.key;
-        sel.querySelectorAll('.oe-item-sel-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        oeRefreshUI();
-      });
-    });
-
-    oeCurrentKey = null;
-    document.getElementById('oeControls').style.display = 'none';
-    // 조정 버튼 이벤트 등록
-    document.querySelectorAll('.oe-adj-btn').forEach(btn => {
-      btn.onclick = () => oeAdjust(btn.dataset.axis, +btn.dataset.delta);
-    });
-    openModal(document.getElementById('overlayEditorBackdrop'));
-  }
-
-  // 편집기 초기화 (DOMContentLoaded)
-  function initOverlayEditor() {
-    oeLoadCustom();
-
-    document.getElementById('heroOverlayEditorBtn').addEventListener('click', () => {
-      closeModal(els.heroStatsBackdrop);
-      openOverlayEditor();
-    });
-    document.getElementById('oeCloseBtn').addEventListener('click', () => {
-      closeModal(document.getElementById('overlayEditorBackdrop'));
-      openHeroStatsModal();
-    });
-    document.getElementById('oeSaveBtn').addEventListener('click', async () => {
-      oeSaveCustom();
-      await dbSaveHero();
-      closeModal(document.getElementById('overlayEditorBackdrop'));
-      openHeroStatsModal();
-      showDropNotification('✅ 레이어 위치 저장됨', '#63d09a');
-    });
-    document.getElementById('oeResetBtn').addEventListener('click', () => {
-      if (!oeCurrentKey) { showDropNotification('⚠️ 레이어를 먼저 선택하세요', '#ff9b7f'); return; }
-      delete oeCustom[oeCurrentKey];
-      oeRefreshUI();
-      // 미리보기 초기화 반영
-      const previewStage = document.getElementById('oePreviewStage');
-      if (previewStage) {
-        const cls = IMG_LAYER_MAP[oeCurrentKey]?.cls;
-        if (cls) oeApplyToLayer(previewStage.querySelector('.' + cls), oeCurrentKey);
-      }
-    });
-  }
 
   // ═══════════════════════════════════════════════════════
   // 자동 저장 (30초마다 영웅 + 인벤토리)
@@ -4105,8 +3823,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // 커스텀 위치 적용 (저장된 편집 값 반영)
-    requestAnimationFrame(() => oeApplyAll(stageEl));
   }
 
   function getSoldierSprite(soldierClass, size='normal') {
