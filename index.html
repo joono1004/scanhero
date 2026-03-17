@@ -739,30 +739,23 @@
       position: relative;
       width: 100%;
       overflow: visible;
-      /* 캐릭터 영역(272px) + 장화 슬롯(64px) + 여백(16px) */
-      padding-bottom: 80px;
     }
 
-    /* 각 슬롯 위치 (.equip-doll-wrap 기준 absolute) */
-    /* 캐릭터 영역 272px 기준 */
-    /* 투구: 상단 좌 */
-    #eqSlot_helmet   { top: 8px;   left: 8px;  transform: none; }
-    /* 목걸이: 상단 우 */
+    /* 각 슬롯 위치 (.equip-doll-wrap 기준 absolute)
+       스테이지 272px 안에 모두 배치 — 4행 구조
+       row1(top:8)   투구(좌)              목걸이(우)
+       row2(top:76)  무기(좌)              방패(우)
+       row3(top:144) 장갑(좌)              반지(우)
+       row4(top:200) 갑옷(좌) 장화(중앙) 망토(우)          */
+    #eqSlot_helmet   { top: 8px;   left: 8px;              transform: none; }
     #eqSlot_necklace { top: 8px;   right: 8px; left: auto; transform: none; }
-    /* 무기: 중단 좌 상 */
-    #eqSlot_weapon   { top: 90px;  left: 8px; }
-    /* 장갑: 중단 좌 하 */
-    #eqSlot_gloves   { top: 170px; left: 8px; }
-    /* 방패: 중단 우 상 */
-    #eqSlot_shield   { top: 90px;  right: 8px; }
-    /* 반지: 중단 우 하 */
-    #eqSlot_ring1    { top: 170px; right: 8px; }
-    /* 갑옷: 캐릭터 영역 아래 좌 */
-    #eqSlot_armor    { top: 280px; left: 8px;  bottom: auto; transform: none; }
-    /* 망토: 캐릭터 영역 아래 우 */
-    #eqSlot_cloak    { top: 280px; right: 8px; left: auto;   bottom: auto; transform: none; }
-    /* 장화: 캐릭터 영역 바로 아래 중앙 */
-    #eqSlot_boots    { top: 280px; left: 50%;  transform: translateX(-50%); bottom: auto; }
+    #eqSlot_weapon   { top: 76px;  left: 8px;              transform: none; }
+    #eqSlot_shield   { top: 76px;  right: 8px; left: auto; transform: none; }
+    #eqSlot_gloves   { top: 144px; left: 8px;              transform: none; }
+    #eqSlot_ring1    { top: 144px; right: 8px; left: auto; transform: none; }
+    #eqSlot_armor    { top: 200px; left: 8px;  bottom: auto; transform: none; }
+    #eqSlot_boots    { top: 200px; left: 50%;  bottom: auto; transform: translateX(-50%); }
+    #eqSlot_cloak    { top: 200px; right: 8px; left: auto; bottom: auto; transform: none; }
 
     .eq-slot-icon { font-size: 22px; line-height: 1; }
     .eq-slot-label {
