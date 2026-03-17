@@ -1939,6 +1939,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${STORAGE_BASE}/char/${cls}_body.png`;
   }
 
+  // 헬멧 미착용 시 기본 머리 이미지 URL
+  function getDefaultHeadUrl(heroClass) {
+    const cls = CLASS_CODE[heroClass] || 'warrior';
+    return `${STORAGE_BASE}/equip/helmet/${cls}_head.png`;
+  }
+
   // 아이템 순번 계산 (카탈로그에서 같은 슬롯+클래스 중 순서)
   function getItemSortIndex(item, heroClass) {
     const catalog = gearCatalog.length ? gearCatalog : FALLBACK_CATALOG;
@@ -3041,11 +3047,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-      // helmet 슬롯이 비어있으면 기본 머리 착용 (구버전 세이브 호환)
-      if (!state.equipment.helmet) {
-        equipDefaultHelmet(state.heroClass);
-      }
-
       if (heroData) {
         showDbStatus(`${heroData.hero_name} (Lv.${heroData.level}) 불러오기 완료!`, 'ok');
       } else {
@@ -3441,7 +3442,6 @@ document.addEventListener('DOMContentLoaded', () => {
         weaponType:  row.weapon_type || null,
         icon:        row.icon,
         classes:     row.classes || null,
-        isDefault:   row.name === '기본 머리' && row.slot === 'helmet',
         stats: {
           atk:   row.base_atk   || 0,
           def:   row.base_def   || 0,
@@ -3513,17 +3513,14 @@ document.addEventListener('DOMContentLoaded', () => {
     { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/leather_boots.png',     classes:['마법사'], stats:{atk:0,def:1,hp:4,speed:1, crit:1} },
     { name:'마법사 장화',  slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/wind_boots.png',     classes:['마법사'], stats:{atk:1,def:0,hp:4,speed:1, crit:2} },
     // ── 투구: 전사 ──────────────────────────────────
-    { name:'기본 머리',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/equip/helmet/warrior_head.png',      classes:['전사'],   stats:{atk:0,def:0,hp:0, speed:0, crit:0}, isDefault:true },
     { name:'가죽 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/leather_helmet.png',     classes:['전사'],   stats:{atk:0,def:2,hp:5, speed:0, crit:0} },
     { name:'강철 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/steel_helmet.png',       classes:['전사'],   stats:{atk:0,def:4,hp:8, speed:0, crit:0} },
     { name:'기사 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/knight_helmet.png',     classes:['전사'],   stats:{atk:0,def:6,hp:10,speed:-1,crit:0} },
     // ── 투구: 궁사 ──────────────────────────────────
-    { name:'기본 머리',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/equip/helmet/archer_head.png',       classes:['궁사'],   stats:{atk:0,def:0,hp:0, speed:0, crit:0}, isDefault:true },
     { name:'가죽 모자',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/leather_helmet.png',     classes:['궁사'],   stats:{atk:0,def:1,hp:4, speed:1, crit:1} },
     { name:'써클렛',       slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/steel_helmet.png',       classes:['궁사'],   stats:{atk:0,def:2,hp:4, speed:1, crit:2} },
     { name:'강철 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/battle_helmet.png',     classes:['궁사'],   stats:{atk:0,def:4,hp:6, speed:0, crit:1} },
     // ── 투구: 마법사 ────────────────────────────────
-    { name:'기본 머리',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/equip/helmet/mage_head.png',         classes:['마법사'], stats:{atk:0,def:0,hp:0, speed:0, crit:0}, isDefault:true },
     { name:'천 모자',      slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/leather_helmet.png',     classes:['마법사'], stats:{atk:0,def:0,hp:4, speed:1, crit:2} },
     { name:'써클렛',       slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/steel_helmet.png',       classes:['마법사'], stats:{atk:1,def:1,hp:4, speed:0, crit:3} },
     { name:'마법사 모자',  slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/knight_helmet.png',     classes:['마법사'], stats:{atk:2,def:1,hp:4, speed:0, crit:4} },
@@ -4059,7 +4056,10 @@ document.addEventListener('DOMContentLoaded', () => {
       {
         cls: 'img-layer-helmet',
         item: equipment.helmet,
-        url: equipment.helmet ? getEquipImageUrl(equipment.helmet, heroClass) : null,
+        // 헬멧 미착용 시 기본 머리 이미지 표시, 착용 시 헬멧 이미지 표시
+        url: equipment.helmet
+          ? getEquipImageUrl(equipment.helmet, heroClass)
+          : getDefaultHeadUrl(heroClass),
         style: 'inset:0;'
       },
       {
@@ -4505,42 +4505,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ─────────────────────────────────────────
   // 유틸 / 아이콘 렌더
   // ─────────────────────────────────────────
-
-  // 클래스에 맞는 기본 머리 아이템 반환
-  function getDefaultHelmet(heroClass) {
-    const catalog = gearCatalog.length ? gearCatalog : FALLBACK_CATALOG;
-    return catalog.find(g =>
-      g.slot === 'helmet' &&
-      g.isDefault === true &&
-      g.classes && g.classes.includes(heroClass)
-    ) || null;
-  }
-
-  // 기본 머리를 인벤토리에 추가 + helmet 슬롯에 장착
-  function equipDefaultHelmet(heroClass) {
-    const gear = getDefaultHelmet(heroClass);
-    if (!gear) return;
-    const item = {
-      id: 'default_helmet_' + heroClass,
-      name: gear.name,
-      baseName: gear.name,
-      slot: 'helmet', slotLabel: '투구',
-      icon: gear.icon,
-      rarity: 'common', rarityLabel: '일반',
-      stats: { atk:0, def:0, hp:0, speed:0, crit:0 },
-      power: 0,
-      isDefault: true,
-      classes: gear.classes
-    };
-    // 인벤토리에 없으면 추가
-    if (!state.inventory.find(i => i.id === item.id)) {
-      state.inventory.push(item);
-    }
-    // helmet 슬롯이 비어있으면 장착
-    if (!state.equipment.helmet) {
-      state.equipment.helmet = item;
-    }
-  }
 
   function getRarityHex(rarity) {
     return { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' }[rarity] || '#a9b6d6';
@@ -5390,8 +5354,6 @@ document.addEventListener('DOMContentLoaded', () => {
     state.inventory = [];
     state.equipment = { weapon:null, armor:null, shield:null, gloves:null, boots:null, ring1:null, necklace:null, cloak:null, helmet:null };
     state.usedBarcodes = new Set();
-    // 기본 머리 자동 착용
-    equipDefaultHelmet(heroClass);
 
     // GM은 DB에 저장하지 않고 바로 게임 진입
     if (CURRENT_USER.isGM) {
