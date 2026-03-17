@@ -2205,12 +2205,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (_ignoreAuthChange) return;
     if (session?.user) {
       CURRENT_USER = session.user;
-      // 게임 진행 중이면 (PLAYER_ID 세팅됨) 캐릭터 선택 화면으로 돌아가지 않음
+      // 게임 진행 중 또는 백그라운드 복귀 시 — 화면 전환 없이 세션만 갱신
       if (PLAYER_ID) return;
+      if (document.hidden) return; // 백그라운드 상태에서 온 이벤트 무시
       showScreen('char');
       document.getElementById('charAccountInfo').textContent = '계정: ' + CURRENT_USER.email;
       await renderCharSlots();
     } else {
+      // 백그라운드 복귀로 인한 일시적 세션 끊김 무시
+      // 실제 로그아웃(_ignoreAuthChange)이나 명시적 signOut만 처리
+      if (document.hidden) return;
+      if (event === 'TOKEN_REFRESHED') return; // 토큰 갱신 중 무시
       CURRENT_USER = null;
       showScreen('auth');
     }
@@ -2250,6 +2255,34 @@ document.addEventListener('DOMContentLoaded', () => {
   })().catch(e => {
     console.error('[초기화 오류]', e);
     showScreen('auth'); // 오류 시 로그인 화면 강제 표시
+  });
+
+  // ── 백그라운드 복귀 감지 — 세션 조용히 갱신 ──────────────────
+  // 홈 버튼으로 다른 앱을 보다가 돌아올 때 화면 유지
+  document.addEventListener('visibilitychange', async () => {
+    if (document.hidden) return; // 백그라운드로 나갈 때는 무시
+    if (!CURRENT_USER) return;   // 로그인 상태 아니면 무시
+
+    try {
+      // 세션 토큰 조용히 갱신 (화면 전환 없음)
+      const { data: { session } } = await sb.auth.getSession();
+      if (session?.user) {
+        // 세션 유효 — 그대로 유지, 아무것도 하지 않음
+        CURRENT_USER = session.user;
+      } else {
+        // 세션이 진짜 만료된 경우에만 로그아웃 처리
+        // (일시적 네트워크 끊김 등은 재시도)
+        const { data: retryData } = await sb.auth.refreshSession();
+        if (!retryData?.session) {
+          // 재시도도 실패 — 로그인 화면으로
+          CURRENT_USER = null; PLAYER_ID = null;
+          showScreen('auth');
+        }
+      }
+    } catch (e) {
+      // 네트워크 오류 등 — 현재 화면 유지, 조용히 무시
+      console.warn('[visibilitychange] 세션 갱신 실패, 화면 유지:', e.message);
+    }
   });
 
   // ═══════════════════════════════════════════════════════
