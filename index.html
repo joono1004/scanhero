@@ -1553,102 +1553,76 @@
           <div class="inventory-scroll"><div class="inventory-grid" id="inventoryGrid"></div></div>
         </div>
       </div>
-      <div class="modal-actions two"><button class="modal-secondary" id="heroOverlayEditorBtn" style="font-size:11px;display:none;">🛠 오버레이 편집</button><button class="modal-primary" id="heroStatsCloseBtn">닫기</button></div>
+      <div class="modal-actions two"><button class="modal-secondary" id="heroOverlayEditorBtn" style="font-size:11px;">🛠 오버레이 편집</button><button class="modal-primary" id="heroStatsCloseBtn">닫기</button></div>
     </div>
   </div>
 
-  <!-- 오버레이 위치 편집 모달 -->
+  <!-- 이미지 레이어 위치 편집 모달 -->
   <div class="modal-backdrop" id="overlayEditorBackdrop">
     <div class="modal" style="max-width:390px;width:97vw;max-height:96dvh;overflow:hidden;display:flex;flex-direction:column;">
-      <div class="modal-head"><div class="modal-title" style="font-size:13px;">🛠 오버레이 위치 편집</div></div>
+      <div class="modal-head"><div class="modal-title" style="font-size:13px;">🖼 이미지 레이어 편집</div></div>
 
-      <!-- 캐릭터 미리보기 — 메인 equip-doll-stage와 완전히 동일한 크기/구조 -->
-      <!-- oePreviewStage: renderHeroDoll()이 동적으로 캐릭터+오버레이 생성 -->
+      <!-- 미리보기 스테이지 -->
       <div id="oePreviewStage" class="hero-doll-stage" style="flex-shrink:0;width:calc(100% - 24px);margin:10px 12px 0;"></div>
 
-      <!-- 개체 선택 + 조정 패널 (스크롤 가능) -->
+      <!-- 조정 패널 -->
       <div style="padding:10px 12px;overflow-y:auto;overflow-x:hidden;flex:1;">
-        <!-- 개체 선택 — 아이콘+짧은이름 버튼, 가로 wrap -->
+
+        <!-- 레이어 선택 -->
         <div style="margin-bottom:8px;">
-          <div style="font-size:10px;color:#7a9acc;margin-bottom:5px;">개체 선택</div>
+          <div style="font-size:10px;color:#7a9acc;margin-bottom:5px;">레이어 선택</div>
           <div id="oeItemSelector" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
         </div>
-        <!-- 위치 조정 -->
-        <div id="oeControls" style="display:none;">
-          <div style="font-size:11px;color:#eef3ff;font-weight:900;margin-bottom:6px;" id="oeSelectedLabel">선택된 개체</div>
 
-          <!-- 상하 이동 -->
+        <!-- 조정 컨트롤 -->
+        <div id="oeControls" style="display:none;">
+          <div style="font-size:11px;color:#eef3ff;font-weight:900;margin-bottom:8px;" id="oeSelectedLabel">선택된 레이어</div>
+
+          <!-- 상하 위치 (top %) -->
           <div style="margin-bottom:6px;">
-            <div style="font-size:10px;color:#5a7aaa;margin-bottom:3px;">↕ 상하 이동 (px)</div>
-            <div style="display:flex;align-items:center;gap:3px;width:100%;box-sizing:border-box;">
-              <button class="oe-adj-btn" style="flex:1;" data-axis="bottom" data-delta="-5">▼5</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="bottom" data-delta="-1">▼1</button>
-              <span id="oeBottomVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:34px;text-align:center;flex-shrink:0;">0</span>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="bottom" data-delta="1">▲1</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="bottom" data-delta="5">▲5</button>
+            <div style="font-size:10px;color:#5a7aaa;margin-bottom:3px;">↕ 상하 위치 (%)</div>
+            <div style="display:flex;align-items:center;gap:3px;">
+              <button class="oe-adj-btn" style="flex:1;" data-axis="top" data-delta="5">▼5</button>
+              <button class="oe-adj-btn" style="flex:1;" data-axis="top" data-delta="1">▼1</button>
+              <span id="oeTopVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:38px;text-align:center;flex-shrink:0;">0%</span>
+              <button class="oe-adj-btn" style="flex:1;" data-axis="top" data-delta="-1">▲1</button>
+              <button class="oe-adj-btn" style="flex:1;" data-axis="top" data-delta="-5">▲5</button>
             </div>
           </div>
 
-          <!-- 좌우 이동 -->
+          <!-- 좌우 위치 (left %) -->
           <div style="margin-bottom:6px;">
-            <div style="font-size:10px;color:#5a7aaa;margin-bottom:3px;">↔ 좌우 이동 (px)</div>
-            <div style="display:flex;align-items:center;gap:3px;width:100%;box-sizing:border-box;">
+            <div style="font-size:10px;color:#5a7aaa;margin-bottom:3px;">↔ 좌우 위치 (%)</div>
+            <div style="display:flex;align-items:center;gap:3px;">
               <button class="oe-adj-btn" style="flex:1;" data-axis="left" data-delta="-5">◀5</button>
               <button class="oe-adj-btn" style="flex:1;" data-axis="left" data-delta="-1">◀1</button>
-              <span id="oeLeftVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:34px;text-align:center;flex-shrink:0;">0</span>
+              <span id="oeLeftVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:38px;text-align:center;flex-shrink:0;">0%</span>
               <button class="oe-adj-btn" style="flex:1;" data-axis="left" data-delta="1">▶1</button>
               <button class="oe-adj-btn" style="flex:1;" data-axis="left" data-delta="5">▶5</button>
             </div>
           </div>
 
-          <!-- 전체 크기 -->
-          <div style="margin-bottom:6px;">
-            <div style="font-size:10px;color:#5a7aaa;margin-bottom:3px;">⊞ 전체 크기 (%)</div>
-            <div style="display:flex;align-items:center;gap:3px;width:100%;box-sizing:border-box;">
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scale" data-delta="-20">－20</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scale" data-delta="-10">－10</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scale" data-delta="-5">－5</button>
-              <span id="oeSizeVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:38px;text-align:center;flex-shrink:0;">100%</span>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scale" data-delta="5">＋5</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scale" data-delta="10">＋10</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scale" data-delta="20">＋20</button>
-            </div>
-          </div>
-
-          <!-- 가로 크기 -->
+          <!-- 가로 크기 (width %) -->
           <div style="margin-bottom:6px;">
             <div style="font-size:10px;color:#5a7aaa;margin-bottom:3px;">↔ 가로 크기 (%)</div>
-            <div style="display:flex;align-items:center;gap:3px;width:100%;box-sizing:border-box;">
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scaleW" data-delta="-20">－20</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scaleW" data-delta="-10">－10</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scaleW" data-delta="-5">－5</button>
-              <span id="oeSizeWVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:38px;text-align:center;flex-shrink:0;">100%</span>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scaleW" data-delta="5">＋5</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scaleW" data-delta="10">＋10</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scaleW" data-delta="20">＋20</button>
+            <div style="display:flex;align-items:center;gap:3px;">
+              <button class="oe-adj-btn" style="flex:1;" data-axis="w" data-delta="-10">－10</button>
+              <button class="oe-adj-btn" style="flex:1;" data-axis="w" data-delta="-5">－5</button>
+              <span id="oeWidthVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:38px;text-align:center;flex-shrink:0;">100%</span>
+              <button class="oe-adj-btn" style="flex:1;" data-axis="w" data-delta="5">＋5</button>
+              <button class="oe-adj-btn" style="flex:1;" data-axis="w" data-delta="10">＋10</button>
             </div>
           </div>
 
-          <!-- 세로 크기 -->
+          <!-- 세로 크기 (height %) -->
           <div style="margin-bottom:6px;">
             <div style="font-size:10px;color:#5a7aaa;margin-bottom:3px;">↕ 세로 크기 (%)</div>
-            <div style="display:flex;align-items:center;gap:3px;width:100%;box-sizing:border-box;">
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scaleH" data-delta="-20">－20</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scaleH" data-delta="-10">－10</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scaleH" data-delta="-5">－5</button>
-              <span id="oeSizeHVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:38px;text-align:center;flex-shrink:0;">100%</span>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scaleH" data-delta="5">＋5</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scaleH" data-delta="10">＋10</button>
-              <button class="oe-adj-btn" style="flex:1;" data-axis="scaleH" data-delta="20">＋20</button>
-            </div>
-          </div>
-
-          <!-- 앞뒤 순서 -->
-          <div>
-            <div style="font-size:10px;color:#5a7aaa;margin-bottom:3px;">🗂 레이어 순서</div>
-            <div style="display:flex;gap:6px;">
-              <button id="oeZFrontBtn" class="oe-adj-btn" style="flex:1;" data-axis="zIndex" data-delta="10">⬆ 맨 앞으로</button>
-              <button id="oeZBackBtn"  class="oe-adj-btn" style="flex:1;" data-axis="zIndex" data-delta="1" >⬇ 캐릭터 뒤로</button>
+            <div style="display:flex;align-items:center;gap:3px;">
+              <button class="oe-adj-btn" style="flex:1;" data-axis="h" data-delta="-10">－10</button>
+              <button class="oe-adj-btn" style="flex:1;" data-axis="h" data-delta="-5">－5</button>
+              <span id="oeHeightVal" style="font-size:11px;font-weight:900;color:#eef3ff;min-width:38px;text-align:center;flex-shrink:0;">100%</span>
+              <button class="oe-adj-btn" style="flex:1;" data-axis="h" data-delta="5">＋5</button>
+              <button class="oe-adj-btn" style="flex:1;" data-axis="h" data-delta="10">＋10</button>
             </div>
           </div>
         </div>
@@ -1658,7 +1632,9 @@
         <button id="oeResetBtn" class="modal-danger" style="font-size:11px;">↺ 초기화</button>
         <button id="oeSaveBtn" class="modal-primary" style="font-size:11px;">💾 저장</button>
       </div>
-      <div style="padding:0 12px 10px;"><button id="oeCloseBtn" style="width:100%;padding:8px;border-radius:10px;background:rgba(30,45,80,0.7);border:1px solid rgba(100,140,200,0.2);color:#7a9acc;font-size:12px;cursor:pointer;">닫기</button></div>
+      <div style="padding:0 12px 10px;">
+        <button id="oeCloseBtn" style="width:100%;padding:8px;border-radius:10px;background:rgba(30,45,80,0.7);border:1px solid rgba(100,140,200,0.2);color:#7a9acc;font-size:12px;cursor:pointer;">닫기</button>
+      </div>
     </div>
   </div>
 
@@ -3059,50 +3035,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ═══════════════════════════════════════════════════════
-  // 오버레이 위치 편집기
+  // 이미지 레이어 위치 편집기 (이미지 기반)
   // ═══════════════════════════════════════════════════════
 
-  // 각 오버레이 기본값 (CSS bottom, leftOffset 기준)
-  // scale: 전체 비율(%), scaleW/scaleH: 가로/세로 독립 비율(%) — 기본 100
-  const OE_DEFAULTS = {
-    helmet:   { bottom:260, leftOffset:0,   zIndex:7, scale:100, scaleW:100, scaleH:100 },
-    cloak:    { bottom:60,  leftOffset:0,   zIndex:1, scale:100, scaleW:100, scaleH:100 },
-    necklace: { bottom:160, leftOffset:0,   zIndex:6, scale:100, scaleW:100, scaleH:100 },
-    gloveR:   { bottom:115, leftOffset:34,  zIndex:6, scale:100, scaleW:100, scaleH:100 },
-    bootL:    { bottom:63,  leftOffset:-22, zIndex:6, scale:100, scaleW:100, scaleH:100 },
-    bootR:    { bottom:63,  leftOffset:-6,  zIndex:6, scale:100, scaleW:100, scaleH:100 },
-    ringL:    { bottom:134, leftOffset:-80, zIndex:7, scale:100, scaleW:100, scaleH:100 },
-    ringR:    { bottom:134, leftOffset:16,  zIndex:7, scale:100, scaleW:100, scaleH:100 },
+  // 레이어 키 → CSS 클래스명 + 라벨 매핑
+  const IMG_LAYER_MAP = {
+    body:     { cls: 'img-layer-body',     label: '👤 몸통'   },
+    cape:     { cls: 'img-layer-cape',     label: '🧥 망토'   },
+    armor:    { cls: 'img-layer-armor',    label: '🛡 갑옷'   },
+    gloves:   { cls: 'img-layer-gloves',   label: '🧤 장갑'   },
+    boots:    { cls: 'img-layer-boots',    label: '👟 장화'   },
+    shield:   { cls: 'img-layer-shield',   label: '🔰 방패'   },
+    weapon:   { cls: 'img-layer-weapon',   label: '⚔️ 무기'   },
+    necklace: { cls: 'img-layer-necklace', label: '📿 목걸이' },
+    helmet:   { cls: 'img-layer-helmet',   label: '🪖 투구'   },
+    ring:     { cls: 'img-layer-ring',     label: '💍 반지'   },
   };
-  // SVG 원본 픽셀 크기
-  const OE_BASE_PX = {
-    helmet:{w:52,h:24}, cloak:{w:240,h:105}, necklace:{w:80,h:28},
-    gloveR:{w:33,h:30}, bootL:{w:28,h:36},   bootR:{w:28,h:36},
-    ringL:{w:20,h:20},  ringR:{w:20,h:20},
-  };
-  const OE_HERO_ZINDEX = 2;
 
-  const OE_LABEL_MAP = {
-    helmet:'🪖투구', cloak:'🧥망토', necklace:'📿목걸이',
-    gloveR:'🧤장갑', bootL:'👟장화L', bootR:'👟장화R',
-    ringL:'💍반지L', ringR:'💍반지R',
+  // 각 레이어 기본값 (top/left/w/h 모두 % 단위, 0=기본=inset:0)
+  const IMG_LAYER_DEFAULTS = {
+    body:     { top:0, left:0, w:100, h:100 },
+    cape:     { top:0, left:0, w:100, h:100 },
+    armor:    { top:0, left:0, w:100, h:100 },
+    gloves:   { top:0, left:0, w:100, h:100 },
+    boots:    { top:0, left:0, w:100, h:100 },
+    shield:   { top:0, left:0, w:100, h:100 },
+    weapon:   { top:0, left:0, w:100, h:100 },
+    necklace: { top:0, left:0, w:100, h:100 },
+    helmet:   { top:0, left:0, w:100, h:100 },
+    ring:     { top:0, left:0, w:100, h:100 },
   };
-  // key → [메인 elId, 편집기 elId] 통합 맵
-  const OE_ALL_MAP = {
-    helmet:   ['overlayHelmet',   'oeOverlayHelmet'],
-    cloak:    ['overlayCloak',    'oeOverlayCloak'],
-    necklace: ['overlayNecklace', 'oeOverlayNecklace'],
-    gloveR:   ['overlayGloveR',   'oeOverlayGloveR'],
-    bootL:    ['overlayBootL',    'oeOverlayBootL'],
-    bootR:    ['overlayBootR',    'oeOverlayBootR'],
-    ringL:    ['overlayRingL',    'oeOverlayRingL'],
-    ringR:    ['overlayRingR',    'oeOverlayRingR'],
-  };
-  // 하위 호환용 (기존 코드가 참조하는 경우 대비)
-  const OE_KEY_MAP     = Object.fromEntries(Object.entries(OE_ALL_MAP).map(([k,v])=>[v[0],k]));
-  const OE_PREVIEW_MAP = Object.fromEntries(Object.entries(OE_ALL_MAP).map(([k,v])=>[k,v[1]]));
 
-  // 현재 커스텀 설정 (oeCustom[key] = {bottom, leftOffset, zIndex, width, height})
+  // 커스텀 위치 저장소 (oeCustom 재사용 — DB/localStorage 키 동일)
   let oeCustom = {};
   let oeCurrentKey = null;
 
@@ -3113,141 +3077,94 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('scanhero_overlay_pos', JSON.stringify(oeCustom));
   }
 
-  // key에 대한 현재 실효값 반환 (커스텀 없으면 기본값)
+  // key의 현재 실효값 반환 (커스텀 없으면 기본값)
   function oeVal(key) {
-    const d = OE_DEFAULTS[key];
+    const d = IMG_LAYER_DEFAULTS[key] || { top:0, left:0, w:100, h:100 };
     const c = oeCustom[key] || {};
     return {
-      bottom:     c.bottom     !== undefined ? c.bottom     : d.bottom,
-      leftOffset: c.leftOffset !== undefined ? c.leftOffset : d.leftOffset,
-      zIndex:     c.zIndex     !== undefined ? c.zIndex     : d.zIndex,
-      scale:      c.scale      !== undefined ? c.scale      : d.scale,
-      scaleW:     c.scaleW     !== undefined ? c.scaleW     : d.scaleW,
-      scaleH:     c.scaleH     !== undefined ? c.scaleH     : d.scaleH,
+      top:  c.top  !== undefined ? c.top  : d.top,
+      left: c.left !== undefined ? c.left : d.left,
+      w:    c.w    !== undefined ? c.w    : d.w,
+      h:    c.h    !== undefined ? c.h    : d.h,
     };
   }
 
-  // 오버레이 엘리먼트 하나에 현재 값 적용 (편집기·메인 동일 스테이지 크기 → ratio 불필요)
-  function oeApply(el, key) {
+  // 레이어 엘리먼트에 현재 값 적용
+  function oeApplyToLayer(el, key) {
     if (!el) return;
     const v = oeVal(key);
-
-    // 위치
-    el.style.bottom  = v.bottom + 'px';
-    el.style.zIndex  = v.zIndex;
-    if (key === 'helmet' || key === 'cloak' || key === 'necklace') {
-      el.style.left      = '50%';
-      el.style.transform = `translateX(calc(-50% + ${v.leftOffset}px))`;
-    } else {
-      el.style.left      = `calc(50% + ${v.leftOffset}px)`;
-      el.style.transform = 'none';
-    }
-
-    // 크기 — scale(전체 기준) × scaleW(가로 독립) / scaleH(세로 독립) 완전 분리
-    // scaleW를 바꾸면 가로만, scaleH를 바꾸면 세로만 변해야 함
-    const base = OE_BASE_PX[key];
-    if (base) {
-      const w = Math.round(base.w * v.scale / 100 * v.scaleW / 100);
-      const h = Math.round(base.h * v.scale / 100 * v.scaleH / 100);
-      el.style.width  = w + 'px';
-      el.style.height = h + 'px';
-      const svgEl = el.querySelector('svg');
-      if (svgEl) {
-        svgEl.setAttribute('width',  w);
-        svgEl.setAttribute('height', h);
-        svgEl.style.width  = w + 'px';
-        svgEl.style.height = h + 'px';
-        // viewBox 고정 — SVG 내부 비율을 유지하되 width/height만 독립 변경
-        const vb = svgEl.getAttribute('viewBox');
-        if (!vb) {
-          const origW = svgEl.dataset.origW || base.w;
-          const origH = svgEl.dataset.origH || base.h;
-          svgEl.setAttribute('viewBox', `0 0 ${origW} ${origH}`);
-          svgEl.dataset.origW = origW;
-          svgEl.dataset.origH = origH;
-        }
-        svgEl.setAttribute('preserveAspectRatio', 'none');
-      }
-      // ring 등 span 기반 오버레이는 font-size로 크기 제어 (scaleW 기준)
-      const spanEl = el.querySelector('span');
-      if (spanEl && !el.querySelector('svg')) {
-        const baseFontSize = 11;
-        spanEl.style.fontSize = Math.round(baseFontSize * v.scale / 100 * v.scaleW / 100) + 'px';
-      }
-    }
+    el.style.top    = v.top  + '%';
+    el.style.left   = v.left + '%';
+    el.style.width  = v.w    + '%';
+    el.style.height = v.h    + '%';
+    // inset 제거 (개별 지정으로 대체)
+    el.style.inset  = '';
   }
 
-  // 메인 + 편집기 오버레이 통합 적용 (존재하는 el만 처리)
-  function oeApplyAll() {
-    for (const [key, ids] of Object.entries(OE_ALL_MAP)) {
-      ids.forEach(elId => {
-        const el = document.getElementById(elId);
-        if (el) oeApply(el, key);
-      });
-    }
-  }
-  // 편집기 미리보기만 따로 적용 (openOverlayEditor 내 rAF용)
-  function oeApplyAllPreview() {
-    for (const [key, ids] of Object.entries(OE_ALL_MAP)) {
-      const el = document.getElementById(ids[1]);
-      if (el) oeApply(el, key);
-    }
+  // 모든 레이어에 커스텀 위치 일괄 적용
+  function oeApplyAll(stageEl) {
+    if (!stageEl) return;
+    Object.entries(IMG_LAYER_MAP).forEach(([key, { cls }]) => {
+      const el = stageEl.querySelector('.' + cls);
+      if (el) oeApplyToLayer(el, key);
+    });
   }
 
   // 편집기 숫자 UI 갱신
   function oeRefreshUI() {
     if (!oeCurrentKey) return;
     const v = oeVal(oeCurrentKey);
-    document.getElementById('oeBottomVal').textContent  = v.bottom;
-    document.getElementById('oeLeftVal').textContent    = v.leftOffset;
-    document.getElementById('oeSizeVal').textContent    = v.scale + '%';
-    document.getElementById('oeSizeWVal').textContent   = v.scaleW + '%';
-    document.getElementById('oeSizeHVal').textContent   = v.scaleH + '%';
-    document.getElementById('oeSelectedLabel').textContent = OE_LABEL_MAP[oeCurrentKey] + ' 조정';
+    const topEl    = document.getElementById('oeTopVal');
+    const leftEl   = document.getElementById('oeLeftVal');
+    const widthEl  = document.getElementById('oeWidthVal');
+    const heightEl = document.getElementById('oeHeightVal');
+    if (topEl)    topEl.textContent    = v.top  + '%';
+    if (leftEl)   leftEl.textContent   = v.left + '%';
+    if (widthEl)  widthEl.textContent  = v.w    + '%';
+    if (heightEl) heightEl.textContent = v.h    + '%';
+    document.getElementById('oeSelectedLabel').textContent =
+      (IMG_LAYER_MAP[oeCurrentKey]?.label || oeCurrentKey) + ' 조정 중';
     document.getElementById('oeControls').style.display = 'block';
-    const isBehind = v.zIndex < OE_HERO_ZINDEX;
-    document.getElementById('oeZFrontBtn').classList.toggle('active', !isBehind);
-    document.getElementById('oeZBackBtn').classList.toggle('active',   isBehind);
   }
 
-  // 값 변경 후 미리보기 즉시 반영
+  // 값 변경 + 미리보기 즉시 반영
   function oeAdjust(axis, delta) {
     if (!oeCurrentKey) return;
-    // oeCustom에 현재 실효값 복사 후 수정
     if (!oeCustom[oeCurrentKey]) oeCustom[oeCurrentKey] = {};
     const c = oeCustom[oeCurrentKey];
-    const d = OE_DEFAULTS[oeCurrentKey];
-    // 현재 실효값을 기준으로 delta 적용
-    if (axis === 'bottom')  c.bottom     = (c.bottom     !== undefined ? c.bottom     : d.bottom)     + delta;
-    if (axis === 'left')    c.leftOffset = (c.leftOffset !== undefined ? c.leftOffset : d.leftOffset) + delta;
-    if (axis === 'scale')   c.scale  = Math.max(10, Math.min(500, (c.scale  !== undefined ? c.scale  : d.scale)  + delta));
-    if (axis === 'scaleW')  c.scaleW = Math.max(10, Math.min(500, (c.scaleW !== undefined ? c.scaleW : d.scaleW) + delta));
-    if (axis === 'scaleH')  c.scaleH = Math.max(10, Math.min(500, (c.scaleH !== undefined ? c.scaleH : d.scaleH) + delta));
-    if (axis === 'zIndex')  c.zIndex     = delta; // delta가 직접 값
+    const d = IMG_LAYER_DEFAULTS[oeCurrentKey] || { top:0, left:0, w:100, h:100 };
+    if (axis === 'top')  c.top  = Math.round(((c.top  !== undefined ? c.top  : d.top)  + delta) * 10) / 10;
+    if (axis === 'left') c.left = Math.round(((c.left !== undefined ? c.left : d.left) + delta) * 10) / 10;
+    if (axis === 'w')    c.w    = Math.max(10, Math.min(200, (c.w !== undefined ? c.w : d.w) + delta));
+    if (axis === 'h')    c.h    = Math.max(10, Math.min(200, (c.h !== undefined ? c.h : d.h) + delta));
     oeRefreshUI();
-    // 편집기 미리보기 즉시 반영 (변경된 key만 빠르게 재적용)
-    const oeStage = document.getElementById('oePreviewStage');
-    if (oeStage) {
-      const cls = {
-        helmet:'equip-overlay-helmet', cloak:'equip-overlay-cloak', necklace:'equip-overlay-necklace',
-        gloveR:'equip-overlay-glove-r', bootL:'equip-overlay-boot-l', bootR:'equip-overlay-boot-r',
-        ringL:'equip-overlay-ring-l', ringR:'equip-overlay-ring-r',
-      }[oeCurrentKey];
-      if (cls) oeApply(oeStage.querySelector('.'+cls), oeCurrentKey);
+    // 미리보기 즉시 반영
+    const previewStage = document.getElementById('oePreviewStage');
+    if (previewStage) {
+      const cls = IMG_LAYER_MAP[oeCurrentKey]?.cls;
+      if (cls) oeApplyToLayer(previewStage.querySelector('.' + cls), oeCurrentKey);
     }
   }
 
   // 편집기 열기
   function openOverlayEditor() {
     oeLoadCustom();
-    // oePreviewStage를 renderHeroDoll로 렌더 (편집기와 정보창 동일 소스)
-    const oeStage = document.getElementById('oePreviewStage');
-    renderHeroDoll(oeStage);
-    // 개체 선택 버튼
+    // 미리보기 렌더
+    const previewStage = document.getElementById('oePreviewStage');
+    renderHeroDoll(previewStage);
+    requestAnimationFrame(() => oeApplyAll(previewStage));
+
+    // 레이어 선택 버튼 생성 (장착 중인 레이어만 활성)
     const sel = document.getElementById('oeItemSelector');
-    sel.innerHTML = Object.entries(OE_LABEL_MAP).map(([key, label]) =>
-      `<button class="oe-item-sel-btn${oeCurrentKey===key?' active':''}" data-key="${key}">${label}</button>`
-    ).join('');
+    sel.innerHTML = Object.entries(IMG_LAYER_MAP).map(([key, { cls, label }]) => {
+      // 해당 레이어가 실제 렌더됐는지 확인
+      const layerEl = previewStage?.querySelector('.' + cls);
+      const hasImg  = layerEl?.querySelector('img:not(.img-missing)');
+      const active  = key === 'body' || hasImg;
+      return `<button class="oe-item-sel-btn${oeCurrentKey===key?' active':''}"
+        data-key="${key}" ${!active ? 'style="opacity:0.4;"' : ''}>${label}</button>`;
+    }).join('');
+
     sel.querySelectorAll('.oe-item-sel-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         oeCurrentKey = btn.dataset.key;
@@ -3256,9 +3173,10 @@ document.addEventListener('DOMContentLoaded', () => {
         oeRefreshUI();
       });
     });
-    document.getElementById('oeControls').style.display = 'none';
+
     oeCurrentKey = null;
-    // 조정 버튼 이벤트 — 모달 열 때마다 등록 (DOM에 존재하는 시점)
+    document.getElementById('oeControls').style.display = 'none';
+    // 조정 버튼 이벤트 등록
     document.querySelectorAll('.oe-adj-btn').forEach(btn => {
       btn.onclick = () => oeAdjust(btn.dataset.axis, +btn.dataset.delta);
     });
@@ -3268,7 +3186,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // 편집기 초기화 (DOMContentLoaded)
   function initOverlayEditor() {
     oeLoadCustom();
-    oeApplyAll();
 
     document.getElementById('heroOverlayEditorBtn').addEventListener('click', () => {
       closeModal(els.heroStatsBackdrop);
@@ -3283,24 +3200,20 @@ document.addEventListener('DOMContentLoaded', () => {
       await dbSaveHero();
       closeModal(document.getElementById('overlayEditorBackdrop'));
       openHeroStatsModal();
-      showDropNotification('✅ 오버레이 위치 저장됨 (DB)', '#63d09a');
+      showDropNotification('✅ 레이어 위치 저장됨', '#63d09a');
     });
     document.getElementById('oeResetBtn').addEventListener('click', () => {
-      if (!oeCurrentKey) { showDropNotification('⚠️ 개체를 먼저 선택하세요', '#ff9b7f'); return; }
+      if (!oeCurrentKey) { showDropNotification('⚠️ 레이어를 먼저 선택하세요', '#ff9b7f'); return; }
       delete oeCustom[oeCurrentKey];
       oeRefreshUI();
-      const oeStageR = document.getElementById('oePreviewStage');
-      if (oeStageR) {
-        const clsR = {
-          helmet:'equip-overlay-helmet', cloak:'equip-overlay-cloak', necklace:'equip-overlay-necklace',
-          gloveR:'equip-overlay-glove-r', bootL:'equip-overlay-boot-l', bootR:'equip-overlay-boot-r',
-          ringL:'equip-overlay-ring-l', ringR:'equip-overlay-ring-r',
-        }[oeCurrentKey];
-        if (clsR) oeApply(oeStageR.querySelector('.'+clsR), oeCurrentKey);
+      // 미리보기 초기화 반영
+      const previewStage = document.getElementById('oePreviewStage');
+      if (previewStage) {
+        const cls = IMG_LAYER_MAP[oeCurrentKey]?.cls;
+        if (cls) oeApplyToLayer(previewStage.querySelector('.' + cls), oeCurrentKey);
       }
     });
   }
-
 
   // ═══════════════════════════════════════════════════════
   // 자동 저장 (30초마다 영웅 + 인벤토리)
@@ -3523,82 +3436,82 @@ document.addEventListener('DOMContentLoaded', () => {
   // 폴백용 하드코딩 카탈로그 (DB 연결 실패 시)
   const FALLBACK_CATALOG = [
     // ── 무기: 전사 ──────────────────────────────────
-    { name:'단검',         slot:'weapon', weaponType:'sword', icon:'⟨단검⟩',         classes:['전사'],   stats:{atk:3,def:0,hp:0,speed:1,crit:1} },
-    { name:'장검',         slot:'weapon', weaponType:'sword', icon:'⟨장검⟩',         classes:['전사'],   stats:{atk:5,def:1,hp:0,speed:0,crit:0} },
-    { name:'기사검',       slot:'weapon', weaponType:'sword', icon:'⟨기사검⟩',       classes:['전사'],   stats:{atk:7,def:1,hp:0,speed:0,crit:2} },
+    { name:'단검',         slot:'weapon', weaponType:'sword', icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/dagger.png',         classes:['전사'],   stats:{atk:3,def:0,hp:0,speed:1,crit:1} },
+    { name:'장검',         slot:'weapon', weaponType:'sword', icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/longsword.png',         classes:['전사'],   stats:{atk:5,def:1,hp:0,speed:0,crit:0} },
+    { name:'기사검',       slot:'weapon', weaponType:'sword', icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/knight_sword.png',       classes:['전사'],   stats:{atk:7,def:1,hp:0,speed:0,crit:2} },
     // ── 무기: 궁사 ──────────────────────────────────
-    { name:'단궁',         slot:'weapon', weaponType:'bow',   icon:'⟨단궁⟩',         classes:['궁사'],   stats:{atk:3,def:0,hp:0,speed:2,crit:1} },
-    { name:'장궁',         slot:'weapon', weaponType:'bow',   icon:'⟨장궁⟩',         classes:['궁사'],   stats:{atk:5,def:0,hp:0,speed:1,crit:1} },
-    { name:'석궁',         slot:'weapon', weaponType:'bow',   icon:'⟨석궁⟩',         classes:['궁사'],   stats:{atk:6,def:0,hp:0,speed:0,crit:3} },
+    { name:'단궁',         slot:'weapon', weaponType:'bow',   icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/short_bow.png',         classes:['궁사'],   stats:{atk:3,def:0,hp:0,speed:2,crit:1} },
+    { name:'장궁',         slot:'weapon', weaponType:'bow',   icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/long_bow.png',         classes:['궁사'],   stats:{atk:5,def:0,hp:0,speed:1,crit:1} },
+    { name:'석궁',         slot:'weapon', weaponType:'bow',   icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/crossbow.png',         classes:['궁사'],   stats:{atk:6,def:0,hp:0,speed:0,crit:3} },
     // ── 무기: 마법사 ────────────────────────────────
-    { name:'나무 지팡이',  slot:'weapon', weaponType:'staff', icon:'⟨나무지팡이⟩',   classes:['마법사'], stats:{atk:3,def:0,hp:0,speed:0,crit:2} },
-    { name:'마법 지팡이',  slot:'weapon', weaponType:'staff', icon:'⟨마법지팡이⟩',   classes:['마법사'], stats:{atk:5,def:0,hp:0,speed:0,crit:3} },
-    { name:'수정 지팡이',  slot:'weapon', weaponType:'staff', icon:'⟨수정지팡이⟩',   classes:['마법사'], stats:{atk:7,def:0,hp:0,speed:0,crit:4} },
+    { name:'나무 지팡이',  slot:'weapon', weaponType:'staff', icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/wood_staff.png',   classes:['마법사'], stats:{atk:3,def:0,hp:0,speed:0,crit:2} },
+    { name:'마법 지팡이',  slot:'weapon', weaponType:'staff', icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/magic_staff.png',   classes:['마법사'], stats:{atk:5,def:0,hp:0,speed:0,crit:3} },
+    { name:'수정 지팡이',  slot:'weapon', weaponType:'staff', icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/crystal_staff.png',   classes:['마법사'], stats:{atk:7,def:0,hp:0,speed:0,crit:4} },
     // ── 갑옷: 전사 ──────────────────────────────────
-    { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'⟨가죽갑옷⟩',     classes:['전사'],   stats:{atk:0,def:3,hp:10,speed:0, crit:0} },
-    { name:'강철 갑옷',    slot:'armor',  weaponType:null,    icon:'⟨철판갑옷⟩',     classes:['전사'],   stats:{atk:0,def:6,hp:14,speed:0, crit:0} },
-    { name:'기사 갑옷',    slot:'armor',  weaponType:null,    icon:'⟨기사흉갑⟩',     classes:['전사'],   stats:{atk:0,def:9,hp:18,speed:-1,crit:0} },
+    { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/leather_armor.png',     classes:['전사'],   stats:{atk:0,def:3,hp:10,speed:0, crit:0} },
+    { name:'강철 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/steel_armor.png',     classes:['전사'],   stats:{atk:0,def:6,hp:14,speed:0, crit:0} },
+    { name:'기사 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/knight_armor.png',     classes:['전사'],   stats:{atk:0,def:9,hp:18,speed:-1,crit:0} },
     // ── 갑옷: 궁사 ──────────────────────────────────
-    { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'⟨가죽갑옷⟩',     classes:['궁사'],   stats:{atk:0,def:2,hp:8, speed:1, crit:0} },
-    { name:'사슬 갑옷',    slot:'armor',  weaponType:null,    icon:'⟨사슬갑옷⟩',     classes:['궁사'],   stats:{atk:0,def:4,hp:10,speed:0, crit:0} },
-    { name:'사냥꾼 갑옷',  slot:'armor',  weaponType:null,    icon:'⟨사슬갑옷⟩',     classes:['궁사'],   stats:{atk:1,def:5,hp:10,speed:1, crit:1} },
+    { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/leather_armor.png',     classes:['궁사'],   stats:{atk:0,def:2,hp:8, speed:1, crit:0} },
+    { name:'사슬 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/chain_armor.png',     classes:['궁사'],   stats:{atk:0,def:4,hp:10,speed:0, crit:0} },
+    { name:'사냥꾼 갑옷',  slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/chain_armor.png',     classes:['궁사'],   stats:{atk:1,def:5,hp:10,speed:1, crit:1} },
     // ── 갑옷: 마법사 ────────────────────────────────
-    { name:'천 갑옷',      slot:'armor',  weaponType:null,    icon:'⟨가죽갑옷⟩',     classes:['마법사'], stats:{atk:0,def:1,hp:6, speed:1, crit:1} },
-    { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'⟨가죽갑옷⟩',     classes:['마법사'], stats:{atk:0,def:2,hp:8, speed:0, crit:1} },
-    { name:'마법사 로브',  slot:'armor',  weaponType:null,    icon:'⟨기사흉갑⟩',     classes:['마법사'], stats:{atk:2,def:2,hp:8, speed:0, crit:3} },
+    { name:'천 갑옷',      slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/leather_armor.png',     classes:['마법사'], stats:{atk:0,def:1,hp:6, speed:1, crit:1} },
+    { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/leather_armor.png',     classes:['마법사'], stats:{atk:0,def:2,hp:8, speed:0, crit:1} },
+    { name:'마법사 로브',  slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/knight_armor.png',     classes:['마법사'], stats:{atk:2,def:2,hp:8, speed:0, crit:3} },
     // ── 방패: 전사 전용 ─────────────────────────────
-    { name:'나무 방패',    slot:'shield', weaponType:null,    icon:'⟨나무방패⟩',     classes:['전사'],   stats:{atk:0,def:3,hp:6, speed:0, crit:0} },
-    { name:'원형 방패',    slot:'shield', weaponType:null,    icon:'⟨원형방패⟩',     classes:['전사'],   stats:{atk:0,def:5,hp:8, speed:0, crit:1} },
-    { name:'강철 방패',    slot:'shield', weaponType:null,    icon:'⟨철방패⟩',       classes:['전사'],   stats:{atk:0,def:7,hp:10,speed:-1,crit:0} },
+    { name:'나무 방패',    slot:'shield', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/shield/wood_shield.png',     classes:['전사'],   stats:{atk:0,def:3,hp:6, speed:0, crit:0} },
+    { name:'원형 방패',    slot:'shield', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/shield/round_shield.png',     classes:['전사'],   stats:{atk:0,def:5,hp:8, speed:0, crit:1} },
+    { name:'강철 방패',    slot:'shield', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/shield/steel_shield.png',       classes:['전사'],   stats:{atk:0,def:7,hp:10,speed:-1,crit:0} },
     // ── 장갑: 전사 ──────────────────────────────────
-    { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'⟨가죽장갑⟩',     classes:['전사'],   stats:{atk:1,def:1,hp:0,speed:0,crit:1} },
-    { name:'강철 장갑',    slot:'gloves', weaponType:null,    icon:'⟨철장갑⟩',       classes:['전사'],   stats:{atk:2,def:3,hp:0,speed:0,crit:0} },
-    { name:'기사 장갑',    slot:'gloves', weaponType:null,    icon:'⟨전투장갑⟩',     classes:['전사'],   stats:{atk:3,def:3,hp:0,speed:0,crit:1} },
+    { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/leather_gloves.png',     classes:['전사'],   stats:{atk:1,def:1,hp:0,speed:0,crit:1} },
+    { name:'강철 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/steel_gloves.png',       classes:['전사'],   stats:{atk:2,def:3,hp:0,speed:0,crit:0} },
+    { name:'기사 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/battle_gloves.png',     classes:['전사'],   stats:{atk:3,def:3,hp:0,speed:0,crit:1} },
     // ── 장갑: 궁사 ──────────────────────────────────
-    { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'⟨가죽장갑⟩',     classes:['궁사'],   stats:{atk:1,def:0,hp:0,speed:1,crit:2} },
-    { name:'사슬 장갑',    slot:'gloves', weaponType:null,    icon:'⟨철장갑⟩',       classes:['궁사'],   stats:{atk:1,def:2,hp:0,speed:0,crit:2} },
-    { name:'사냥꾼 장갑',  slot:'gloves', weaponType:null,    icon:'⟨전투장갑⟩',     classes:['궁사'],   stats:{atk:2,def:1,hp:0,speed:1,crit:3} },
+    { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/leather_gloves.png',     classes:['궁사'],   stats:{atk:1,def:0,hp:0,speed:1,crit:2} },
+    { name:'사슬 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/steel_gloves.png',       classes:['궁사'],   stats:{atk:1,def:2,hp:0,speed:0,crit:2} },
+    { name:'사냥꾼 장갑',  slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/battle_gloves.png',     classes:['궁사'],   stats:{atk:2,def:1,hp:0,speed:1,crit:3} },
     // ── 장갑: 마법사 ────────────────────────────────
-    { name:'천 장갑',      slot:'gloves', weaponType:null,    icon:'⟨천장갑⟩',       classes:['마법사'], stats:{atk:0,def:0,hp:4,speed:1,crit:1} },
-    { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'⟨가죽장갑⟩',     classes:['마법사'], stats:{atk:1,def:0,hp:2,speed:0,crit:2} },
-    { name:'마법사 장갑',  slot:'gloves', weaponType:null,    icon:'⟨전투장갑⟩',     classes:['마법사'], stats:{atk:2,def:0,hp:2,speed:0,crit:4} },
+    { name:'천 장갑',      slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/cloth_gloves.png',       classes:['마법사'], stats:{atk:0,def:0,hp:4,speed:1,crit:1} },
+    { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/leather_gloves.png',     classes:['마법사'], stats:{atk:1,def:0,hp:2,speed:0,crit:2} },
+    { name:'마법사 장갑',  slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/battle_gloves.png',     classes:['마법사'], stats:{atk:2,def:0,hp:2,speed:0,crit:4} },
     // ── 장화: 전사 ──────────────────────────────────
-    { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'⟨가죽장화⟩',     classes:['전사'],   stats:{atk:0,def:1,hp:4,speed:1, crit:0} },
-    { name:'강철 장화',    slot:'boots',  weaponType:null,    icon:'⟨강화장화⟩',     classes:['전사'],   stats:{atk:0,def:3,hp:6,speed:0, crit:0} },
-    { name:'기사 장화',    slot:'boots',  weaponType:null,    icon:'⟨강화장화⟩',     classes:['전사'],   stats:{atk:0,def:4,hp:8,speed:0, crit:0} },
+    { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/leather_boots.png',     classes:['전사'],   stats:{atk:0,def:1,hp:4,speed:1, crit:0} },
+    { name:'강철 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/steel_boots.png',     classes:['전사'],   stats:{atk:0,def:3,hp:6,speed:0, crit:0} },
+    { name:'기사 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/steel_boots.png',     classes:['전사'],   stats:{atk:0,def:4,hp:8,speed:0, crit:0} },
     // ── 장화: 궁사 ──────────────────────────────────
-    { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'⟨가죽장화⟩',     classes:['궁사'],   stats:{atk:0,def:0,hp:4,speed:2, crit:0} },
-    { name:'사슬 장화',    slot:'boots',  weaponType:null,    icon:'⟨강화장화⟩',     classes:['궁사'],   stats:{atk:0,def:1,hp:4,speed:2, crit:0} },
-    { name:'사냥꾼 장화',  slot:'boots',  weaponType:null,    icon:'⟨질풍장화⟩',     classes:['궁사'],   stats:{atk:0,def:1,hp:4,speed:3, crit:1} },
+    { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/leather_boots.png',     classes:['궁사'],   stats:{atk:0,def:0,hp:4,speed:2, crit:0} },
+    { name:'사슬 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/steel_boots.png',     classes:['궁사'],   stats:{atk:0,def:1,hp:4,speed:2, crit:0} },
+    { name:'사냥꾼 장화',  slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/wind_boots.png',     classes:['궁사'],   stats:{atk:0,def:1,hp:4,speed:3, crit:1} },
     // ── 장화: 마법사 ────────────────────────────────
-    { name:'천 장화',      slot:'boots',  weaponType:null,    icon:'⟨천신발⟩',       classes:['마법사'], stats:{atk:0,def:0,hp:4,speed:1, crit:1} },
-    { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'⟨가죽장화⟩',     classes:['마법사'], stats:{atk:0,def:1,hp:4,speed:1, crit:1} },
-    { name:'마법사 장화',  slot:'boots',  weaponType:null,    icon:'⟨질풍장화⟩',     classes:['마법사'], stats:{atk:1,def:0,hp:4,speed:1, crit:2} },
+    { name:'천 장화',      slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/cloth_boots.png',       classes:['마법사'], stats:{atk:0,def:0,hp:4,speed:1, crit:1} },
+    { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/leather_boots.png',     classes:['마법사'], stats:{atk:0,def:1,hp:4,speed:1, crit:1} },
+    { name:'마법사 장화',  slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/wind_boots.png',     classes:['마법사'], stats:{atk:1,def:0,hp:4,speed:1, crit:2} },
     // ── 투구: 전사 ──────────────────────────────────
-    { name:'가죽 투구',    slot:'helmet', weaponType:null,    icon:'⟨가죽투구⟩',     classes:['전사'],   stats:{atk:0,def:2,hp:5, speed:0, crit:0} },
-    { name:'강철 투구',    slot:'helmet', weaponType:null,    icon:'⟨철투구⟩',       classes:['전사'],   stats:{atk:0,def:4,hp:8, speed:0, crit:0} },
-    { name:'기사 투구',    slot:'helmet', weaponType:null,    icon:'⟨기사투구⟩',     classes:['전사'],   stats:{atk:0,def:6,hp:10,speed:-1,crit:0} },
+    { name:'가죽 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/leather_helmet.png',     classes:['전사'],   stats:{atk:0,def:2,hp:5, speed:0, crit:0} },
+    { name:'강철 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/steel_helmet.png',       classes:['전사'],   stats:{atk:0,def:4,hp:8, speed:0, crit:0} },
+    { name:'기사 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/knight_helmet.png',     classes:['전사'],   stats:{atk:0,def:6,hp:10,speed:-1,crit:0} },
     // ── 투구: 궁사 ──────────────────────────────────
-    { name:'가죽 모자',    slot:'helmet', weaponType:null,    icon:'⟨가죽투구⟩',     classes:['궁사'],   stats:{atk:0,def:1,hp:4, speed:1, crit:1} },
-    { name:'써클렛',       slot:'helmet', weaponType:null,    icon:'⟨철투구⟩',       classes:['궁사'],   stats:{atk:0,def:2,hp:4, speed:1, crit:2} },
-    { name:'강철 투구',    slot:'helmet', weaponType:null,    icon:'⟨전투투구⟩',     classes:['궁사'],   stats:{atk:0,def:4,hp:6, speed:0, crit:1} },
+    { name:'가죽 모자',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/leather_helmet.png',     classes:['궁사'],   stats:{atk:0,def:1,hp:4, speed:1, crit:1} },
+    { name:'써클렛',       slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/steel_helmet.png',       classes:['궁사'],   stats:{atk:0,def:2,hp:4, speed:1, crit:2} },
+    { name:'강철 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/battle_helmet.png',     classes:['궁사'],   stats:{atk:0,def:4,hp:6, speed:0, crit:1} },
     // ── 투구: 마법사 ────────────────────────────────
-    { name:'천 모자',      slot:'helmet', weaponType:null,    icon:'⟨가죽투구⟩',     classes:['마법사'], stats:{atk:0,def:0,hp:4, speed:1, crit:2} },
-    { name:'써클렛',       slot:'helmet', weaponType:null,    icon:'⟨철투구⟩',       classes:['마법사'], stats:{atk:1,def:1,hp:4, speed:0, crit:3} },
-    { name:'마법사 모자',  slot:'helmet', weaponType:null,    icon:'⟨기사투구⟩',     classes:['마법사'], stats:{atk:2,def:1,hp:4, speed:0, crit:4} },
+    { name:'천 모자',      slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/leather_helmet.png',     classes:['마법사'], stats:{atk:0,def:0,hp:4, speed:1, crit:2} },
+    { name:'써클렛',       slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/steel_helmet.png',       classes:['마법사'], stats:{atk:1,def:1,hp:4, speed:0, crit:3} },
+    { name:'마법사 모자',  slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/knight_helmet.png',     classes:['마법사'], stats:{atk:2,def:1,hp:4, speed:0, crit:4} },
     // ── 망토: 공용 ──────────────────────────────────
-    { name:'용병 망토',    slot:'cloak',  weaponType:null,    icon:'⟨낡은망토⟩',     classes:null,       stats:{atk:1,def:1,hp:5,speed:0,crit:0} },
-    { name:'기사 망토',    slot:'cloak',  weaponType:null,    icon:'⟨강화망토⟩',     classes:null,       stats:{atk:1,def:3,hp:8,speed:0,crit:0} },
-    { name:'용사 망토',    slot:'cloak',  weaponType:null,    icon:'⟨용사망토⟩',     classes:null,       stats:{atk:2,def:3,hp:8,speed:1,crit:1} },
+    { name:'용병 망토',    slot:'cloak',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/cape/mercenary_cape.png',     classes:null,       stats:{atk:1,def:1,hp:5,speed:0,crit:0} },
+    { name:'기사 망토',    slot:'cloak',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/cape/knight_cape.png',     classes:null,       stats:{atk:1,def:3,hp:8,speed:0,crit:0} },
+    { name:'용사 망토',    slot:'cloak',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/cape/hero_cape.png',     classes:null,       stats:{atk:2,def:3,hp:8,speed:1,crit:1} },
     // ── 반지: 공용 (ring1 단일) ──────────────────────
-    { name:'공격력 반지',  slot:'ring',   weaponType:null,    icon:'⟨전투반지⟩',     classes:null,       stats:{atk:3,def:0,hp:0, speed:0,crit:2} },
-    { name:'방어력 반지',  slot:'ring',   weaponType:null,    icon:'⟨수호반지⟩',     classes:null,       stats:{atk:0,def:3,hp:6, speed:0,crit:0} },
-    { name:'체력 반지',    slot:'ring',   weaponType:null,    icon:'⟨구리반지⟩',     classes:null,       stats:{atk:0,def:1,hp:10,speed:0,crit:0} },
-    { name:'만능 반지',    slot:'ring',   weaponType:null,    icon:'⟨마력반지⟩',     classes:null,       stats:{atk:2,def:2,hp:6, speed:0,crit:2} },
+    { name:'공격력 반지',  slot:'ring',   weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/ring/atk_ring.png',     classes:null,       stats:{atk:3,def:0,hp:0, speed:0,crit:2} },
+    { name:'방어력 반지',  slot:'ring',   weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/ring/def_ring.png',     classes:null,       stats:{atk:0,def:3,hp:6, speed:0,crit:0} },
+    { name:'체력 반지',    slot:'ring',   weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/ring/hp_ring.png',     classes:null,       stats:{atk:0,def:1,hp:10,speed:0,crit:0} },
+    { name:'만능 반지',    slot:'ring',   weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/ring/all_ring.png',     classes:null,       stats:{atk:2,def:2,hp:6, speed:0,crit:2} },
     // ── 목걸이: 공용 ────────────────────────────────
-    { name:'속도 목걸이',  slot:'necklace',weaponType:null,   icon:'⟨집중목걸이⟩',   classes:null,       stats:{atk:0,def:0,hp:4,speed:4,crit:1} },
-    { name:'치명타 목걸이',slot:'necklace',weaponType:null,   icon:'⟨투사목걸이⟩',   classes:null,       stats:{atk:2,def:0,hp:0,speed:1,crit:5} },
-    { name:'만능 목걸이',  slot:'necklace',weaponType:null,   icon:'⟨수호목걸이⟩',   classes:null,       stats:{atk:1,def:1,hp:4,speed:2,crit:3} },
+    { name:'속도 목걸이',  slot:'necklace',weaponType:null,   icon:'https://joono1004.github.io/scanhero/assets/icons/necklace/speed_necklace.png',   classes:null,       stats:{atk:0,def:0,hp:4,speed:4,crit:1} },
+    { name:'치명타 목걸이',slot:'necklace',weaponType:null,   icon:'https://joono1004.github.io/scanhero/assets/icons/necklace/crit_necklace.png',   classes:null,       stats:{atk:2,def:0,hp:0,speed:1,crit:5} },
+    { name:'만능 목걸이',  slot:'necklace',weaponType:null,   icon:'https://joono1004.github.io/scanhero/assets/icons/necklace/all_necklace.png',   classes:null,       stats:{atk:1,def:1,hp:4,speed:2,crit:3} },
   ];
 
     const slotLabels = { weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑', boots:'장화', ring1:'반지', necklace:'목걸이', cloak:'망토', helmet:'투구' };
@@ -4137,7 +4050,7 @@ document.addEventListener('DOMContentLoaded', () => {
       layerEl.appendChild(img);
       dollStage.appendChild(layerEl);
 
-      // legendary 스파클 (반지는 별도 위치)
+      // legendary 스파클
       if (item?.rarity === 'legendary') {
         ['', 'b', 'c'].forEach((type, i) => {
           const sp = document.createElement('span');
@@ -4151,6 +4064,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
     });
+
+    // 커스텀 위치 적용 (저장된 편집 값 반영)
+    requestAnimationFrame(() => oeApplyAll(stageEl));
   }
 
   function getSoldierSprite(soldierClass, size='normal') {
@@ -5600,6 +5516,13 @@ ICO['⟨기사투구⟩'] = svg(defs(
 48, 48);
 
   function getItemIconHtml(icon, size=16) {
+    // URL이면 이미지로 렌더
+    if (icon && (icon.startsWith('http') || icon.startsWith('/'))) {
+      return `<img src="${icon}" width="${size}" height="${size}"
+        style="object-fit:contain;border-radius:3px;vertical-align:middle;display:inline-block;"
+        onerror="this.style.opacity=0" loading="lazy">`;
+    }
+    // 구버전 SVG fallback (이미지 아직 없을 때)
     const svgStr = ICO[icon];
     if (svgStr) {
       return svgStr.replace('width="48" height="48"', `width="${size}" height="${size}"`);
