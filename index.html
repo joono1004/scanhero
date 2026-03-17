@@ -124,9 +124,8 @@
       background: none !important; border: none !important;
       animation: heroFloat 2.6s ease-in-out infinite;
     }
-    /* formation: 몸통/기본머리 레이어 숨김 — hero-unit의 getHeroVisualHtml이 담당 */
-    .formation-doll-overlay .img-layer-body   { display: none !important; }
-    .formation-doll-overlay .img-layer-helmet { display: none !important; }
+    /* formation: 모든 레이어 숨김 — hero-unit의 getHeroVisualHtml이 담당 */
+    .formation-doll-overlay { display: none !important; }
     .formation-ground {
       position: absolute; left: -10%; right: -10%; bottom: 10px; height: 70px; border-radius: 50%;
       background: radial-gradient(circle, rgba(245,201,107,0.20), rgba(55,77,123,0.26) 45%, rgba(7,11,20,0.02) 70%);
@@ -1524,7 +1523,7 @@
           <div class="equip-slot-btn" id="eqSlot_gloves"   data-slot="gloves"   title="장갑">   <div class="eq-slot-icon" id="eqIcon_gloves">🧤</div>  <div class="eq-slot-label">장갑</div></div>
           <div class="equip-slot-btn" id="eqSlot_shield"   data-slot="shield"   title="방패">   <div class="eq-slot-icon" id="eqIcon_shield">🛡️</div>  <div class="eq-slot-label">방패</div></div>
           <div class="equip-slot-btn" id="eqSlot_ring1"    data-slot="ring1"    title="반지">   <div class="eq-slot-icon" id="eqIcon_ring1">💍</div>   <div class="eq-slot-label">반지</div></div>
-          <div class="equip-slot-btn" id="eqSlot_boots"    data-slot="boots"    title="장화">   <div class="eq-slot-icon" id="eqIcon_boots">👟</div>   <div class="eq-slot-label">장화</div></div>
+          <div class="equip-slot-btn" id="eqSlot_boots"    data-slot="boots"    title="장화">   <div class="eq-slot-icon" id="eqIcon_boots">🥾</div>   <div class="eq-slot-label">장화</div></div>
           <div class="equip-slot-btn" id="eqSlot_cloak"    data-slot="cloak"    title="망토">   <div class="eq-slot-icon" id="eqIcon_cloak">🧥</div>   <div class="eq-slot-label">망토</div></div>
           <div class="equip-slot-btn" id="eqSlot_armor"    data-slot="armor"    title="갑옷">   <div class="eq-slot-icon" id="eqIcon_armor">🥋</div>  <div class="eq-slot-label">갑옷</div></div>
         </div>
@@ -2253,7 +2252,7 @@ document.addEventListener('DOMContentLoaded', () => {
       );
       const queryPromise = sb
         .from('heroes')
-        .select('player_id, hero_name, hero_class, level, gold, char_slot, account_id, updated_at')
+        .select('player_id, hero_name, hero_class, level, gold, char_slot, account_id, updated_at, equipment')
         .order('char_slot');
 
       const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
@@ -2343,7 +2342,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const hClass = thumbEl.dataset.heroClass || '전사';
       let eq = {};
       try { eq = JSON.parse(thumbEl.dataset.equipment || '{}'); } catch {}
-      renderHeroDoll(thumbEl, { heroClass: hClass, equipment: eq });
+      thumbEl.innerHTML = getHeroVisualHtml(hClass, eq);
     });
 
     // 플레이 버튼
@@ -2835,6 +2834,13 @@ document.addEventListener('DOMContentLoaded', () => {
         gold:          state.gold,
         used_barcodes: [...state.usedBarcodes],
         dev_mode:      state.devMode,
+        equipment:     Object.fromEntries(
+          Object.entries(state.equipment)
+            .filter(([, v]) => v && !v.isDefault)
+            .map(([k, v]) => [k, { id: v.id, name: v.name, baseName: v.baseName, slot: v.slot,
+              icon: v.icon, rarity: v.rarity, stats: v.stats, weaponType: v.weaponType,
+              classes: v.classes, power: v.power }])
+        ),
       }, { onConflict: 'player_id' });
       if (error) throw error;
     } catch (e) { showDbStatus('영웅 저장 실패: ' + e.message, 'error'); }
@@ -3731,19 +3737,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // getHeroVisualHtml: 메인/전투 화면 소형 캐릭터 표시용
   // formation 스테이지에선 작게 표시되므로 이미지 단일 레이어 사용
-  function getHeroVisualHtml(heroClass) {
+  function getHeroVisualHtml(heroClass, equipment = state.equipment) {
     const bodyUrl = getBodyImageUrl(heroClass);
     const aura    = getHeroAuraClass();
-    // 헬멧 미착용 또는 isDefault(기본 머리)일 때 기본 머리 레이어 표시
-    const headLayer = (!state.equipment.helmet || state.equipment.helmet.isDefault)
-      ? `<img src="${getDefaultHeadUrl(heroClass)}" alt="head"
-           style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"
-           onerror="this.style.opacity=0">`
+    const eq      = equipment || {};
+    const layerStyle = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;';
+    const img = (url, alt) => url
+      ? `<img src="${url}" alt="${alt}" style="${layerStyle}" onerror="this.style.opacity=0">`
       : '';
+
+    // 레이어 순서: 망토→몸통→갑옷→장갑→장화→방패→무기→목걸이→머리(헬멧or기본머리)→반지
+    const layers = [
+      eq.cloak    ? img(getEquipImageUrl(eq.cloak,    heroClass), 'cloak')    : '',
+      img(bodyUrl, heroClass),
+      eq.armor    ? img(getEquipImageUrl(eq.armor,    heroClass), 'armor')    : '',
+      eq.gloves   ? img(getEquipImageUrl(eq.gloves,   heroClass), 'gloves')   : '',
+      eq.boots    ? img(getEquipImageUrl(eq.boots,    heroClass), 'boots')    : '',
+      eq.shield   ? img(getEquipImageUrl(eq.shield,   heroClass), 'shield')   : '',
+      eq.weapon   ? img(getEquipImageUrl(eq.weapon,   heroClass), 'weapon')   : '',
+      eq.necklace ? img(getEquipImageUrl(eq.necklace, heroClass), 'necklace') : '',
+      // 헬멧: 착용 시 헬멧, 미착용/기본머리 시 기본 머리
+      (!eq.helmet || eq.helmet.isDefault)
+        ? img(getDefaultHeadUrl(heroClass), 'head')
+        : img(getEquipImageUrl(eq.helmet, heroClass), 'helmet'),
+      eq.ring1    ? img(getEquipImageUrl(eq.ring1,    heroClass), 'ring')     : '',
+    ].join('');
+
     return `<div class="hero-visual-wrap ${aura}" style="position:relative;width:64px;height:80px;">
-      <img src="${bodyUrl}" alt="${heroClass}" style="width:100%;height:100%;object-fit:contain;"
-        onerror="this.style.opacity=0">
-      ${headLayer}
+      ${layers}
     </div>`;
   }
 
@@ -4328,7 +4349,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateEquipSlotUI() {
     const slotDefaultIcon = {
       weapon:'⚔️', armor:'🥋', shield:'🛡️', gloves:'🧤',
-      boots:'👟', ring1:'💍', necklace:'📿', cloak:'🧥', helmet:'🪖'
+      boots:'🥾', ring1:'💍', necklace:'📿', cloak:'🧥', helmet:'🪖'
     };
     const slotDefaultLabel = {
       weapon:'무기', armor:'갑옷', shield:'방패', gloves:'장갑',
