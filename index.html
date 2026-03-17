@@ -1800,7 +1800,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // ═══════════════════════════════════════════════════════
   const SUPABASE_URL = 'https://svyxrnwjxhwtsanexuht.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_IC07F5YFaruLMKsTEAPA8Q_ewH7l1ez';
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+      persistSession:    true,   // 세션을 localStorage에 저장 (탭/창 닫아도 유지)
+      autoRefreshToken:  true,   // 토큰 만료 전 자동 갱신
+      storageKey:        'scanhero_auth', // localStorage 키 이름
+      detectSessionInUrl: false  // URL의 토큰 파라미터 감지 비활성
+    }
+  });
 
   // ══════════════════════════════════════════════════════
   // 이미지 에셋 시스템 — Supabase Storage 기반
@@ -2074,6 +2081,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     _ignoreAuthChange = true;
     PLAYER_ID = null; CURRENT_USER = null; CURRENT_CHAR_SLOT = null;
+    sessionStorage.removeItem('sh_player_id');
+    sessionStorage.removeItem('sh_char_slot');
+    sessionStorage.removeItem('sh_hero_class');
+    sessionStorage.removeItem('sh_hero_name');
     showScreen('auth');
     const badge = document.getElementById('gmBadge');
     if (badge) badge.remove();
@@ -2092,6 +2103,11 @@ document.addEventListener('DOMContentLoaded', () => {
     showDbStatus('저장 중...', 'saving');
     await dbSaveAll();
     showDbStatus('저장 완료', 'ok');
+    PLAYER_ID = null; CURRENT_CHAR_SLOT = null;
+    sessionStorage.removeItem('sh_player_id');
+    sessionStorage.removeItem('sh_char_slot');
+    sessionStorage.removeItem('sh_hero_class');
+    sessionStorage.removeItem('sh_hero_name');
     showScreen('char');
     await renderCharSlots();
   });
@@ -2142,9 +2158,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const { data: { session } } = await sb.auth.getSession();
     if (session?.user) {
       CURRENT_USER = session.user;
-      showScreen('char');
-      document.getElementById('charAccountInfo').textContent = '계정: ' + CURRENT_USER.email;
-      await renderCharSlots();
+      // sessionStorage에 게임 진행 중 상태가 있으면 게임 화면 복원
+      const savedPlayerId  = sessionStorage.getItem('sh_player_id');
+      const savedCharSlot  = sessionStorage.getItem('sh_char_slot');
+      const savedHeroClass = sessionStorage.getItem('sh_hero_class');
+      const savedHeroName  = sessionStorage.getItem('sh_hero_name');
+      if (savedPlayerId && savedCharSlot) {
+        // 게임 진행 중이었음 → 상태 복원 후 게임 화면으로
+        PLAYER_ID         = savedPlayerId;
+        CURRENT_CHAR_SLOT = parseInt(savedCharSlot);
+        state.heroClass   = savedHeroClass || '전사';
+        state.heroName    = savedHeroName  || '영웅';
+        document.getElementById('charScreen').style.display = 'none';
+        document.getElementById('authScreen').style.display = 'none';
+        if (gearCatalog.length === 0) await loadItemCatalog();
+        await dbLoadAll();
+        loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap();
+        requestCurrentLocation();
+        setInterval(async () => { await dbSaveAll(true); }, 30000);
+      } else {
+        // 게임 진행 중이 아니었음 → 캐릭터 선택 화면
+        showScreen('char');
+        document.getElementById('charAccountInfo').textContent = '계정: ' + CURRENT_USER.email;
+        await renderCharSlots();
+      }
     } else {
       showScreen('auth');
     }
@@ -2731,6 +2768,11 @@ document.addEventListener('DOMContentLoaded', () => {
     showDbStatus(`${hero.hero_name} 로딩 중...`, 'info');
     PLAYER_ID = hero.player_id;
     CURRENT_CHAR_SLOT = slot;
+    // 창 복귀 시 게임 화면 유지를 위해 sessionStorage에 저장
+    sessionStorage.setItem('sh_player_id',   PLAYER_ID);
+    sessionStorage.setItem('sh_char_slot',   String(slot));
+    sessionStorage.setItem('sh_hero_class',  hero.hero_class);
+    sessionStorage.setItem('sh_hero_name',   hero.hero_name);
     document.getElementById('charScreen').style.display = 'none';
     // 상태 초기화
     state.heroName = hero.hero_name;
