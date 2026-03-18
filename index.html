@@ -198,9 +198,7 @@
       50% { filter: drop-shadow(0 0 20px rgba(255,207,99,1.0)); }
     }
 
-    .soldier-svg .soldier-body { fill: #9db3e8; }
-    .soldier-svg .soldier-armor { fill: #3f5d9f; }
-    .soldier-svg .soldier-weapon { fill: #d8e4ff; }
+
 
     /* ── 경험치 바 영역 ── */
     .hero-exp-wrap {
@@ -3964,18 +3962,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   }
 
+  // 병사 클래스 → 이미지 파일명 매핑
+  const SOLDIER_FILE = {
+    검병:  'swordsman.png',
+    방패병: 'shielder.png',
+    궁병:  'archer.png',
+    창병:  'spearman.png',
+  };
+  const SOLDIER_BASE = 'https://joono1004.github.io/scanhero/assets/soldier';
+
   function getSoldierSprite(soldierClass, size='normal') {
-    const soldierMap = {
-      검병:  { weapon:'<rect class="soldier-weapon" x="24" y="4" width="3" height="18" rx="1.5"/><rect class="soldier-weapon" x="22" y="18" width="7" height="3" rx="1.5"/>' },
-      방패병: { weapon:'<path class="soldier-weapon" d="M24 9c5 1 8 2 8 2v7c0 7-8 11-8 11s-8-4-8-11v-7s3-1 8-2z"/>' },
-      궁병:  { weapon:'<path class="soldier-weapon" d="M26 7c-5 5-5 13 0 18" fill="none" stroke="#d8e4ff" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="8" x2="22" y2="24" stroke="#f6e6b0" stroke-width="1.5"/>' },
-      창병:  { weapon:'<rect class="soldier-weapon" x="24" y="4" width="2.5" height="24" rx="1.2"/><path class="soldier-weapon" d="M25 2l4 6h-8z"/>' }
-    };
-    const cfg = soldierMap[soldierClass] || soldierMap.검병;
-    if (size==='battle') {
-      return `<div class="battle-soldier"><svg viewBox="0 0 36 44" width="22" height="28" class="soldier-svg" aria-hidden="true"><circle cx="18" cy="8" r="5" fill="#f3cfb0"/><rect class="soldier-body" x="12" y="13" width="12" height="12" rx="5"/><path class="soldier-armor" d="M10 25h16l4 12H6z"/><rect fill="#f3cfb0" x="12" y="24" width="4" height="10" rx="2"/><rect fill="#f3cfb0" x="20" y="24" width="4" height="10" rx="2"/>${cfg.weapon}</svg></div>`;
+    const file = SOLDIER_FILE[soldierClass] || SOLDIER_FILE.검병;
+    const url  = `${SOLDIER_BASE}/${file}`;
+    if (size === 'battle') {
+      return `<div class="battle-soldier"><img src="${url}" width="22" height="28" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
     }
-    return `<div class="soldier"><svg viewBox="0 0 36 44" width="26" height="34" class="soldier-svg" aria-hidden="true"><circle cx="18" cy="8" r="5" fill="#f3cfb0"/><rect class="soldier-body" x="12" y="13" width="12" height="12" rx="5"/><path class="soldier-armor" d="M10 25h16l4 12H6z"/><rect fill="#f3cfb0" x="12" y="24" width="4" height="10" rx="2"/><rect fill="#f3cfb0" x="20" y="24" width="4" height="10" rx="2"/>${cfg.weapon}</svg><div class="soldier-small-shadow"></div></div>`;
+    return `<div class="soldier"><img src="${url}" width="26" height="34" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"><div class="soldier-small-shadow"></div></div>`;
   }
 
   function getClassBonus(heroClass) {
