@@ -3322,13 +3322,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function loadEventCatalog() {
     try {
+      // monster_catalog 별도 테이블에서 로드
+      const { data: monsterData, error: monsterErr } = await sb
+        .from('monster_catalog')
+        .select('*')
+        .eq('is_active', true)
+        .order('d4_index');
+      if (!monsterErr && monsterData?.length) {
+        eventCatalog.monster = monsterData;
+      } else {
+        eventCatalog.monster = FALLBACK_EVENT_CATALOG.monster;
+      }
+
+      // 보물/특수 이벤트는 기존 event_catalog에서 로드
       const { data, error } = await sb
         .from('event_catalog')
         .select('*')
         .eq('is_active', true)
         .order('sort_order');
       if (error) throw error;
-      eventCatalog.monster  = data.filter(r => r.event_type === 'monster' ).sort((a,b) => a.d4_index - b.d4_index);
       eventCatalog.treasure = data.filter(r => r.event_type === 'treasure').sort((a,b) => a.d4_index - b.d4_index);
       eventCatalog.special  = data.filter(r => r.event_type === 'special' ).sort((a,b) => a.d4_index - b.d4_index);
       console.log(`[이벤트카탈로그] 몬스터 ${eventCatalog.monster.length}종 / 보물 ${eventCatalog.treasure.length}종 / 특수 ${eventCatalog.special.length}종 로드 완료`);
