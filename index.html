@@ -3250,55 +3250,55 @@ document.addEventListener('DOMContentLoaded', () => {
   const FALLBACK_EVENT_CATALOG = {
     monster: [
       { d4_index:0, name:'슬라임', emoji:'🟢', base_atk:6,  base_def:4,  base_hp:20, base_speed:3,  base_crit:3,
-        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
-        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
-        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
-        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+        grade_mults:{일반:1.12,챔피언:1.34,엘리트:1.62,전설:1.90,보스:2.50},
+        exp_base:{일반:11,챔피언:19,엘리트:30,전설:38,보스:55}, gold_base:{일반:8,챔피언:15,엘리트:24,전설:32,보스:50},
+        drop_chance:{일반:0.75,챔피언:0.88,엘리트:0.96,전설:0.98,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],챔피언:[18,28,28,18,8],엘리트:[8,20,30,28,14],전설:[4,12,26,34,24],보스:[2,8,22,36,32]} },
       { d4_index:1, name:'늑대',   emoji:'🐺', base_atk:9,  base_def:5,  base_hp:25, base_speed:8,  base_crit:6,
-        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
-        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
-        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
-        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+        grade_mults:{일반:1.12,챔피언:1.34,엘리트:1.62,전설:1.90,보스:2.50},
+        exp_base:{일반:11,챔피언:19,엘리트:30,전설:38,보스:55}, gold_base:{일반:8,챔피언:15,엘리트:24,전설:32,보스:50},
+        drop_chance:{일반:0.75,챔피언:0.88,엘리트:0.96,전설:0.98,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],챔피언:[18,28,28,18,8],엘리트:[8,20,30,28,14],전설:[4,12,26,34,24],보스:[2,8,22,36,32]} },
       { d4_index:2, name:'고블린', emoji:'👺', base_atk:8,  base_def:6,  base_hp:30, base_speed:6,  base_crit:5,
-        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
-        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
-        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
-        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+        grade_mults:{일반:1.12,챔피언:1.34,엘리트:1.62,전설:1.90,보스:2.50},
+        exp_base:{일반:11,챔피언:19,엘리트:30,전설:38,보스:55}, gold_base:{일반:8,챔피언:15,엘리트:24,전설:32,보스:50},
+        drop_chance:{일반:0.75,챔피언:0.88,엘리트:0.96,전설:0.98,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],챔피언:[18,28,28,18,8],엘리트:[8,20,30,28,14],전설:[4,12,26,34,24],보스:[2,8,22,36,32]} },
       { d4_index:3, name:'해골',   emoji:'💀', base_atk:10, base_def:7,  base_hp:35, base_speed:5,  base_crit:4,
-        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
-        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
-        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
-        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+        grade_mults:{일반:1.12,챔피언:1.34,엘리트:1.62,전설:1.90,보스:2.50},
+        exp_base:{일반:11,챔피언:19,엘리트:30,전설:38,보스:55}, gold_base:{일반:8,챔피언:15,엘리트:24,전설:32,보스:50},
+        drop_chance:{일반:0.75,챔피언:0.88,엘리트:0.96,전설:0.98,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],챔피언:[18,28,28,18,8],엘리트:[8,20,30,28,14],전설:[4,12,26,34,24],보스:[2,8,22,36,32]} },
       { d4_index:4, name:'오크',   emoji:'👹', base_atk:14, base_def:10, base_hp:45, base_speed:4,  base_crit:6,
-        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
-        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
-        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
-        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+        grade_mults:{일반:1.12,챔피언:1.34,엘리트:1.62,전설:1.90,보스:2.50},
+        exp_base:{일반:11,챔피언:19,엘리트:30,전설:38,보스:55}, gold_base:{일반:8,챔피언:15,엘리트:24,전설:32,보스:50},
+        drop_chance:{일반:0.75,챔피언:0.88,엘리트:0.96,전설:0.98,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],챔피언:[18,28,28,18,8],엘리트:[8,20,30,28,14],전설:[4,12,26,34,24],보스:[2,8,22,36,32]} },
       { d4_index:5, name:'거미',   emoji:'🕷️', base_atk:8,  base_def:5,  base_hp:24, base_speed:10, base_crit:7,
-        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
-        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
-        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
-        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+        grade_mults:{일반:1.12,챔피언:1.34,엘리트:1.62,전설:1.90,보스:2.50},
+        exp_base:{일반:11,챔피언:19,엘리트:30,전설:38,보스:55}, gold_base:{일반:8,챔피언:15,엘리트:24,전설:32,보스:50},
+        drop_chance:{일반:0.75,챔피언:0.88,엘리트:0.96,전설:0.98,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],챔피언:[18,28,28,18,8],엘리트:[8,20,30,28,14],전설:[4,12,26,34,24],보스:[2,8,22,36,32]} },
       { d4_index:6, name:'좀비',   emoji:'🧟', base_atk:11, base_def:8,  base_hp:42, base_speed:2,  base_crit:3,
-        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
-        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
-        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
-        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+        grade_mults:{일반:1.12,챔피언:1.34,엘리트:1.62,전설:1.90,보스:2.50},
+        exp_base:{일반:11,챔피언:19,엘리트:30,전설:38,보스:55}, gold_base:{일반:8,챔피언:15,엘리트:24,전설:32,보스:50},
+        drop_chance:{일반:0.75,챔피언:0.88,엘리트:0.96,전설:0.98,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],챔피언:[18,28,28,18,8],엘리트:[8,20,30,28,14],전설:[4,12,26,34,24],보스:[2,8,22,36,32]} },
       { d4_index:7, name:'도적',   emoji:'🥷', base_atk:12, base_def:6,  base_hp:28, base_speed:11, base_crit:10,
-        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
-        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
-        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
-        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+        grade_mults:{일반:1.12,챔피언:1.34,엘리트:1.62,전설:1.90,보스:2.50},
+        exp_base:{일반:11,챔피언:19,엘리트:30,전설:38,보스:55}, gold_base:{일반:8,챔피언:15,엘리트:24,전설:32,보스:50},
+        drop_chance:{일반:0.75,챔피언:0.88,엘리트:0.96,전설:0.98,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],챔피언:[18,28,28,18,8],엘리트:[8,20,30,28,14],전설:[4,12,26,34,24],보스:[2,8,22,36,32]} },
       { d4_index:8, name:'트롤',   emoji:'🪨', base_atk:18, base_def:12, base_hp:70, base_speed:2,  base_crit:4,
-        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
-        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
-        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
-        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+        grade_mults:{일반:1.12,챔피언:1.34,엘리트:1.62,전설:1.90,보스:2.50},
+        exp_base:{일반:11,챔피언:19,엘리트:30,전설:38,보스:55}, gold_base:{일반:8,챔피언:15,엘리트:24,전설:32,보스:50},
+        drop_chance:{일반:0.75,챔피언:0.88,엘리트:0.96,전설:0.98,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],챔피언:[18,28,28,18,8],엘리트:[8,20,30,28,14],전설:[4,12,26,34,24],보스:[2,8,22,36,32]} },
       { d4_index:9, name:'악마',   emoji:'😈', base_atk:20, base_def:14, base_hp:80, base_speed:7,  base_crit:12,
-        grade_mults:{일반:1.12,강화:1.34,엘리트:1.62,보스:2.12},
-        exp_base:{일반:11,강화:19,엘리트:30,보스:43}, gold_base:{일반:8,강화:15,엘리트:24,보스:35},
-        drop_chance:{일반:0.75,강화:0.88,엘리트:0.96,보스:1.0},
-        drop_table:{일반:[30,32,22,12,4],강화:[18,28,28,18,8],엘리트:[8,20,30,28,14],보스:[2,8,22,36,32]} },
+        grade_mults:{일반:1.12,챔피언:1.34,엘리트:1.62,전설:1.90,보스:2.50},
+        exp_base:{일반:11,챔피언:19,엘리트:30,전설:38,보스:55}, gold_base:{일반:8,챔피언:15,엘리트:24,전설:32,보스:50},
+        drop_chance:{일반:0.75,챔피언:0.88,엘리트:0.96,전설:0.98,보스:1.0},
+        drop_table:{일반:[30,32,22,12,4],챔피언:[18,28,28,18,8],엘리트:[8,20,30,28,14],전설:[4,12,26,34,24],보스:[2,8,22,36,32]} },
     ],
     treasure: [
       { d4_index:0, name:'낡은 보물상자',  emoji:'📦', gold_formula:'20+d2*4+d3*3+d5*2' },
@@ -4389,9 +4389,20 @@ document.addEventListener('DOMContentLoaded', () => {
     return createEquipmentItemFromGear(gear, rarity);
   }
 
+  // 몬스터 등급별 색상
+  function getGradeColor(grade) {
+    return {
+      '일반':   '#a9b6d6',
+      '챔피언': '#63d09a',
+      '엘리트': '#63a8ff',
+      '전설':   '#b27dff',
+      '보스':   '#ffcf63',
+    }[grade] || '#a9b6d6';
+  }
+
   function makeEnemy(name, grade, amount, special, d4) {
     const entry = getMonsterEntry(d4);
-    const mults  = entry.grade_mults || {일반:1.12,강화:1.34,엘리트:1.62,보스:2.12};
+    const mults  = entry.grade_mults || {일반:1.12,챔피언:1.34,엘리트:1.62,전설:1.90,보스:2.50};
     const gradeMult = (mults[grade] || 1.12) * getDifficultyMult();
     let atk=Math.round(entry.base_atk*gradeMult), def=Math.round(entry.base_def*gradeMult),
         hp=Math.round((entry.base_hp+amount*10)*gradeMult), speed=Math.round(entry.base_speed*gradeMult),
@@ -4400,7 +4411,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (special==='방어 증가') def=Math.round(def*1.18);
     if (special==='속도 증가') speed=Math.round(speed*1.22);
     if (special==='희귀 보상') crit+=10;
-    return { name, grade, amount, atk, def, hp, speed, crit, special, _entry:entry };
+    const displayName = grade === '보스' ? name + '왕' : name;
+    return { name: displayName, grade, amount, atk, def, hp, speed, crit, special, _entry:entry };
   }
 
 
@@ -4454,11 +4466,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return { value:v, critical };
   }
   function getBattleExp(enemy) {
-    const expBase = (enemy._entry?.exp_base) || {일반:11,강화:19,엘리트:30,보스:43};
+    const expBase = (enemy._entry?.exp_base) || {일반:11,챔피언:19,엘리트:30,전설:38,보스:55};
     return (expBase[enemy.grade] || 11) + enemy.amount*3;
   }
   function getBattleGold(enemy) {
-    const goldBase = (enemy._entry?.gold_base) || {일반:8,강화:15,엘리트:24,보스:35};
+    const goldBase = (enemy._entry?.gold_base) || {일반:8,챔피언:15,엘리트:24,전설:32,보스:50};
     return (goldBase[enemy.grade] || 8) + enemy.amount*2;
   }
 
@@ -5114,7 +5126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const [d1,d2,d3,d4,d5] = code.split('').map(Number);
     const eventType = d1<=5?'몬스터': d1<=7?'보물': d1===8?'장비':'특수';
     let grade='일반';
-    if (eventType==='몬스터') grade = d2<=5?'일반':d2<=7?'강화':d2===8?'엘리트':'보스';
+    if (eventType==='몬스터') grade = d2<=4?'일반':d2<=6?'챔피언':d2===7?'엘리트':d2===8?'전설':'보스';
     else if (eventType==='보물') grade='보물';
     else if (eventType==='장비') grade='장비';
     else grade='특수';
@@ -5371,7 +5383,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     els.battleHeroName.textContent   = state.heroName;
-    els.battleEnemyName.textContent  = `${setup.enemy.grade} ${setup.enemy.name}`;
+    els.battleEnemyName.innerHTML = `<span style="color:${getGradeColor(setup.enemy.grade)};font-size:11px;">${setup.enemy.grade}</span> ${setup.enemy.name}`;
     els.battleHeroMeta.textContent   = `${state.heroClass} / ${setup.tactic} / ${setup.soldierClass} / 병사 ${setup.soldierCount}`;
     els.battleEnemyMeta.textContent  = `${amount}마리 · 공격 ${setup.enemy.atk} / 방어 ${setup.enemy.def}`;
     els.battleResultBox.style.display='none'; els.battleResultBox.className='';
