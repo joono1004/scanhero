@@ -995,7 +995,7 @@
     .battle-unit { position: absolute; top: 12px; display: flex; flex-direction: column; align-items: center; z-index: 3; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
     .battle-hero-unit { left: 12px; }
     .battle-enemy-unit { right: 12px; }
-    .battle-sprite-wrap { width: 108px; height: 116px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 18px 18px rgba(0,0,0,0.35)); position: relative; z-index: 2; }
+    .battle-sprite-wrap { width: 133px; height: 150px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 18px 18px rgba(0,0,0,0.35)); position: relative; z-index: 2; }
     .battle-hero-sprite, .battle-enemy-sprite { width: 133px; height: 150px; transition: transform 0.28s ease, filter 0.28s ease; }
     .battle-shadow { width: 78px; height: 12px; border-radius: 50%; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 3px; }
     .battle-enemy-emoji { width: 133px; height: 150px; transition: transform 0.28s ease, filter 0.28s ease; }
@@ -5407,7 +5407,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function calcPartialExp(totalDmg, maxHp, enemy) { return Math.max(1, Math.floor(getBattleExp(enemy)*(Math.max(0,Math.min(1,totalDmg/maxHp))))); }
 
-  function renderBattleHeroSprite() { els.battleHeroSpriteWrap.innerHTML=`<div class="battle-hero-sprite">${getHeroVisualHtml(state.heroClass)}</div>`; }
+  function renderBattleHeroSprite() {
+    // 전투 전용: hero-visual-wrap 크기를 133×150px로 오버라이드
+    const html = getHeroVisualHtml(state.heroClass)
+      .replace('width:155px;height:179px', 'width:133px;height:150px');
+    els.battleHeroSpriteWrap.innerHTML = `<div class="battle-hero-sprite">${html}</div>`;
+  }
   function renderBattleSoldiers(count, cls) {
     els.battleSoldierGroup.innerHTML = Array.from({length:count}, (_, i) => {
       const sprite = getSoldierSprite(cls, 'battle');
@@ -5502,7 +5507,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function animHeroAtk()  { resetBattleAnims(); els.battleHeroUnit.classList.add('anim-attack-left'); els.battleSoldierGroup.classList.add('anim-attack-left'); await wait(180); els.battleEnemyUnit.classList.add('anim-hit'); els.battleEnemyEmoji.classList.add('anim-fade'); await wait(280); resetBattleAnims(); }
-  async function animEnemyAtk() { resetBattleAnims(); els.battleEnemyUnit.classList.add('anim-attack-right'); await wait(180); els.battleHeroUnit.classList.add('anim-hit'); els.battleHeroSpriteWrap.classList.add('anim-fade'); els.battleSoldierGroup.classList.add('anim-hit'); await wait(280); resetBattleAnims(); }
+  async function animEnemyAtk() { resetBattleAnims(); els.battleEnemyUnit.classList.add('anim-attack-right'); els.battleEnemyGroup.classList.add('anim-attack-right'); await wait(180); els.battleHeroUnit.classList.add('anim-hit'); els.battleHeroSpriteWrap.classList.add('anim-fade'); els.battleSoldierGroup.classList.add('anim-hit'); await wait(280); resetBattleAnims(); }
   async function animRun()      { resetBattleAnims(); els.battleTurnTitle.textContent='도망 시도'; els.battleLog.textContent='영웅과 병사들이 전열을 무너뜨리며 급히 후퇴합니다...'; els.battleHeroUnit.classList.add('anim-run'); els.battleSoldierGroup.classList.add('anim-run'); await wait(780); resetBattleAnims(); }
 
   async function battleAttackTurn() {
