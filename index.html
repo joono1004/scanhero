@@ -2337,8 +2337,44 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('authScreen').style.display = 'none';
         if (gearCatalog.length === 0) await loadItemCatalog();
         await dbLoadAll();
+        // 미완료 전투 백업 감지 → 도망 처리
+        const battleBackup = sessionStorage.getItem('sh_battle_backup');
+        if (battleBackup) {
+          try {
+            const bk = JSON.parse(battleBackup);
+            const elapsed = (Date.now() - bk.ts) / 1000;
+            if (elapsed < 3600) {
+              // 도망 처리: 경험치 소량 지급, 골드 손실 없음
+              const partialExp = Math.round(bk.exp * 0.2);
+              addReward(partialExp, 0);
+              addLog(`${bk.enemyName} 전투`, `연결 끊김으로 도망 처리 / 경험치 +${partialExp}`);
+              await dbSaveBattleLog({
+                enemyName:    bk.enemyName,
+                enemyGrade:   bk.enemyGrade,
+                enemyAmount:  bk.enemyAmount,
+                result:       'run',
+                turns:        bk.turn || 0,
+                expGained:    partialExp,
+                goldGained:   0,
+                itemDropped:  null
+              });
+              await dbSaveAll(true);
+              setTimeout(() => {
+                alert(`⚔️ 전투 중 연결이 끊겼습니다.
+${bk.enemyName} 전투가 도망 처리되었습니다.
+경험치 +${partialExp}`);
+              }, 1000);
+            }
+          } catch(e) {}
+          sessionStorage.removeItem('sh_battle_backup');
+        }
         loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap();
         requestCurrentLocation();
+        // 마지막 탐험 결과 복원
+        try {
+          const lastEv = sessionStorage.getItem('sh_last_event');
+          if (lastEv) { const decoded = JSON.parse(lastEv); renderEvent(decoded); }
+        } catch(e) {}
         setInterval(async () => { await dbSaveAll(true); }, 30000);
       } else {
         // 게임 진행 중이 아니었음 → 캐릭터 선택 화면
@@ -2357,28 +2393,45 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── 백그라운드 복귀 감지 — 세션 조용히 갱신 ──────────────────
   // 홈 버튼으로 다른 앱을 보다가 돌아올 때 화면 유지
   document.addEventListener('visibilitychange', async () => {
-    if (document.hidden) return; // 백그라운드로 나갈 때는 무시
-    if (!CURRENT_USER) return;   // 로그인 상태 아니면 무시
+    if (document.hidden) return;
+    if (!CURRENT_USER) return;
+
+    // 5초 타임아웃 — 초과 시 로그인 화면으로 이동
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), 5000)
+    );
 
     try {
-      // 세션 토큰 조용히 갱신 (화면 전환 없음)
-      const { data: { session } } = await sb.auth.getSession();
+      const result = await Promise.race([
+        sb.auth.getSession(),
+        timeout
+      ]);
+      const session = result?.data?.session;
       if (session?.user) {
-        // 세션 유효 — 그대로 유지, 아무것도 하지 않음
         CURRENT_USER = session.user;
       } else {
-        // 세션이 진짜 만료된 경우에만 로그아웃 처리
-        // (일시적 네트워크 끊김 등은 재시도)
-        const { data: retryData } = await sb.auth.refreshSession();
-        if (!retryData?.session) {
-          // 재시도도 실패 — 로그인 화면으로
+        // 세션 만료 — refreshSession 재시도 (5초 타임아웃)
+        const retryResult = await Promise.race([
+          sb.auth.refreshSession(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+        ]);
+        if (!retryResult?.data?.session) {
           CURRENT_USER = null; PLAYER_ID = null;
           showScreen('auth');
         }
       }
     } catch (e) {
-      // 네트워크 오류 등 — 현재 화면 유지, 조용히 무시
-      console.warn('[visibilitychange] 세션 갱신 실패, 화면 유지:', e.message);
+      if (e.message === 'timeout') {
+        // 5초 초과 — 로그인 화면으로
+        console.warn('[visibilitychange] 세션 갱신 5초 초과 → 로그인 화면');
+        CURRENT_USER = null; PLAYER_ID = null;
+        showScreen('auth');
+      } else {
+        // 기타 네트워크 오류 — 로그인 화면으로
+        console.warn('[visibilitychange] 세션 갱신 실패:', e.message);
+        CURRENT_USER = null; PLAYER_ID = null;
+        showScreen('auth');
+      }
     }
   });
 
@@ -5226,6 +5279,8 @@ document.addEventListener('DOMContentLoaded', () => {
     els.eventTitle.textContent = decoded.title;
     els.eventDesc.textContent  = decoded.desc;
     els.eventBadges.innerHTML  = decoded.badges.map(b=>`<div class="badge">${b}</div>`).join('');
+    // 탐험 결과 sessionStorage 저장 (재접속 시 복원용)
+    try { sessionStorage.setItem('sh_last_event', JSON.stringify(decoded)); } catch(e) {}
     const monsterName = decoded.eventType==='몬스터' ? getMonsterEntry(decoded.d4).name : '';
     const specialName = decoded.eventType==='특수'   ? getSpecialEntry(decoded.d4).name : '';
     els.decodeBox.innerHTML =
@@ -5236,15 +5291,35 @@ document.addEventListener('DOMContentLoaded', () => {
       `5번째 자리 <b>${decoded.d5}</b> = ${decoded.special}`;
   }
 
-  function addLog(title, detail) {
-    state.logs.unshift({time:new Date().toLocaleString('ko-KR'), title, detail});
+  function addLog(title, detail, meta = {}) {
+    state.logs.unshift({time:new Date().toLocaleString('ko-KR'), title, detail, ...meta});
     state.logs = state.logs.slice(0,50);
     renderLogs();
   }
   function renderLogs() {
     els.exploreLog.innerHTML = state.logs.length
-      ? state.logs.map(i=>`<div class="list-item" style="cursor:default;"><div class="muted">${i.time}</div><div><b>${i.title}</b></div><div class="muted" style="margin-top:6px;">${i.detail}</div></div>`).join('')
+      ? state.logs.map((i, idx) => {
+          const retryBtn = i.retryDecoded
+            ? `<button class="btn-retry-battle" data-idx="${idx}" style="margin-top:8px;font-size:11px;padding:4px 12px;border-radius:8px;border:1px solid rgba(99,168,255,0.4);background:rgba(99,168,255,0.12);color:#63a8ff;cursor:pointer;font-weight:700;">⚔️ 재도전</button>`
+            : '';
+          return `<div class="list-item" style="cursor:default;">
+            <div class="muted">${i.time}</div>
+            <div><b>${i.title}</b></div>
+            <div class="muted" style="margin-top:6px;">${i.detail}</div>
+            ${retryBtn}
+          </div>`;
+        }).join('')
       : '<div class="empty-box">아직 탐험 기록이 없습니다.</div>';
+    // 재도전 버튼 이벤트 바인딩
+    els.exploreLog.querySelectorAll('.btn-retry-battle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        const log = state.logs[idx];
+        if (!log?.retryDecoded) return;
+        closeModal(els.exploreLogBackdrop);
+        setTimeout(() => { renderEvent(log.retryDecoded); openBattleModal(log.retryDecoded); }, 200);
+      });
+    });
   }
 
   async function reverseGeocode(lat, lng) {
@@ -5427,6 +5502,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const setup = getBattleSetup(decoded.enemy);
     state.battle = { decoded, setup, heroHp:setup.heroMax, heroMax:setup.heroMax, enemyHp:setup.enemy.hp, enemyMax:setup.enemy.hp, turn:1, totalDmg:0, ended:false, locked:false };
     renderBattleHeroSprite(); renderBattleSoldiers(setup.soldierCount, setup.soldierClass);
+    // 전투 상태 sessionStorage 백업 (끊김 복구용)
+    try {
+      sessionStorage.setItem('sh_battle_backup', JSON.stringify({
+        heroHp:    setup.heroMax,
+        heroMax:   setup.heroMax,
+        enemyHp:   setup.enemy.hp,
+        enemyMax:  setup.enemy.hp,
+        enemyName: setup.enemy.name,
+        enemyGrade:setup.enemy.grade,
+        enemyAmount:setup.enemy.amount,
+        exp:       getBattleExp(setup.enemy),
+        gold:      getBattleGold(setup.enemy),
+        turn:      0,
+        ts:        Date.now()
+      }));
+    } catch(e) {}
     // 전투 배경 업데이트
     const bFar = document.getElementById('battleBgFar');
     const bNear = document.getElementById('battleBgNear');
@@ -5474,7 +5565,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showDropNotification(`🎁 ${dropItem.name} 드롭!`, { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' }[dropItem.rarity]||'#eef3ff');
     }
 
-    if (logTitle) addLog(logTitle, `${logDetail}${dropLog}${leveled?' / 레벨업!':''}`);
+    if (logTitle) addLog(logTitle, `${logDetail}${dropLog}${leveled?' / 레벨업!':''}`, resultType !== 'success' ? { retryDecoded: b?.decoded } : {});
 
     await addMapHistory({ barcode:onlyDigits(els.barcodeInput.value), decoded, detail:logDetail||desc, exp, gold });
 
@@ -5493,6 +5584,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
     await dbSaveAll(true); // silent=true (토스트 숨김)
+    sessionStorage.removeItem('sh_battle_backup'); // 전투 완료 — 백업 제거
     scheduleAutoSave();
 
     renderHero(leveled); renderLogs();
@@ -5552,6 +5644,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateBattleUI(`${t}턴 종료`, lines.join('\n'));
     b.turn++; b.locked=false;
+    // 턴 진행마다 백업 turn 업데이트
+    try {
+      const bk = sessionStorage.getItem('sh_battle_backup');
+      if (bk) {
+        const parsed = JSON.parse(bk);
+        parsed.turn = b.turn;
+        sessionStorage.setItem('sh_battle_backup', JSON.stringify(parsed));
+      }
+    } catch(e) {}
   }
 
   async function battleRunAway() {
