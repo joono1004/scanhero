@@ -113,6 +113,26 @@
       position: relative; width: 100%; height: 192px; border-radius: 18px; overflow: hidden;
       background: #0a1428;
     }
+    .tactic-badge {
+      position: absolute; top: 8px; left: 8px; z-index: 10;
+      background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+      border: 0.5px solid rgba(255,255,255,0.15);
+      border-radius: 8px; padding: 4px 8px;
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .tactic-badge-title {
+      font-size: 9px; color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.5px;
+    }
+    .tactic-badge-stats {
+      display: flex; gap: 4px; flex-wrap: wrap; align-items: center;
+    }
+    .tactic-stat {
+      font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 4px;
+      line-height: 1.4; display: inline-flex; align-items: center;
+    }
+    .tactic-stat.up   { color: #6ee7b7; background: rgba(16,185,129,0.18); }
+    .tactic-stat.down { color: #fca5a5; background: rgba(239,68,68,0.18); }
+    .tactic-stat.neu  { color: rgba(255,255,255,0.4); }
     .bg-layer {
       position: absolute; inset: 0;
       width: 200%; height: 100%;
@@ -168,7 +188,7 @@
     /* aura-legendary::after 제거 — 스파클은 장비 슬롯으로 이동 */
 
     .hero-shadow { width: 130px; height: 12px; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 4px; border-radius: 50%; animation: shadowPulse 2.6s ease-in-out infinite; }
-    .soldier-row { position: absolute; left: 50%; transform: translateX(-50%); bottom: 8px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; justify-content: center; align-items: flex-end; z-index: 3; }
+    .soldier-row { position: absolute; left: calc(50% + 40px); transform: translateX(-50%); bottom: 8px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; justify-content: center; align-items: flex-end; z-index: 3; }
     .soldier { width: 46px; height: 59px; position: relative; filter: drop-shadow(0 7px 10px rgba(0,0,0,0.32)); animation: soldierBounce 2.2s ease-in-out infinite; }
     .soldier:nth-child(2n) { animation-delay: .18s; }
     .soldier:nth-child(3n) { animation-delay: .34s; }
@@ -932,17 +952,57 @@
 
     .mini-current-marker { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #7ea7ff 0%, #557dff 100%); border: 2px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(0,0,0,0.35); font-size: 14px; }
 
-    .battle-stage { position: relative; width: 100%; height: 270px; border-radius: 18px; overflow: hidden; background: radial-gradient(circle at 50% 18%, rgba(255,255,255,0.12), transparent 24%), linear-gradient(180deg, rgba(34,46,85,0.95), rgba(16,22,38,0.98)); border: 1px solid rgba(115,143,210,0.16); }
-    .battle-stage-ground { position: absolute; left: -10%; right: -10%; bottom: 10px; height: 82px; border-radius: 50%; background: radial-gradient(circle, rgba(245,201,107,0.22), rgba(55,77,123,0.26) 45%, rgba(7,11,20,0.04) 70%); filter: blur(2px); }
-    .battle-unit { position: absolute; bottom: 38px; display: flex; flex-direction: column; align-items: center; z-index: 3; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
-    .battle-hero-unit { left: 18px; }
-    .battle-enemy-unit { right: 24px; }
+    .battle-stage { position: relative; width: 100%; height: 270px; border-radius: 18px; overflow: hidden; background: #0a1428; border: 1px solid rgba(115,143,210,0.16); }
+    .battle-vs {
+      position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
+      font-size: 22px; font-weight: 900; color: #fff;
+      text-shadow: 0 0 12px rgba(255,180,50,0.9), 0 2px 6px rgba(0,0,0,0.8);
+      letter-spacing: 2px; z-index: 5; pointer-events: none;
+      animation: vsPulse 1.6s ease-in-out infinite;
+    }
+    @keyframes vsPulse { 0%,100%{transform:translateX(-50%) scale(1);} 50%{transform:translateX(-50%) scale(1.12);} }
+    .battle-bg-layer { position: absolute; inset: 0; width: 200%; height: 100%; pointer-events: none; }
+    .battle-bg-layer-far  { animation: bgFar  20s linear infinite; z-index: 0; }
+    .battle-bg-layer-near { animation: bgNear 10s linear infinite; z-index: 1; }
+    .battle-stage-ground {
+      position: absolute; left: -10%; right: -10%; bottom: 0; height: 72px;
+      border-radius: 50% 50% 0 0 / 30% 30% 0 0;
+      background: linear-gradient(180deg, #2a1f0e 0%, #1a1208 60%, #0e0b05 100%);
+      z-index: 2; overflow: hidden;
+    }
+    .battle-stage-ground::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 15% 40%, rgba(80,60,20,0.6) 3px, transparent 3px),
+        radial-gradient(circle at 28% 55%, rgba(60,45,15,0.5) 2px, transparent 2px),
+        radial-gradient(circle at 42% 35%, rgba(90,70,25,0.6) 4px, transparent 4px),
+        radial-gradient(circle at 58% 50%, rgba(70,52,18,0.5) 2px, transparent 2px),
+        radial-gradient(circle at 70% 38%, rgba(85,65,22,0.6) 3px, transparent 3px),
+        radial-gradient(circle at 83% 48%, rgba(65,48,16,0.5) 2px, transparent 2px),
+        radial-gradient(circle at 22% 70%, rgba(75,55,20,0.4) 5px, transparent 5px),
+        radial-gradient(circle at 50% 65%, rgba(55,40,14,0.4) 4px, transparent 4px),
+        radial-gradient(circle at 78% 72%, rgba(80,60,20,0.4) 5px, transparent 5px);
+    }
+    .battle-stage-ground::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg,
+        rgba(120,90,30,0.8) 0%, rgba(80,60,20,0.6) 20%,
+        rgba(140,105,35,0.8) 35%, rgba(90,68,22,0.6) 55%,
+        rgba(120,90,30,0.8) 70%, rgba(100,75,25,0.7) 85%, rgba(130,98,32,0.8) 100%);
+    }
+    .battle-unit { position: absolute; top: 12px; display: flex; flex-direction: column; align-items: center; z-index: 3; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
+    .battle-hero-unit { left: 12px; }
+    .battle-enemy-unit { right: 12px; }
     .battle-sprite-wrap { width: 108px; height: 116px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 18px 18px rgba(0,0,0,0.35)); position: relative; z-index: 2; }
     .battle-hero-sprite, .battle-enemy-sprite { width: 100px; height: 112px; transition: transform 0.28s ease, filter 0.28s ease; }
     .battle-shadow { width: 78px; height: 12px; border-radius: 50%; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 3px; }
     .battle-enemy-emoji { width: 100px; height: 112px; display: flex; align-items: center; justify-content: center; font-size: 62px; line-height: 1; transition: transform 0.28s ease, filter 0.28s ease; text-shadow: 0 10px 14px rgba(0,0,0,0.28); }
-    .battle-soldier-group { position: absolute; left: 96px; bottom: 28px; display: flex; gap: 2px; flex-wrap: wrap; max-width: 96px; z-index: 1; }
-    .battle-soldier { width: 22px; height: 28px; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
+    .battle-soldier-group { position: absolute; left: 20px; bottom: 3px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; z-index: 4; align-items: flex-end; }
+    .battle-enemy-group { position: absolute; right: 20px; bottom: 3px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; z-index: 4; align-items: flex-end; }
+    .battle-enemy-mob { width: 44px; height: 56px; display: flex; align-items: center; justify-content: center; font-size: 36px; line-height: 1; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
+    .battle-soldier { width: 44px; height: 56px; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
     .battle-nameplates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .battle-nameplate { background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96)); border: 1px solid rgba(110, 139, 204, 0.18); border-radius: 12px; padding: 10px; }
     .battle-nameplate .name { font-size: 13px; font-weight: 900; margin-bottom: 4px; }
@@ -997,7 +1057,7 @@
     @keyframes runAway     { 0%{transform:translateX(0) scale(1);opacity:1;} 100%{transform:translateX(-120px) scale(0.86);opacity:0.15;} }
     @keyframes fadeFlash   { 0%{opacity:1;} 50%{opacity:0.35;} 100%{opacity:1;} }
     @keyframes pulseGlow   { 0%,100%{transform:scale(1);} 50%{transform:scale(1.06);} }
-    @keyframes heroFloat   { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+    @keyframes heroFloat   { 0%,100%{transform:translateY(20px);} 50%{transform:translateY(15px);} }
     @keyframes soldierBounce{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-3px);} }
     @keyframes shadowPulse { 0%,100%{transform:scale(1);opacity:.58;} 50%{transform:scale(.92);opacity:.36;} }
     @keyframes sparkleMove { 0%,100%{transform:translateY(0);opacity:.85;} 50%{transform:translateY(-4px);opacity:1;} }
@@ -1396,6 +1456,7 @@
             </div>
             <div class="formation-stage" id="formationStage">
               <div class="bg-layer bg-layer-far"  id="bgLayerFar"></div>
+
               <div class="bg-layer bg-layer-near" id="bgLayerNear"></div>
               <div class="hero-unit"><div class="hero-sprite" id="heroSpriteWrap"></div><div class="hero-shadow"></div></div>
               <div class="soldier-row" id="soldierFront"></div>
@@ -1411,10 +1472,15 @@
           </div>
 
           <div>
-            <div class="section-title" style="margin-bottom:8px;">지휘 전술 선택</div>
-            <div class="tactic-grid" style="margin-bottom:10px;">
-              <div class="line" style="margin-bottom:0;"><label for="eventTacticSelect">전술</label><select id="eventTacticSelect"><option value="공격 중심">공격 중심</option><option value="균형">균형</option><option value="방어 중심">방어 중심</option></select></div>
-              <div class="line" style="margin-bottom:0;"><label for="eventSoldierClassSelect">병사 클래스</label><select id="eventSoldierClassSelect"><option value="검병">검병</option><option value="방패병">방패병</option><option value="궁병">궁병</option><option value="창병">창병</option></select></div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <div class="tactic-badge" id="tacticBadge" style="position:static; background:none; backdrop-filter:none; border:none; padding:0;">
+                <div class="tactic-badge-title" style="font-size:10px;">전술 효과</div>
+                <div class="tactic-badge-stats" id="tacticBadgeStats"></div>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+              <select id="eventTacticSelect" style="flex:1; font-size:12px; padding:4px 6px;"><option value="공격 중심">공격 중심</option><option value="균형">균형</option><option value="방어 중심">방어 중심</option></select>
+              <select id="eventSoldierClassSelect" style="flex:1; font-size:12px; padding:4px 6px;"><option value="검병">검병</option><option value="방패병">방패병</option><option value="궁병">궁병</option><option value="창병">창병</option></select>
             </div>
             <button class="scan-wide-btn" id="scanFab" type="button">
               <div class="scan-wide-icon"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
@@ -1467,7 +1533,10 @@
     <div class="modal">
       <div class="modal-head"><div class="modal-title">전투</div></div>
       <div class="modal-body">
-        <div class="battle-stage">
+        <div class="battle-stage" id="battleStage">
+          <div class="battle-bg-layer battle-bg-layer-far"  id="battleBgFar"></div>
+          <div class="battle-bg-layer battle-bg-layer-near" id="battleBgNear"></div>
+          <div class="battle-vs">VS</div>
           <div class="battle-unit battle-hero-unit" id="battleHeroUnit">
             <div class="battle-sprite-wrap" id="battleHeroSpriteWrap"></div>
             <div class="battle-shadow"></div>
@@ -1477,6 +1546,7 @@
             <div class="battle-sprite-wrap"><div class="battle-enemy-emoji" id="battleEnemyEmoji">👹</div></div>
             <div class="battle-shadow"></div>
           </div>
+          <div class="battle-enemy-group" id="battleEnemyGroup"></div>
           <div class="battle-stage-ground"></div>
         </div>
         <div class="battle-nameplates">
@@ -3467,7 +3537,7 @@ document.addEventListener('DOMContentLoaded', () => {
     decodeBox:q('decodeBox'), decodeCloseBtn:q('decodeCloseBtn'),
     exploreLogBtn:q('exploreLogBtn'), exploreLogBackdrop:q('exploreLogBackdrop'),
     exploreLog:q('exploreLog'), exploreLogCloseBtn:q('exploreLogCloseBtn'),
-    eventTacticSelect:q('eventTacticSelect'), eventSoldierClassSelect:q('eventSoldierClassSelect'),
+    eventTacticSelect:q('eventTacticSelect'), eventSoldierClassSelect:q('eventSoldierClassSelect'), tacticBadgeStats:q('tacticBadgeStats'),
     codeOutput:q('codeOutput'), eventTitle:q('eventTitle'),
     eventDesc:q('eventDesc'), eventBadges:q('eventBadges'),
     locationStatus:q('locationStatus'),
@@ -3475,7 +3545,7 @@ document.addEventListener('DOMContentLoaded', () => {
     eventModalVisual:q('eventModalVisual'), eventModalText:q('eventModalText'),
     eventModalBadges:q('eventModalBadges'), eventModalActions:q('eventModalActions'),
     battleBackdrop:q('battleBackdrop'), battleHeroUnit:q('battleHeroUnit'),
-    battleEnemyUnit:q('battleEnemyUnit'), battleHeroSpriteWrap:q('battleHeroSpriteWrap'),
+    battleEnemyUnit:q('battleEnemyUnit'), battleEnemyGroup:q('battleEnemyGroup'), battleHeroSpriteWrap:q('battleHeroSpriteWrap'),
     battleEnemyEmoji:q('battleEnemyEmoji'), battleHeroName:q('battleHeroName'),
     battleEnemyName:q('battleEnemyName'), battleHeroMeta:q('battleHeroMeta'),
     battleEnemyMeta:q('battleEnemyMeta'), battleHeroHpText:q('battleHeroHpText'),
@@ -3996,7 +4066,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const file = SOLDIER_FILE[soldierClass] || SOLDIER_FILE.검병;
     const url  = `${SOLDIER_BASE}/${file}`;
     if (size === 'battle') {
-      return `<div class="battle-soldier"><img src="${url}" width="22" height="28" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
+      return `<div class="battle-soldier"><img src="${url}" width="44" height="56" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
     }
     return `<div class="soldier"><img src="${url}" width="46" height="59" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"><div class="soldier-small-shadow"></div></div>`;
   }
@@ -4333,6 +4403,39 @@ document.addEventListener('DOMContentLoaded', () => {
     return { name, grade, amount, atk, def, hp, speed, crit, special, _entry:entry };
   }
 
+
+  // 전술 + 병사 클래스 합산 배지 렌더링
+  function renderTacticBadge() {
+    const tactic = els.eventTacticSelect?.value || '균형';
+    const soldier = els.eventSoldierClassSelect?.value || '검병';
+    const tm = getTacticMod(tactic);
+    const sm = getSoldierClassMod(soldier);
+    // 두 배율 곱해서 최종 효과 계산
+    const combined = {
+      atk:   tm.atk   * sm.atk,
+      def:   tm.def   * sm.def,
+      hp:    tm.hp    * sm.hp,
+      speed: tm.speed * sm.speed,
+      crit:  tm.crit  * sm.crit,
+    };
+    const stats = [
+      { key:'공격', val: combined.atk   },
+      { key:'방어', val: combined.def   },
+      { key:'HP',   val: combined.hp    },
+      { key:'속도', val: combined.speed },
+      { key:'치명', val: combined.crit  },
+    ];
+    if (!els.tacticBadgeStats) return;
+    els.tacticBadgeStats.innerHTML = stats
+      .filter(s => Math.abs(s.val - 1.0) >= 0.01)
+      .map(s => {
+        const up = s.val > 1.0;
+        const pct = Math.round((s.val - 1) * 100);
+        const sign = up ? '+' : '';
+        return `<span class="tactic-stat ${up ? 'up' : 'down'}">${s.key} ${sign}${pct}%</span>`;
+      }).join('') || '<span class="tactic-stat neu">균형</span>';
+  }
+
   function getTacticMod(t) {
     return t==='공격 중심'?{atk:1.22,def:0.84,hp:1.0,speed:1.04,crit:1.08}:
            t==='방어 중심'?{atk:0.9,def:1.22,hp:1.08,speed:0.95,crit:1.0}:
@@ -4452,19 +4555,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // 원경 건물 (도시)
     if (t === 'city') {
       const a = slot===2 ? 'rgba(60,90,140,0.5)' : slot===1 ? 'rgba(80,50,20,0.6)' : slot===3 ? 'rgba(70,35,15,0.7)' : 'rgba(50,42,80,0.6)';
-      return `<rect x="20" y="55" width="22" height="137" fill="${a}"/>
-      <rect x="44" y="40" width="30" height="152" fill="${a}"/>
-      <rect x="80" y="50" width="18" height="142" fill="${a}"/>
-      <rect x="100" y="30" width="35" height="162" fill="${a}"/>
-      <rect x="160" y="45" width="28" height="147" fill="${a}"/>
-      <rect x="220" y="25" width="38" height="167" fill="${a}"/>
-      <rect x="300" y="40" width="24" height="152" fill="${a}"/>
-      <rect x="370" y="20" width="40" height="172" fill="${a}"/>
-      <rect x="440" y="35" width="28" height="157" fill="${a}"/>
-      <rect x="520" y="15" width="42" height="177" fill="${a}"/>
-      <rect x="600" y="30" width="30" height="162" fill="${a}"/>
-      <rect x="660" y="22" width="36" height="170" fill="${a}"/>
-      <rect x="730" y="38" width="24" height="154" fill="${a}"/>`;
+      return `      <rect x="20" y="100" width="22" height="92" fill="${a}"/>
+      <rect x="44" y="91" width="30" height="101" fill="${a}"/>
+      <rect x="80" y="97" width="18" height="95" fill="${a}"/>
+      <rect x="100" y="84" width="35" height="108" fill="${a}"/>
+      <rect x="160" y="93" width="28" height="99" fill="${a}"/>
+      <rect x="220" y="80" width="38" height="112" fill="${a}"/>
+      <rect x="300" y="91" width="24" height="101" fill="${a}"/>
+      <rect x="370" y="77" width="40" height="115" fill="${a}"/>
+      <rect x="440" y="87" width="28" height="105" fill="${a}"/>
+      <rect x="520" y="73" width="42" height="119" fill="${a}"/>
+      <rect x="600" y="84" width="30" height="108" fill="${a}"/>
+      <rect x="660" y="79" width="36" height="113" fill="${a}"/>
+      <rect x="730" y="89" width="24" height="103" fill="${a}"/>`;
     }
     // 산
     if (t === 'mountain') {
@@ -4522,25 +4625,31 @@ document.addEventListener('DOMContentLoaded', () => {
     let els = `<rect x="0" y="130" width="800" height="62" fill="${c1}"/>`;
 
     if (t === 'city') {
-      const xs = [0,20,50,74,108,128,156,178,210,228,258,282,316,336,364,386,418,436];
-      const ys = [20,0,10,2,12,0,8,4,14,0,10,2,12,0,8,4,14,0];
-      const ws = [18,28,22,32,18,26,20,30,16,28,22,32,18,26,20,30,16,28];
+      // 18개 → 6개 (1/3), 높이 절반
+      const xs = [0,74,178,282,386,490];
+      const ys = [20,2,4,2,4,0];
+      const ws = [18,32,30,32,30,28];
       xs.forEach((x,i) => {
-        els += building(x, ys[i], ws[i], 192-ys[i], i%2===0?c1:c2);
+        const h = Math.round((192 - ys[i]) / 1.5); // 기존 절반에서 1/3 더 높임
+        const y = 192 - h;
+        els += building(x, y, ws[i], h, i%2===0?c1:c2);
       });
     } else if (t === 'mountain') {
-      const pts = [[0,130,40,100],[30,192,70,110,110,192],[90,192,140,88,190,192],[170,192,220,100,270,192],[250,192,300,85,350,192],[330,192,385,96,440,192],[420,192,470,90,520,192],[500,192,550,82,600,192],[580,192,635,98,690,192],[660,192,715,92,770,192],[740,192,780,100,800,130]];
+      // 11개 → 4개 (1/3)
+      const pts = [[0,130,60,85,120,192],[160,192,250,75,340,192],[380,192,470,80,560,192],[600,192,690,88,780,192]];
       pts.forEach(([x1,y1,x2,y2,x3,y3],i) => {
         els += `<polygon points="${x1},${y1} ${x2},${y2} ${x3},${y3}" fill="${i%2===0?c1:c2}"/>`;
       });
     } else if (t === 'river' || t === 'lake') {
-      const treeXs = [20,80,160,240,330,420,510,600,680,750];
+      // 10개 → 3개 (1/3)
+      const treeXs = [60,300,600];
       treeXs.forEach((x,i) => {
         els += `<rect x="${x}" y="${80+i%3*5}" width="10" height="${60-i%3*4}" fill="${i%2===0?c1:c2}"/>`;
         els += `<ellipse cx="${x+5}" cy="${75+i%3*5}" rx="18" ry="11" fill="${i%2===0?c2:c1}"/>`;
       });
     } else {
-      const treeXs = [0,20,50,78,106,136,168,200,234,270,308,348,390,432,476,520,566,614,664,716,770];
+      // 21개 → 7개 (1/3)
+      const treeXs = [0,100,210,330,460,590,700];
       treeXs.forEach((x,i) => {
         els += `<polygon points="${x},192 ${x+14},${100+i%4*8} ${x+28},192" fill="${i%2===0?c1:c2}"/>`;
       });
@@ -4614,7 +4723,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderHeroFormation(heroClass, soldierClass, soldierCount) {
     els.heroSpriteWrap.innerHTML = getHeroVisualHtml(heroClass);
-    els.soldierFront.innerHTML   = Array.from({length:soldierCount}, ()=>getSoldierSprite(soldierClass)).join('');
+    els.soldierFront.innerHTML = Array.from({length:soldierCount}, (_, i) => {
+      const sprite = getSoldierSprite(soldierClass);
+      // 그리드 3열 기준: 첫 행(0~2) → margin-bottom으로 아래 행과 간격
+      // align-items:flex-end 기준으로 윗줄을 5px 아래로 내림
+      if (soldierCount > 3 && i < 3) {
+        return sprite.replace('<div class="soldier"', '<div class="soldier" style="position:relative;top:35px;"');
+      }
+      return sprite;
+    }).join('');
     // formation 오버레이: 장비 레이어 렌더 (이미지 기반)
     const overlay = document.getElementById('formationDollOverlay');
     if (overlay) renderHeroDoll(overlay, { heroClass });
@@ -4622,6 +4739,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderHero(leveled = false) {
     updateFormationBg(); // 시간대 기반 배경 즉시 적용
+    renderTacticBadge();
     const stats = getHeroBaseStats();
     const expNeed = getExpNeed(state.level);
     const expRate = Math.max(0, Math.min(100, (state.exp / expNeed) * 100));
@@ -5001,7 +5119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (eventType==='장비') grade='장비';
     else grade='특수';
 
-    const amount  = d3<=3?1: d3<=6?2: d3<=8?3:4;
+    const amount  = d3<=2?1: d3<=4?2: d3<=6?3: d3<=7?4: d3<=8?5: 6;
     const special = d5<=5?'없음': d5===6?'공격 증가': d5===7?'방어 증가': d5===8?'속도 증가':'희귀 보상';
 
     let title='', desc='', badges=[], enemy=null, reward=null, item=null;
@@ -5198,7 +5316,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function resetBattleAnims() {
-    [els.battleHeroUnit,els.battleEnemyUnit,els.battleHeroSpriteWrap,els.battleEnemyEmoji,els.battleSoldierGroup].forEach(el=>{
+    [els.battleHeroUnit,els.battleEnemyUnit,els.battleHeroSpriteWrap,els.battleEnemyEmoji,els.battleSoldierGroup,els.battleEnemyGroup].forEach(el=>{
       if (!el) return;
       el.classList.remove('anim-attack-left','anim-attack-right','anim-hit','anim-run','anim-fade');
       void el.offsetWidth;
@@ -5218,37 +5336,38 @@ document.addEventListener('DOMContentLoaded', () => {
   function calcPartialExp(totalDmg, maxHp, enemy) { return Math.max(1, Math.floor(getBattleExp(enemy)*(Math.max(0,Math.min(1,totalDmg/maxHp))))); }
 
   function renderBattleHeroSprite() { els.battleHeroSpriteWrap.innerHTML=`<div class="battle-hero-sprite">${getHeroVisualHtml(state.heroClass)}</div>`; }
-  function renderBattleSoldiers(count, cls) { els.battleSoldierGroup.innerHTML=Array.from({length:count},()=>getSoldierSprite(cls,'battle')).join(''); }
+  function renderBattleSoldiers(count, cls) {
+    els.battleSoldierGroup.innerHTML = Array.from({length:count}, (_, i) => {
+      const sprite = getSoldierSprite(cls, 'battle');
+      if (count > 3 && i < 3) return sprite.replace('<div class="battle-soldier"', '<div class="battle-soldier" style="position:relative;top:20px;"');
+      return sprite;
+    }).join('');
+  }
 
   function openBattleModal(decoded) {
     const setup = getBattleSetup(decoded.enemy);
     state.battle = { decoded, setup, heroHp:setup.heroMax, heroMax:setup.heroMax, enemyHp:setup.enemy.hp, enemyMax:setup.enemy.hp, turn:1, totalDmg:0, ended:false, locked:false };
     renderBattleHeroSprite(); renderBattleSoldiers(setup.soldierCount, setup.soldierClass);
+    // 전투 배경 업데이트
+    const bFar = document.getElementById('battleBgFar');
+    const bNear = document.getElementById('battleBgNear');
+    if (bFar)  bFar.innerHTML  = makeBgSVG('far',  _bgTheme, getTimeSlot());
+    if (bNear) bNear.innerHTML = makeBgSVG('near', _bgTheme, getTimeSlot());
 
     const emoji = getEnemyVisual(setup.enemy.name);
     const amount = setup.enemy.amount;
-    if (amount === 1) {
-      els.battleEnemyEmoji.style.fontSize = '62px';
-      els.battleEnemyEmoji.style.flexDirection = 'row';
-      els.battleEnemyEmoji.innerHTML = emoji;
-    } else if (amount === 2) {
-      els.battleEnemyEmoji.style.fontSize = '44px';
-      els.battleEnemyEmoji.style.display = 'flex';
-      els.battleEnemyEmoji.style.flexDirection = 'column';
-      els.battleEnemyEmoji.style.gap = '2px';
-      els.battleEnemyEmoji.innerHTML = `<div style="display:flex;gap:4px;justify-content:center">${emoji}${emoji}</div>`;
-    } else if (amount === 3) {
-      els.battleEnemyEmoji.style.fontSize = '36px';
-      els.battleEnemyEmoji.style.display = 'flex';
-      els.battleEnemyEmoji.style.flexDirection = 'column';
-      els.battleEnemyEmoji.style.gap = '2px';
-      els.battleEnemyEmoji.innerHTML = `<div style="display:flex;gap:2px;justify-content:center">${emoji}${emoji}</div><div style="display:flex;justify-content:center">${emoji}</div>`;
-    } else {
-      els.battleEnemyEmoji.style.fontSize = '30px';
-      els.battleEnemyEmoji.style.display = 'flex';
-      els.battleEnemyEmoji.style.flexDirection = 'column';
-      els.battleEnemyEmoji.style.gap = '2px';
-      els.battleEnemyEmoji.innerHTML = `<div style="display:flex;gap:2px;justify-content:center">${emoji}${emoji}</div><div style="display:flex;gap:2px;justify-content:center">${emoji}${emoji}</div>`;
+
+    // 상단: 대표 몬스터 1마리 (크게 표시)
+    els.battleEnemyEmoji.style.fontSize = '62px';
+    els.battleEnemyEmoji.style.flexDirection = 'row';
+    els.battleEnemyEmoji.innerHTML = emoji;
+
+    // 바닥 오른쪽: 마리 수만큼 병사 크기로 배치
+    if (els.battleEnemyGroup) {
+      els.battleEnemyGroup.innerHTML = Array.from({length: amount}, (_, i) => {
+        const top = (amount > 3 && i < 3) ? ' style="position:relative;top:20px;"' : '';
+        return `<div class="battle-enemy-mob"${top}>${emoji}</div>`;
+      }).join('');
     }
 
     els.battleHeroName.textContent   = state.heroName;
@@ -5629,8 +5748,16 @@ document.addEventListener('DOMContentLoaded', () => {
   els.decodeCloseBtn.addEventListener('click', ()=>closeModal(els.decodeBackdrop));
   els.exploreLogBtn.addEventListener('click', ()=>{ renderLogs(); openModal(els.exploreLogBackdrop); });
   els.exploreLogCloseBtn.addEventListener('click', ()=>closeModal(els.exploreLogBackdrop));
-  els.eventTacticSelect.addEventListener('change', renderHero);
-  els.eventSoldierClassSelect.addEventListener('change', renderHero);
+  els.eventTacticSelect.addEventListener('change', () => {
+    const stats = getHeroBaseStats();
+    renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
+    renderTacticBadge();
+  });
+  els.eventSoldierClassSelect.addEventListener('change', () => {
+    const stats = getHeroBaseStats();
+    renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
+    renderTacticBadge();
+  });
   els.barcodeInput.addEventListener('input', ()=>{ els.barcodeInput.value=onlyDigits(els.barcodeInput.value); });
   els.startGameBtn.addEventListener('click', applyStartHero);
   els.startHeroName.addEventListener('keydown', e=>{ if(e.key==='Enter') applyStartHero(); });
