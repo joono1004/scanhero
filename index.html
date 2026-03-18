@@ -1533,12 +1533,12 @@
       </div>
 
       <div class="card">
-        <div class="section-title">탐험 결과</div>
+        <div class="section-title" style="justify-content:space-between;">
+          <span>탐험 결과</span>
+          <button class="icon-btn small" id="exploreLogBtn" type="button" title="탐험 기록">📜</button>
+        </div>
         <div class="event-box">
           <div class="result-hero">
-            <div class="result-head">
-              <div class="result-head-actions"><button class="icon-btn small" id="exploreLogBtn" type="button" title="탐험 기록">📜</button></div>
-            </div>
             <div class="event-main-head">
               <div class="event-title-row">
                 <div class="event-title" id="eventTitle">아직 탐험 전입니다.</div>
@@ -5634,7 +5634,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   function resetBattleAnims() {
     [els.battleHeroUnit,els.battleEnemyUnit,els.battleHeroSpriteWrap,els.battleEnemyEmoji,els.battleSoldierGroup,els.battleEnemyGroup].forEach(el=>{
       if (!el) return;
-      el.classList.remove('anim-attack-left','anim-attack-right','anim-hit','anim-run','anim-fade');
+      el.classList.remove('anim-attack-left','anim-attack-right','anim-hit','anim-run','anim-fade','ran-away','defeated');
       void el.offsetWidth;
     });
     document.querySelectorAll('.battle-soldier').forEach(el=>{el.classList.remove('anim-attack-left','anim-hit','anim-run');void el.offsetWidth;});
@@ -5668,12 +5668,9 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   function openBattleModal(decoded) {
     const setup = getBattleSetup(decoded.enemy);
     state.battle = { decoded, setup, heroHp:setup.heroMax, heroMax:setup.heroMax, enemyHp:setup.enemy.hp, enemyMax:setup.enemy.hp, turn:1, totalDmg:0, ended:false, locked:false };
-    renderBattleHeroSprite(); renderBattleSoldiers(setup.soldierCount, setup.soldierClass);
+    resetBattleAnims(); // ran-away/defeated 포함 모든 클래스 초기화
     clearBattleResultOverlay();
-    els.battleHeroUnit.classList.remove('ran-away');
-    els.battleSoldierGroup.classList.remove('ran-away');
-    els.battleEnemyUnit.classList.remove('defeated');
-    els.battleEnemyGroup.classList.remove('defeated');
+    renderBattleHeroSprite(); renderBattleSoldiers(setup.soldierCount, setup.soldierClass);
     // 전투 상태 sessionStorage 백업 (끊김 복구용)
     try {
       sessionStorage.setItem('sh_battle_backup', JSON.stringify({
