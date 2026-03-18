@@ -1362,6 +1362,16 @@
           <input type="password" id="loginPw" placeholder="비밀번호 입력" autocomplete="current-password" />
         </div>
         <div class="auth-error" id="loginError"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding:4px 0;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);cursor:pointer;">
+            <input type="checkbox" id="chkLocation" checked style="width:16px;height:16px;cursor:pointer;accent-color:#63a8ff;">
+            <span>📍 위치 권한 허용 <span style="font-size:10px;opacity:0.6;">(지형 배경 테마에 사용)</span></span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);cursor:pointer;">
+            <input type="checkbox" id="chkCamera" checked style="width:16px;height:16px;cursor:pointer;accent-color:#63a8ff;">
+            <span>📷 카메라 권한 허용 <span style="font-size:10px;opacity:0.6;">(바코드 스캔에 사용)</span></span>
+          </label>
+        </div>
         <button class="auth-btn" id="loginBtn">로그인</button>
       </div>
 
@@ -2190,6 +2200,11 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('charAccountInfo').textContent = '계정: ' + CURRENT_USER.email;
       await renderCharSlots();
     }
+    // 체크박스 상태에 따라 권한 요청
+    const chkLoc = document.getElementById('chkLocation');
+    const chkCam = document.getElementById('chkCamera');
+    if (chkLoc?.checked) requestCurrentLocation();
+    if (chkCam?.checked) requestCameraPermission();
   });
 
   ['loginEmail','loginPw'].forEach(id => {
@@ -3003,9 +3018,8 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     if (gearCatalog.length === 0) await loadItemCatalog();
     await dbLoadAll();
     loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap();
-    requestCurrentLocation();
-    // 카메라 권한 미리 요청 (스캔 버튼 누를 때 팝업 안 뜨도록)
-    requestCameraPermission();
+    // 위치/카메라 권한은 로그인 시 이미 요청 — 위치 정보 없을 때만 재요청
+    if (!state.currentLocation) requestCurrentLocation();
     // 30초마다 자동 저장
     setInterval(async () => { await dbSaveAll(true); }, 30000);
   }
