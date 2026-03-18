@@ -996,9 +996,9 @@
     .battle-hero-unit { left: 12px; }
     .battle-enemy-unit { right: 12px; }
     .battle-sprite-wrap { width: 108px; height: 116px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 18px 18px rgba(0,0,0,0.35)); position: relative; z-index: 2; }
-    .battle-hero-sprite, .battle-enemy-sprite { width: 100px; height: 112px; transition: transform 0.28s ease, filter 0.28s ease; }
+    .battle-hero-sprite, .battle-enemy-sprite { width: 133px; height: 150px; transition: transform 0.28s ease, filter 0.28s ease; }
     .battle-shadow { width: 78px; height: 12px; border-radius: 50%; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 3px; }
-    .battle-enemy-emoji { width: 100px; height: 112px; transition: transform 0.28s ease, filter 0.28s ease; }
+    .battle-enemy-emoji { width: 133px; height: 150px; transition: transform 0.28s ease, filter 0.28s ease; }
     .battle-soldier-group { position: absolute; left: 20px; bottom: 3px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; z-index: 4; align-items: flex-end; }
     .battle-enemy-group { position: absolute; right: 20px; bottom: 3px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; z-index: 4; align-items: flex-end; }
     .battle-enemy-mob { width: 44px; height: 56px; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
@@ -5432,7 +5432,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 상단: 대표 몬스터 1마리 이미지로 표시
     const repUrl = getMonsterRepUrl(setup.enemy.name);
     els.battleEnemyEmoji.style.cssText = '';
-    els.battleEnemyEmoji.innerHTML = `<img src="${repUrl}" width="100" height="112" style="object-fit:contain;display:block;" onerror="this.style.opacity=0">`;
+    els.battleEnemyEmoji.innerHTML = `<img src="${repUrl}" width="133" height="150" style="object-fit:contain;display:block;" onerror="this.style.opacity=0">`;
 
     // 바닥 오른쪽: 마리 수만큼 병사 크기로 배치
     if (els.battleEnemyGroup) {
