@@ -1507,6 +1507,7 @@
             </div>
             <div class="event-desc" id="eventDesc">영웅 정보 아래의 바코드 스캔 버튼을 눌러 탐험을 시작해 주세요.</div>
             <div class="badge-row" id="eventBadges" style="margin-top:8px;"></div>
+            <div id="eventRetryWrap" style="margin-top:8px;"></div>
           </div>
         </div>
       </div>
@@ -3606,7 +3607,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     exploreLog:q('exploreLog'), exploreLogCloseBtn:q('exploreLogCloseBtn'),
     eventTacticSelect:q('eventTacticSelect'), eventSoldierClassSelect:q('eventSoldierClassSelect'), tacticBadgeStats:q('tacticBadgeStats'),
     codeOutput:q('codeOutput'), eventTitle:q('eventTitle'),
-    eventDesc:q('eventDesc'), eventBadges:q('eventBadges'),
+    eventDesc:q('eventDesc'), eventBadges:q('eventBadges'), eventRetryWrap:q('eventRetryWrap'),
     locationStatus:q('locationStatus'),
     eventModalBackdrop:q('eventModalBackdrop'), eventModalTitle:q('eventModalTitle'),
     eventModalVisual:q('eventModalVisual'), eventModalText:q('eventModalText'),
@@ -5281,6 +5282,8 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     els.eventBadges.innerHTML  = decoded.badges.map(b=>`<div class="badge">${b}</div>`).join('');
     // 탐험 결과 sessionStorage 저장 (재접속 시 복원용)
     try { sessionStorage.setItem('sh_last_event', JSON.stringify(decoded)); } catch(e) {}
+    // 탐험 결과 영역 재도전 버튼 갱신
+    updateEventRetryBtn();
     const monsterName = decoded.eventType==='몬스터' ? getMonsterEntry(decoded.d4).name : '';
     const specialName = decoded.eventType==='특수'   ? getSpecialEntry(decoded.d4).name : '';
     els.decodeBox.innerHTML =
@@ -5291,17 +5294,51 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       `5번째 자리 <b>${decoded.d5}</b> = ${decoded.special}`;
   }
 
+  // 탐험 결과 영역 재도전 버튼 갱신
+  function updateEventRetryBtn() {
+    if (!els.eventRetryWrap) return;
+    // 최신 로그에서 재도전 가능한 항목 찾기
+    const log = state.logs[0];
+    const maxRetry = 5;
+    if (!log?.retryDecoded) {
+      els.eventRetryWrap.innerHTML = '';
+      return;
+    }
+    const retryLeft = maxRetry - (log.retryCount || 0);
+    if (retryLeft <= 0) {
+      els.eventRetryWrap.innerHTML = `<span style="font-size:11px;color:var(--muted);">재도전 횟수 초과 (${maxRetry}/${maxRetry})</span>`;
+      return;
+    }
+    els.eventRetryWrap.innerHTML = `<button id="eventRetryBtn" style="font-size:12px;padding:5px 14px;border-radius:8px;border:1px solid rgba(99,168,255,0.4);background:rgba(99,168,255,0.12);color:#63a8ff;cursor:pointer;font-weight:700;">⚔️ 재도전 (${retryLeft}회 남음)</button>`;
+    q('eventRetryBtn').addEventListener('click', () => {
+      if ((log.retryCount || 0) >= maxRetry) return;
+      log.retryCount = (log.retryCount || 0) + 1;
+      updateEventRetryBtn();
+      renderLogs();
+      const decoded = {...log.retryDecoded};
+      renderEvent(decoded);
+      setTimeout(() => {
+        openBattleModal(decoded);
+        setTimeout(() => { if (state.battle) state.battle.retryFromIdx = 0; }, 300);
+      }, 200);
+    });
+  }
+
   function addLog(title, detail, meta = {}) {
-    state.logs.unshift({time:new Date().toLocaleString('ko-KR'), title, detail, ...meta});
+    state.logs.unshift({time:new Date().toLocaleString('ko-KR'), title, detail, retryCount:0, ...meta});
     state.logs = state.logs.slice(0,50);
     renderLogs();
   }
   function renderLogs() {
     els.exploreLog.innerHTML = state.logs.length
       ? state.logs.map((i, idx) => {
-          const retryBtn = i.retryDecoded
-            ? `<button class="btn-retry-battle" data-idx="${idx}" style="margin-top:8px;font-size:11px;padding:4px 12px;border-radius:8px;border:1px solid rgba(99,168,255,0.4);background:rgba(99,168,255,0.12);color:#63a8ff;cursor:pointer;font-weight:700;">⚔️ 재도전</button>`
-            : '';
+          const maxRetry = 5;
+          const retryLeft = maxRetry - (i.retryCount || 0);
+          const retryBtn = (i.retryDecoded && retryLeft > 0)
+            ? `<button class="btn-retry-battle" data-idx="${idx}" style="margin-top:8px;font-size:11px;padding:4px 12px;border-radius:8px;border:1px solid rgba(99,168,255,0.4);background:rgba(99,168,255,0.12);color:#63a8ff;cursor:pointer;font-weight:700;">⚔️ 재도전 (${retryLeft}회 남음)</button>`
+            : (i.retryDecoded && retryLeft <= 0)
+              ? `<span style="margin-top:8px;display:inline-block;font-size:11px;color:var(--muted);">재도전 횟수 초과 (${maxRetry}/${maxRetry})</span>`
+              : '';
           return `<div class="list-item" style="cursor:default;">
             <div class="muted">${i.time}</div>
             <div><b>${i.title}</b></div>
@@ -5316,8 +5353,17 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         const idx = parseInt(btn.dataset.idx);
         const log = state.logs[idx];
         if (!log?.retryDecoded) return;
+        const maxRetry = 5;
+        if ((log.retryCount || 0) >= maxRetry) return;
+        log.retryCount = (log.retryCount || 0) + 1;
         closeModal(els.exploreLogBackdrop);
-        setTimeout(() => { renderEvent(log.retryDecoded); openBattleModal(log.retryDecoded); }, 200);
+        setTimeout(() => {
+          const decoded = {...log.retryDecoded, _retryFromIdx: idx};
+          renderEvent(decoded);
+          // retryFromIdx를 battle state에 전달
+          setTimeout(() => { if (state.battle) state.battle.retryFromIdx = idx; }, 300);
+          openBattleModal(decoded);
+        }, 200);
       });
     });
   }
@@ -5565,7 +5611,15 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       showDropNotification(`🎁 ${dropItem.name} 드롭!`, { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' }[dropItem.rarity]||'#eef3ff');
     }
 
-    if (logTitle) addLog(logTitle, `${logDetail}${dropLog}${leveled?' / 레벨업!':''}`, resultType !== 'success' ? { retryDecoded: b?.decoded } : {});
+    const retryMeta = resultType !== 'success' ? { retryDecoded: b?.decoded, retryCount: 0 } : {};
+    if (logTitle) {
+      // 재도전으로 온 경우 기존 로그의 retryCount 제거 (새 로그로 대체)
+      if (b?.retryFromIdx !== undefined) {
+        const old = state.logs[b.retryFromIdx];
+        if (old) old.retryDecoded = null; // 기존 로그 재도전 버튼 제거
+      }
+      addLog(logTitle, `${logDetail}${dropLog}${leveled?' / 레벨업!':''}`, retryMeta);
+    }
 
     await addMapHistory({ barcode:onlyDigits(els.barcodeInput.value), decoded, detail:logDetail||desc, exp, gold });
 
@@ -5588,6 +5642,8 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     scheduleAutoSave();
 
     renderHero(leveled); renderLogs();
+    // 승리 시 탐험 결과 재도전 버튼 제거
+    if (resultType === 'success' && els.eventRetryWrap) els.eventRetryWrap.innerHTML = '';
     if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
 
     const dropHtml = dropItem ? `<br>${getItemIconHtml(dropItem.icon, 18)} <span style="color:var(--${dropItem.rarity==='legendary'?'legendary':dropItem.rarity==='epic'?'epic':dropItem.rarity==='rare'?'rare':dropItem.rarity==='uncommon'?'uncommon':'common'})">${dropItem.name} 획득!</span>` : '';
