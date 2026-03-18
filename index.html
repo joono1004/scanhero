@@ -953,6 +953,38 @@
     .mini-current-marker { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #7ea7ff 0%, #557dff 100%); border: 2px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(0,0,0,0.35); font-size: 14px; }
 
     .battle-stage { position: relative; width: 100%; height: 270px; border-radius: 18px; overflow: hidden; background: #0a1428; border: 1px solid rgba(115,143,210,0.16); }
+    .battle-result-overlay {
+      position: absolute; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+    .battle-result-win {
+      background: radial-gradient(circle at 50% 40%, rgba(99,208,154,0.22), transparent 70%);
+      animation: resultFadeIn 0.5s ease forwards;
+    }
+    .battle-result-lose {
+      background: radial-gradient(circle at 50% 40%, rgba(255,80,80,0.22), transparent 70%);
+      animation: resultFadeIn 0.5s ease forwards;
+    }
+    .battle-result-run {
+      background: radial-gradient(circle at 50% 40%, rgba(255,207,99,0.15), transparent 70%);
+      animation: resultFadeIn 0.5s ease forwards;
+    }
+    @keyframes resultFadeIn { from{opacity:0;} to{opacity:1;} }
+    .result-label {
+      font-size: 42px; font-weight: 900; letter-spacing: 4px;
+      text-shadow: 0 0 30px currentColor, 0 4px 12px rgba(0,0,0,0.6);
+      animation: resultPop 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+    .result-label-win  { color: #63d09a; }
+    .result-label-lose { color: #ff6060; }
+    .result-label-run  { color: #ffcf63; }
+    @keyframes resultPop { from{transform:scale(0.3);opacity:0;} to{transform:scale(1);opacity:1;} }
+    .hero-unit.ran-away  { opacity: 0 !important; transition: none; }
+    .battle-soldier-group.ran-away { opacity: 0 !important; transition: none; }
+    .battle-enemy-unit.defeated  { animation: defeatFall 0.6s ease forwards; }
+    .battle-enemy-group.defeated { animation: defeatFall 0.6s ease forwards; }
+    @keyframes defeatFall { 0%{transform:translateY(0) rotate(0deg);opacity:1;} 100%{transform:translateY(30px) rotate(10deg);opacity:0;} }
     .battle-vs {
       position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
       font-size: 22px; font-weight: 900; color: #fff;
@@ -1558,6 +1590,7 @@
           </div>
           <div class="battle-enemy-group" id="battleEnemyGroup"></div>
           <div class="battle-stage-ground"></div>
+          <div class="battle-result-overlay" id="battleResultOverlay"></div>
         </div>
         <div class="battle-nameplates">
           <div class="battle-nameplate">
@@ -3685,7 +3718,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     battleEnemyHpText:q('battleEnemyHpText'), heroHpBar:q('heroHpBar'),
     enemyHpBar:q('enemyHpBar'), battleTurnTitle:q('battleTurnTitle'),
     battleLog:q('battleLog'), battleActions:q('battleActions'),
-    battleResultBox:q('battleResultBox'), battleSoldierGroup:q('battleSoldierGroup'),
+    battleResultBox:q('battleResultBox'), battleSoldierGroup:q('battleSoldierGroup'), battleResultOverlay:q('battleResultOverlay'),
     startHeroBackdrop:q('heroStartBackdrop'), startHeroName:q('startHeroName'),
     startHeroClass:q('startHeroClass'), startGameBtn:q('startGameBtn'),
     heroStatsBackdrop:q('heroStatsBackdrop'), heroStatsCloseBtn:q('heroStatsCloseBtn'),
@@ -5636,6 +5669,11 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     const setup = getBattleSetup(decoded.enemy);
     state.battle = { decoded, setup, heroHp:setup.heroMax, heroMax:setup.heroMax, enemyHp:setup.enemy.hp, enemyMax:setup.enemy.hp, turn:1, totalDmg:0, ended:false, locked:false };
     renderBattleHeroSprite(); renderBattleSoldiers(setup.soldierCount, setup.soldierClass);
+    clearBattleResultOverlay();
+    els.battleHeroUnit.classList.remove('ran-away');
+    els.battleSoldierGroup.classList.remove('ran-away');
+    els.battleEnemyUnit.classList.remove('defeated');
+    els.battleEnemyGroup.classList.remove('defeated');
     // 전투 상태 sessionStorage 백업 (끊김 복구용)
     try {
       sessionStorage.setItem('sh_battle_backup', JSON.stringify({
@@ -5701,7 +5739,10 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
 
     const retryMeta = resultType !== 'success' ? { retryDecoded: b?.decoded, retryCount: 0 } : {};
     // 전투 결과 상태 저장 (탐험 결과 배지용)
-    state.lastBattleResult = resultType === 'success' ? 'win' : (title === '패배' ? 'lose' : 'run');
+    const battleResultType = resultType === 'success' ? 'win' : (title === '패배' ? 'lose' : 'run');
+    state.lastBattleResult = battleResultType;
+    // 전투 결과 오버레이 표시 (0.3초 후)
+    setTimeout(() => showBattleResultOverlay(battleResultType), 300);
     if (logTitle) {
       if (b?.retryFromIdx !== undefined) {
         const old = state.logs[b.retryFromIdx];
@@ -5745,9 +5786,28 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     els.battleResultBox.innerHTML = `<b>${title}</b><br>${desc}${dropHtml}`;
   }
 
+
+  // 전투 결과 오버레이 표시
+  function showBattleResultOverlay(type) {
+    if (!els.battleResultOverlay) return;
+    const cfg = {
+      win:  { cls:'battle-result-win',  label:'승리', lCls:'result-label-win'  },
+      lose: { cls:'battle-result-lose', label:'패배', lCls:'result-label-lose' },
+      run:  { cls:'battle-result-run',  label:'도망', lCls:'result-label-run'  },
+    }[type] || {};
+    els.battleResultOverlay.className = `battle-result-overlay ${cfg.cls}`;
+    els.battleResultOverlay.innerHTML = `<div class="result-label ${cfg.lCls}">${cfg.label}</div>`;
+  }
+
+  function clearBattleResultOverlay() {
+    if (!els.battleResultOverlay) return;
+    els.battleResultOverlay.className = 'battle-result-overlay';
+    els.battleResultOverlay.innerHTML = '';
+  }
+
   async function animHeroAtk()  { resetBattleAnims(); els.battleHeroUnit.classList.add('anim-attack-left'); els.battleSoldierGroup.classList.add('anim-attack-left'); await wait(180); els.battleEnemyUnit.classList.add('anim-hit'); els.battleEnemyEmoji.classList.add('anim-fade'); await wait(280); resetBattleAnims(); }
   async function animEnemyAtk() { resetBattleAnims(); els.battleEnemyUnit.classList.add('anim-attack-right'); els.battleEnemyGroup.classList.add('anim-attack-right'); await wait(180); els.battleHeroUnit.classList.add('anim-hit'); els.battleHeroSpriteWrap.classList.add('anim-fade'); els.battleSoldierGroup.classList.add('anim-hit'); await wait(280); resetBattleAnims(); }
-  async function animRun()      { resetBattleAnims(); els.battleTurnTitle.textContent='도망 시도'; els.battleLog.textContent='영웅과 병사들이 전열을 무너뜨리며 급히 후퇴합니다...'; els.battleHeroUnit.classList.add('anim-run'); els.battleSoldierGroup.classList.add('anim-run'); await wait(780); resetBattleAnims(); }
+  async function animRun()      { resetBattleAnims(); els.battleTurnTitle.textContent='도망 시도'; els.battleLog.textContent='영웅과 병사들이 전열을 무너뜨리며 급히 후퇴합니다...'; els.battleHeroUnit.classList.add('anim-run'); els.battleSoldierGroup.classList.add('anim-run'); await wait(780); els.battleHeroUnit.classList.add('ran-away'); els.battleSoldierGroup.classList.add('ran-away'); }
 
   async function battleAttackTurn() {
     const b = state.battle; if (!b||b.ended||b.locked) return;
@@ -5773,6 +5833,8 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
 
     if (b.enemyHp<=0) {
       b.ended=true;
+      els.battleEnemyUnit.classList.add('defeated');
+      els.battleEnemyGroup.classList.add('defeated');
       const exp=getBattleExp(enemy), gold=getBattleGold(enemy);
       const dropItem = rollMonsterDrop(enemy);
       updateBattleUI(`${t}턴 종료`, lines.join('\n'));
