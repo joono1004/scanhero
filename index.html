@@ -1826,21 +1826,107 @@ document.addEventListener('DOMContentLoaded', () => {
     cloak: 'cape', ring1: 'ring', necklace: 'necklace'
   };
 
-  // 아이템 이미지 URL 생성
-  // 규칙: {슬롯}/{클래스접두}_{슬롯명}_{순번}.png
-  // 공용 슬롯(망토/반지/목걸이): common_{슬롯명}_{순번}.png
-  // 예: weapon/warrior_weapon_01.png / cape/common_cape_01.png
+  // 아이템 이름 → 레이어 이미지 파일명 직접 매핑
+  const EQUIP_FILE_MAP = {
+    // 무기
+    '단검':        { folder:'weapon', file:'warrior_weapon_01.png' },
+    '장검':        { folder:'weapon', file:'warrior_weapon_02.png' },
+    '기사검':      { folder:'weapon', file:'warrior_weapon_03.png' },
+    '단궁':        { folder:'weapon', file:'archer_weapon_01.png'  },
+    '장궁':        { folder:'weapon', file:'archer_weapon_02.png'  },
+    '석궁':        { folder:'weapon', file:'archer_weapon_03.png'  },
+    '나무 지팡이': { folder:'weapon', file:'mage_weapon_01.png'    },
+    '마법 지팡이': { folder:'weapon', file:'mage_weapon_02.png'    },
+    '수정 지팡이': { folder:'weapon', file:'mage_weapon_03.png'    },
+    // 갑옷 (전사)
+    '가죽 갑옷':   { folder:'armor',  file:'warrior_armor_01.png', cls:'전사' },
+    '강철 갑옷':   { folder:'armor',  file:'warrior_armor_02.png', cls:'전사' },
+    '기사 갑옷':   { folder:'armor',  file:'warrior_armor_03.png', cls:'전사' },
+    // 갑옷 (궁사)
+    '사슬 갑옷':   { folder:'armor',  file:'archer_armor_02.png'  },
+    '사냥꾼 갑옷': { folder:'armor',  file:'archer_armor_03.png'  },
+    // 갑옷 (마법사)
+    '천 갑옷':     { folder:'armor',  file:'mage_armor_01.png'    },
+    '마법사 로브': { folder:'armor',  file:'mage_armor_03.png'    },
+    // 방패
+    '나무 방패':   { folder:'shield', file:'warrior_shield_01.png' },
+    '원형 방패':   { folder:'shield', file:'warrior_shield_02.png' },
+    '강철 방패':   { folder:'shield', file:'warrior_shield_03.png' },
+    // 장갑 (전사)
+    '가죽 장갑':   { folder:'gloves', file:'warrior_gloves_01.png', cls:'전사' },
+    '강철 장갑':   { folder:'gloves', file:'warrior_gloves_02.png', cls:'전사' },
+    '기사 장갑':   { folder:'gloves', file:'warrior_gloves_03.png' },
+    // 장갑 (궁사)
+    '사슬 장갑':   { folder:'gloves', file:'archer_gloves_02.png'  },
+    '사냥꾼 장갑': { folder:'gloves', file:'archer_gloves_03.png'  },
+    // 장갑 (마법사)
+    '천 장갑':     { folder:'gloves', file:'mage_gloves_01.png'    },
+    '마법사 장갑': { folder:'gloves', file:'mage_gloves_03.png'    },
+    // 장화 (전사)
+    '가죽 장화':   { folder:'boots',  file:'warrior_boots_01.png', cls:'전사' },
+    '강철 장화':   { folder:'boots',  file:'warrior_boots_02.png', cls:'전사' },
+    '기사 장화':   { folder:'boots',  file:'warrior_boots_03.png' },
+    // 장화 (궁사)
+    '사슬 장화':   { folder:'boots',  file:'archer_boots_02.png'  },
+    '사냥꾼 장화': { folder:'boots',  file:'archer_boots_03.png'  },
+    // 장화 (마법사)
+    '천 장화':     { folder:'boots',  file:'mage_boots_01.png'    },
+    '마법사 장화': { folder:'boots',  file:'mage_boots_03.png'    },
+    // 투구
+    '가죽 투구':   { folder:'helmet', file:'warrior_helmet_01.png' },
+    '강철 투구':   { folder:'helmet', file:'warrior_helmet_02.png', cls:'전사' },
+    '기사 투구':   { folder:'helmet', file:'warrior_helmet_03.png' },
+    '가죽 모자':   { folder:'helmet', file:'archer_helmet_01.png'  },
+    '써클렛':      { folder:'helmet', file:'archer_helmet_02.png', cls:'궁사' },
+    '천 모자':     { folder:'helmet', file:'mage_helmet_01.png'    },
+    '마법사 모자': { folder:'helmet', file:'mage_helmet_03.png'    },
+    // 망토
+    '용병 망토':   { folder:'cape',   file:'common_cape_01.png'    },
+    '기사 망토':   { folder:'cape',   file:'common_cape_02.png'    },
+    '용사 망토':   { folder:'cape',   file:'common_cape_03.png'    },
+    // 반지
+    '공격력 반지': { folder:'ring',   file:'common_ring_01.png'    },
+    '방어력 반지': { folder:'ring',   file:'common_ring_02.png'    },
+    '체력 반지':   { folder:'ring',   file:'common_ring_03.png'    },
+    '만능 반지':   { folder:'ring',   file:'common_ring_04.png'    },
+    // 목걸이
+    '속도 목걸이': { folder:'necklace',file:'common_necklace_01.png'},
+    '치명타 목걸이':{ folder:'necklace',file:'common_necklace_02.png'},
+    '만능 목걸이': { folder:'necklace',file:'common_necklace_03.png'},
+  };
+
+  // 클래스별 가죽/강철 갑옷/장갑/장화 중복 처리
+  const EQUIP_FILE_MAP_CLS = {
+    armor:  { '가죽 갑옷': { warrior:'warrior_armor_01.png', archer:'archer_armor_01.png', mage:'mage_armor_02.png' } },
+    gloves: { '가죽 장갑': { warrior:'warrior_gloves_01.png', archer:'archer_gloves_01.png', mage:'mage_gloves_02.png' } },
+    boots:  { '가죽 장화': { warrior:'warrior_boots_01.png', archer:'archer_boots_01.png', mage:'mage_boots_02.png' },
+              '강철 장화': { warrior:'warrior_boots_02.png', archer:'archer_boots_02.png' },
+              '강철 갑옷': { warrior:'warrior_armor_02.png' } },
+    helmet: { '강철 투구': { warrior:'warrior_helmet_02.png', archer:'archer_helmet_03.png' },
+              '써클렛':    { archer:'archer_helmet_02.png', mage:'mage_helmet_02.png' } },
+  };
+
   function getEquipImageUrl(item, heroClass) {
     if (!item) return null;
-    const folder = SLOT_FOLDER[item.slot] || item.slot;
-    const cls    = CLASS_CODE[heroClass] || 'warrior';
-    // 공용 슬롯
-    const isCommon = ['cloak', 'ring1', 'necklace'].includes(item.slot);
-    const prefix   = isCommon ? 'common' : cls;
-    // 아이템 순번: baseName 기준으로 카탈로그 내 같은 슬롯+클래스 중 몇 번째인지
-    const idx = getItemSortIndex(item, heroClass);
-    const num  = String(idx).padStart(2, '0');
-    return `${STORAGE_BASE}/equip/${folder}/${prefix}_${folder}_${num}.png`;
+    const baseName = item.baseName || item.name;
+    const cls = CLASS_CODE[heroClass] || 'warrior';
+
+    // 클래스별 중복 아이템 먼저 처리
+    const clsMap = EQUIP_FILE_MAP_CLS[item.slot]?.[baseName];
+    if (clsMap) {
+      const file = clsMap[cls] || Object.values(clsMap)[0];
+      const folder = SLOT_FOLDER[item.slot] || item.slot;
+      return `${STORAGE_BASE}/equip/${folder}/${file}`;
+    }
+
+    // 직접 매핑
+    const entry = EQUIP_FILE_MAP[baseName];
+    if (entry) {
+      return `${STORAGE_BASE}/equip/${entry.folder}/${entry.file}`;
+    }
+
+    // 매핑 없는 아이템 (구버전 등) — null 반환해서 레이어 숨김
+    return null;
   }
 
   // 캐릭터 몸통 이미지 URL
@@ -1855,17 +1941,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${STORAGE_BASE}/equip/helmet/${cls}_head.png`;
   }
 
-  // 아이템 순번 계산 (카탈로그에서 같은 슬롯+클래스 중 순서)
-  function getItemSortIndex(item, heroClass) {
-    const catalog = gearCatalog.length ? gearCatalog : FALLBACK_CATALOG;
-    const sameGroup = catalog.filter(g => {
-      if (g.slot !== item.slot) return false;
-      if (!g.classes) return ['cloak','ring1','necklace'].includes(item.slot);
-      return g.classes.includes(heroClass);
-    });
-    const idx = sameGroup.findIndex(g => g.name === (item.baseName || item.name));
-    return idx >= 0 ? idx + 1 : 1;
-  }
+
 
   // 이미지 엘리먼트 생성 (로드 실패 시 투명 처리)
   function makeLayerImg(url, alt) {
