@@ -1831,7 +1831,7 @@
             </div>
           </div>
         </div>
-        <div class="line" style="margin-bottom:0;"><label for="barcodeInput">바코드 숫자 직접 입력</label><input id="barcodeInput" placeholder="예: 8801234567890" value="" inputmode="numeric" /></div>
+        <input id="barcodeInput" style="display:none;" inputmode="numeric" />
       </div>
       <div class="modal-actions two">
         <button id="scanModalCloseBtn">닫기</button>
@@ -2951,6 +2951,8 @@ document.addEventListener('DOMContentLoaded', () => {
     await dbLoadAll();
     loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap();
     requestCurrentLocation();
+    // 카메라 권한 미리 요청 (스캔 버튼 누를 때 팝업 안 뜨도록)
+    requestCameraPermission();
     // 30초마다 자동 저장
     setInterval(async () => { await dbSaveAll(true); }, 30000);
   }
@@ -5638,6 +5640,19 @@ document.addEventListener('DOMContentLoaded', () => {
     return hashToFiveCode(rawText);
   }
 
+
+  // 카메라 권한 사전 요청 — 스캔 버튼 누를 때 팝업 안 뜨도록
+  async function requestCameraPermission() {
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) return;
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      // 권한 허용됨 — 스트림 즉시 종료 (미리보기 불필요)
+      stream.getTracks().forEach(t => t.stop());
+    } catch(e) {
+      // 거부됐거나 지원 안 함 — 조용히 무시 (스캔 시 재요청됨)
+    }
+  }
+
   async function startCameraScanner() {
     if (typeof Html5Qrcode==='undefined') { els.scanStatusText.textContent='스캐너 라이브러리를 불러오지 못했습니다.'; return; }
     await stopCameraScanner();
@@ -5688,18 +5703,24 @@ document.addEventListener('DOMContentLoaded', () => {
     renderEvent(decoded); showEventModal(decoded);
   }
 
-  // 수동 입력 버튼 — 숫자 입력 처리
+  // 랜덤 바코드 생성 (13자리)
+  function generateRandomBarcode() {
+    return Array.from({length:13}, () => Math.floor(Math.random() * 10)).join('');
+  }
+
+  // 탐험 시작 버튼 — 랜덤 바코드 자동 생성 후 처리
   function handleScan() {
     renderHero();
-    const raw = els.barcodeInput.value.trim();
-    if (!raw) { alert('바코드 숫자를 입력하거나 카메라로 스캔해 주세요.'); return; }
     if (!state.currentLocation) { alert('현재 위치 확인 후 다시 시도해 주세요.'); return; }
-    const key = raw;
-    if (!state.devMode.allowDupe && state.usedBarcodes.has(key)) {
-      alert(`⚠️ 이미 사용한 바코드입니다!\n(개발자 모드에서 중복 허용 옵션을 켤 수 있습니다)`);
-      return;
-    }
-    state.usedBarcodes.add(key);
+    // 랜덤 바코드 생성 (중복 방지 — 최대 10회 재시도)
+    let raw;
+    let tries = 0;
+    do {
+      raw = generateRandomBarcode();
+      tries++;
+    } while (!state.devMode.allowDupe && state.usedBarcodes.has(raw) && tries < 10);
+    els.barcodeInput.value = raw;
+    state.usedBarcodes.add(raw);
     closeModal(els.scanModalBackdrop);
     const digits = onlyDigits(raw);
     const code = digits.length >= 5 ? toFiveCode(digits) : hashToFiveCode(raw);
@@ -5814,7 +5835,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateGoblinSpeech('새 물건이 들어왔어요! ✨');
   });
 
-  els.scanFab.addEventListener('click', async ()=>{ els.scanStatusText.textContent='카메라 스캔 또는 바코드 숫자 직접 입력을 사용할 수 있습니다.'; els.barcodeInput.value=''; openModal(els.scanModalBackdrop); await startCameraScanner(); if(state.currentLocation?.lat) refreshBgFromLocation(state.currentLocation.lat, state.currentLocation.lng); });
+  els.scanFab.addEventListener('click', async ()=>{ els.scanStatusText.textContent='카메라로 바코드를 스캔하거나 탐험 시작을 눌러주세요.'; els.barcodeInput.value=''; openModal(els.scanModalBackdrop); await startCameraScanner(); if(state.currentLocation?.lat) refreshBgFromLocation(state.currentLocation.lat, state.currentLocation.lng); });
   els.scanModalCloseBtn.addEventListener('click', async ()=>{ await stopCameraScanner(); closeModal(els.scanModalBackdrop); });
 
   els.scanStartBtn.addEventListener('click', async ()=>{ await stopCameraScanner(); handleScan(); });
@@ -5836,7 +5857,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
     renderTacticBadge();
   });
-  els.barcodeInput.addEventListener('input', ()=>{ els.barcodeInput.value=onlyDigits(els.barcodeInput.value); });
+  // barcodeInput은 숨김 처리 — 카메라 스캔 또는 랜덤 생성으로만 값 설정
   els.startGameBtn.addEventListener('click', applyStartHero);
   els.startHeroName.addEventListener('keydown', e=>{ if(e.key==='Enter') applyStartHero(); });
   els.heroTitleBtn.addEventListener('click', openHeroStatsModal);
