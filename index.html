@@ -3319,13 +3319,34 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       if (saveFailCount >= MAX_SAVE_FAIL) showSaveFailBanner();
     }
   }
-  const rankTable = [
-    { minLevel:1,  rank:'견습',  soldiers:2 },
-    { minLevel:3,  rank:'전사',  soldiers:3 },
-    { minLevel:5,  rank:'기사',  soldiers:4 },
-    { minLevel:8,  rank:'영웅',  soldiers:5 },
-    { minLevel:12, rank:'전설',  soldiers:6 }
-  ];
+  const rankTableByClass = {
+    '전사': [
+      { minLevel:1,  rank:'견습 전사', emblem:'🗡️', soldiers:2 },
+      { minLevel:11, rank:'전사',      emblem:'⚔️', soldiers:3 },
+      { minLevel:21, rank:'기사',      emblem:'🛡️', soldiers:4 },
+      { minLevel:41, rank:'영웅 기사', emblem:'👑', soldiers:5 },
+      { minLevel:61, rank:'검신',      emblem:'⚡', soldiers:6 },
+      { minLevel:81, rank:'검왕',      emblem:'🔱', soldiers:6 },
+    ],
+    '궁사': [
+      { minLevel:1,  rank:'견습 궁사', emblem:'🪶', soldiers:2 },
+      { minLevel:11, rank:'궁사',      emblem:'🏹', soldiers:3 },
+      { minLevel:21, rank:'명궁',      emblem:'🎯', soldiers:4 },
+      { minLevel:41, rank:'영웅 궁사', emblem:'👑', soldiers:5 },
+      { minLevel:61, rank:'신궁',      emblem:'🌟', soldiers:6 },
+      { minLevel:81, rank:'궁왕',      emblem:'🦅', soldiers:6 },
+    ],
+    '마법사': [
+      { minLevel:1,  rank:'견습 마법사', emblem:'🪄', soldiers:2 },
+      { minLevel:11, rank:'마법사',      emblem:'🔮', soldiers:3 },
+      { minLevel:21, rank:'대마법사',    emblem:'📖', soldiers:4 },
+      { minLevel:41, rank:'영웅 마법사', emblem:'👑', soldiers:5 },
+      { minLevel:61, rank:'마신',        emblem:'🌙', soldiers:6 },
+      { minLevel:81, rank:'마왕',        emblem:'💜', soldiers:6 },
+    ],
+  };
+  // 하위 호환 — 클래스 없이 호출 시 전사 기준
+  const rankTable = rankTableByClass['전사'];
 
   const markerIcons   = { 몬스터:'⚔️', 보물:'🎁', 장비:'🧰', 특수:'✨' };
 
@@ -3677,8 +3698,10 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   const onlyDigits = v => String(v).replace(/\D/g, '');
 
   function getHeroRankInfo(level) {
-    const e = rankTable.filter(v => level >= v.minLevel);
-    return e[e.length-1] || rankTable[0];
+    const cls = state?.heroClass || '전사';
+    const tbl = rankTableByClass[cls] || rankTableByClass['전사'];
+    const e = tbl.filter(v => level >= v.minLevel);
+    return e[e.length-1] || tbl[0];
   }
   function getExpNeed(level) { return 20 + (level-1)*15; }
   function toFiveCode(barcodeDigits) {
@@ -4238,7 +4261,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       hp:      100 + (state.level*18) + bonus.hp + (rankInfo.soldiers-2)*12 + equip.hp,
       speed:   5 + Math.floor(state.level*0.6) + bonus.spd + equip.speed,
       crit:    5 + Math.floor(state.level*0.3) + bonus.crit + equip.crit,
-      soldiers: rankInfo.soldiers, rank: rankInfo.rank
+      soldiers: rankInfo.soldiers, rank: rankInfo.rank, emblem: rankInfo.emblem
     };
   }
 
@@ -4622,7 +4645,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     return leveled;
   }
 
-  function formatHeroTopTitle(stats) { return `${state.heroName} (${state.heroClass}-${stats.rank}) Lv ${state.level}`; }
+  function formatHeroTopTitle(stats) { return `${state.heroName} ${stats.emblem||''} ${stats.rank} Lv ${state.level}`; }
 
 
   // ═══════════════════════════════════════════════════════
