@@ -137,7 +137,7 @@
       display: flex; flex-direction: column; align-items: center; z-index: 2;
       animation: heroFloat 2.6s ease-in-out infinite;
     }
-    .hero-sprite { width: 78px; height: 90px; filter: drop-shadow(0 12px 16px rgba(0,0,0,0.35)); position: relative; }
+    .hero-sprite { width: 86px; height: 99px; filter: drop-shadow(0 12px 16px rgba(0,0,0,0.35)); position: relative; }
 
     .hero-visual-wrap {
       position: relative; display: inline-flex; align-items: center; justify-content: center;
@@ -158,12 +158,12 @@
     }
     /* aura-legendary::after 제거 — 스파클은 장비 슬롯으로 이동 */
 
-    .hero-shadow { width: 68px; height: 12px; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 4px; border-radius: 50%; animation: shadowPulse 2.6s ease-in-out infinite; }
-    .soldier-row { position: absolute; left: 128px; right: 10px; bottom: 14px; display: flex; gap: 3px; align-items: flex-end; justify-content: flex-start; flex-wrap: wrap; z-index: 3; }
-    .soldier { width: 26px; height: 34px; position: relative; filter: drop-shadow(0 7px 10px rgba(0,0,0,0.32)); animation: soldierBounce 2.2s ease-in-out infinite; }
+    .hero-shadow { width: 75px; height: 12px; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 4px; border-radius: 50%; animation: shadowPulse 2.6s ease-in-out infinite; }
+    .soldier-row { position: absolute; left: 128px; right: 10px; bottom: 14px; display: grid; grid-template-columns: repeat(3, auto); gap: 3px; justify-content: flex-start; align-items: flex-end; z-index: 3; }
+    .soldier { width: 32px; height: 41px; position: relative; filter: drop-shadow(0 7px 10px rgba(0,0,0,0.32)); animation: soldierBounce 2.2s ease-in-out infinite; }
     .soldier:nth-child(2n) { animation-delay: .18s; }
     .soldier:nth-child(3n) { animation-delay: .34s; }
-    .soldier-small-shadow { position: absolute; left: 50%; transform: translateX(-50%); bottom: -4px; width: 22px; height: 7px; background: radial-gradient(circle, rgba(0,0,0,0.32), rgba(0,0,0,0)); border-radius: 50%; }
+    .soldier-small-shadow { position: absolute; left: 50%; transform: translateX(-50%); bottom: -4px; width: 24px; height: 7px; background: radial-gradient(circle, rgba(0,0,0,0.32), rgba(0,0,0,0)); border-radius: 50%; }
 
     /* ── 영웅 클래스별 컬러 ── */
     .class-warrior .hero-body { fill: #7fa3ff; }
@@ -3837,7 +3837,7 @@ document.addEventListener('DOMContentLoaded', () => {
       eq.ring1    ? img(getEquipImageUrl(eq.ring1,    heroClass), 'ring')     : '',
     ].join('');
 
-    return `<div class="hero-visual-wrap ${aura}" style="position:relative;width:64px;height:80px;">
+    return `<div class="hero-visual-wrap ${aura}" style="position:relative;width:70px;height:88px;">
       ${layers}
     </div>`;
   }
@@ -3977,7 +3977,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (size === 'battle') {
       return `<div class="battle-soldier"><img src="${url}" width="22" height="28" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
     }
-    return `<div class="soldier"><img src="${url}" width="26" height="34" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"><div class="soldier-small-shadow"></div></div>`;
+    return `<div class="soldier"><img src="${url}" width="32" height="41" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"><div class="soldier-small-shadow"></div></div>`;
   }
 
   function getClassBonus(heroClass) {
@@ -4898,7 +4898,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function showEventModal(decoded) {
     state.pendingDecoded = decoded;
     els.eventModalTitle.textContent = '이벤트 확인';
-    els.eventModalVisual.textContent = decoded.eventType==='몬스터'?getEnemyVisual(decoded.enemy?.name||'악마'):decoded.eventType==='보물'?'🎁':decoded.eventType==='장비'?decoded.item?.icon||'🧰':'✨';
+    if (decoded.eventType === '장비' && decoded.item?.icon) {
+      els.eventModalVisual.innerHTML = getItemIconHtml(decoded.item.icon, 48);
+    } else {
+      els.eventModalVisual.textContent = decoded.eventType==='몬스터'?getEnemyVisual(decoded.enemy?.name||'악마'):decoded.eventType==='보물'?'🎁':'✨';
+    }
     els.eventModalText.innerHTML = decoded.desc;
     els.eventModalBadges.innerHTML = (decoded.badges||[]).map(b=>`<div class="badge">${b}</div>`).join('');
     els.eventModalActions.innerHTML = decoded.eventType==='몬스터'
