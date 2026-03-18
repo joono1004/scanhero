@@ -4084,20 +4084,28 @@ document.addEventListener('DOMContentLoaded', () => {
     return Math.round((base[item.rarity] || 30) * getRarityMultiplier(item.rarity));
   }
 
+  // 현재 영웅 클래스에 맞는 카탈로그만 필터링
+  function getClassCatalog() {
+    const heroClass = state.heroClass || '전사';
+    return gearCatalog.filter(g =>
+      !g.classes ||                          // 공용 아이템 (망토/반지/목걸이)
+      g.classes.includes(heroClass)          // 현재 클래스용 아이템
+    );
+  }
+
   function generateShopStock() {
     const stock = [];
     const usedSlots = new Set();
+    const catalog = getClassCatalog();
     for (let i = 0; i < 4; i++) {
       const rarity = rollShopRarity();
-      // 중복 슬롯 방지
-      let d4, gear, attempts = 0;
+      let gear, attempts = 0;
       do {
-        d4   = Math.floor(Math.random() * gearCatalog.length);
-        gear = gearCatalog[d4];
+        gear = catalog[Math.floor(Math.random() * catalog.length)];
         attempts++;
       } while (usedSlots.has(gear.slot) && attempts < 20);
       usedSlots.add(gear.slot);
-      const item = createEquipmentItem(rarity, d4, true);
+      const item = createEquipmentItemFromGear(gear, rarity);
       item.shopPrice = getShopItemPrice(item);
       item.soldOut   = false;
       stock.push(item);
@@ -4218,6 +4226,24 @@ document.addEventListener('DOMContentLoaded', () => {
     return item;
   }
 
+  // gear 객체 직접 받는 버전 (클래스 필터링된 드롭/상점용)
+  function createEquipmentItemFromGear(gear, rarity) {
+    const rarityLabel = getRarityLabel(rarity);
+    const item = {
+      id: `${Date.now()}_${Math.random().toString(36).slice(2,7)}`,
+      name: `${rarityLabel} ${gear.name}`,
+      baseName: gear.name,
+      slot: gear.slot, slotLabel: slotLabels[gear.slot],
+      icon: gear.icon, rarity, rarityLabel,
+      stats: {...gear.stats},
+      weaponType: gear.weaponType || null,
+      classes: gear.classes || null,
+      score: (gear.stats.atk||0)*2.0 + (gear.stats.def||0)*1.8 + (gear.stats.hp||0)*0.28 + (gear.stats.speed||0)*2.2 + (gear.stats.crit||0)*2.4
+    };
+    item.power = Math.round(item.score * getRarityMultiplier(rarity) * 10);
+    return item;
+  }
+
   function getSellPrice(item) {
     const base = item.power || 10;
     const mult = { common:1, uncommon:2.2, rare:4.5, epic:10, legendary:25 }[item.rarity] || 1;
@@ -4265,8 +4291,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let cum = 0, rarityIdx = 0;
     for (let i=0; i<table.length; i++) { cum += table[i]; if (roll < cum) { rarityIdx = i; break; } rarityIdx = i; }
     const rarity = rarityOrder[rarityIdx];
-    const d4 = Math.floor(Math.random() * gearCatalog.length);
-    return createEquipmentItem(rarity, d4, true);
+    const catalog = getClassCatalog();
+    const gear = catalog[Math.floor(Math.random() * catalog.length)];
+    return createEquipmentItemFromGear(gear, rarity);
   }
 
   function makeEnemy(name, grade, amount, special, d4) {
@@ -4722,7 +4749,10 @@ document.addEventListener('DOMContentLoaded', () => {
       title=tEntry.name || '보물 발견'; desc=`${tEntry.name||'보물상자'}를 발견했습니다. 골드 ${gold}를 획득합니다.`;
       badges=[eventType, `골드 +${gold}`, special]; reward={exp:8+d2, gold};
     } else if (eventType==='장비') {
-      item=createEquipmentItem(d2, d4, false); const exp=12+d2*2+d5;
+      const _classCatalog = getClassCatalog();
+      const _gear = _classCatalog[d4 % _classCatalog.length];
+      const _rarity = getRarityFromDigit(d2);
+      item=createEquipmentItemFromGear(_gear, _rarity); const exp=12+d2*2+d5;
       title='장비 발견'; desc=`${item.name}을(를) 획득했습니다. ${item.slotLabel} 슬롯 장비입니다.`;
       badges=[eventType, item.rarityLabel, item.slotLabel, item.baseName]; reward={exp, gold:10+d3*3};
     } else {
@@ -4995,7 +5025,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderHero(leveled); renderLogs();
     if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
 
-    const dropHtml = dropItem ? `<br>${dropItem.icon} <span style="color:var(--${dropItem.rarity==='legendary'?'legendary':dropItem.rarity==='epic'?'epic':dropItem.rarity==='rare'?'rare':dropItem.rarity==='uncommon'?'uncommon':'common'})">${dropItem.name} 획득!</span>` : '';
+    const dropHtml = dropItem ? `<br>${getItemIconHtml(dropItem.icon, 18)} <span style="color:var(--${dropItem.rarity==='legendary'?'legendary':dropItem.rarity==='epic'?'epic':dropItem.rarity==='rare'?'rare':dropItem.rarity==='uncommon'?'uncommon':'common'})">${dropItem.name} 획득!</span>` : '';
 
     els.battleActions.className='modal-actions center-single';
     els.battleActions.innerHTML='<button class="modal-primary" id="battleCloseBtn">확인</button>';
