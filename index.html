@@ -3173,22 +3173,26 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
 
   // 탐험 기록 1건 저장
   async function dbSaveExploreLog({ barcode, decodedCode, eventType, eventTitle, eventDetail, lat, lng, address, expGained, goldGained }) {
+    if (!PLAYER_ID) { console.warn('[탐험기록] PLAYER_ID 없음 — 저장 스킵'); return; }
     try {
       const { error } = await sb.from('explore_logs').insert({
         player_id:    PLAYER_ID,
-        barcode,
-        decoded_code: decodedCode,
-        event_type:   eventType,
-        event_title:  eventTitle,
-        event_detail: eventDetail,
-        latitude:     lat,
-        longitude:    lng,
-        address,
-        exp_gained:   expGained,
-        gold_gained:  goldGained
+        barcode:      barcode || '',
+        decoded_code: decodedCode || '',
+        event_type:   eventType || '',
+        event_title:  eventTitle || '',
+        event_detail: eventDetail || '',
+        latitude:     lat || 0,
+        longitude:    lng || 0,
+        address:      address || '',
+        exp_gained:   expGained || 0,
+        gold_gained:  goldGained || 0
       });
       if (error) throw error;
-    } catch (e) { showDbStatus('탐험 기록 실패: ' + e.message, 'error'); }
+    } catch (e) {
+      console.error('[탐험기록 저장 실패]', e.message);
+      showDbStatus('탐험 기록 실패: ' + e.message, 'error');
+    }
   }
 
   // 상점 구매 기록 저장
@@ -3267,13 +3271,13 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
 
       // 탐험 기록 + 전투 기록 로드 (최근 30개)
       const [exploreRes, battleRes] = await Promise.all([
-        sb.from('explore_logs').select('*').eq('player_id', PLAYER_ID).order('created_at', { ascending:false }).limit(30),
+        sb.from('explore_logs').select('*').eq('player_id', PLAYER_ID).order('explored_at', { ascending:false }).limit(30),
         sb.from('battle_logs').select('*').eq('player_id', PLAYER_ID).order('created_at', { ascending:false }).limit(30),
       ]);
 
       // 탐험+전투 기록 합쳐서 시간순 정렬 후 state.logs 복원
       const exploreLogs = (exploreRes.data || []).map(r => ({
-        time:   new Date(r.created_at).toLocaleString('ko-KR'),
+        time:   new Date(r.explored_at).toLocaleString('ko-KR'),
         title:  r.event_title || '탐험',
         detail: r.event_detail || '',
       }));
@@ -3286,7 +3290,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
           detail:       `${r.enemy_amount}마리 / ${r.turns}턴 / 경험치 +${r.exp_gained} / 골드 +${r.gold_gained}`,
           retryDecoded: canRetry ? { _dbRetry:true, enemyName:r.enemy_name, enemyGrade:r.enemy_grade, eventType:'몬스터' } : null,
           retryCount:   0,
-          _createdAt:   r.created_at,
+          _createdAt:   r.explored_at,
         };
       });
 
@@ -5510,8 +5514,10 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     try { state.mapHistory = JSON.parse(raw).filter(i=>i&&typeof i.lat==='number'); } catch { state.mapHistory=[]; }
   }
   async function addMapHistory({barcode,decoded,detail,exp,gold}) {
-    const {lat,lng} = state.currentLocation;
-    const address   = await reverseGeocode(lat, lng);
+    // 위치 없으면 기본값 사용
+    const lat = state.currentLocation?.lat || 0;
+    const lng = state.currentLocation?.lng || 0;
+    const address = (lat && lng) ? await reverseGeocode(lat, lng) : '위치 정보 없음';
     state.mapHistory.unshift({
       id:`${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
       barcode, code:decoded.code, eventType:decoded.eventType,
