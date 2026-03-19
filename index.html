@@ -1029,7 +1029,7 @@
     .battle-enemy-unit { right: 12px; }
     .battle-sprite-wrap { width: 133px; height: 150px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 18px 18px rgba(0,0,0,0.35)); position: relative; z-index: 2; }
     .battle-hero-sprite, .battle-enemy-sprite { width: 133px; height: 150px; transition: transform 0.28s ease, filter 0.28s ease; filter: drop-shadow(0 0 3px rgba(255,255,255,0.8)) drop-shadow(0 0 6px rgba(255,255,255,0.4)); }
-    .battle-shadow { width: 78px; height: 12px; border-radius: 50%; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 3px; }
+    .battle-shadow { display: none; }
     .battle-enemy-emoji { width: 133px; height: 150px; transition: transform 0.28s ease, filter 0.28s ease; border-radius: 12px; }
     /* 등급별 몬스터 발광 효과 */
     .grade-fx-일반    { filter: drop-shadow(0 0 3px rgba(255,255,255,0.8)) drop-shadow(0 0 6px rgba(255,255,255,0.4)); }
@@ -1045,8 +1045,8 @@
       0%,100% { filter: drop-shadow(0 0 10px rgba(255,207,99,0.9)) drop-shadow(0 0 22px rgba(255,100,50,0.5)) brightness(1.15) saturate(1.2); }
       50%      { filter: drop-shadow(0 0 20px rgba(255,207,99,1.0)) drop-shadow(0 0 40px rgba(255,80,30,0.8)) brightness(1.3) saturate(1.5); }
     }
-    .battle-soldier-group { position: absolute; left: 20px; bottom: 3px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; z-index: 4; align-items: flex-end; }
-    .battle-enemy-group { position: absolute; right: 20px; bottom: 3px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; z-index: 4; align-items: flex-end; }
+    .battle-soldier-group { position: absolute; left: 20px; bottom: -4px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; z-index: 4; align-items: flex-end; }
+    .battle-enemy-group { position: absolute; right: 20px; bottom: -4px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; z-index: 4; align-items: flex-end; }
     .battle-enemy-mob { width: 44px; height: 56px; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
     .battle-soldier { width: 44px; height: 56px; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; filter: drop-shadow(0 0 2.5px rgba(255,255,255,0.75)) drop-shadow(0 0 5px rgba(255,255,255,0.35)); }
     .battle-nameplates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -1547,9 +1547,9 @@
       </div>
 
       <div class="card">
-        <div class="section-title" style="justify-content:space-between;">
+        <div class="section-title">
           <span>탐험 결과</span>
-          <button class="icon-btn small" id="exploreLogBtn" type="button" title="탐험 기록">📜</button>
+          <button class="icon-btn small" id="exploreLogBtn" type="button" title="탐험 기록" style="margin-left:6px;">📜</button>
         </div>
         <div class="event-box">
           <div class="result-hero">
@@ -1599,7 +1599,7 @@
           </div>
           <div class="battle-soldier-group" id="battleSoldierGroup"></div>
           <div class="battle-unit battle-enemy-unit" id="battleEnemyUnit">
-            <div id="battleEnemySpecialBadge" style="text-align:center;margin-bottom:3px;display:none;"></div>
+            <div id="battleEnemySpecialBadge" style="text-align:center;margin-bottom:9px;display:none;"></div>
             <div class="battle-sprite-wrap"><div class="battle-enemy-emoji" id="battleEnemyEmoji">👹</div></div>
             <div class="battle-shadow"></div>
           </div>
@@ -3496,17 +3496,17 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         drop_table:{일반:[30,32,22,12,4],챔피언:[18,28,28,18,8],엘리트:[8,20,30,28,14],전설:[4,12,26,34,24],보스:[2,8,22,36,32]} },
     ],
     treasure: [
-      { d4_index:0, name:'낡은 보물상자',  emoji:'📦', gold_formula:'20+d2*4+d3*3+d5*2' },
-      { d4_index:1, name:'은빛 보물상자',  emoji:'🎁', gold_formula:'20+d2*8+d3*5+d5*3' },
-      { d4_index:2, name:'황금 보물상자',  emoji:'💰', gold_formula:'40+d2*12+d3*8+d5*5' },
-      { d4_index:3, name:'고대 보물상자',  emoji:'🏺', gold_formula:'60+d2*15+d3*10+d5*7' },
+      { d4_index:0, name:'골드',         emoji:'🪙', gold_formula:'20+d2*4+d3*3+d5*2' },
+      { d4_index:1, name:'골드 주머니',   emoji:'💰', gold_formula:'20+d2*8+d3*5+d5*3' },
+      { d4_index:2, name:'골드 작은 상자',emoji:'📦', gold_formula:'40+d2*12+d3*8+d5*5' },
+      { d4_index:3, name:'골드 선물',     emoji:'🎁', gold_formula:'60+d2*15+d3*10+d5*7' },
     ],
     special: [
       { d4_index:0, name:'고대 유적',    emoji:'🏛️', exp_formula:'15+d2*2+d5', gold_formula:'15+d3*4' },
       { d4_index:1, name:'숨겨진 제단',  emoji:'⛩️', exp_formula:'18+d2*2+d5', gold_formula:'18+d3*4' },
       { d4_index:2, name:'길 잃은 상인', emoji:'🧙', exp_formula:'12+d2*2+d5', gold_formula:'25+d3*6' },
       { d4_index:3, name:'빛의 축복',    emoji:'✨', exp_formula:'20+d2*3+d5', gold_formula:'10+d3*3' },
-      { d4_index:4, name:'어둠의 저주',  emoji:'🌑', exp_formula:'22+d2*2+d5', gold_formula:'12+d3*3' },
+      { d4_index:4, name:'마녀의 축복',  emoji:'🌑', exp_formula:'22+d2*2+d5', gold_formula:'0' },
       { d4_index:5, name:'용사의 흔적',  emoji:'⚔️', exp_formula:'25+d2*3+d5', gold_formula:'15+d3*4' },
       { d4_index:6, name:'전장의 잔해',  emoji:'🪖', exp_formula:'14+d2*2+d5', gold_formula:'20+d3*5' },
       { d4_index:7, name:'수상한 포탈',  emoji:'🌀', exp_formula:'28+d2*3+d5', gold_formula:'8+d3*2'  },
@@ -5005,7 +5005,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       // 그리드 3열 기준: 첫 행(0~2) → margin-bottom으로 아래 행과 간격
       // align-items:flex-end 기준으로 윗줄을 5px 아래로 내림
       if (soldierCount > 3 && i < 3) {
-        return sprite.replace('<div class="soldier"', '<div class="soldier" style="position:relative;top:35px;"');
+        return sprite.replace('<div class="soldier"', '<div class="soldier" style="position:relative;top:23px;"');
       }
       return sprite;
     }).join('');
@@ -5409,37 +5409,42 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     } else if (eventType==='보물') {
       const tEntry = getTreasureEntry(d4);
       const gold = evalFormula(tEntry.gold_formula, d2, d3, d5) || (20+d2*8+d3*5+d5*3);
-      title=tEntry.name || '보물 발견'; desc=`${tEntry.name||'보물상자'}를 발견했습니다. 골드 ${gold}를 획득합니다.`;
-      badges=[eventType, `골드 +${gold}`, special]; reward={exp:8+d2, gold};
+      title=tEntry.name || '골드'; desc=`${tEntry.name||'골드'}를 발견했습니다. 골드 ${gold}를 획득합니다.`;
+      badges=[`${tEntry.emoji} ${tEntry.name}`, `+${gold}`]; reward={exp:0, gold};
     } else if (eventType==='장비') {
       const _classCatalog = getClassCatalog();
       const _gear = _classCatalog[d4 % _classCatalog.length];
       const _rarity = getRarityFromDigit(d2);
-      item=createEquipmentItemFromGear(_gear, _rarity); const exp=12+d2*2+d5;
+      item=createEquipmentItemFromGear(_gear, _rarity);
       title='장비 발견'; desc=`${item.name}을(를) 획득했습니다. ${item.slotLabel} 슬롯 장비입니다.`;
-      badges=[eventType, item.rarityLabel, item.slotLabel, item.baseName]; reward={exp, gold:10+d3*3};
+      badges=[eventType, item.rarityLabel, item.slotLabel, item.baseName]; reward={exp:0, gold:0};
     } else {
       const sEntry = getSpecialEntry(d4);
       const exp  = evalFormula(sEntry.exp_formula,  d2, d3, d5) || (15+d2*2+d5);
       const gold = evalFormula(sEntry.gold_formula, d2, d3, d5) || (15+d3*4);
       const sp   = sEntry.name || '특수 이벤트';
       title='특수 이벤트'; desc=`${sp}을(를) 발견했습니다. 탐험의 기운으로 영웅이 크게 성장합니다.`;
-      badges=[eventType, sp, `경험치 +${exp}`]; reward={exp, gold};
+      badges=[eventType, sp, `경험치 +${exp}`]; reward={exp, gold:0};
     }
     return {code,d1,d2,d3,d4,d5,eventType,grade,amount,special,title,desc,badges,enemy,reward,item};
+  }
+
+  // 이벤트 배지 렌더링 공통 함수 (텍스트)
+  function renderEventBadges(badges) {
+    const specialColors = { '공격 UP':'#ff8a65', '방어 UP':'#63a8ff', '공속 UP':'#63d09a', '드랍 UP':'#ffcf63' };
+    els.eventBadges.innerHTML = (badges||[]).map(b => {
+      const color = specialColors[b];
+      return color
+        ? `<div class="badge" style="color:${color};border-color:${color}55;background:${color}18;">⬆ ${b}</div>`
+        : `<div class="badge">${b}</div>`;
+    }).join('');
   }
 
   function renderEvent(decoded) {
     els.codeOutput.textContent = decoded.code;
     els.eventTitle.textContent = decoded.title;
     els.eventDesc.textContent  = decoded.desc;
-    const specialBadgeFiles = { '공격 UP':'atk_up.png', '방어 UP':'def_up.png', '공속 UP':'spd_up.png', '드랍 UP':'drop_up.png' };
-    els.eventBadges.innerHTML = decoded.badges.map(b => {
-      const badgeFile = specialBadgeFiles[b];
-      return badgeFile
-        ? `<div class="badge" style="padding:2px 4px;"><img src="${STORAGE_BASE}/badge/${badgeFile}" width="62" height="22" style="object-fit:contain;display:block;" onerror="this.parentElement.textContent='⬆ ${b}'"></div>`
-        : `<div class="badge">${b}</div>`;
-    }).join('');
+    renderEventBadges(decoded.badges);
     // 탐험 결과 sessionStorage 저장 (재접속 시 복원용)
     try { sessionStorage.setItem('sh_last_event', JSON.stringify(decoded)); } catch(e) {}
     // 전투 결과 배지 초기화 (새 탐험 시)
@@ -5995,7 +6000,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
 
   async function processNonBattleResult(decoded) {
     els.codeOutput.textContent = decoded.code; els.eventTitle.textContent=decoded.title;
-    els.eventDesc.textContent  = decoded.desc; els.eventBadges.innerHTML=decoded.badges.map(b=>`<div class="badge">${b}</div>`).join('');
+    els.eventDesc.textContent  = decoded.desc; renderEventBadges(decoded.badges);
     const reward = decoded.reward||{exp:5,gold:0};
     let itemLog='';
     if (decoded.item) { const eq=obtainItem(decoded.item); itemLog=eq?` / 장착: ${decoded.item.name}`:` / 획득: ${decoded.item.name}`; }
