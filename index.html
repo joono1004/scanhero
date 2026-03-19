@@ -1445,39 +1445,55 @@
     }
     .soldier-modal-backdrop.open { display:flex; }
     .soldier-modal {
-      width:min(390px,100%); max-height:90dvh;
+      width:min(390px,100%); max-height:88dvh;
       background:linear-gradient(180deg,rgba(24,33,57,0.98),rgba(14,21,37,0.98));
-      border:1px solid rgba(134,164,235,0.24); border-radius:22px;
-      box-shadow:0 24px 60px rgba(0,0,0,0.45); overflow:hidden;
-      display:flex; flex-direction:column;
+      border:1px solid rgba(134,164,235,0.24); border-radius:20px;
+      box-shadow:0 24px 60px rgba(0,0,0,0.45);
+      display:flex; flex-direction:column; overflow:hidden;
     }
     .soldier-modal-head {
-      padding:14px 16px 10px; font-size:15px; font-weight:900; color:#eef3ff;
-      border-bottom:1px solid rgba(110,139,204,0.15);
+      padding:12px 16px 10px; font-size:14px; font-weight:900; color:#eef3ff;
+      border-bottom:1px solid rgba(110,139,204,0.15); flex-shrink:0;
     }
-    .soldier-modal-body { padding:10px 12px; display:flex; flex-direction:column; gap:0; overflow-y:auto; flex:1; }
+    .soldier-modal-body {
+      padding:6px 10px; display:flex; flex-direction:column; gap:0;
+      overflow-y:auto; flex:1; min-height:0;
+    }
     .soldier-modal-row {
-      display:grid; grid-template-columns:80px 1fr;
+      display:grid; grid-template-columns:60px 1fr;
       border-bottom:1px solid rgba(110,139,204,0.12);
-      cursor:pointer; transition:background 0.15s;
+      cursor:pointer; transition:background 0.15s; min-height:0;
     }
     .soldier-modal-row:last-child { border-bottom:none; }
     .soldier-modal-row:hover { background:rgba(79,124,255,0.06); }
-    .soldier-modal-row.selected { background:rgba(99,208,154,0.08); }
-    .soldier-row-img, .soldier-modal-row-img {
+    .soldier-modal-row.selected { background:rgba(99,208,154,0.1); border-left:2px solid #63d09a; }
+    .soldier-modal-row-img {
       display:flex; flex-direction:column; align-items:center; justify-content:center;
-      padding:8px 6px; border-right:1px solid rgba(110,139,204,0.12);
+      padding:6px 4px; border-right:1px solid rgba(110,139,204,0.12); flex-shrink:0;
     }
-    .soldier-row-img img, .soldier-modal-row-img img { width:44px; height:56px; object-fit:contain; }
-    .soldier-row-stats { padding:8px 10px; display:flex; flex-direction:column; gap:2px; }
-    .soldier-row-name { font-size:12px; font-weight:900; color:#eef3ff; margin-bottom:4px; }
-    .soldier-stat-item { font-size:11px; font-weight:700; }
+    .soldier-modal-row-img img { width:36px; height:46px; object-fit:contain; }
+    .soldier-modal-row-img span { font-size:9px; font-weight:800; color:#a9b6d6; margin-top:2px; }
+    .soldier-modal-row-stats {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      padding:0; flex:1; min-width:0;
+    }
+    .soldier-modal-col {
+      padding:5px 4px; border-left:1px solid rgba(110,139,204,0.1);
+      display:flex; flex-direction:column; gap:1px;
+    }
+    .soldier-modal-col:first-child { border-left:none; }
+    .soldier-modal-col-head {
+      font-size:10px; font-weight:900; color:#a9b6d6;
+      text-align:center; margin-bottom:3px; padding-bottom:2px;
+      border-bottom:1px solid rgba(110,139,204,0.15);
+    }
+    .soldier-stat-item { font-size:10px; font-weight:700; white-space:nowrap; }
     .soldier-stat-up { color:#63d09a; }
     .soldier-stat-down { color:#ff8a65; }
     .soldier-stat-neu { color:#7a90be; }
-    .soldier-modal-actions { padding:10px 12px; border-top:1px solid rgba(110,139,204,0.15); }
+    .soldier-modal-actions { padding:8px 12px; border-top:1px solid rgba(110,139,204,0.15); flex-shrink:0; }
     .soldier-confirm-btn {
-      width:100%; padding:12px; border-radius:12px; font-size:14px; font-weight:900;
+      width:100%; padding:10px; border-radius:12px; font-size:13px; font-weight:900;
       background:linear-gradient(135deg,#4f7cff,#3a5fd9); color:#fff; border:none; cursor:pointer;
     }
   </style>
@@ -6511,25 +6527,25 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     soldierModalBody.innerHTML = SOLDIER_DATA.map(sd => {
       const isSelected = sd.key === (els.eventSoldierClassSelect.value || '검병');
       const cols = counts.map(c => {
-        return `<div style="flex:1;text-align:center;padding:6px 4px;border-left:1px solid rgba(110,139,204,0.12);">
-          <div style="font-size:11px;font-weight:900;color:#a9b6d6;margin-bottom:4px;">${c}명</div>
-          ${Object.entries(sd.mod).map(([k,v]) => {
-            const keyMap = {atk:'atk',def:'def',hp:'hp',speed:'speed',crit:'crit'};
-            const base = heroStats[keyMap[k]] || 0;
-            const diff = Math.round(base * v) - base;
-            if (diff === 0) return '';
-            const cls = diff > 0 ? 'up' : 'down';
-            const sign = diff > 0 ? '+' : '';
-            return `<div class="soldier-stat-item soldier-stat-${cls}">${STAT_LABELS[k]} ${sign}${diff}</div>`;
-          }).filter(Boolean).join('')}
+        const stats = Object.entries(sd.mod).map(([k,v]) => {
+          const base = heroStats[k] || 0;
+          const diff = Math.round(base * v) - base;
+          if (diff === 0) return '';
+          const cls = diff > 0 ? 'up' : 'down';
+          const sign = diff > 0 ? '+' : '';
+          return `<div class="soldier-stat-item soldier-stat-${cls}">${STAT_LABELS[k]} ${sign}${diff}</div>`;
+        }).filter(Boolean).join('');
+        return `<div class="soldier-modal-col">
+          <div class="soldier-modal-col-head">${c}명</div>
+          ${stats}
         </div>`;
       }).join('');
       return `<div class="soldier-modal-row${isSelected?' selected':''}" data-soldier="${sd.key}" id="soldierRow_${sd.key}">
         <div class="soldier-modal-row-img">
           <img src="${sd.img}" onerror="this.style.opacity=0">
-          <div style="font-size:11px;font-weight:900;color:${isSelected?'#63d09a':'#cdd7f2'};text-align:center;margin-top:4px;">${sd.key}</div>
+          <span>${sd.key}</span>
         </div>
-        <div style="display:flex;">${cols}</div>
+        <div class="soldier-modal-row-stats">${cols}</div>
       </div>`;
     }).join('');
 
