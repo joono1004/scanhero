@@ -614,7 +614,11 @@
       background: radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
       border: 1px solid rgba(100,130,200,0.22);
       height: 288px; width: 100%;
+      background-size: cover; background-position: center;
     }
+    .equip-doll-stage.bg-전사  { background-image: url('https://joono1004.github.io/scanhero/assets/bg/stats_bg_warrior.png'); }
+    .equip-doll-stage.bg-궁사  { background-image: url('https://joono1004.github.io/scanhero/assets/bg/stats_bg_archer.png'); }
+    .equip-doll-stage.bg-마법사 { background-image: url('https://joono1004.github.io/scanhero/assets/bg/stats_bg_mage.png'); }
     /* 캐릭터 — 중앙 배치 */
     .equip-doll-hero, .hero-doll-char {
       position: absolute; left: 50%; top: calc(46% + 32px);
@@ -1678,7 +1682,10 @@
 
         <!-- 보관 중 인벤토리만 -->
         <div class="inventory-panel" style="margin-top:8px;">
-          <div class="inventory-title">🎒 보관 중</div>
+          <div class="inventory-title" style="display:flex;align-items:center;justify-content:space-between;">
+            <span>🎒 인벤토리</span>
+            <button id="autoEquipBtn" style="font-size:10px;font-weight:900;padding:2px 0;width:56px;border-radius:6px;border:1px solid rgba(255,207,99,0.5);background:rgba(255,207,99,0.12);color:#ffcf63;cursor:pointer;text-align:center;flex-shrink:0;">⚡AUTO</button>
+          </div>
           <div class="inventory-scroll"><div class="inventory-grid" id="inventoryGrid"></div></div>
         </div>
       </div>
@@ -2033,10 +2040,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '기사 망토':   { folder:'cape',   file:'common_cape_02.png'    },
     '용사 망토':   { folder:'cape',   file:'common_cape_03.png'    },
     // 반지
-    '공격력 반지': { folder:'ring',   file:'common_ring_01.png'    },
-    '방어력 반지': { folder:'ring',   file:'common_ring_02.png'    },
-    '체력 반지':   { folder:'ring',   file:'common_ring_03.png'    },
-    '만능 반지':   { folder:'ring',   file:'common_ring_04.png'    },
+    // 반지는 레이어 이미지 없음 (슬롯 아이콘만 사용)
     // 목걸이
     // 목걸이는 레이어 이미지 없음 (슬롯 아이콘만 사용)
   };
@@ -4189,7 +4193,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       (!eq.helmet || eq.helmet.isDefault)
         ? img(getDefaultHeadUrl(heroClass), 'head')
         : img(getEquipImageUrl(eq.helmet, heroClass), 'helmet'),
-      eq.ring1    ? img(getEquipImageUrl(eq.ring1,    heroClass), 'ring')     : '',
+      // 반지는 캐릭터 레이어 표시 없음 (슬롯 아이콘만 사용)
     ].join('');
 
     return `<div class="hero-visual-wrap ${aura}" style="position:relative;width:155px;height:179px;">
@@ -4211,6 +4215,9 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   // equipment: 장비 객체 (기본 state.equipment)
   // ══════════════════════════════════════════════════════════
   function renderHeroDoll(stageEl, { heroClass = state.heroClass, equipment = state.equipment } = {}) {
+    // 클래스별 배경 이미지 적용
+    stageEl.classList.remove('bg-전사', 'bg-궁사', 'bg-마법사');
+    if (heroClass) stageEl.classList.add(`bg-${heroClass}`);
     if (!stageEl) return;
 
     // 기존 img-doll-stage 재사용 또는 생성
@@ -4284,12 +4291,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
           : getDefaultHeadUrl(heroClass),
         style: 'inset:0;'
       },
-      {
-        cls: 'img-layer-ring',
-        item: equipment.ring1,
-        url: equipment.ring1 ? getEquipImageUrl(equipment.ring1, heroClass) : null,
-        style: 'inset:0;'
-      },
+      // 반지는 레이어 이미지 없음 (슬롯 아이콘만 사용)
     ];
 
     LAYER_DEFS.forEach(({ cls, item, url, style }) => {
@@ -5080,6 +5082,39 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   // ─────────────────────────────────────────
   function getAllEquippedIds() {
     return new Set(Object.values(state.equipment).filter(Boolean).map(i => i.id));
+  }
+
+  // AUTO 장착: 슬롯별 가장 높은 power 아이템 장착
+  function autoEquipBest() {
+    const slots = ['weapon','armor','shield','gloves','boots','ring1','necklace','cloak','helmet'];
+    let changed = 0;
+    slots.forEach(slot => {
+      // 현재 클래스에 맞는 아이템만 필터
+      const candidates = state.inventory.filter(i => {
+        const iSlot = i.slot === 'ring' ? 'ring1' : i.slot;
+        if (iSlot !== slot) return false;
+        if (i.classes && !i.classes.includes(state.heroClass)) return false;
+        return true;
+      });
+      if (!candidates.length) return;
+      // 전투력 가장 높은 아이템
+      const best = candidates.reduce((a, b) => (a.power||0) > (b.power||0) ? a : b);
+      const cur = state.equipment[slot];
+      if (!cur || (best.power||0) > (cur.power||0)) {
+        state.equipment[slot] = best;
+        changed++;
+      }
+    });
+    if (changed > 0) {
+      updateEquipSlotUI();
+      renderHero();
+      scheduleAutoSave();
+      showDropNotification(`⚡ AUTO 장착 완료! ${changed}개 슬롯 업데이트`, '#ffcf63');
+    } else {
+      showDropNotification('⚡ 이미 최적 장비가 장착되어 있어요!', '#63d09a');
+    }
+    // 영웅 정보창 갱신
+    openHeroStatsModal();
   }
 
   function renderInventoryGrid() {
@@ -6275,6 +6310,9 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   els.startGameBtn.addEventListener('click', applyStartHero);
   els.startHeroName.addEventListener('keydown', e=>{ if(e.key==='Enter') applyStartHero(); });
   els.heroTitleBtn.addEventListener('click', openHeroStatsModal);
+  document.addEventListener('click', e => {
+    if (e.target && e.target.id === 'autoEquipBtn') autoEquipBest();
+  });
   els.heroStatsCloseBtn.addEventListener('click', ()=>closeModal(els.heroStatsBackdrop));
 
   [els.scanModalBackdrop,els.mapBackdrop,els.mapHistoryBackdrop,els.decodeBackdrop,els.exploreLogBackdrop,els.heroStatsBackdrop,els.eventModalBackdrop,els.battleBackdrop,els.itemDetailBackdrop].forEach(bd=>{
