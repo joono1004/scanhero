@@ -188,7 +188,7 @@
     /* aura-legendary::after 제거 — 스파클은 장비 슬롯으로 이동 */
 
     .hero-shadow { width: 130px; height: 12px; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 4px; border-radius: 50%; animation: shadowPulse 2.6s ease-in-out infinite; }
-    .soldier-row { position: absolute; right: 8px; bottom: -4px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; justify-content: flex-end; align-items: flex-end; z-index: 3; }
+    .soldier-row { position: absolute; left: calc(50% + 40px); transform: translateX(-50%); bottom: -4px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; justify-content: center; align-items: flex-end; z-index: 3; }
     .soldier { width: 46px; height: 59px; position: relative; filter: drop-shadow(0 7px 10px rgba(0,0,0,0.32)); animation: soldierBounce 2.2s ease-in-out infinite; }
     .soldier:nth-child(2n) { animation-delay: .18s; }
     .soldier:nth-child(3n) { animation-delay: .34s; }
@@ -1614,7 +1614,7 @@
               <div class="bg-layer bg-layer-far"  id="bgLayerFar"></div>
               <div class="bg-layer bg-layer-near" id="bgLayerNear"></div>
               <div class="hero-unit"><div class="hero-sprite" id="heroSpriteWrap"></div><div class="hero-shadow"></div></div>
-              <div class="soldier-modal-row" id="soldierFront"></div>
+              <div class="soldier-row" id="soldierFront"></div>
               <div class="formation-ground"></div>
               <div class="hero-doll-stage formation-doll-overlay" id="formationDollOverlay"></div>
               <!-- 전술 스탯 오버레이 -->
