@@ -2418,11 +2418,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         }
         loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap();
         requestCurrentLocation();
-        // 마지막 탐험 결과 복원
-        try {
-          const lastEv = sessionStorage.getItem('sh_last_event');
-          if (lastEv) { const decoded = JSON.parse(lastEv); renderEvent(decoded); }
-        } catch(e) {}
+        // 마지막 탐험 결과는 dbLoadAll에서 DB 기반으로 복원
         setInterval(async () => { await dbSaveAll(true); }, 30000);
       } else {
         // 게임 진행 중이 아니었음 → 캐릭터 선택 화면
@@ -3280,7 +3276,27 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         time:   new Date(r.explored_at).toLocaleString('ko-KR'),
         title:  r.event_title || '탐험',
         detail: r.event_detail || '',
+        _createdAt: r.explored_at,
       }));
+
+      // 가장 최근 탐험 결과로 화면 복원
+      if (exploreRes.data?.length) {
+        const last = exploreRes.data[0];
+        // decodeEvent로 복원 가능하면 renderEvent, 아니면 텍스트만 표시
+        try {
+          if (last.decoded_code && last.decoded_code !== '-----') {
+            const decoded = decodeEvent(last.decoded_code);
+            decoded.title = last.event_title || decoded.title;
+            decoded.desc  = last.event_detail || decoded.desc;
+            renderEvent(decoded);
+          } else {
+            // decoded_code 없으면 텍스트만 표시
+            if (els.eventTitle) els.eventTitle.textContent = last.event_title || '탐험';
+            if (els.eventDesc)  els.eventDesc.textContent  = last.event_detail || '';
+            if (els.codeOutput) els.codeOutput.textContent = last.decoded_code || '-----';
+          }
+        } catch(e) {}
+      }
       const battleLogs = (battleRes.data || []).map(r => {
         const resultLabel = r.result === 'win' ? '승리' : r.result === 'lose' ? '패배' : '도망';
         const canRetry = (r.result === 'lose' || r.result === 'run');
