@@ -52,7 +52,7 @@
 
     .wrap { max-width: 430px; margin: 0 auto; padding: 10px 10px 14px; position: relative; z-index: 1; min-height: 100dvh; }
     .title { font-size: 24px; font-weight: 900; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-    .title::before { content: '⚔️'; font-size: 24px; }
+    .title::before { content: ''; }
 
     .subtitle {
       color: var(--muted); margin-bottom: 10px; line-height: 1.45;
@@ -1394,7 +1394,7 @@
 
   <!-- ══ 인증 화면 ══ -->
   <div class="auth-screen" id="authScreen" style="display:none;">
-    <div class="auth-logo">⚔️ ScanHero</div>
+    <div class="auth-logo"><img src="https://joono1004.github.io/scanhero/assets/logo/scanhero_logo.png" height="50" style="object-fit:contain;display:block;" onerror="this.outerHTML='⚔️ ScanHero'"></div>
     <div class="auth-tagline">바코드로 세계를 탐험하는 모바일 RPG</div>
     <div class="auth-card">
       <div class="auth-tabs">
@@ -1439,7 +1439,7 @@
 
   <!-- ══ 캐릭터 선택 화면 ══ -->
   <div class="char-screen" id="charScreen" style="display:none;">
-    <div class="char-screen-logo">⚔️ ScanHero</div>
+    <div class="char-screen-logo"><img src="https://joono1004.github.io/scanhero/assets/logo/scanhero_logo.png" height="40" style="object-fit:contain;display:block;" onerror="this.outerHTML='⚔️ ScanHero'"></div>
     <div class="char-screen-header">
       <div class="char-screen-title">영웅 선택</div>
       <button class="char-logout-btn" id="logoutBtn">로그아웃</button>
@@ -1502,7 +1502,7 @@
 
   <div class="wrap">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-      <div class="title" id="gameTitleBtn" style="cursor:pointer; user-select:none; margin-bottom:0;" title="개발자 모드">ScanHero MVP</div>
+      <div class="title" id="gameTitleBtn" style="cursor:pointer; user-select:none; margin-bottom:0;" title="개발자 모드"><img src="https://joono1004.github.io/scanhero/assets/logo/scanhero_logo.png" height="34" style="object-fit:contain;display:block;" onerror="this.outerHTML='ScanHero'"></div>
       <button type="button" class="game-logout-btn" id="gameLogoutBtn" title="나가기">🚪 나가기</button>
     </div>
     <div class="subtitle">초기 버전은 <b>영웅 성장</b>과 <b>바코드 탐험의 재미</b>에 집중했습니다.<br />전술과 병사 클래스를 먼저 고른 뒤, 바코드 탐험을 진행할 수 있습니다.</div>
