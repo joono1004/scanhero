@@ -4762,17 +4762,19 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     ];
     if (overlay) {
       const heroStats = getHeroBaseStats();
-      const statVals = { 공격: heroStats.atk, 방어: heroStats.def, HP: heroStats.hp, 속도: heroStats.speed, 치명: heroStats.crit };
+      const baseVals = { 공격: heroStats.atk, 방어: heroStats.def, HP: heroStats.hp, 속도: heroStats.speed, 치명: heroStats.crit };
       overlay.innerHTML = allStats.map(s => {
         const icon = iconMap[s.key] || s.key;
-        const val = statVals[s.key] ?? 0;
-        const up = s.val > 1.0; const down = s.val < 1.0;
-        const color = up ? '#63d09a' : down ? '#ff8a65' : '#a9b6d6';
+        const base = baseVals[s.key] ?? 0;
+        const diff = Math.round(base * s.val) - base;
+        if (diff === 0) return '';
+        const color = diff > 0 ? '#63d09a' : '#ff8a65';
+        const sign = diff > 0 ? '+' : '';
         return `<div style="display:flex;align-items:center;gap:3px;background:rgba(0,0,0,0.55);border-radius:6px;padding:2px 5px;backdrop-filter:blur(4px);">
           <span style="font-size:10px;">${icon}</span>
-          <span style="font-size:10px;font-weight:900;color:${color};">${val}</span>
+          <span style="font-size:10px;font-weight:900;color:${color};">${sign}${diff}</span>
         </div>`;
-      }).join('');
+      }).filter(Boolean).join('');
     }
     if (!els.tacticBadgeStats) return;
     els.tacticBadgeStats.innerHTML = '';
