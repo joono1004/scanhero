@@ -461,10 +461,14 @@
       background: none !important; border: none !important;
       display: flex; align-items: center; justify-content: center;
     }
+    /* 클래스별 캐릭터 빛 번짐 효과 */
+    .bg-전사   .hero-doll-thumb .hero-visual-wrap,
+    .bg-궁사   .hero-doll-thumb .hero-visual-wrap,
+    .bg-마법사 .hero-doll-thumb .hero-visual-wrap { filter: drop-shadow(0 0 6px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4)); }
     /* 선택창 캐릭터: 높이 100% 기준으로 비율 유지하며 꽉 채움 */
     .hero-doll-thumb .hero-visual-wrap {
       width: auto !important;
-      height: 100% !important;
+      height: 90% !important;
       aspect-ratio: 70 / 88;
       flex-shrink: 0;
     }
