@@ -1028,13 +1028,27 @@
     .battle-hero-unit { left: 12px; }
     .battle-enemy-unit { right: 12px; }
     .battle-sprite-wrap { width: 133px; height: 150px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 18px 18px rgba(0,0,0,0.35)); position: relative; z-index: 2; }
-    .battle-hero-sprite, .battle-enemy-sprite { width: 133px; height: 150px; transition: transform 0.28s ease, filter 0.28s ease; }
+    .battle-hero-sprite, .battle-enemy-sprite { width: 133px; height: 150px; transition: transform 0.28s ease, filter 0.28s ease; filter: drop-shadow(0 0 3px rgba(255,255,255,0.8)) drop-shadow(0 0 6px rgba(255,255,255,0.4)); }
     .battle-shadow { width: 78px; height: 12px; border-radius: 50%; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 3px; }
-    .battle-enemy-emoji { width: 133px; height: 150px; transition: transform 0.28s ease, filter 0.28s ease; }
+    .battle-enemy-emoji { width: 133px; height: 150px; transition: transform 0.28s ease, filter 0.28s ease; border-radius: 12px; }
+    /* 등급별 몬스터 발광 효과 */
+    .grade-fx-일반    { filter: drop-shadow(0 0 3px rgba(255,255,255,0.8)) drop-shadow(0 0 6px rgba(255,255,255,0.4)); }
+    .grade-fx-챔피언  { filter: drop-shadow(0 0 6px rgba(99,208,154,0.9)) drop-shadow(0 0 12px rgba(99,208,154,0.5)); }
+    .grade-fx-엘리트  { filter: drop-shadow(0 0 8px rgba(99,168,255,1.0)) drop-shadow(0 0 18px rgba(99,168,255,0.6)) brightness(1.1); }
+    .grade-fx-전설    { filter: drop-shadow(0 0 10px rgba(178,125,255,1.0)) drop-shadow(0 0 22px rgba(178,125,255,0.7)) brightness(1.15); animation: legendPulse 2s ease-in-out infinite; }
+    .grade-fx-보스    { filter: drop-shadow(0 0 12px rgba(255,207,99,1.0)) drop-shadow(0 0 28px rgba(255,100,50,0.7)) brightness(1.2) saturate(1.3); animation: bossPulse 1.2s ease-in-out infinite; }
+    @keyframes legendPulse {
+      0%,100% { filter: drop-shadow(0 0 8px rgba(178,125,255,0.9)) drop-shadow(0 0 18px rgba(178,125,255,0.5)) brightness(1.1); }
+      50%      { filter: drop-shadow(0 0 16px rgba(178,125,255,1.0)) drop-shadow(0 0 32px rgba(178,125,255,0.8)) brightness(1.25); }
+    }
+    @keyframes bossPulse {
+      0%,100% { filter: drop-shadow(0 0 10px rgba(255,207,99,0.9)) drop-shadow(0 0 22px rgba(255,100,50,0.5)) brightness(1.15) saturate(1.2); }
+      50%      { filter: drop-shadow(0 0 20px rgba(255,207,99,1.0)) drop-shadow(0 0 40px rgba(255,80,30,0.8)) brightness(1.3) saturate(1.5); }
+    }
     .battle-soldier-group { position: absolute; left: 20px; bottom: 3px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; z-index: 4; align-items: flex-end; }
     .battle-enemy-group { position: absolute; right: 20px; bottom: 3px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; z-index: 4; align-items: flex-end; }
     .battle-enemy-mob { width: 44px; height: 56px; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
-    .battle-soldier { width: 44px; height: 56px; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
+    .battle-soldier { width: 44px; height: 56px; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; filter: drop-shadow(0 0 2.5px rgba(255,255,255,0.75)) drop-shadow(0 0 5px rgba(255,255,255,0.35)); }
     .battle-nameplates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .battle-nameplate { background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96)); border: 1px solid rgba(110, 139, 204, 0.18); border-radius: 12px; padding: 10px; }
     .battle-nameplate .name { font-size: 13px; font-weight: 900; margin-bottom: 4px; }
@@ -1585,6 +1599,7 @@
           </div>
           <div class="battle-soldier-group" id="battleSoldierGroup"></div>
           <div class="battle-unit battle-enemy-unit" id="battleEnemyUnit">
+            <div id="battleEnemySpecialBadge" style="text-align:center;margin-bottom:3px;display:none;"></div>
             <div class="battle-sprite-wrap"><div class="battle-enemy-emoji" id="battleEnemyEmoji">👹</div></div>
             <div class="battle-shadow"></div>
           </div>
@@ -3268,14 +3283,18 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       // 탐험 기록 + 전투 기록 로드 (최근 30개)
       const [exploreRes, battleRes] = await Promise.all([
         sb.from('explore_logs').select('*').eq('player_id', PLAYER_ID).order('explored_at', { ascending:false }).limit(30),
-        sb.from('battle_logs').select('*').eq('player_id', PLAYER_ID).order('created_at', { ascending:false }).limit(30),
+        sb.from('battle_logs').select('*').eq('player_id', PLAYER_ID).order('battled_at', { ascending:false }).limit(30),
       ]);
 
       // 탐험+전투 기록 합쳐서 시간순 정렬 후 state.logs 복원
-      const exploreLogs = (exploreRes.data || []).map(r => ({
+      const exploreLogs = (exploreRes.data || [])
+        .filter(r => r.event_type !== 'monster' && r.event_type !== '몬스터')
+        .map(r => ({
         time:   new Date(r.explored_at).toLocaleString('ko-KR'),
         title:  r.event_title || '탐험',
         detail: r.event_detail || '',
+        icon:   markerIcons[r.event_type] || '📍',
+        address: r.address || '',
         _createdAt: r.explored_at,
       }));
 
@@ -3301,12 +3320,14 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         const resultLabel = r.result === 'win' ? '승리' : r.result === 'lose' ? '패배' : '도망';
         const canRetry = (r.result === 'lose' || r.result === 'run');
         return {
-          time:         new Date(r.created_at).toLocaleString('ko-KR'),
+          time:         new Date(r.battled_at).toLocaleString('ko-KR'),
           title:        `${r.enemy_grade} ${r.enemy_name} 전투 — ${resultLabel}`,
           detail:       `${r.enemy_amount}마리 / ${r.turns}턴 / 경험치 +${r.exp_gained} / 골드 +${r.gold_gained}`,
           retryDecoded: canRetry ? { _dbRetry:true, enemyName:r.enemy_name, enemyGrade:r.enemy_grade, eventType:'몬스터' } : null,
           retryCount:   0,
-          _createdAt:   r.explored_at,
+          icon:         '⚔️',
+          address:      '',
+          _createdAt:   r.battled_at,
         };
       });
 
@@ -3314,7 +3335,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       const allLogs = [...exploreLogs, ...battleLogs]
         .sort((a, b) => new Date(b._createdAt||0) - new Date(a._createdAt||0))
         .slice(0, 50);
-      if (allLogs.length) state.logs = allLogs;
+      if (allLogs.length) { state.logs = allLogs; renderLogs(); }
 
       if (heroData) {
         showDbStatus(`${heroData.hero_name} (Lv.${heroData.level}) 불러오기 완료!`, 'ok');
@@ -3666,10 +3687,23 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
 
   // 기본 드롭 테이블 (보통 난이도)
   // luck 레벨에 따라 희귀도 가중치를 조정 (높을수록 희귀템 더 많이)
-  function getDropTable(grade, monsterEntry) {
+  function getDropTable(grade, monsterEntry, special) {
     const entry = monsterEntry || eventCatalog.monster[0] || FALLBACK_EVENT_CATALOG.monster[0];
     const dropTbl = entry.drop_table || FALLBACK_EVENT_CATALOG.monster[0].drop_table;
-    const base = dropTbl[grade] || dropTbl['일반'];
+    let base = [...(dropTbl[grade] || dropTbl['일반'])];
+    // 드랍 UP: 희귀/영웅/전설 확률 20% 증가 (일반/고급 감소)
+    if (special === '드랍 UP') {
+      const total = base.reduce((a,b)=>a+b,0);
+      const boost = [base[2],base[3],base[4]].map(v=>Math.round(v*0.2));
+      const cut   = Math.round((boost[0]+boost[1]+boost[2])/2);
+      base = [
+        Math.max(1, base[0]-cut),
+        Math.max(1, base[1]-cut),
+        base[2]+boost[0],
+        base[3]+boost[1],
+        base[4]+boost[2],
+      ];
+    }
     const luck = state.devMode.luckLevel;
     if (luck === 0) { const shift=[15,10,-5,-12,-8];  return base.map((v,i)=>Math.max(1,v+shift[i])); }
     if (luck === 2) { const shift=[-10,-8,2,10,6];    return base.map((v,i)=>Math.max(1,v+shift[i])); }
@@ -4608,7 +4642,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   function rollMonsterDrop(enemy) {
     const dropChance = getDropChance(enemy.grade, enemy._entry);
     if (Math.random() > dropChance) return null;
-    const table = getDropTable(enemy.grade, enemy._entry);
+    const table = getDropTable(enemy.grade, enemy._entry, enemy.special);
     // 정규화
     const total = table.reduce((a,b)=>a+b, 0);
     const roll  = Math.random() * total;
@@ -4638,10 +4672,10 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     let atk=Math.round(entry.base_atk*gradeMult), def=Math.round(entry.base_def*gradeMult),
         hp=Math.round((entry.base_hp+amount*10)*gradeMult), speed=Math.round(entry.base_speed*gradeMult),
         crit=entry.base_crit+(grade==='강화'?3:grade==='엘리트'?5:grade==='보스'?8:1);
-    if (special==='공격 증가') atk=Math.round(atk*1.18);
-    if (special==='방어 증가') def=Math.round(def*1.18);
-    if (special==='속도 증가') speed=Math.round(speed*1.22);
-    if (special==='희귀 보상') crit+=10;
+    if (special==='공격 UP') atk=Math.round(atk*1.18);
+    if (special==='방어 UP') def=Math.round(def*1.18);
+    if (special==='공속 UP') speed=Math.round(speed*1.22);
+    // 드랍 UP은 드롭 테이블에서 처리
     const displayName = grade === '보스' ? name + '왕' : name;
     return { name: displayName, grade, amount, atk, def, hp, speed, crit, special, _entry:entry };
   }
@@ -5363,7 +5397,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     else grade='특수';
 
     const amount  = d3<=2?1: d3<=4?2: d3<=6?3: d3<=7?4: d3<=8?5: 6;
-    const special = d5<=5?'없음': d5===6?'공격 증가': d5===7?'방어 증가': d5===8?'속도 증가':'희귀 보상';
+    const special = d5<=5?'없음': d5===6?'공격 UP': d5===7?'방어 UP': d5===8?'공속 UP':'드랍 UP';
 
     let title='', desc='', badges=[], enemy=null, reward=null, item=null;
 
@@ -5371,7 +5405,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       const entry = getMonsterEntry(d4);
       const mn = entry.name;
       title=`${grade} ${mn} 출현`; desc=`${mn} ${amount}마리가 나타났습니다. 특수 효과: ${special}.`;
-      badges=[eventType, grade, `${amount}마리`, special]; enemy=makeEnemy(mn, grade, amount, special, d4);
+      badges=[eventType, grade, `${amount}마리`, ...(special!=='없음'?[special]:[])]; enemy=makeEnemy(mn, grade, amount, special, d4);
     } else if (eventType==='보물') {
       const tEntry = getTreasureEntry(d4);
       const gold = evalFormula(tEntry.gold_formula, d2, d3, d5) || (20+d2*8+d3*5+d5*3);
@@ -5399,7 +5433,13 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     els.codeOutput.textContent = decoded.code;
     els.eventTitle.textContent = decoded.title;
     els.eventDesc.textContent  = decoded.desc;
-    els.eventBadges.innerHTML  = decoded.badges.map(b=>`<div class="badge">${b}</div>`).join('');
+    const specialBadgeFiles = { '공격 UP':'atk_up.png', '방어 UP':'def_up.png', '공속 UP':'spd_up.png', '드랍 UP':'drop_up.png' };
+    els.eventBadges.innerHTML = decoded.badges.map(b => {
+      const badgeFile = specialBadgeFiles[b];
+      return badgeFile
+        ? `<div class="badge" style="padding:2px 4px;"><img src="${STORAGE_BASE}/badge/${badgeFile}" width="62" height="22" style="object-fit:contain;display:block;" onerror="this.parentElement.textContent='⬆ ${b}'"></div>`
+        : `<div class="badge">${b}</div>`;
+    }).join('');
     // 탐험 결과 sessionStorage 저장 (재접속 시 복원용)
     try { sessionStorage.setItem('sh_last_event', JSON.stringify(decoded)); } catch(e) {}
     // 전투 결과 배지 초기화 (새 탐험 시)
@@ -5457,7 +5497,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       updateEventRetryBtn();
       renderLogs();
       const decoded = {...log.retryDecoded};
-      renderEvent(decoded);
+      if (!decoded._dbRetry) renderEvent(decoded);
       setTimeout(() => {
         openBattleModal(decoded);
         setTimeout(() => { if (state.battle) state.battle.retryFromIdx = 0; }, 300);
@@ -5466,7 +5506,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   }
 
   function addLog(title, detail, meta = {}) {
-    state.logs.unshift({time:new Date().toLocaleString('ko-KR'), title, detail, retryCount:0, ...meta});
+    state.logs.unshift({time:new Date().toLocaleString('ko-KR'), title, detail, retryCount:0, icon:meta.icon||'', address:meta.address||'', ...meta});
     state.logs = state.logs.slice(0,50);
     renderLogs();
   }
@@ -5480,10 +5520,13 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
             : (i.retryDecoded && retryLeft <= 0)
               ? `<span style="margin-top:8px;display:inline-block;font-size:11px;color:var(--muted);">재도전 횟수 초과 (${maxRetry}/${maxRetry})</span>`
               : '';
+          const icon = i.icon || '';
+          const addr = i.address ? `<div class="muted" style="margin-top:3px;font-size:10px;">📍 ${shortAddress(i.address)}</div>` : '';
           return `<div class="list-item" style="cursor:default;">
             <div class="muted">${i.time}</div>
-            <div><b>${i.title}</b></div>
+            <div><b>${icon ? icon+' ' : ''}${i.title}</b></div>
             <div class="muted" style="margin-top:6px;">${i.detail}</div>
+            ${addr}
             ${retryBtn}
           </div>`;
         }).join('')
@@ -5500,10 +5543,11 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         closeModal(els.exploreLogBackdrop);
         setTimeout(() => {
           const decoded = {...log.retryDecoded, _retryFromIdx: idx};
-          renderEvent(decoded);
+          // _dbRetry면 renderEvent 생략 (badges 등 없어서 오류 날 수 있음)
+          if (!decoded._dbRetry) renderEvent(decoded);
+          openBattleModal(decoded);
           // retryFromIdx를 battle state에 전달
           setTimeout(() => { if (state.battle) state.battle.retryFromIdx = idx; }, 300);
-          openBattleModal(decoded);
         }, 200);
       });
     });
@@ -5537,23 +5581,25 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     state.mapHistory.unshift({
       id:`${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
       barcode, code:decoded.code, eventType:decoded.eventType,
-      title:decoded.title, detail, exp, gold,
+      title:decoded.title||decoded.eventTitle||'탐험', detail, exp, gold,
       icon:markerIcons[decoded.eventType]||'📍',
       lat, lng, address, time:new Date().toLocaleString('ko-KR')
     });
     state.mapHistory = state.mapHistory.slice(0,100);
     saveMapHistory(); renderMapHistoryList(); renderMapMarkers();
-    // DB 탐험 기록 저장
-    await dbSaveExploreLog({
-      barcode,
-      decodedCode:  decoded.code,
-      eventType:    decoded.eventType,
-      eventTitle:   decoded.title,
-      eventDetail:  detail,
-      lat, lng, address,
-      expGained:    exp || 0,
-      goldGained:   gold || 0
-    });
+    // DB 탐험 기록 저장 — 전투(몬스터)는 battle_logs에만 저장하므로 제외
+    if (decoded.eventType !== '몬스터') {
+      await dbSaveExploreLog({
+        barcode,
+        decodedCode:  decoded.code,
+        eventType:    decoded.eventType,
+        eventTitle:   decoded.title || '탐험',
+        eventDetail:  detail || '',
+        lat, lng, address,
+        expGained:    exp || 0,
+        goldGained:   gold || 0
+      });
+    }
   }
   function makeInfoWindowHtml(item) {
     return `<div style="min-width:180px;max-width:220px;color:#111827;font-size:12px;line-height:1.5;"><div style="font-weight:900;font-size:13px;margin-bottom:6px;">${item.icon} ${item.title}</div><div style="color:#374151;margin-bottom:4px;">${item.detail}</div><div style="font-size:11px;color:#6b7280;">📍 ${shortAddress(item.address||'')}</div></div>`;
@@ -5566,7 +5612,12 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   }
   function renderMapHistoryList() {
     els.mapHistoryList.innerHTML = state.mapHistory.length
-      ? state.mapHistory.map(i=>`<div class="list-item" data-id="${i.id}"><div><b>${i.icon} ${i.title}</b></div><div class="muted" style="margin-top:4px;">${i.detail}</div><div class="muted" style="margin-top:4px;">${shortAddress(i.address||'')}</div></div>`).join('')
+      ? state.mapHistory.map(i=>`<div class="list-item" data-id="${i.id}">
+          <div class="muted">${i.time||''}</div>
+          <div><b>${i.icon ? i.icon+' ' : ''}${i.title}</b></div>
+          <div class="muted" style="margin-top:4px;">${i.detail}</div>
+          <div class="muted" style="margin-top:3px;font-size:10px;">📍 ${shortAddress(i.address||'')}</div>
+        </div>`).join('')
       : '<div class="empty-box">아직 지도에 기록된 탐험 위치가 없습니다.</div>';
     document.querySelectorAll('#mapHistoryList .list-item[data-id]').forEach(node=>{
       node.addEventListener('click',()=>{ const t=state.mapHistory.find(v=>v.id===node.dataset.id); if(t) focusMapHistory(t); });
@@ -5656,7 +5707,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   function resetBattleAnims() {
     [els.battleHeroUnit,els.battleEnemyUnit,els.battleHeroSpriteWrap,els.battleEnemyEmoji,els.battleSoldierGroup,els.battleEnemyGroup].forEach(el=>{
       if (!el) return;
-      el.classList.remove('anim-attack-left','anim-attack-right','anim-hit','anim-run','anim-fade','ran-away','defeated');
+      el.classList.remove('anim-attack-left','anim-attack-right','anim-hit','anim-run','anim-fade','ran-away','defeated','grade-fx-일반','grade-fx-챔피언','grade-fx-엘리트','grade-fx-전설','grade-fx-보스');
       void el.offsetWidth;
     });
     document.querySelectorAll('.battle-soldier').forEach(el=>{el.classList.remove('anim-attack-left','anim-hit','anim-run');void el.offsetWidth;});
@@ -5688,6 +5739,16 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   }
 
   function openBattleModal(decoded) {
+    // DB 재도전: enemy 객체 및 title 재생성
+    if (decoded._dbRetry && !decoded.enemy) {
+      const baseName = decoded.enemyName || '오크';
+      const grade    = decoded.enemyGrade || '일반';
+      const d4 = ['슬라임','늑대','고블린','해골','오크','거미','좀비','도적','트롤','악마'].indexOf(baseName);
+      decoded.enemy     = makeEnemy(baseName, grade, 1, '없음', d4 >= 0 ? d4 : 4);
+      decoded.eventType = '몬스터';
+      decoded.title     = decoded.title || `${grade} ${decoded.enemy.name} 출현`;
+      decoded.desc      = decoded.desc  || `${decoded.enemy.name} 1마리가 나타났습니다.`;
+    }
     const setup = getBattleSetup(decoded.enemy);
     state.battle = { decoded, setup, heroHp:setup.heroMax, heroMax:setup.heroMax, enemyHp:setup.enemy.hp, enemyMax:setup.enemy.hp, turn:1, totalDmg:0, ended:false, locked:false };
     resetBattleAnims(); // ran-away/defeated 포함 모든 클래스 초기화
@@ -5720,20 +5781,36 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
 
     // 상단: 대표 몬스터 1마리 이미지로 표시
     const repUrl = getMonsterRepUrl(setup.enemy.name);
-    els.battleEnemyEmoji.style.cssText = '';
+    const grade = setup.enemy.grade || '일반';
+    const gradeClass = `grade-fx-${grade}`;
+    els.battleEnemyEmoji.className = `battle-enemy-emoji ${gradeClass}`;
     els.battleEnemyEmoji.innerHTML = `<img src="${repUrl}" width="133" height="150" style="object-fit:contain;display:block;" onerror="this.style.opacity=0">`;
 
     // 바닥 오른쪽: 마리 수만큼 병사 크기로 배치
     if (els.battleEnemyGroup) {
       const mobUrl = getMonsterGroupUrl(setup.enemy.name);
+      const mobGradeClass = `grade-fx-${setup.enemy.grade || '일반'}`;
       els.battleEnemyGroup.innerHTML = Array.from({length: amount}, (_, i) => {
         const top = (amount > 3 && i < 3) ? ' style="position:relative;top:20px;"' : '';
-        return `<div class="battle-enemy-mob"${top}><img src="${mobUrl}" width="44" height="56" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
+        return `<div class="battle-enemy-mob ${mobGradeClass}"${top}><img src="${mobUrl}" width="44" height="56" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
       }).join('');
     }
 
     els.battleHeroName.textContent   = state.heroName;
     els.battleEnemyName.innerHTML = `<span style="color:${getGradeColor(setup.enemy.grade)};font-size:11px;">${setup.enemy.grade}</span> ${setup.enemy.name}`;
+    // 몬스터 이미지 상단 특수 배지
+    const specialBadgeImg = { '공격 UP':'atk_up.png', '방어 UP':'def_up.png', '공속 UP':'spd_up.png', '드랍 UP':'drop_up.png' };
+    const spBadgeEl = document.getElementById('battleEnemySpecialBadge');
+    if (spBadgeEl) {
+      const badgeFile = specialBadgeImg[setup.enemy.special];
+      if (badgeFile && setup.enemy.special !== '없음') {
+        const badgeUrl = `${STORAGE_BASE}/badge/${badgeFile}`;
+        spBadgeEl.innerHTML = `<img src="${badgeUrl}" width="62" height="22" style="object-fit:contain;display:inline-block;" onerror="this.style.display='none'">`;
+        spBadgeEl.style.display = 'block';
+      } else {
+        spBadgeEl.style.display = 'none';
+      }
+    }
     els.battleHeroMeta.textContent   = `${state.heroClass} / ${setup.tactic} / ${setup.soldierClass} / 병사 ${setup.soldierCount}`;
     els.battleEnemyMeta.textContent  = `${amount}마리 · 공격 ${setup.enemy.atk} / 방어 ${setup.enemy.def}`;
     els.battleResultBox.style.display='none'; els.battleResultBox.className='';
@@ -5773,10 +5850,10 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         const old = state.logs[b.retryFromIdx];
         if (old) old.retryDecoded = null;
       }
-      addLog(logTitle, `${logDetail}${dropLog}${leveled?' / 레벨업!':''}`, retryMeta);
+      addLog(logTitle, `${logDetail||''}${dropLog}${leveled?' / 레벨업!':''}`, { ...retryMeta, icon:'⚔️', address: state.currentLocation?.address || '' });
     }
 
-    await addMapHistory({ barcode:onlyDigits(els.barcodeInput.value), decoded, detail:logDetail||desc, exp, gold });
+    await addMapHistory({ barcode:onlyDigits(els.barcodeInput.value), decoded:{ ...decoded, title: logTitle || decoded.title || '전투' }, detail:logDetail||desc, exp, gold });
 
     // ── DB 저장 ──
     const enemy = b?.setup?.enemy;
@@ -5863,14 +5940,14 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       const exp=getBattleExp(enemy), gold=getBattleGold(enemy);
       const dropItem = rollMonsterDrop(enemy);
       updateBattleUI(`${t}턴 종료`, lines.join('\n'));
-      await endBattle({ title:'승리', desc:`전투 승리!<br>경험치 ${exp}, 골드 ${gold} 획득`, exp, gold, resultType:'success', logTitle:b.decoded?.title||'전투', logDetail:`${b.decoded?.title} / 승리 / 경험치 ${exp} / 골드 ${gold}`, dropItem });
+      await endBattle({ title:'승리', desc:`전투 승리!<br>경험치 ${exp}, 골드 ${gold} 획득`, exp, gold, resultType:'success', logTitle:b.decoded?.title||`${enemy.grade} ${enemy.name} 전투`, logDetail:`${b.decoded?.title||`${enemy.grade} ${enemy.name} 전투`} / 승리 / 경험치 ${exp} / 골드 ${gold}`, dropItem });
       b.locked=false; return;
     }
     if (b.heroHp<=0) {
       b.ended=true;
       const exp=calcPartialExp(b.totalDmg,b.enemyMax,enemy);
       updateBattleUI(`${t}턴 종료`, lines.join('\n'));
-      await endBattle({ title:'패배', desc:`전투 패배.<br>경험치 ${exp} 획득`, exp, gold:0, resultType:'fail', logTitle:b.decoded?.title||'전투', logDetail:`${b.decoded?.title} / 패배 / 경험치 ${exp}` });
+      await endBattle({ title:'패배', desc:`전투 패배.<br>경험치 ${exp} 획득`, exp, gold:0, resultType:'fail', logTitle:b.decoded?.title||`${enemy.grade} ${enemy.name} 전투`, logDetail:`${b.decoded?.title||`${enemy.grade} ${enemy.name} 전투`} / 패배 / 경험치 ${exp}` });
       b.locked=false; return;
     }
 
@@ -5899,7 +5976,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       lostText = `혼란 속에서 골드 ${lostGold}를 잃었습니다.`;
     }
     updateBattleUI(`${b.turn}턴 종료`,`영웅 부대가 아슬아슬하게 전장에서 이탈했습니다.\n${lostText}`);
-    await endBattle({ title:'도망 성공', desc:`전투 이탈.<br>경험치 ${exp} 획득<br>${lostText}`, exp, gold:-lostGold, resultType:'fail', logTitle:b.decoded?.title||'전투', logDetail:`${b.decoded?.title} / 도망 / 경험치 ${exp}${lostGold?` / 골드 -${lostGold}`:''}` });
+    await endBattle({ title:'도망 성공', desc:`전투 이탈.<br>경험치 ${exp} 획득<br>${lostText}`, exp, gold:-lostGold, resultType:'fail', logTitle:b.decoded?.title||`${enemy.grade} ${enemy.name} 전투`, logDetail:`${b.decoded?.title||`${enemy.grade} ${enemy.name} 전투`} / 도망 / 경험치 ${exp}${lostGold?` / 골드 -${lostGold}`:''}` });
     b.locked=false;
   }
 
@@ -5924,8 +6001,8 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     if (decoded.item) { const eq=obtainItem(decoded.item); itemLog=eq?` / 장착: ${decoded.item.name}`:` / 획득: ${decoded.item.name}`; }
     const leveled = addReward(reward.exp, reward.gold);
     const detail  = `${decoded.title}${itemLog} / 경험치 ${reward.exp}${reward.gold?` / 골드 ${reward.gold}`:''}`;
-    addLog(decoded.title, `${detail}${leveled?' / 레벨업!':''}`);
-    await addMapHistory({ barcode:onlyDigits(els.barcodeInput.value), decoded, detail, exp:reward.exp, gold:reward.gold });
+    addLog(decoded.title, `${detail}${leveled?' / 레벨업!':''}`, { icon: markerIcons[decoded.eventType]||'📍', address: state.currentLocation?.address || '' });
+    await addMapHistory({ barcode:onlyDigits(els.barcodeInput.value), decoded:{ ...decoded, title: decoded.title||'탐험' }, detail, exp:reward.exp, gold:reward.gold });
     renderHero(leveled); renderLogs();
     if (decoded.item) els.eventDesc.textContent += state.equipment[decoded.item.slot]?.id===decoded.item.id?' 더 강한 장비라 자동 장착되었습니다!':" 인벤토리에 보관되었습니다.";
     if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
@@ -6174,11 +6251,11 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   els.scanStartBtn.addEventListener('click', async ()=>{ await stopCameraScanner(); handleScan(); });
   els.heroMapBtn.addEventListener('click', ()=>{ openModal(els.mapBackdrop); setTimeout(()=>{ if(state.map)state.map.invalidateSize(); },200); if(state.currentLocation?.lat) refreshBgFromLocation(state.currentLocation.lat, state.currentLocation.lng); });
   els.mapCloseBtn.addEventListener('click', ()=>closeModal(els.mapBackdrop));
-  els.mapHistoryBtn.addEventListener('click', ()=>{ renderMapHistoryList(); openModal(els.mapHistoryBackdrop); });
+  els.mapHistoryBtn.addEventListener('click', ()=>{ renderMapHistoryList(); openModal(els.mapHistoryBackdrop); setTimeout(()=>{ const el=document.getElementById('mapHistoryList'); if(el) el.scrollTop=0; },50); });
   els.mapHistoryCloseBtn.addEventListener('click', ()=>closeModal(els.mapHistoryBackdrop));
   els.decodeInfoBtn.addEventListener('click', ()=>openModal(els.decodeBackdrop));
   els.decodeCloseBtn.addEventListener('click', ()=>closeModal(els.decodeBackdrop));
-  els.exploreLogBtn.addEventListener('click', ()=>{ renderLogs(); openModal(els.exploreLogBackdrop); });
+  els.exploreLogBtn.addEventListener('click', ()=>{ renderLogs(); openModal(els.exploreLogBackdrop); setTimeout(()=>{ const el=document.getElementById('exploreLog'); if(el) el.scrollTop=0; },50); });
   els.exploreLogCloseBtn.addEventListener('click', ()=>closeModal(els.exploreLogBackdrop));
   els.eventTacticSelect.addEventListener('change', () => {
     const stats = getHeroBaseStats();
