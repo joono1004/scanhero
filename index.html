@@ -188,7 +188,7 @@
     /* aura-legendary::after 제거 — 스파클은 장비 슬롯으로 이동 */
 
     .hero-shadow { width: 130px; height: 12px; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 4px; border-radius: 50%; animation: shadowPulse 2.6s ease-in-out infinite; }
-    .soldier-row { position: absolute; left: calc(50% + 40px); transform: translateX(-50%); bottom: 8px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; justify-content: center; align-items: flex-end; z-index: 3; }
+    .soldier-row { position: absolute; right: 8px; bottom: -4px; display: grid; grid-template-columns: repeat(3, auto); gap: 4px; justify-content: flex-end; align-items: flex-end; z-index: 3; }
     .soldier { width: 46px; height: 59px; position: relative; filter: drop-shadow(0 7px 10px rgba(0,0,0,0.32)); animation: soldierBounce 2.2s ease-in-out infinite; }
     .soldier:nth-child(2n) { animation-delay: .18s; }
     .soldier:nth-child(3n) { animation-delay: .34s; }
@@ -274,12 +274,12 @@
     .line { display: grid; gap: 6px; margin-bottom: 10px; }
     label { font-size: 12px; color: #c9d6f6; font-weight: 800; }
 
-    input, select, button {
+    input:not([type=range]), select, button {
       width: 100%; border-radius: 12px; border: 1px solid rgba(107, 131, 194, 0.3);
       background: rgba(12, 18, 33, 0.95); color: var(--text); padding: 10px 12px;
       font-size: 13px; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.08s ease;
     }
-    input:focus, select:focus { border-color: rgba(131, 165, 255, 0.55); box-shadow: 0 0 0 4px rgba(79, 124, 255, 0.12); }
+    input:not([type=range]):focus, select:focus { border-color: rgba(131, 165, 255, 0.55); box-shadow: 0 0 0 4px rgba(79, 124, 255, 0.12); }
     button {
       background: linear-gradient(180deg, var(--blue-2) 0%, var(--blue) 100%);
       border: 1px solid rgba(168, 191, 255, 0.3); cursor: pointer; font-weight: 900;
@@ -1397,6 +1397,87 @@
     }
     .shop-fab:hover { transform:scale(1.08); box-shadow:0 6px 20px rgba(99,208,154,0.25); }
 
+
+    /* 전술 슬라이더 */
+    .tactic-slider-wrap { display:flex; align-items:center; gap:6px; width:55%; flex-shrink:0; }
+    .tactic-slider-icon { font-size:16px; flex-shrink:0; }
+    .tactic-slider-track { flex:1; position:relative; height:28px; display:flex; align-items:center; overflow:visible; }
+    .tactic-slider {
+      -webkit-appearance:none; appearance:none;
+      width:100%; height:2px; border-radius:0;
+      background:rgba(140,160,210,0.5);
+      border:none; padding:0; box-shadow:none;
+      outline:none; cursor:pointer; position:relative; z-index:2;
+    }
+    .tactic-slider::-webkit-slider-thumb {
+      -webkit-appearance:none;
+      width:20px; height:20px; border-radius:50%;
+      background:#eef3ff; border:3px solid #4f7cff;
+      cursor:pointer; box-shadow:0 0 0 3px rgba(79,124,255,0.25);
+    }
+    .tactic-slider-dots {
+      position:absolute; top:50%; transform:translateY(-50%);
+      left:10px; right:10px; display:flex; justify-content:space-between;
+      pointer-events:none; z-index:1;
+    }
+    .tactic-slider-dot {
+      width:8px; height:8px; border-radius:50%;
+      background:rgba(14,24,40,0.9); border:1.5px solid rgba(140,165,230,0.7);
+    }
+    /* 병사 선택 버튼 */
+    .soldier-select-row { display:flex; align-items:center; justify-content:flex-end; }
+    .soldier-cur-btn {
+      display:flex; align-items:center; justify-content:center; gap:4px;
+      padding:4px 12px; min-width:64px;
+      border-radius:8px; border:1.5px solid rgba(134,164,235,0.5);
+      background:linear-gradient(180deg,rgba(50,70,120,0.95),rgba(30,45,85,0.95));
+      font-size:11px; font-weight:900; color:#eef3ff; cursor:pointer; white-space:nowrap;
+      box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+      transition:all 0.12s; margin-left:auto;
+    }
+    .soldier-cur-btn:hover { border-color:rgba(134,164,235,0.8); background:linear-gradient(180deg,rgba(65,90,145,0.95),rgba(45,60,100,0.95)); transform:translateY(-1px); }
+    .soldier-cur-btn:active { transform:scale(0.96) translateY(1px); box-shadow:0 1px 4px rgba(0,0,0,0.4); }
+    /* 병사 선택 모달 */
+    .soldier-modal-backdrop {
+      position:fixed; inset:0; background:rgba(3,7,16,0.78);
+      backdrop-filter:blur(8px); z-index:1000;
+      display:none; align-items:center; justify-content:center; padding:12px;
+    }
+    .soldier-modal-backdrop.open { display:flex; }
+    .soldier-modal {
+      width:min(390px,100%); background:linear-gradient(180deg,rgba(24,33,57,0.98),rgba(14,21,37,0.98));
+      border:1px solid rgba(134,164,235,0.24); border-radius:22px;
+      box-shadow:0 24px 60px rgba(0,0,0,0.45); overflow:hidden;
+    }
+    .soldier-modal-head {
+      padding:14px 16px 10px; font-size:15px; font-weight:900; color:#eef3ff;
+      border-bottom:1px solid rgba(110,139,204,0.15);
+    }
+    .soldier-modal-body { padding:10px 12px; display:flex; flex-direction:column; gap:0; }
+    .soldier-modal-row {
+      display:grid; grid-template-columns:80px 1fr;
+      border-bottom:1px solid rgba(110,139,204,0.12);
+      cursor:pointer; transition:background 0.15s;
+    }
+    .soldier-modal-row:last-child { border-bottom:none; }
+    .soldier-modal-row:hover { background:rgba(79,124,255,0.06); }
+    .soldier-modal-row.selected { background:rgba(99,208,154,0.08); }
+    .soldier-row-img {
+      display:flex; align-items:center; justify-content:center;
+      padding:10px 6px; border-right:1px solid rgba(110,139,204,0.12);
+    }
+    .soldier-row-img img { width:48px; height:60px; object-fit:contain; }
+    .soldier-row-stats { padding:8px 10px; display:flex; flex-direction:column; gap:2px; }
+    .soldier-row-name { font-size:12px; font-weight:900; color:#eef3ff; margin-bottom:4px; }
+    .soldier-stat-item { font-size:11px; font-weight:700; }
+    .soldier-stat-up { color:#63d09a; }
+    .soldier-stat-down { color:#ff8a65; }
+    .soldier-stat-neu { color:#7a90be; }
+    .soldier-modal-actions { padding:10px 12px; border-top:1px solid rgba(110,139,204,0.15); }
+    .soldier-confirm-btn {
+      width:100%; padding:12px; border-radius:12px; font-size:14px; font-weight:900;
+      background:linear-gradient(135deg,#4f7cff,#3a5fd9); color:#fff; border:none; cursor:pointer;
+    }
   </style>
 </head>
 <body>
@@ -1533,7 +1614,7 @@
               <div class="bg-layer bg-layer-far"  id="bgLayerFar"></div>
               <div class="bg-layer bg-layer-near" id="bgLayerNear"></div>
               <div class="hero-unit"><div class="hero-sprite" id="heroSpriteWrap"></div><div class="hero-shadow"></div></div>
-              <div class="soldier-row" id="soldierFront"></div>
+              <div class="soldier-modal-row" id="soldierFront"></div>
               <div class="formation-ground"></div>
               <div class="hero-doll-stage formation-doll-overlay" id="formationDollOverlay"></div>
               <!-- 전술 스탯 오버레이 -->
@@ -1549,9 +1630,29 @@
 
           <div>
 
+            <!-- 숨김 셀렉트 (기존 로직 유지) -->
+            <select id="eventTacticSelect" style="display:none;"><option value="공격 중심">공격 중심</option><option value="균형">균형</option><option value="방어 중심">방어 중심</option></select>
+            <select id="eventSoldierClassSelect" style="display:none;"><option value="검병">검병</option><option value="방패병">방패병</option><option value="궁병">궁병</option><option value="창병">창병</option></select>
             <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
-              <select id="eventTacticSelect" style="flex:1; font-size:12px; padding:4px 6px;"><option value="공격 중심">공격 중심</option><option value="균형">균형</option><option value="방어 중심">방어 중심</option></select>
-              <select id="eventSoldierClassSelect" style="flex:1; font-size:12px; padding:4px 6px;"><option value="검병">검병</option><option value="방패병">방패병</option><option value="궁병">궁병</option><option value="창병">창병</option></select>
+              <!-- 전술 슬라이더 -->
+              <div class="tactic-slider-wrap">
+                <span class="tactic-slider-icon">⚔️</span>
+                <div class="tactic-slider-track">
+                  <input type="range" class="tactic-slider" id="tacticSlider" min="0" max="2" step="1" value="0">
+                  <div class="tactic-slider-dots">
+                    <div class="tactic-slider-dot"></div>
+                    <div class="tactic-slider-dot"></div>
+                    <div class="tactic-slider-dot"></div>
+                  </div>
+                </div>
+                <span class="tactic-slider-icon">🛡️</span>
+              </div>
+              <!-- 병사 선택 버튼 -->
+              <div class="soldier-select-row">
+                <button class="soldier-cur-btn" id="soldierCurBtn">
+                  <span id="soldierCurLabel">검병</span>
+                </button>
+              </div>
             </div>
             <button class="scan-wide-btn" id="scanFab" type="button">
               <div class="scan-wide-icon"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
@@ -1649,6 +1750,17 @@
     </div>
   </div>
 
+
+  <!-- 병사 선택 모달 -->
+  <div class="soldier-modal-backdrop" id="soldierModalBackdrop">
+    <div class="soldier-modal">
+      <div class="soldier-modal-head">🪖 병사 선택</div>
+      <div class="soldier-modal-body" id="soldierModalBody"></div>
+      <div class="soldier-modal-actions">
+        <button class="soldier-confirm-btn" id="soldierConfirmBtn">확인</button>
+      </div>
+    </div>
+  </div>
   <!-- 영웅 상세 -->
   <div class="modal-backdrop" id="heroStatsBackdrop">
     <div class="modal">
@@ -6362,15 +6474,88 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   els.decodeCloseBtn.addEventListener('click', ()=>closeModal(els.decodeBackdrop));
   els.exploreLogBtn.addEventListener('click', ()=>{ renderLogs(); openModal(els.exploreLogBackdrop); setTimeout(()=>{ const el=document.getElementById('exploreLog'); if(el) el.scrollTop=0; },50); });
   els.exploreLogCloseBtn.addEventListener('click', ()=>closeModal(els.exploreLogBackdrop));
-  els.eventTacticSelect.addEventListener('change', () => {
+  // 전술 슬라이더
+  const tacticSlider = document.getElementById('tacticSlider');
+  const tacticValues = ['공격 중심', '균형', '방어 중심'];
+  function applyTacticSlider() {
+    const idx = parseInt(tacticSlider.value);
+    const val = tacticValues[idx];
+    els.eventTacticSelect.value = val;
     const stats = getHeroBaseStats();
     renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
     renderTacticBadge();
+  }
+  if (tacticSlider) tacticSlider.addEventListener('input', applyTacticSlider);
+
+  // 병사 선택 모달
+  const soldierModalBackdrop = document.getElementById('soldierModalBackdrop');
+  const soldierModalBody     = document.getElementById('soldierModalBody');
+  const soldierCurBtn        = document.getElementById('soldierCurBtn');
+  const soldierCurLabel      = document.getElementById('soldierCurLabel');
+  const soldierConfirmBtn    = document.getElementById('soldierConfirmBtn');
+  const SOLDIER_DATA = [
+    { key:'검병',  img:'https://joono1004.github.io/scanhero/assets/soldier/swordsman.png', mod:{atk:1.15,def:0.94,hp:1.0,speed:1.0,crit:1.04} },
+    { key:'방패병', img:'https://joono1004.github.io/scanhero/assets/soldier/shielder.png', mod:{atk:0.92,def:1.2,hp:1.1,speed:0.94,crit:1.0} },
+    { key:'궁병',  img:'https://joono1004.github.io/scanhero/assets/soldier/archer.png',    mod:{atk:1.1,def:0.92,hp:0.94,speed:1.12,crit:1.08} },
+    { key:'창병',  img:'https://joono1004.github.io/scanhero/assets/soldier/spearman.png',  mod:{atk:1.05,def:1.05,hp:1.02,speed:1.0,crit:1.02} },
+  ];
+  const STAT_LABELS = { atk:'⚔️ 공격', def:'🛡️ 방어', hp:'❤️ 체력', speed:'💨 속도', crit:'✨ 치명' };
+  let pendingSoldier = '검병';
+
+  function openSoldierModal() {
+    const heroStats = getHeroBaseStats();
+    const soldiers  = heroStats.soldiers;
+    const counts    = Array.from({length: Math.min(soldiers,3)}, (_,i) => i+1);
+    soldierModalBody.innerHTML = SOLDIER_DATA.map(sd => {
+      const isSelected = sd.key === (els.eventSoldierClassSelect.value || '검병');
+      const cols = counts.map(c => {
+        return `<div style="flex:1;text-align:center;padding:6px 4px;border-left:1px solid rgba(110,139,204,0.12);">
+          <div style="font-size:11px;font-weight:900;color:#a9b6d6;margin-bottom:4px;">${c}명</div>
+          ${Object.entries(sd.mod).map(([k,v]) => {
+            const base = heroStats[k==='atk'?'atk':k==='def'?'def':k==='hp'?'hp':k==='speed'?'speed':'crit'] || 0;
+            const diff = Math.round(base * v * c / soldiers) - Math.round(base * c / soldiers);
+            const cls = diff > 0 ? 'up' : diff < 0 ? 'down' : 'neu';
+            const sign = diff > 0 ? '+' : '';
+            return `<div class="soldier-stat-item soldier-stat-${cls}">${STAT_LABELS[k]} ${sign}${diff}</div>`;
+          }).join('')}
+        </div>`;
+      }).join('');
+      return `<div class="soldier-modal-row${isSelected?' selected':''}" data-soldier="${sd.key}" id="soldierRow_${sd.key}">
+        <div class="soldier-modal-row-img">
+          <img src="${sd.img}" onerror="this.style.opacity=0">
+          <div style="font-size:11px;font-weight:900;color:${isSelected?'#63d09a':'#cdd7f2'};text-align:center;margin-top:4px;">${sd.key}</div>
+        </div>
+        <div style="display:flex;">${cols}</div>
+      </div>`;
+    }).join('');
+
+    pendingSoldier = els.eventSoldierClassSelect.value || '검병';
+
+    soldierModalBody.querySelectorAll('.soldier-modal-row').forEach(row => {
+      row.addEventListener('click', () => {
+        pendingSoldier = row.dataset.soldier;
+        soldierModalBody.querySelectorAll('.soldier-modal-row').forEach(r => {
+          r.classList.toggle('selected', r.dataset.soldier === pendingSoldier);
+          r.querySelector('div[style*="text-align:center"]') && (r.querySelector('div[style*="text-align:center"]').style.color = r.dataset.soldier === pendingSoldier ? '#63d09a' : '#cdd7f2');
+        });
+      });
+    });
+    soldierModalBackdrop.classList.add('open');
+  }
+
+  function closeSoldierModal() { soldierModalBackdrop.classList.remove('open'); }
+
+  if (soldierCurBtn) soldierCurBtn.addEventListener('click', openSoldierModal);
+  if (soldierConfirmBtn) soldierConfirmBtn.addEventListener('click', () => {
+    els.eventSoldierClassSelect.value = pendingSoldier;
+    if (soldierCurLabel) soldierCurLabel.textContent = pendingSoldier;
+    const stats = getHeroBaseStats();
+    renderHeroFormation(state.heroClass, pendingSoldier, stats.soldiers);
+    renderTacticBadge();
+    closeSoldierModal();
   });
-  els.eventSoldierClassSelect.addEventListener('change', () => {
-    const stats = getHeroBaseStats();
-    renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
-    renderTacticBadge();
+  if (soldierModalBackdrop) soldierModalBackdrop.addEventListener('click', e => {
+    if (e.target === soldierModalBackdrop) closeSoldierModal();
   });
   // barcodeInput은 숨김 처리 — 카메라 스캔 또는 랜덤 생성으로만 값 설정
   els.startGameBtn.addEventListener('click', applyStartHero);
