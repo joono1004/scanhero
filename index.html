@@ -1395,7 +1395,12 @@
 
   <!-- ══ 인증 화면 ══ -->
   <div class="auth-screen" id="authScreen" style="display:none;">
-    <div class="auth-logo"><img src="https://joono1004.github.io/scanhero/assets/logo/scanhero_logo.png" height="50" style="object-fit:contain;display:block;" onerror="this.outerHTML='⚔️ ScanHero'"></div>
+    <div style="width:min(360px,100%);border-radius:14px;overflow:hidden;margin-bottom:10px;">
+      <video autoplay muted playsinline loop
+        style="width:100%;height:203px;object-fit:cover;display:block;border-radius:14px;">
+        <source src="https://joono1004.github.io/scanhero/assets/intro/intro.mp4" type="video/mp4">
+      </video>
+    </div>
     <div class="auth-tagline">바코드로 세계를 탐험하는 모바일 RPG</div>
     <div class="auth-card">
       <div class="auth-tabs">
@@ -2504,10 +2509,17 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   function showScreen(screen) {
     document.getElementById('authScreen').style.display  = screen === 'auth' ? 'flex' : 'none';
     document.getElementById('charScreen').style.display  = screen === 'char' ? 'flex' : 'none';
-    // 나가기 버튼은 게임 wrap 안에 항상 표시됨
     if (screen !== 'char' && screen !== 'auth') {
       document.getElementById('charScreen').style.display = 'none';
       document.getElementById('authScreen').style.display = 'none';
+    }
+    // 로그인 화면 표시 시 인트로 영상 재생
+    if (screen === 'auth') {
+      const introVideo = document.querySelector('#authScreen video');
+      if (introVideo) {
+        introVideo.load();
+        introVideo.play().catch(() => {});
+      }
     }
   }
 
