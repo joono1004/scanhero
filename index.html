@@ -2037,9 +2037,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '체력 반지':   { folder:'ring',   file:'common_ring_03.png'    },
     '만능 반지':   { folder:'ring',   file:'common_ring_04.png'    },
     // 목걸이
-    '속도 목걸이': { folder:'necklace',file:'common_necklace_01.png'},
-    '치명타 목걸이':{ folder:'necklace',file:'common_necklace_02.png'},
-    '만능 목걸이': { folder:'necklace',file:'common_necklace_03.png'},
+    // 목걸이는 레이어 이미지 없음 (슬롯 아이콘만 사용)
   };
 
   // 클래스별 가죽/강철 갑옷/장갑/장화 중복 처리
@@ -4185,7 +4183,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       eq.boots    ? img(getEquipImageUrl(eq.boots,    heroClass), 'boots')    : '',
       eq.shield   ? img(getEquipImageUrl(eq.shield,   heroClass), 'shield')   : '',
       eq.weapon   ? img(getEquipImageUrl(eq.weapon,   heroClass), 'weapon')   : '',
-      eq.necklace ? img(getEquipImageUrl(eq.necklace, heroClass), 'necklace') : '',
+      // 목걸이는 캐릭터 레이어 표시 없음 (슬롯 아이콘만 사용)
       // 헬멧: 착용 시 헬멧, 미착용/기본머리 시 기본 머리
       (!eq.helmet || eq.helmet.isDefault)
         ? img(getDefaultHeadUrl(heroClass), 'head')
