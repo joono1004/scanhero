@@ -681,7 +681,7 @@
       background: rgba(12,18,42,0.72); border: 1px solid rgba(80,110,180,0.4);
       backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 3px; transition: all 0.15s; padding: 6px 4px;
+      gap: 3px; transition: all 0.15s; padding: 4px;
     }
     /* 미장착: 회색+흐릿, 인터랙션 없음 */
     .equip-slot-btn { filter: grayscale(0.7); opacity: 0.5; cursor: default; }
@@ -775,6 +775,7 @@
     #eqSlot_cloak    { top: 212px; right: 8px; left: auto; bottom: auto; transform: none; }
 
     .eq-slot-icon { font-size: 22px; line-height: 1; }
+    .eq-slot-label { display: none; }
     .eq-slot-label {
       font-size: 9px; font-weight: 700; color: rgba(160,185,230,0.85);
       text-align: center; line-height: 1.1; white-space: nowrap;
@@ -841,15 +842,15 @@
     }
     .item-detail-header {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      align-items: flex-start;
+      gap: 14px;
       margin-bottom: 12px;
     }
     .item-detail-icon {
-      width: 52px; height: 52px;
-      border-radius: 14px;
+      width: 96px; height: 96px;
+      border-radius: 18px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 28px;
+      font-size: 52px;
       background: rgba(30,43,72,0.9);
       flex-shrink: 0;
       position: relative;
@@ -1688,22 +1689,22 @@
 
   <!-- 아이템 상세 모달 -->
   <div class="modal-backdrop" id="itemDetailBackdrop">
-    <div class="modal">
+    <div class="modal" style="width:min(440px,100%);">
       <div class="modal-head"><div class="modal-title" id="itemDetailTitle">아이템 정보</div></div>
       <div class="modal-body">
         <div class="item-detail-card">
           <div class="item-detail-header">
             <div class="item-detail-icon" id="itemDetailIcon"></div>
-            <div class="item-detail-info">
+            <div class="item-detail-info" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                 <div class="item-detail-name" id="itemDetailName"></div>
                 <div id="itemDetailCP" style="font-size:10px;font-weight:900;padding:2px 7px;border-radius:8px;background:rgba(99,208,154,0.12);border:1px solid rgba(99,208,154,0.3);color:#63d09a;white-space:nowrap;"></div>
               </div>
               <div class="item-detail-meta" id="itemDetailMeta"></div>
+              <!-- 아이템 자체 스탯 — 아이콘 우측 배치 -->
+              <div id="itemOwnStatGrid" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
             </div>
           </div>
-          <!-- 아이템 자체 스탯 (장착 전 순수 스탯) -->
-          <div id="itemOwnStatGrid" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;"></div>
           <div id="itemStatChangeHint" class="stat-change-hint neutral"></div>
           <div class="stat-compare-grid" id="itemStatCompareGrid"></div>
           <!-- 판매 확인 패널 (기본 숨김) -->
@@ -5098,7 +5099,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     }
     els.inventoryGrid.innerHTML = unequipped.map(item => `
       <div class="inv-icon-slot rarity-${item.rarity}" data-id="${item.id}" title="${item.name}">
-        ${getItemIconHtml(item.icon, 28)}
+        ${getItemIconHtml(item.icon, 48)}
         <div class="inv-rarity-dot"></div>
       </div>`).join('');
     els.inventoryGrid.querySelectorAll('.inv-icon-slot').forEach(slot => {
@@ -5127,7 +5128,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       if (slot === 'armor') {
         btn.className = `equip-slot-btn eds-armor-btn${item ? ' has-item rarity-'+item.rarity : ''}`;
         if (item) {
-          iconEl.innerHTML = getItemIconHtml(item.icon, 26);
+          iconEl.innerHTML = getItemIconHtml(item.icon, 48);
           const labelEl = btn.querySelector('.eq-slot-label');
           if (labelEl) labelEl.textContent = item.name.length > 10 ? item.name.slice(0,10)+'…' : item.name;
           btn.onclick = () => { closeModal(els.heroStatsBackdrop); state._fromHeroStats = true; openItemDetailModal(item); };
@@ -5141,7 +5142,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       }
       if (item) {
         btn.className = `equip-slot-btn has-item rarity-${item.rarity}`;
-        iconEl.innerHTML = getItemIconHtml(item.icon, 28);
+        iconEl.innerHTML = getItemIconHtml(item.icon, 48);
         iconEl.style.fontSize = '';
         const labelEl = btn.querySelector('.eq-slot-label');
         if (labelEl) {
@@ -5194,7 +5195,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
 
     els.itemDetailTitle.textContent = item.rarityLabel + ' 등급 아이템';
     els.itemDetailIcon.className    = `item-detail-icon rarity-${item.rarity}`;
-    els.itemDetailIcon.innerHTML = getItemIconHtml(item.icon, 22);
+    els.itemDetailIcon.innerHTML = getItemIconHtml(item.icon, 80);
     els.itemDetailName.className    = `item-detail-name rarity-${item.rarity}`;
     els.itemDetailName.textContent  = item.name;
 
