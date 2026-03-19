@@ -1531,12 +1531,13 @@
             </div>
             <div class="formation-stage" id="formationStage">
               <div class="bg-layer bg-layer-far"  id="bgLayerFar"></div>
-
               <div class="bg-layer bg-layer-near" id="bgLayerNear"></div>
               <div class="hero-unit"><div class="hero-sprite" id="heroSpriteWrap"></div><div class="hero-shadow"></div></div>
               <div class="soldier-row" id="soldierFront"></div>
               <div class="formation-ground"></div>
               <div class="hero-doll-stage formation-doll-overlay" id="formationDollOverlay"></div>
+              <!-- 전술 스탯 오버레이 -->
+              <div id="tacticStatOverlay" style="position:absolute;top:6px;right:6px;z-index:10;display:flex;flex-direction:column;gap:3px;"></div>
             </div>
             <div class="hero-exp-wrap">
               <div class="hero-exp-head"><span>경험치</span><span id="heroExpBarText">0 / 20</span></div>
@@ -1547,13 +1548,8 @@
           </div>
 
           <div>
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-              <div class="tactic-badge" id="tacticBadge" style="position:static; background:none; backdrop-filter:none; border:none; padding:0;">
-                <div class="tactic-badge-title" style="font-size:10px;">전술 효과</div>
-                <div class="tactic-badge-stats" id="tacticBadgeStats"></div>
-              </div>
-            </div>
-            <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
               <select id="eventTacticSelect" style="flex:1; font-size:12px; padding:4px 6px;"><option value="공격 중심">공격 중심</option><option value="균형">균형</option><option value="방어 중심">방어 중심</option></select>
               <select id="eventSoldierClassSelect" style="flex:1; font-size:12px; padding:4px 6px;"><option value="검병">검병</option><option value="방패병">방패병</option><option value="궁병">궁병</option><option value="창병">창병</option></select>
             </div>
@@ -4754,15 +4750,32 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       { key:'속도', val: combined.speed },
       { key:'치명', val: combined.crit  },
     ];
+    // 스테이지 우측 오버레이 렌더
+    const overlay = document.getElementById('tacticStatOverlay');
+    const iconMap = { 공격:'⚔️', 방어:'🛡️', HP:'❤️', 속도:'💨', 치명:'✨' };
+    const allStats = [
+      { key:'공격', val: combined.atk },
+      { key:'방어', val: combined.def },
+      { key:'HP',   val: combined.hp  },
+      { key:'속도', val: combined.speed },
+      { key:'치명', val: combined.crit },
+    ];
+    if (overlay) {
+      const heroStats = getHeroBaseStats();
+      const statVals = { 공격: heroStats.atk, 방어: heroStats.def, HP: heroStats.hp, 속도: heroStats.speed, 치명: heroStats.crit };
+      overlay.innerHTML = allStats.map(s => {
+        const icon = iconMap[s.key] || s.key;
+        const val = statVals[s.key] ?? 0;
+        const up = s.val > 1.0; const down = s.val < 1.0;
+        const color = up ? '#63d09a' : down ? '#ff8a65' : '#a9b6d6';
+        return `<div style="display:flex;align-items:center;gap:3px;background:rgba(0,0,0,0.55);border-radius:6px;padding:2px 5px;backdrop-filter:blur(4px);">
+          <span style="font-size:10px;">${icon}</span>
+          <span style="font-size:10px;font-weight:900;color:${color};">${val}</span>
+        </div>`;
+      }).join('');
+    }
     if (!els.tacticBadgeStats) return;
-    els.tacticBadgeStats.innerHTML = stats
-      .filter(s => Math.abs(s.val - 1.0) >= 0.01)
-      .map(s => {
-        const up = s.val > 1.0;
-        const pct = Math.round((s.val - 1) * 100);
-        const sign = up ? '+' : '';
-        return `<span class="tactic-stat ${up ? 'up' : 'down'}">${s.key} ${sign}${pct}%</span>`;
-      }).join('') || '<span class="tactic-stat neu">균형</span>';
+    els.tacticBadgeStats.innerHTML = '';
   }
 
   function getTacticMod(t) {
