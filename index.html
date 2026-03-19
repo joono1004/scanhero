@@ -5756,7 +5756,13 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       showDropNotification(`🎁 ${dropItem.name} 드롭!`, { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' }[dropItem.rarity]||'#eef3ff');
     }
 
-    const retryMeta = resultType !== 'success' ? { retryDecoded: b?.decoded, retryCount: 0 } : {};
+    // 재도전으로 온 경우 이전 로그의 retryCount 이어받기
+    let inheritedRetryCount = 0;
+    if (b?.retryFromIdx !== undefined) {
+      const prevLog = state.logs[b.retryFromIdx];
+      inheritedRetryCount = prevLog?.retryCount || 0;
+    }
+    const retryMeta = resultType !== 'success' ? { retryDecoded: b?.decoded, retryCount: inheritedRetryCount } : {};
     // 전투 결과 상태 저장 (탐험 결과 배지용)
     const battleResultType = resultType === 'success' ? 'win' : (title === '패배' ? 'lose' : 'run');
     state.lastBattleResult = battleResultType;
