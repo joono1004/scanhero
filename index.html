@@ -1445,15 +1445,17 @@
     }
     .soldier-modal-backdrop.open { display:flex; }
     .soldier-modal {
-      width:min(390px,100%); background:linear-gradient(180deg,rgba(24,33,57,0.98),rgba(14,21,37,0.98));
+      width:min(390px,100%); max-height:90dvh;
+      background:linear-gradient(180deg,rgba(24,33,57,0.98),rgba(14,21,37,0.98));
       border:1px solid rgba(134,164,235,0.24); border-radius:22px;
       box-shadow:0 24px 60px rgba(0,0,0,0.45); overflow:hidden;
+      display:flex; flex-direction:column;
     }
     .soldier-modal-head {
       padding:14px 16px 10px; font-size:15px; font-weight:900; color:#eef3ff;
       border-bottom:1px solid rgba(110,139,204,0.15);
     }
-    .soldier-modal-body { padding:10px 12px; display:flex; flex-direction:column; gap:0; }
+    .soldier-modal-body { padding:10px 12px; display:flex; flex-direction:column; gap:0; overflow-y:auto; flex:1; }
     .soldier-modal-row {
       display:grid; grid-template-columns:80px 1fr;
       border-bottom:1px solid rgba(110,139,204,0.12);
@@ -1462,11 +1464,11 @@
     .soldier-modal-row:last-child { border-bottom:none; }
     .soldier-modal-row:hover { background:rgba(79,124,255,0.06); }
     .soldier-modal-row.selected { background:rgba(99,208,154,0.08); }
-    .soldier-row-img {
-      display:flex; align-items:center; justify-content:center;
-      padding:10px 6px; border-right:1px solid rgba(110,139,204,0.12);
+    .soldier-row-img, .soldier-modal-row-img {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      padding:8px 6px; border-right:1px solid rgba(110,139,204,0.12);
     }
-    .soldier-row-img img { width:48px; height:60px; object-fit:contain; }
+    .soldier-row-img img, .soldier-modal-row-img img { width:44px; height:56px; object-fit:contain; }
     .soldier-row-stats { padding:8px 10px; display:flex; flex-direction:column; gap:2px; }
     .soldier-row-name { font-size:12px; font-weight:900; color:#eef3ff; margin-bottom:4px; }
     .soldier-stat-item { font-size:11px; font-weight:700; }
@@ -6512,12 +6514,14 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         return `<div style="flex:1;text-align:center;padding:6px 4px;border-left:1px solid rgba(110,139,204,0.12);">
           <div style="font-size:11px;font-weight:900;color:#a9b6d6;margin-bottom:4px;">${c}명</div>
           ${Object.entries(sd.mod).map(([k,v]) => {
-            const base = heroStats[k==='atk'?'atk':k==='def'?'def':k==='hp'?'hp':k==='speed'?'speed':'crit'] || 0;
-            const diff = Math.round(base * v * c / soldiers) - Math.round(base * c / soldiers);
-            const cls = diff > 0 ? 'up' : diff < 0 ? 'down' : 'neu';
+            const keyMap = {atk:'atk',def:'def',hp:'hp',speed:'speed',crit:'crit'};
+            const base = heroStats[keyMap[k]] || 0;
+            const diff = Math.round(base * v) - base;
+            if (diff === 0) return '';
+            const cls = diff > 0 ? 'up' : 'down';
             const sign = diff > 0 ? '+' : '';
             return `<div class="soldier-stat-item soldier-stat-${cls}">${STAT_LABELS[k]} ${sign}${diff}</div>`;
-          }).join('')}
+          }).filter(Boolean).join('')}
         </div>`;
       }).join('');
       return `<div class="soldier-modal-row${isSelected?' selected':''}" data-soldier="${sd.key}" id="soldierRow_${sd.key}">
