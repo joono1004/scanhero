@@ -2577,7 +2577,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap();
         requestCurrentLocation();
         // 마지막 탐험 결과는 dbLoadAll에서 DB 기반으로 복원
-        setInterval(async () => { await dbSaveAll(true); }, 30000);
+        if (!window._autoSaveInterval) window._autoSaveInterval = setInterval(async () => { await dbSaveAll(true); }, 30000);
       } else {
         // 게임 진행 중이 아니었음 → 캐릭터 선택 화면
         showScreen('char');
@@ -2611,6 +2611,16 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       const session = result?.data?.session;
       if (session?.user) {
         CURRENT_USER = session.user;
+        // 복귀 시 DB에서 데이터 재로드 (전투 중이 아닐 때만)
+        if (PLAYER_ID) {
+          const battleModal = document.getElementById('battleBackdrop');
+          const isBattling  = battleModal && battleModal.style.display !== 'none';
+          if (!isBattling) {
+            try { await dbLoadAll(); renderHero(); } catch(e) {
+              console.warn('[visibilitychange] 재로드 실패:', e.message);
+            }
+          }
+        }
       } else {
         // 세션 만료 — refreshSession 재시도 (5초 타임아웃)
         const retryResult = await Promise.race([
@@ -3245,7 +3255,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     // 위치/카메라 권한은 로그인 시 이미 요청 — 위치 정보 없을 때만 재요청
     if (!state.currentLocation) requestCurrentLocation();
     // 30초마다 자동 저장
-    setInterval(async () => { await dbSaveAll(true); }, 30000);
+    if (!window._autoSaveInterval) window._autoSaveInterval = setInterval(async () => { await dbSaveAll(true); }, 30000);
   }
 
   // ── DB 상태 표시 UI ──
@@ -3280,6 +3290,19 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   async function dbSaveHero() {
     if (!PLAYER_ID || !CURRENT_USER) return;
     if (CURRENT_USER.isGM) return; // GM은 DB 저장 안 함
+    // 저장 값 유효성 검증
+    if (typeof state.level !== 'number' || state.level < 1) {
+      console.warn('[dbSaveHero] 비정상 level 감지:', state.level, '— 저장 중단');
+      return;
+    }
+    if (typeof state.gold !== 'number' || state.gold < 0) {
+      console.warn('[dbSaveHero] 비정상 gold 감지:', state.gold, '— 0으로 보정');
+      state.gold = 0;
+    }
+    if (typeof state.exp !== 'number' || state.exp < 0) {
+      console.warn('[dbSaveHero] 비정상 exp 감지:', state.exp, '— 0으로 보정');
+      state.exp = 0;
+    }
     try {
       const { error } = await sb.from('heroes').upsert({
         player_id:     PLAYER_ID,
@@ -3306,6 +3329,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
 
   // 인벤토리 전체 동기화 (전체 교체)
   async function dbSaveInventory() {
+    if (!PLAYER_ID || !CURRENT_USER) return;
     try {
       // 저장 전 state.inventory 중복 제거
       const seenIds = new Set();
@@ -3313,33 +3337,37 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         if (seenIds.has(i.id)) return false;
         seenIds.add(i.id); return true;
       });
-      // 기존 삭제 후 전체 insert (isDefault 아이템은 저장 제외)
-      await sb.from('inventory_items').delete().eq('player_id', PLAYER_ID);
       const saveableInv = state.inventory.filter(i => !i.isDefault);
-      if (!saveableInv.length) return;
       const equippedIds = Object.values(state.equipment).filter(Boolean).filter(i => !i.isDefault).map(i => i.id);
       const equippedSlotMap = {};
       Object.entries(state.equipment).forEach(([slot, item]) => {
         if (item) equippedSlotMap[item.id] = slot;
       });
       const rows = saveableInv.map(item => ({
-        player_id:    PLAYER_ID,
-        item_id:      item.id,
-        item_name:    item.name,
-        base_name:    item.baseName || item.name,
-        slot:         item.slot,
-        slot_label:   item.slotLabel || item.slot,
-        icon:         item.icon,
-        rarity:       item.rarity,
-        rarity_label: item.rarityLabel,
-        power:        item.power || 0,
-        stats:        item.stats || {},
-        weapon_type:  item.weaponType || null,
-        is_equipped:  equippedIds.includes(item.id),
+        player_id:     PLAYER_ID,
+        item_id:       item.id,
+        item_name:     item.name,
+        base_name:     item.baseName || item.name,
+        slot:          item.slot,
+        slot_label:    item.slotLabel || item.slot,
+        icon:          item.icon,
+        rarity:        item.rarity,
+        rarity_label:  item.rarityLabel,
+        power:         item.power || 0,
+        stats:         item.stats || {},
+        weapon_type:   item.weaponType || null,
+        is_equipped:   equippedIds.includes(item.id),
         equipped_slot: equippedSlotMap[item.id] || null
       }));
-      const { error } = await sb.from('inventory_items').insert(rows);
-      if (error) throw error;
+      // 1단계: 전체 삭제
+      const { error: delErr } = await sb.from('inventory_items')
+        .delete().eq('player_id', PLAYER_ID);
+      if (delErr) throw delErr;
+      // 2단계: 현재 인벤토리 전체 insert (삭제 성공 후에만 실행)
+      if (rows.length) {
+        const { error: insertErr } = await sb.from('inventory_items').insert(rows);
+        if (insertErr) throw insertErr;
+      }
     } catch (e) { showDbStatus('인벤토리 저장 실패: ' + e.message, 'error'); throw e; }
   }
 
@@ -3405,7 +3433,10 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   // DB 불러오기 함수들
   // ═══════════════════════════════════════════════════════
 
+  let _dbLoadComplete = false;  // 로드 완료 플래그
+
   async function dbLoadAll() {
+    _dbLoadComplete = false;
     showDbStatus('저장된 데이터 불러오는 중...', 'info');
     try {
       // 영웅 정보
@@ -3414,13 +3445,17 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       if (heroErr && heroErr.code !== 'PGRST116') throw heroErr; // PGRST116 = not found
 
       if (heroData) {
+        // DB 값이 현재 메모리보다 낮으면 덮어쓰지 않음 (골드/경험치/레벨 보호)
         state.heroName  = heroData.hero_name;
         state.heroClass = heroData.hero_class;
-        state.level     = heroData.level;
-        state.exp       = heroData.exp;
-        state.gold      = heroData.gold;
+        state.level     = Math.max(state.level || 1, heroData.level || 1);
+        state.exp       = (heroData.level >= state.level) ? heroData.exp : state.exp;
+        state.gold      = Math.max(state.gold || 0, heroData.gold || 0);
         state.usedBarcodes = new Set(heroData.used_barcodes || []);
         if (heroData.dev_mode) state.devMode = { ...state.devMode, ...heroData.dev_mode };
+        console.log(`[dbLoadAll] 영웅 복원 — Lv.${state.level} / 골드:${state.gold} / 경험치:${state.exp}`);
+      } else {
+        console.warn('[dbLoadAll] heroData 없음 — 현재 메모리 state 유지');
       }
 
       // 인벤토리
@@ -3517,6 +3552,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         .slice(0, 50);
       if (allLogs.length) { state.logs = allLogs; renderLogs(); }
 
+      _dbLoadComplete = true;
       if (heroData) {
         showDbStatus(`${heroData.hero_name} (Lv.${heroData.level}) 불러오기 완료!`, 'ok');
       } else {
@@ -3574,6 +3610,19 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   // 즉시 전체 저장
   async function dbSaveAll(silent = false) {
     if (!PLAYER_ID || !CURRENT_USER || CURRENT_USER.isGM) return;
+    // DB 로드 미완료 상태에서 저장 금지
+    if (!_dbLoadComplete) {
+      console.warn('[dbSaveAll] DB 로드 미완료 — 저장 보류');
+      return;
+    }
+    // 비정상 상태 감지: 레벨/골드/경험치/장비가 모두 초기값이면 저장 보류
+    const hasEquip  = Object.values(state.equipment).some(Boolean);
+    const hasInv    = state.inventory.length > 0;
+    const hasProgress = state.level > 1 || state.gold > 0 || state.exp > 0 || hasEquip || hasInv;
+    if (!hasProgress) {
+      console.warn('[dbSaveAll] 진행 데이터 없음 — 저장 보류 (레벨:' + state.level + ' 골드:' + state.gold + ' 경험치:' + state.exp + ')');
+      return;
+    }
     if (!silent) showDbStatus('저장 중...', 'saving');
     try {
       await dbSaveHero();
@@ -4708,7 +4757,6 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     // DB 저장
     dbSaveShopLog(item);
     dbSaveAll(true);
-    scheduleAutoSave();
   }
 
   function updateGoblinSpeech(text) {
@@ -4805,11 +4853,10 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       ? (!state.equipment.ring1 ? 'ring1' : null)
       : item.slot;
     const cur = targetSlot ? state.equipment[targetSlot] : null;
-    if (targetSlot && (!cur || item.power > (cur?.power||0))) {
+    // 슬롯이 비어있을 때만 자동 장착 (기존 장비 있으면 인벤토리에만 보관)
+    if (targetSlot && !cur) {
       state.equipment[targetSlot] = item;
-      // 장비 아이콘 즉시 업데이트
       updateEquipSlotUI();
-      // 장비 장착 후 정보창이 열려있으면 즉시 갱신
       const openDoll = document.querySelector('.equip-doll-stage');
       if (openDoll) renderHeroDoll(openDoll);
       return true;
@@ -5304,7 +5351,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     if (changed > 0) {
       updateEquipSlotUI();
       renderHero();
-      scheduleAutoSave();
+      dbSaveAll(true);
       showDropNotification(`⚡ AUTO 장착 완료! ${changed}개 슬롯 업데이트`, '#ffcf63');
     } else {
       showDropNotification('⚡ 이미 최적 장비가 장착되어 있어요!', '#63d09a');
@@ -5572,7 +5619,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     showEquipEffect(item);
     closeModal(els.itemDetailBackdrop);
     renderHero();
-    scheduleAutoSave();
+    dbSaveAll(true);
     openHeroStatsModal();
   }
 
@@ -5582,7 +5629,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     showDropNotification(`🔓 ${item.name} 해제됨`, '#a4b4db');
     closeModal(els.itemDetailBackdrop);
     renderHero();
-    scheduleAutoSave();
+    dbSaveAll(true);
     openHeroStatsModal();
   }
 
@@ -6426,7 +6473,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     document.getElementById('charScreen').style.display = 'none';
     renderHero(); requestCurrentLocation();
     loadMapHistory(); renderLogs(); renderMapHistoryList(); initMap();
-    setInterval(async () => { await dbSaveAll(true); }, 30000);
+    if (!window._autoSaveInterval) window._autoSaveInterval = setInterval(async () => { await dbSaveAll(true); }, 30000);
   }
 
   // 게임 타이틀 클릭 → 개발자 모드
