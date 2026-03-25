@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>ScanHero MVP</title>
+  <title>ScanHero MVP v33</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -444,7 +444,7 @@
     }
     /* 캐릭터 이미지 영역 — 고정 너비, 독립 공간 */
     .char-slot-sprite {
-      width: 130px; min-height: 180px; flex-shrink: 0;
+      width: 130px; min-height: 180px; height: 180px; flex-shrink: 0;
       border-radius: 12px 0 0 12px;
       background: linear-gradient(180deg, rgba(20,32,72,0.9), rgba(10,18,44,0.98));
       border-right: 1px solid rgba(80,110,180,0.2);
@@ -457,6 +457,7 @@
     /* hero-doll-thumb: sprite 안 중앙 배치 */
     .hero-doll-thumb {
       position: absolute; inset: 0;
+      width: 100%; height: 100%;
       pointer-events: none;
       background: none !important; border: none !important;
       display: flex; align-items: center; justify-content: center;
@@ -465,15 +466,16 @@
     .bg-전사   .hero-doll-thumb .hero-visual-wrap,
     .bg-궁사   .hero-doll-thumb .hero-visual-wrap,
     .bg-마법사 .hero-doll-thumb .hero-visual-wrap { filter: drop-shadow(0 0 6px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4)); }
-    /* 선택창 캐릭터: 높이 100% 기준으로 비율 유지하며 꽉 채움 */
+    /* 선택창 캐릭터: 고정 크기로 표시 */
     .hero-doll-thumb .hero-visual-wrap {
-      width: auto !important;
-      height: 90% !important;
-      aspect-ratio: 70 / 88;
+      width: 100px !important;
+      height: 116px !important;
       flex-shrink: 0;
+      position: relative;
     }
     .hero-doll-thumb .hero-visual-wrap img {
-      width: 100%; height: 100%; object-fit: fill;
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: contain;
     }
     .char-slot-sprite::after {
       content:''; position:absolute; bottom:0; left:0; right:0; height:28px;
@@ -1456,46 +1458,68 @@
       border-bottom:1px solid rgba(110,139,204,0.15); flex-shrink:0;
     }
     .soldier-modal-body {
-      padding:6px 10px; display:flex; flex-direction:column; gap:0;
-      overflow-y:auto; flex:1; min-height:0;
+      padding:10px; display:grid; grid-template-columns:1fr 1fr;
+      gap:10px; overflow-y:auto; flex:1; min-height:0;
     }
-    .soldier-modal-row {
-      display:grid; grid-template-columns:60px 1fr;
-      border-bottom:1px solid rgba(110,139,204,0.12);
-      cursor:pointer; transition:background 0.15s; min-height:0;
+    /* 카드형 레이아웃 */
+    .soldier-card {
+      background:rgba(14,21,38,0.9); border:1px solid rgba(110,139,204,0.18);
+      border-radius:14px; padding:10px; cursor:pointer; transition:all 0.15s;
     }
-    .soldier-modal-row:last-child { border-bottom:none; }
-    .soldier-modal-row:hover { background:rgba(79,124,255,0.06); }
-    .soldier-modal-row.selected { background:rgba(99,208,154,0.1); border-left:2px solid #63d09a; }
-    .soldier-modal-row-img {
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      padding:6px 4px; border-right:1px solid rgba(110,139,204,0.12); flex-shrink:0;
+    .soldier-card:hover { border-color:rgba(110,139,204,0.45); }
+    .soldier-card.selected {
+      border:2px solid #4f7cff;
+      background:rgba(20,35,70,0.95);
     }
-    .soldier-modal-row-img img { width:36px; height:46px; object-fit:contain; }
-    .soldier-modal-row-img span { font-size:9px; font-weight:800; color:#a9b6d6; margin-top:2px; }
-    .soldier-modal-row-stats {
-      display:grid; grid-template-columns:repeat(3,1fr);
-      padding:0; flex:1; min-width:0;
+    .soldier-card-top {
+      display:flex; gap:8px; align-items:flex-end; margin-bottom:10px;
     }
-    .soldier-modal-col {
-      padding:5px 4px; border-left:1px solid rgba(110,139,204,0.1);
-      display:flex; flex-direction:column; gap:1px;
+    .soldier-card-img {
+      width:52px; height:66px; flex-shrink:0;
+      display:flex; align-items:flex-end; justify-content:center;
     }
-    .soldier-modal-col:first-child { border-left:none; }
-    .soldier-modal-col-head {
-      font-size:10px; font-weight:900; color:#a9b6d6;
-      text-align:center; margin-bottom:3px; padding-bottom:2px;
-      border-bottom:1px solid rgba(110,139,204,0.15);
+    .soldier-card-img img { width:100%; height:100%; object-fit:contain; }
+    .soldier-card-info {
+      flex:1; min-width:0; display:flex; flex-direction:column;
+      justify-content:flex-end; padding-bottom:2px;
     }
-    .soldier-stat-item { font-size:10px; font-weight:700; white-space:nowrap; }
-    .soldier-stat-up { color:#63d09a; }
-    .soldier-stat-down { color:#ff8a65; }
-    .soldier-stat-neu { color:#7a90be; }
+    .soldier-card-name {
+      font-size:13px; font-weight:900; color:#eef3ff; margin-bottom:4px;
+    }
+    .soldier-card-desc {
+      font-size:10px; color:#7a90be; line-height:1.4;
+    }
+    .soldier-stat-rows { display:flex; flex-direction:column; gap:4px; }
+    .soldier-stat-row { display:flex; align-items:center; gap:5px; }
+    .soldier-stat-icon { font-size:10px; width:12px; flex-shrink:0; color:#7a90be; }
+    .soldier-stat-bar-bg {
+      flex:1; height:4px; background:rgba(30,45,80,0.9);
+      border-radius:99px; overflow:hidden;
+    }
+    .soldier-stat-bar-fill { height:100%; border-radius:99px; transition:width 0.35s ease; }
+    .soldier-stat-val { font-size:10px; font-weight:700; min-width:24px; text-align:right; }
+    .soldier-stat-val.sup { color:#63d09a; }
+    .soldier-stat-val.sdown { color:#ff8a65; }
+    .soldier-stat-val.sneu { color:#4a6090; }
     .soldier-modal-actions { padding:8px 12px; border-top:1px solid rgba(110,139,204,0.15); flex-shrink:0; }
     .soldier-confirm-btn {
       width:100%; padding:10px; border-radius:12px; font-size:13px; font-weight:900;
       background:linear-gradient(135deg,#4f7cff,#3a5fd9); color:#fff; border:none; cursor:pointer;
     }
+  
+    /* BGM 컨트롤 버튼 */
+    .bgm-btn {
+      position: fixed; bottom: 16px; right: 16px; z-index: 3000;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(10,15,30,0.75); border: 1px solid rgba(120,149,220,0.3);
+      backdrop-filter: blur(8px); color: #a4b4db; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; padding: 0; width: 36px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .bgm-btn:hover { border-color: rgba(99,168,255,0.5); color: #eef3ff; transform: scale(1.1); }
+    .bgm-btn.muted { color: rgba(160,180,220,0.35); border-color: rgba(120,149,220,0.12); }
+
   </style>
 </head>
 <body>
@@ -2049,6 +2073,144 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // ═══════════════════════════════════════════════════════
+  // BGM 시스템
+  // ═══════════════════════════════════════════════════════
+  const BGM = {
+    audio: null,
+    current: null,
+    volume: 0.4,
+
+    _files: {
+      login: 'https://joono1004.github.io/scanhero/assets/bgm/login_bgm.mp3',
+      main:  'https://joono1004.github.io/scanhero/assets/bgm/main_bgm.mp3',
+    },
+
+    play(key) {
+      const url = this._files[key];
+      if (!url) return;
+      if (this.current === key && this.audio && !this.audio.paused) return;
+      // 캐시된 오디오 우선 사용 (지연 없이 즉시 재생)
+      if (this._cache?.[key]) {
+        this._playFromCache(key);
+        return;
+      }
+      this.stop();
+      this.audio = new Audio(url);
+      this.audio.preload = 'auto';
+      this.audio.loop = true;
+      this.audio.volume = this._muted ? 0 : this.volume;
+      this.current = key;
+      this.audio.play().catch(() => {
+        this._pending = key;
+      });
+    },
+
+    stop() {
+      if (this.audio) {
+        this.audio.pause();
+        this.audio.currentTime = 0;
+        this.audio = null;
+      }
+      this.current = null;
+      this._pending = null;
+    },
+
+    fadeOutAndPlay(nextKey, duration = 800) {
+      if (!this.audio) {
+        this.play(nextKey);
+        return;
+      }
+      const audio = this.audio;
+      const startVol = audio.volume;
+      const step = 50;
+      const delta = startVol / (duration / step);
+      const fade = setInterval(() => {
+        if (audio.volume > delta) {
+          audio.volume = Math.max(0, audio.volume - delta);
+        } else {
+          clearInterval(fade);
+          audio.pause();
+          audio.currentTime = 0;
+          // 페이드된 audio가 현재 audio면 참조 정리 후 다음 재생
+          if (this.audio === audio) { this.audio = null; this.current = null; }
+          // 캐시에서 페이드된 audio 참조 제거 (재사용 시 currentTime=0 보장)
+          if (this._cache) {
+            Object.entries(this._cache).forEach(([k, a]) => {
+              if (a === audio) { this._cache[k] = null; delete this._cache[k]; }
+            });
+          }
+          this.play(nextKey);
+        }
+      }, step);
+    },
+
+    tryResume() {
+      if (this._pending) {
+        const key = this._pending;
+        this._pending = null;
+        this.play(key);
+      }
+    },
+
+    // 오디오 파일 미리 다운로드 (재생 지연 방지)
+    preload() {
+      if (!this._cache) this._cache = {};
+      Object.entries(this._files).forEach(([key, url]) => {
+        if (this._cache[key]) return; // 이미 이 키는 캐시됨
+        const a = new Audio();
+        a.preload = 'auto';
+        a.src = url;
+        a.load();
+        this._cache[key] = a;
+      });
+    },
+
+    // 캐시된 오디오 사용하는 play() 오버라이드
+    _playFromCache(key) {
+      const cached = this._cache?.[key];
+      if (!cached) return false;
+      // 현재 재생 중인 오디오 정지 (캐시 참조는 유지)
+      if (this.audio && this.audio !== cached) {
+        this.audio.pause();
+        this.audio.currentTime = 0;
+      }
+      this.audio = cached;
+      this.current = key;
+      this._pending = null;
+      cached.currentTime = 0;
+      cached.loop = true;
+      cached.volume = this._muted ? 0 : this.volume;
+      return cached.play().then(() => true).catch(() => {
+        this._pending = key;
+        return false;
+      });
+    },
+
+    setMuted(muted) {
+      this._muted = muted;
+      if (this.audio) this.audio.volume = muted ? 0 : this.volume;
+      const btn = document.getElementById('bgmBtn');
+      if (btn) {
+        btn.textContent = muted ? '🔇' : '🔊';
+        btn.classList.toggle('muted', muted);
+      }
+      localStorage.setItem('scanhero_bgm_muted', muted ? '1' : '0');
+    },
+
+    toggleMute() {
+      this.setMuted(!this._muted);
+    },
+  };
+
+  // 첫 클릭/터치 시 자동재생 차단 해제
+  document.addEventListener('click', () => BGM.tryResume(), false);
+  document.addEventListener('touchstart', () => BGM.tryResume(), false);
+  // 뮤트 상태 복원
+  if (localStorage.getItem('scanhero_bgm_muted') === '1') {
+    BGM._muted = true;
+  }
+
+  // ═══════════════════════════════════════════════════════
   // SUPABASE 설정
   // ═══════════════════════════════════════════════════════
   const SUPABASE_URL = 'https://svyxrnwjxhwtsanexuht.supabase.co';
@@ -2449,11 +2611,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     _ignoreAuthChange = true;
+    // signOut 먼저 — 세션 완전 제거 후 화면 전환
+    await sb.auth.signOut();
+    // localStorage 세션 키 직접 제거 (supabase-js 캐시 초기화)
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('sb-') || k === 'scanhero_auth') localStorage.removeItem(k);
+    });
+    sessionStorage.clear();
     PLAYER_ID = null; CURRENT_USER = null; CURRENT_CHAR_SLOT = null;
-    sessionStorage.removeItem('sh_player_id');
-    sessionStorage.removeItem('sh_char_slot');
-    sessionStorage.removeItem('sh_hero_class');
-    sessionStorage.removeItem('sh_hero_name');
+    BGM.play('login');
     showScreen('auth');
     const badge = document.getElementById('gmBadge');
     if (badge) badge.remove();
@@ -2462,7 +2628,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const pwField = document.getElementById('loginPwField');
     if (pwField) pwField.style.display = '';
     document.getElementById('loginError').textContent = '';
-    await sb.auth.signOut();
     setTimeout(() => { _ignoreAuthChange = false; }, 800);
   });
 
@@ -2477,6 +2642,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sessionStorage.removeItem('sh_char_slot');
     sessionStorage.removeItem('sh_hero_class');
     sessionStorage.removeItem('sh_hero_name');
+    BGM.fadeOutAndPlay('login'); // 나가기 시 로그인 BGM 복귀
     showScreen('char');
     await renderCharSlots();
   });
@@ -2486,21 +2652,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (_ignoreAuthChange) return;
     if (session?.user) {
       CURRENT_USER = session.user;
-      // 게임 진행 중 또는 백그라운드 복귀 시 — 화면 전환 없이 세션만 갱신
       if (PLAYER_ID) return;
-      if (document.hidden) return; // 백그라운드 상태에서 온 이벤트 무시
+      if (document.hidden) return;
       showScreen('char');
       document.getElementById('charAccountInfo').textContent = '계정: ' + CURRENT_USER.email;
       await renderCharSlots();
     } else {
-      // 백그라운드 복귀로 인한 일시적 세션 끊김 무시
-      // 실제 로그아웃(_ignoreAuthChange)이나 명시적 signOut만 처리
       if (document.hidden) return;
-      if (event === 'TOKEN_REFRESHED') return; // 토큰 갱신 중 무시
+      if (event === 'TOKEN_REFRESHED') return;
+      // SIGNED_OUT 이벤트 — 로그인 화면으로
+      if (event === 'SIGNED_OUT') {
+        CURRENT_USER = null;
+        showScreen('auth');
+        return;
+      }
       CURRENT_USER = null;
       showScreen('auth');
     }
   });
+
+  // BGM 미리 다운로드 (재생 지연 방지)
+  BGM.preload();
 
   // 앱 시작 시 아이템 카탈로그 로드 (로그인 전에 미리)
   loadItemCatalog();   // await 불필요 — 플레이 시작 전에 충분히 로드됨
@@ -2649,13 +2821,28 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       document.getElementById('charScreen').style.display = 'none';
       document.getElementById('authScreen').style.display = 'none';
     }
-    // 로그인 화면 표시 시 인트로 영상 재생
+    // 로그인 화면 표시 시 인트로 영상 + BGM 재생
     if (screen === 'auth') {
       const introVideo = document.querySelector('#authScreen video');
       if (introVideo) {
         introVideo.load();
         introVideo.play().catch(() => {});
       }
+      BGM.play('login'); // ← BGM 재생 (로그인 화면)
+      // 뮤트 버튼 표시
+      const bgmBtn = document.getElementById('bgmBtn');
+      if (bgmBtn) bgmBtn.style.display = 'flex';
+    }
+    // 캐릭터 선택 화면 → BGM 계속 재생
+    if (screen === 'char') {
+      // BGM 유지 (stop 안 함)
+      const bgmBtn = document.getElementById('bgmBtn');
+      if (bgmBtn) bgmBtn.style.display = 'flex';
+    }
+    // 게임 화면 진입 시 BGM 버튼 계속 표시 (main BGM은 enterGame에서 처리)
+    if (screen !== 'auth' && screen !== 'char') {
+      const bgmBtn = document.getElementById('bgmBtn');
+      if (bgmBtn) bgmBtn.style.display = 'flex';
     }
   }
 
@@ -2772,21 +2959,81 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       const hClass = thumbEl.dataset.heroClass || '전사';
       let eq = {};
       try { eq = JSON.parse(thumbEl.dataset.equipment || '{}'); } catch {}
-      thumbEl.innerHTML = getHeroVisualHtml(hClass, eq);
+
+      // 장비 정규화
+      const neq = {};
+      Object.entries(eq).forEach(([slot, item]) => {
+        if (item && typeof item === 'object' && item.name) neq[slot] = item;
+      });
+
+      // 이미지 레이어 직접 생성 (state 의존 없음)
+      const STORAGE_BASE_LOCAL = 'https://joono1004.github.io/scanhero/assets';
+      const CLASS_CODE_LOCAL   = { '전사':'warrior', '궁사':'archer', '마법사':'mage' };
+      const cls = CLASS_CODE_LOCAL[hClass] || 'warrior';
+      const layerStyle = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;';
+      const mkImg = (url) => url ? `<img src="${url}" style="${layerStyle}" onerror="this.style.opacity=0">` : '';
+
+      const bodyUrl    = `${STORAGE_BASE_LOCAL}/char/${cls}_body.png`;
+      const headUrl    = neq.helmet?.name
+        ? getEquipImageUrl(neq.helmet, hClass)
+        : `${STORAGE_BASE_LOCAL}/equip/helmet/${cls}_head.png`;
+      const weaponUrl  = neq.weapon  ? getEquipImageUrl(neq.weapon,  hClass) : null;
+      const armorUrl   = neq.armor   ? getEquipImageUrl(neq.armor,   hClass) : null;
+      const shieldUrl  = neq.shield  ? getEquipImageUrl(neq.shield,  hClass) : null;
+      const cloakUrl   = neq.cloak   ? getEquipImageUrl(neq.cloak,   hClass) : null;
+      const glovesUrl  = neq.gloves  ? getEquipImageUrl(neq.gloves,  hClass) : null;
+      const bootsUrl   = neq.boots   ? getEquipImageUrl(neq.boots,   hClass) : null;
+
+      thumbEl.innerHTML = `<div class="hero-visual-wrap" style="position:relative;width:100px;height:116px;">
+        ${mkImg(cloakUrl)}
+        ${mkImg(bodyUrl)}
+        ${mkImg(armorUrl)}
+        ${mkImg(glovesUrl)}
+        ${mkImg(bootsUrl)}
+        ${mkImg(shieldUrl)}
+        ${mkImg(weaponUrl)}
+        ${mkImg(headUrl)}
+      </div>`;
     });
-    // 능력치 배지 렌더
+    // 능력치 배지 렌더 — state 직접 수정 없이 독립 계산
     heroes.forEach(hero => {
       const pillWrap = document.getElementById(`charStatPills_${hero.char_slot}`);
       if (!pillWrap) return;
-      // 임시 state로 스탯 계산
-      const savedClass = state.heroClass, savedLevel = state.level, savedEquip = state.equipment;
-      state.heroClass = hero.hero_class; state.level = hero.level;
-      try { state.equipment = hero.equipment || {}; } catch { state.equipment = {}; }
-      const st = getHeroBaseStats();
-      state.heroClass = savedClass; state.level = savedLevel; state.equipment = savedEquip;
-      const statColor = 'rgba(79,124,255,0.15)';
+      // state 참조 없이 직접 스탯 계산
+      const hClass   = hero.hero_class || '전사';
+      const hLevel   = hero.level      || 1;
+      const hEquip   = hero.equipment  || {};
+      const classBonus = { 전사:{atk:4,def:3,hp:22,spd:0,crit:1}, 궁사:{atk:5,def:1,hp:12,spd:3,crit:3}, 마법사:{atk:6,def:0,hp:10,spd:1,crit:4} }[hClass] || {atk:4,def:3,hp:22,spd:0,crit:1};
+      // rankTableByClass TDZ 방지 — 인라인 테이블 사용
+      const _rt = [
+        {minLevel:1,soldiers:2},{minLevel:11,soldiers:3},{minLevel:21,soldiers:4},
+        {minLevel:41,soldiers:5},{minLevel:61,soldiers:6},{minLevel:81,soldiers:6}
+      ];
+      const sc = (_rt.filter(r => hLevel >= r.minLevel).pop() || _rt[0]).soldiers;
+      // 장비 보너스 계산
+      const eBonus = {atk:0,def:0,hp:0,speed:0,crit:0};
+      Object.values(hEquip).filter(Boolean).forEach(item => {
+        if (!item || !item.rarity || !item.stats) return;
+        const mul = {common:1,uncommon:1.12,rare:1.26,epic:1.45,legendary:1.7}[item.rarity] || 1;
+        eBonus.atk   += Math.round((item.stats.atk  ||0)*mul);
+        eBonus.def   += Math.round((item.stats.def  ||0)*mul);
+        eBonus.hp    += Math.round((item.stats.hp   ||0)*mul);
+        eBonus.speed += Math.round((item.stats.speed||0)*mul);
+        eBonus.crit  += Math.round((item.stats.crit ||0)*mul);
+      });
+      const st = {
+        atk:     14 + (hLevel*2)                + classBonus.atk + (sc-2)*2  + eBonus.atk,
+        def:     10 + Math.floor(hLevel*1.6)    + classBonus.def + (sc-2)*2  + eBonus.def,
+        hp:      100 + (hLevel*18)              + classBonus.hp  + (sc-2)*12 + eBonus.hp,
+        speed:   5  + Math.floor(hLevel*0.6)   + classBonus.spd             + eBonus.speed,
+        crit:    5  + Math.floor(hLevel*0.3)   + classBonus.crit            + eBonus.crit,
+        soldiers: sc,
+      };
       const pill = (label, val) => `<span class="char-stat-pill" style="background:rgba(79,124,255,0.15);">${label} ${val}</span>`;
-      const cp = calcCombatPower(st);
+      // calcCombatPower TDZ 방지 — 인라인 계산
+      const cp = Math.round(
+        st.atk*2.8 + st.def*2.2 + st.hp*0.18 + st.speed*3.5 + st.crit*4.0 + (st.soldiers||2)*25
+      );
       pillWrap.style.display = 'grid';
       pillWrap.style.gridTemplateColumns = 'auto 1fr 1fr 1fr';
       pillWrap.style.gap = '4px';
@@ -3232,6 +3479,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     sessionStorage.setItem('sh_hero_class',  hero.hero_class);
     sessionStorage.setItem('sh_hero_name',   hero.hero_name);
     document.getElementById('charScreen').style.display = 'none';
+    BGM.fadeOutAndPlay('main'); // 로그인 BGM 페이드아웃 후 메인 BGM 재생
     // 상태 초기화
     state.heroName = hero.hero_name;
     state.heroClass = hero.hero_class;
@@ -4162,6 +4410,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     return base;
   }
 
+
   const state = {
     heroName:'주인님의 영웅', heroClass:'전사',
     level:1, exp:0, gold:0,
@@ -4608,10 +4857,17 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   // getHeroVisualHtml: 메인/전투 화면 소형 캐릭터 표시용
   // formation 스테이지에선 작게 표시되므로 이미지 단일 레이어 사용
-  function getHeroVisualHtml(heroClass, equipment = state.equipment) {
+  function getHeroVisualHtml(heroClass, equipment) {
     const bodyUrl = getBodyImageUrl(heroClass);
-    const aura    = getHeroAuraClass();
-    const eq      = equipment || {};
+    // state 직접 참조 제거 — equipment 인자 우선, 없으면 state?.equipment
+    const eq = (equipment !== undefined ? equipment : (typeof state !== 'undefined' ? state.equipment : null)) || {};
+    // aura: equipment 기반으로 직접 계산 (state 참조 없이)
+    const rarityOrder = ['common','uncommon','rare','epic','legendary'];
+    const items = Object.values(eq).filter(Boolean);
+    const topRarity = items.length
+      ? items.sort((a,b) => rarityOrder.indexOf(b.rarity) - rarityOrder.indexOf(a.rarity))[0].rarity
+      : 'common';
+    const aura = `aura-${topRarity}`;
     const layerStyle = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;';
     const img = (url, alt) => url
       ? `<img src="${url}" alt="${alt}" style="${layerStyle}" onerror="this.style.opacity=0">`
@@ -6889,80 +7145,79 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   function openSoldierModal() {
     const heroStats = getHeroBaseStats();
-    const soldiers  = heroStats.soldiers;
-    const counts    = Array.from({length: Math.min(soldiers,3)}, (_,i) => i+1);
-    // 표 헤더
-    const countHeaders = counts.map(c => `<th>${c}명</th>`).join('');
-    const statKeys = ['atk','def','hp','speed','crit'];
-    const soldierBonus = { atk:1, def:1, hp:8, speed:0, crit:0 };
+    const soldierCount = Math.min(heroStats.soldiers, 3);
+    const BASE_STATS = { atk: heroStats.atk, def: heroStats.def, hp: heroStats.hp, speed: heroStats.speed, crit: heroStats.crit };
+    const BONUS_PER  = { atk:1, def:1, hp:8, speed:0, crit:0 };
+    const STAT_META  = [
+      { key:'atk',   icon:'⚔️', posColor:'#63a8ff', negColor:'#ff8a65' },
+      { key:'def',   icon:'🛡️', posColor:'#63d09a', negColor:'#ff8a65' },
+      { key:'hp',    icon:'❤️', posColor:'#ff7b9c', negColor:'#ff8a65' },
+      { key:'speed', icon:'💨', posColor:'#63d09a', negColor:'#ff8a65' },
+      { key:'crit',  icon:'✨', posColor:'#ffcf63', negColor:'#ff8a65' },
+    ];
+    const DESCS = { 검병:'공격 중심 근접 전투', 방패병:'높은 방어와 체력', 궁병:'빠른 속도와 원거리', 창병:'균형잡힌 올라운더' };
 
-    soldierModalBody.innerHTML = `
-      <table style="width:100%;border-collapse:collapse;font-size:10px;">
-        <thead>
-          <tr style="border-bottom:1px solid rgba(110,139,204,0.2);">
-            <th style="padding:6px 4px;text-align:left;color:#a9b6d6;font-weight:700;min-width:52px;">병사</th>
-            <th style="padding:6px 4px;color:#a9b6d6;font-weight:700;">스탯</th>
-            ${countHeaders}
-          </tr>
-        </thead>
-        <tbody>
-          ${SOLDIER_DATA.map(sd => {
-            const isSelected = sd.key === (els.eventSoldierClassSelect.value || '검병');
-            const selStyle = isSelected ? 'background:rgba(99,208,154,0.08);' : '';
-            const rows = statKeys.map((k, ki) => {
-              const base = heroStats[k] || 0;
-              const vals = counts.map(c => {
-                const diff = Math.round(base * sd.mod[k]) - base + (soldierBonus[k]||0)*c - (soldierBonus[k]||0)*c;
-                // 배율 효과만
-                const modDiff = Math.round(base * sd.mod[k]) - base;
-                const bonusDiff = (soldierBonus[k]||0) * c;
-                const total = modDiff + bonusDiff;
-                if (total === 0) return `<td style="text-align:center;padding:3px 4px;color:#5a6a8a;">-</td>`;
-                const col = total > 0 ? '#63d09a' : '#ff8a65';
-                const sign = total > 0 ? '+' : '';
-                return `<td style="text-align:center;padding:3px 4px;color:${col};font-weight:700;">${sign}${total}</td>`;
-              }).join('');
-              const imgCell = ki === 0
-                ? `<td rowspan="${statKeys.length}" style="padding:6px 4px;vertical-align:middle;border-bottom:1px solid rgba(110,139,204,0.12);">
-                    <div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;" data-soldier="${sd.key}">
-                      <img src="${sd.img}" style="width:32px;height:40px;object-fit:contain;" onerror="this.style.opacity=0">
-                      <span style="font-size:9px;font-weight:800;color:${isSelected?'#63d09a':'#cdd7f2'};">${sd.key}</span>
-                    </div>
-                  </td>`
-                : '';
-              const borderBottom = ki === statKeys.length-1 ? 'border-bottom:1px solid rgba(110,139,204,0.15);' : '';
-              return `<tr style="${selStyle}${borderBottom}" data-soldier="${sd.key}">
-                ${imgCell}
-                <td style="padding:3px 4px;color:#a9b6d6;white-space:nowrap;">${STAT_LABELS[k]}</td>
-                ${vals}
-              </tr>`;
-            }).join('');
-            return rows;
-          }).join('')}
-        </tbody>
-        <tfoot>
-          <tr style="border-top:1px solid rgba(110,139,204,0.2);">
-            <td colspan="2" style="padding:5px 4px;font-size:9px;color:#5a6a8a;">병사수 보너스</td>
-            ${counts.map(c=>`<td style="text-align:center;padding:5px 4px;font-size:9px;color:#7a90be;">⚔️+${c}<br>🛡️+${c}<br>❤️+${c*8}</td>`).join('')}
-          </tr>
-        </tfoot>
-      </table>`;
+    function calcDiff(sd) {
+      const r = {};
+      STAT_META.forEach(({ key }) => {
+        const base = BASE_STATS[key] || 0;
+        r[key] = Math.round(base * sd.mod[key]) - base + (BONUS_PER[key] || 0) * soldierCount;
+      });
+      return r;
+    }
+    function maxAbs(key) {
+      let m = 1;
+      SOLDIER_DATA.forEach(sd => { const d = Math.abs(calcDiff(sd)[key]); if (d > m) m = d; });
+      return m;
+    }
 
     pendingSoldier = els.eventSoldierClassSelect.value || '검병';
 
-    soldierModalBody.querySelectorAll('tr[data-soldier]').forEach(row => {
-      row.addEventListener('click', () => {
-        pendingSoldier = row.dataset.soldier;
-        // 선택 강조
-        soldierModalBody.querySelectorAll('tr[data-soldier]').forEach(r => {
-          r.style.background = r.dataset.soldier === pendingSoldier ? 'rgba(99,208,154,0.08)' : '';
+    function renderCards() {
+      soldierModalBody.innerHTML = '';
+      SOLDIER_DATA.forEach(sd => {
+        const diffs  = calcDiff(sd);
+        const isSel  = sd.key === pendingSoldier;
+        const card   = document.createElement('div');
+        card.className = 'soldier-card' + (isSel ? ' selected' : '');
+        card.dataset.soldier = sd.key;
+
+        const statsHtml = STAT_META.map(({ key, icon, posColor, negColor }) => {
+          const val  = diffs[key];
+          const pct  = Math.round(Math.min(100, (Math.abs(val) / maxAbs(key)) * 100));
+          const color = val > 0 ? posColor : val < 0 ? negColor : 'rgba(60,80,130,0.5)';
+          const cls   = val > 0 ? 'sup' : val < 0 ? 'sdown' : 'sneu';
+          const sign  = val > 0 ? '+' : '';
+          return `<div class="soldier-stat-row">
+            <span class="soldier-stat-icon">${icon}</span>
+            <div class="soldier-stat-bar-bg">
+              <div class="soldier-stat-bar-fill" style="width:${pct}%;background:${color};"></div>
+            </div>
+            <span class="soldier-stat-val ${cls}">${val === 0 ? '-' : sign + val}</span>
+          </div>`;
+        }).join('');
+
+        card.innerHTML = `
+          <div class="soldier-card-top">
+            <div class="soldier-card-img">
+              <img src="${sd.img}" onerror="this.style.opacity=0">
+            </div>
+            <div class="soldier-card-info">
+              <div class="soldier-card-name">${sd.key}</div>
+              <div class="soldier-card-desc">${DESCS[sd.key] || ''}</div>
+            </div>
+          </div>
+          <div class="soldier-stat-rows">${statsHtml}</div>`;
+
+        card.addEventListener('click', () => {
+          pendingSoldier = sd.key;
+          renderCards();
         });
-        soldierModalBody.querySelectorAll('span[style*="font-size:9px"]').forEach(sp => {
-          const s = sp.closest('[data-soldier]');
-          if (s) sp.style.color = s.dataset.soldier === pendingSoldier ? '#63d09a' : '#cdd7f2';
-        });
+        soldierModalBody.appendChild(card);
       });
-    });
+    }
+
+    renderCards();
     soldierModalBackdrop.classList.add('open');
   }
 
@@ -7002,5 +7257,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // 인증 전까지 게임 화면은 숨겨져 있음
 });
 </script>
+
+  <!-- BGM 컨트롤 버튼 (로그인/캐릭터 화면에서만 표시) -->
+  <button id="bgmBtn" class="bgm-btn" title="BGM 켜기/끄기" style="display:none;" onclick="BGM.toggleMute()">🔊</button>
+
 </body>
 </html>
