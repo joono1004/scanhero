@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>ScanHero MVP v33</title>
+  <title>ScanHero MVP v34</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -2209,6 +2209,111 @@ document.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('scanhero_bgm_muted') === '1') {
     BGM._muted = true;
   }
+
+
+  // ═══════════════════════════════════════════════════════
+  // SFX 시스템 (Web Audio API — 파일 없이 코드로 생성)
+  // ═══════════════════════════════════════════════════════
+  const SFX = {
+    _ctx: null,
+    _muted: false,
+
+    _getCtx() {
+      if (!this._ctx) this._ctx = new (window.AudioContext || window.webkitAudioContext)();
+      // suspended 상태면 resume
+      if (this._ctx.state === 'suspended') this._ctx.resume();
+      return this._ctx;
+    },
+
+    // 기본 재생 — oscillator + envelope
+    _play(freq, type, duration, volume, freqEnd) {
+      if (this._muted || !BGM._muted === false && BGM.volume === 0) {}
+      if (this._muted) return;
+      try {
+        const ctx  = this._getCtx();
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        if (freqEnd) osc.frequency.linearRampToValueAtTime(freqEnd, ctx.currentTime + duration);
+        gain.gain.setValueAtTime(volume, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + duration);
+      } catch(e) {}
+    },
+
+    // 노이즈 버스트 (피격음용)
+    _noise(duration, volume) {
+      if (this._muted) return;
+      try {
+        const ctx    = this._getCtx();
+        const size   = ctx.sampleRate * duration;
+        const buffer = ctx.createBuffer(1, size, ctx.sampleRate);
+        const data   = buffer.getChannelData(0);
+        for (let i = 0; i < size; i++) data[i] = Math.random() * 2 - 1;
+        const src  = ctx.createBufferSource();
+        const gain = ctx.createGain();
+        const filt = ctx.createBiquadFilter();
+        src.buffer = buffer;
+        filt.type = 'bandpass';
+        filt.frequency.value = 800;
+        src.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(volume, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        src.start(); src.stop(ctx.currentTime + duration);
+      } catch(e) {}
+    },
+
+    // ── 6가지 효과음 ────────────────────────────────────────
+    attack() {
+      // 검격: 고주파 짧은 사인파
+      this._play(520, 'sawtooth', 0.08, 0.35, 280);
+      setTimeout(() => this._play(300, 'square', 0.06, 0.18, 150), 50);
+    },
+
+    hit() {
+      // 피격: 노이즈 + 저주파
+      this._noise(0.12, 0.4);
+      this._play(180, 'sawtooth', 0.15, 0.3, 80);
+    },
+
+    victory() {
+      // 승리: 상승 팡파레
+      const notes = [[523,0],[659,0.12],[784,0.24],[1047,0.38]];
+      notes.forEach(([f, t]) => setTimeout(() => this._play(f, 'square', 0.22, 0.28), t * 1000));
+    },
+
+    defeat() {
+      // 패배: 하강 음계
+      const notes = [[440,0],[330,0.15],[262,0.32],[196,0.52]];
+      notes.forEach(([f, t]) => setTimeout(() => this._play(f, 'sawtooth', 0.25, 0.22), t * 1000));
+    },
+
+    run() {
+      // 도망: 빠른 하강 슬라이드
+      this._play(600, 'sawtooth', 0.35, 0.28, 150);
+      setTimeout(() => this._play(300, 'square', 0.2, 0.18, 100), 180);
+    },
+
+    levelUp() {
+      // 레벨업: 상승 아르페지오
+      const notes = [[523,0],[659,0.1],[784,0.2],[1047,0.32],[1319,0.46]];
+      notes.forEach(([f, t]) => setTimeout(() => this._play(f, 'sine', 0.18, 0.32), t * 1000));
+    },
+
+    item() {
+      // 아이템 획득: 경쾌한 두 음
+      this._play(880, 'sine', 0.1, 0.25);
+      setTimeout(() => this._play(1100, 'sine', 0.14, 0.28), 90);
+    },
+
+    setMuted(muted) {
+      this._muted = muted;
+    },
+  };
 
   // ═══════════════════════════════════════════════════════
   // SUPABASE 설정
@@ -5481,7 +5586,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   function addReward(exp, gold) {
     state.exp += exp; state.gold = Math.max(0, state.gold+gold);
     let leveled = false;
-    while (state.exp >= getExpNeed(state.level)) { state.exp -= getExpNeed(state.level); state.level++; leveled=true; }
+    while (state.exp >= getExpNeed(state.level)) { state.exp -= getExpNeed(state.level); state.level++; leveled=true; SFX.levelUp(); }
     return leveled;
   }
 
@@ -6151,6 +6256,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   }
 
   function showDropNotification(text, color='#eef3ff') {
+    SFX.item();
     const n = document.createElement('div');
     n.className = 'drop-notification';
     n.style.color = color;
@@ -6707,9 +6813,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     els.battleResultOverlay.innerHTML = '';
   }
 
-  async function animHeroAtk()  { resetBattleAnims(); els.battleHeroUnit.classList.add('anim-attack-left'); els.battleSoldierGroup.classList.add('anim-attack-left'); await wait(180); els.battleEnemyUnit.classList.add('anim-hit'); els.battleEnemyEmoji.classList.add('anim-fade'); await wait(280); resetBattleAnims(); }
-  async function animEnemyAtk() { resetBattleAnims(); els.battleEnemyUnit.classList.add('anim-attack-right'); els.battleEnemyGroup.classList.add('anim-attack-right'); await wait(180); els.battleHeroUnit.classList.add('anim-hit'); els.battleHeroSpriteWrap.classList.add('anim-fade'); els.battleSoldierGroup.classList.add('anim-hit'); await wait(280); resetBattleAnims(); }
-  async function animRun()      { resetBattleAnims(); els.battleTurnTitle.textContent='도망 시도'; els.battleLog.textContent='영웅과 병사들이 전열을 무너뜨리며 급히 후퇴합니다...'; els.battleHeroUnit.classList.add('anim-run'); els.battleSoldierGroup.classList.add('anim-run'); await wait(780); els.battleHeroUnit.classList.add('ran-away'); els.battleSoldierGroup.classList.add('ran-away'); }
+  async function animHeroAtk()  { SFX.attack(); resetBattleAnims(); els.battleHeroUnit.classList.add('anim-attack-left'); els.battleSoldierGroup.classList.add('anim-attack-left'); await wait(180); els.battleEnemyUnit.classList.add('anim-hit'); els.battleEnemyEmoji.classList.add('anim-fade'); await wait(280); resetBattleAnims(); }
+  async function animEnemyAtk() { SFX.hit(); resetBattleAnims(); els.battleEnemyUnit.classList.add('anim-attack-right'); els.battleEnemyGroup.classList.add('anim-attack-right'); await wait(180); els.battleHeroUnit.classList.add('anim-hit'); els.battleHeroSpriteWrap.classList.add('anim-fade'); els.battleSoldierGroup.classList.add('anim-hit'); await wait(280); resetBattleAnims(); }
+  async function animRun()      { SFX.run(); resetBattleAnims(); els.battleTurnTitle.textContent='도망 시도'; els.battleLog.textContent='영웅과 병사들이 전열을 무너뜨리며 급히 후퇴합니다...'; els.battleHeroUnit.classList.add('anim-run'); els.battleSoldierGroup.classList.add('anim-run'); await wait(780); els.battleHeroUnit.classList.add('ran-away'); els.battleSoldierGroup.classList.add('ran-away'); }
 
   async function battleAttackTurn() {
     const b = state.battle; if (!b||b.ended||b.locked) return;
@@ -6737,6 +6843,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       b.ended=true;
       els.battleEnemyUnit.classList.add('defeated');
       els.battleEnemyGroup.classList.add('defeated');
+      SFX.victory();
       const exp=getBattleExp(enemy), gold=getBattleGold(enemy);
       const dropItem = rollMonsterDrop(enemy);
       updateBattleUI(`${t}턴 종료`, lines.join('\n'));
@@ -6745,6 +6852,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     }
     if (b.heroHp<=0) {
       b.ended=true;
+      SFX.defeat();
       const exp=calcPartialExp(b.totalDmg,b.enemyMax,enemy);
       updateBattleUI(`${t}턴 종료`, lines.join('\n'));
       await endBattle({ title:'패배', desc:`전투 패배.<br>경험치 ${exp} 획득`, exp, gold:0, resultType:'fail', logTitle:b.decoded?.title||`${enemy.grade} ${enemy.name} 전투`, logDetail:`${b.decoded?.title||`${enemy.grade} ${enemy.name} 전투`} / 패배 / 경험치 ${exp}` });
