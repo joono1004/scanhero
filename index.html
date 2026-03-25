@@ -1928,6 +1928,16 @@
         <button id="devModeCloseBtn" style="flex:1; padding:10px; border-radius:12px; background:rgba(79,124,255,0.18); border:1px solid rgba(79,124,255,0.3); color:#9fbfff; font-size:13px; font-weight:900; cursor:pointer;">닫기</button>
       </div>
       <div style="margin-top:10px; padding:8px 10px; background:rgba(14,21,38,0.8); border-radius:8px; font-size:9px; color:rgba(120,149,220,0.5); word-break:break-all;" id="playerIdDisplay"></div>
+
+      <!-- 시스템 로그 -->
+      <div class="devmode-section" style="margin-top:16px; display:flex; align-items:center; justify-content:space-between;">
+        <span>📋 시스템 로그</span>
+        <div style="display:flex; gap:6px;">
+          <button id="devLogCopyBtn" style="padding:3px 8px; border-radius:6px; background:rgba(99,168,255,0.18); border:1px solid rgba(99,168,255,0.3); color:#9fbfff; font-size:10px; font-weight:800; cursor:pointer;">📋 복사</button>
+          <button id="devLogClearBtn" style="padding:3px 8px; border-radius:6px; background:rgba(255,120,80,0.15); border:1px solid rgba(255,120,80,0.3); color:#ff9b7f; font-size:10px; font-weight:800; cursor:pointer;">🗑️ 초기화</button>
+        </div>
+      </div>
+      <div id="devLogWrap" style="margin-top:8px; max-height:240px; overflow-y:auto; display:flex; flex-direction:column; gap:3px;"></div>
     </div>
   </div>
 
@@ -2201,6 +2211,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── 현재 플레이 중인 캐릭터 player_id (로그인+캐릭선택 후 설정) ──
   let PLAYER_ID = null;
+
+  // ── 시스템 로그 ──────────────────────────────────────────
+  const SYS_LOG_KEY = 'scanhero_sys_log';
+  const SYS_LOG_MAX = 100;
+
+  const LOG_LEVEL = { DEBUG:'🔵', INFO:'🟢', WARN:'🟡', ERROR:'🔴' };
+
+  function sysLog(level, category, message, data = null) {
+    try {
+      const entry = {
+        ts:       new Date().toISOString(),
+        level,
+        category,
+        message,
+        data:     data ? JSON.stringify(data).slice(0, 200) : null,
+        player:   PLAYER_ID ? PLAYER_ID.slice(-8) : 'none',
+        state: {
+          lv:   state.level,
+          gold: state.gold,
+          exp:  state.exp,
+          inv:  state.inventory?.length || 0,
+          equip: Object.values(state.equipment||{}).filter(Boolean).length
+        }
+      };
+      const raw  = localStorage.getItem(SYS_LOG_KEY) || '[]';
+      const logs = JSON.parse(raw);
+      logs.unshift(entry);
+      if (logs.length > SYS_LOG_MAX) logs.length = SYS_LOG_MAX;
+      localStorage.setItem(SYS_LOG_KEY, JSON.stringify(logs));
+    } catch(e) {}
+  }
+
+  function getSysLogs() {
+    try { return JSON.parse(localStorage.getItem(SYS_LOG_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function clearSysLogs() {
+    localStorage.removeItem(SYS_LOG_KEY);
+  }
   let CURRENT_USER = null;
   let CURRENT_CHAR_SLOT = null;
 
@@ -2526,7 +2576,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         loadMapHistory(); renderHero(); renderLogs(); renderMapHistoryList(); initMap();
         requestCurrentLocation();
         // 마지막 탐험 결과는 dbLoadAll에서 DB 기반으로 복원
-        if (!window._autoSaveInterval) window._autoSaveInterval = setInterval(async () => { await dbSaveAll(true); }, 30000);
+        // 30초 자동저장 제거 — 이벤트별 즉시 저장으로 대체
       } else {
         // 게임 진행 중이 아니었음 → 캐릭터 선택 화면
         showScreen('char');
@@ -2560,16 +2610,9 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       const session = result?.data?.session;
       if (session?.user) {
         CURRENT_USER = session.user;
-        // 복귀 시 DB에서 데이터 재로드 (전투 중이 아닐 때만)
-        if (PLAYER_ID) {
-          const battleModal = document.getElementById('battleBackdrop');
-          const isBattling  = battleModal && battleModal.style.display !== 'none';
-          if (!isBattling) {
-            try { await dbLoadAll(); renderHero(); } catch(e) {
-              console.warn('[visibilitychange] 재로드 실패:', e.message);
-            }
-          }
-        }
+        // 복귀 시 세션만 갱신 — DB 재로드는 하지 않음 (장비 오염 방지)
+        // 필요 시 사용자가 직접 새로고침하도록 유도
+        console.log('[visibilitychange] 세션 유지 확인 완료');
       } else {
         // 세션 만료 — refreshSession 재시도 (5초 타임아웃)
         const retryResult = await Promise.race([
@@ -3204,7 +3247,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     // 위치/카메라 권한은 로그인 시 이미 요청 — 위치 정보 없을 때만 재요청
     if (!state.currentLocation) requestCurrentLocation();
     // 30초마다 자동 저장
-    if (!window._autoSaveInterval) window._autoSaveInterval = setInterval(async () => { await dbSaveAll(true); }, 30000);
+    // 30초 자동저장 제거 — 이벤트별 즉시 저장으로 대체
   }
 
   // ── DB 상태 표시 UI ──
@@ -3266,14 +3309,14 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         dev_mode:      state.devMode,
         equipment:     Object.fromEntries(
           Object.entries(state.equipment)
-            .filter(([, v]) => v && !v.isDefault)
+            .filter(([, v]) => v && !v.isDefault && v.id && v.name) // id/name 없는 비정상 아이템 제외
             .map(([k, v]) => [k, { id: v.id, name: v.name, baseName: v.baseName, slot: v.slot,
               icon: v.icon, rarity: v.rarity, stats: v.stats, weaponType: v.weaponType,
               classes: v.classes, power: v.power }])
         ),
       }, { onConflict: 'player_id' });
       if (error) throw error;
-    } catch (e) { showDbStatus('영웅 저장 실패: ' + e.message, 'error'); }
+    } catch (e) { console.error('[dbSaveHero]', e); sysLog('ERROR', 'dbSaveHero', e.message); showDbStatus('영웅 저장 실패: ' + e.message, 'error'); throw e; }
   }
 
   // 인벤토리 전체 동기화 (전체 교체)
@@ -3285,6 +3328,16 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       state.inventory = state.inventory.filter(i => {
         if (seenIds.has(i.id)) return false;
         seenIds.add(i.id); return true;
+      });
+      // 장착 장비가 인벤토리에 없으면 자동 추가 (누락 방지)
+      Object.entries(state.equipment).forEach(([slot, item]) => {
+        if (item && !item.isDefault) {
+          const exists = state.inventory.find(i => i.id === item.id);
+          if (!exists) {
+            console.warn('[dbSaveInventory] 장착 장비가 인벤에 없어 자동 추가:', item.name);
+            state.inventory.unshift(item);
+          }
+        }
       });
       const saveableInv = state.inventory.filter(i => !i.isDefault);
       const equippedIds = Object.values(state.equipment).filter(Boolean).filter(i => !i.isDefault).map(i => i.id);
@@ -3308,16 +3361,50 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         is_equipped:   equippedIds.includes(item.id),
         equipped_slot: equippedSlotMap[item.id] || null
       }));
-      // 1단계: 전체 삭제
-      const { error: delErr } = await sb.from('inventory_items')
-        .delete().eq('player_id', PLAYER_ID);
-      if (delErr) throw delErr;
-      // 2단계: 현재 인벤토리 전체 insert (삭제 성공 후에만 실행)
-      if (rows.length) {
-        const { error: insertErr } = await sb.from('inventory_items').insert(rows);
-        if (insertErr) throw insertErr;
+      // 장착 장비가 있는데 인벤이 비어있으면 저장 중단 (비정상 상태)
+      const hasEquippedItems = equippedIds.length > 0;
+      if (hasEquippedItems && rows.length === 0) {
+        console.warn('[dbSaveInventory] 장착 장비 있는데 인벤이 비어있음 — 저장 중단');
+        return;
       }
-    } catch (e) { showDbStatus('인벤토리 저장 실패: ' + e.message, 'error'); throw e; }
+      // save_version 증가
+      const newVersion = (state._invSaveVersion || 0) + 1;
+      state._invSaveVersion = newVersion;
+      const versionedRows = rows.map(r => ({ ...r, save_version: newVersion, is_deleted: false }));
+
+      if (versionedRows.length) {
+        // upsert: 기존 행 업데이트 또는 신규 insert
+        const { error: upsertErr } = await sb.from('inventory_items')
+          .upsert(versionedRows, { onConflict: 'player_id,item_id' });
+        if (upsertErr) throw upsertErr;
+      }
+      // 현재 버전에 없는 아이템 소프트 삭제
+      const keepIds = rows.map(r => r.item_id);
+      if (keepIds.length) {
+        // DB에서 현재 플레이어 아이템 목록 조회 후 keepIds에 없는 것만 소프트 삭제
+        const { data: existingItems } = await sb.from('inventory_items')
+          .select('item_id')
+          .eq('player_id', PLAYER_ID)
+          .eq('is_deleted', false);
+        if (existingItems?.length) {
+          const toDelete = existingItems
+            .map(r => r.item_id)
+            .filter(id => !keepIds.includes(id));
+          if (toDelete.length) {
+            await sb.from('inventory_items')
+              .update({ is_deleted: true })
+              .eq('player_id', PLAYER_ID)
+              .in('item_id', toDelete);
+          }
+        }
+      } else {
+        // 인벤토리 전체 비움 — 모두 소프트 삭제
+        await sb.from('inventory_items')
+          .update({ is_deleted: true })
+          .eq('player_id', PLAYER_ID)
+          .eq('is_deleted', false);
+      }
+    } catch (e) { console.error('[dbSaveInventory]', e); sysLog('ERROR', 'dbSaveInventory', e.message); showDbStatus('인벤토리 저장 실패: ' + e.message, 'error'); throw e; }
   }
 
   // 전투 기록 1건 저장
@@ -3371,11 +3458,13 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         item_name: item.name,
         rarity:    item.rarity,
         slot:      item.slot,
-        price:     item.shopPrice || 0,
-        stats:     item.stats || {}
+        price:     item.shopPrice || 0
       });
       if (error) throw error;
-    } catch (e) { showDbStatus('상점 기록 실패: ' + e.message, 'error'); }
+    } catch (e) {
+      // shop_logs는 보조 로그 — 실패해도 사용자에게 표시 안 함
+      console.warn('[shopLog] 기록 실패 (무시):', e.message);
+    }
   }
 
   // ═══════════════════════════════════════════════════════
@@ -3394,7 +3483,6 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       if (heroErr && heroErr.code !== 'PGRST116') throw heroErr; // PGRST116 = not found
 
       if (heroData) {
-        // DB 값이 현재 메모리보다 낮으면 덮어쓰지 않음 (골드/경험치/레벨 보호)
         state.heroName  = heroData.hero_name;
         state.heroClass = heroData.hero_class;
         state.level     = Math.max(state.level || 1, heroData.level || 1);
@@ -3403,6 +3491,60 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         state.usedBarcodes = new Set(heroData.used_barcodes || []);
         if (heroData.dev_mode) state.devMode = { ...state.devMode, ...heroData.dev_mode };
         console.log(`[dbLoadAll] 영웅 복원 — Lv.${state.level} / 골드:${state.gold} / 경험치:${state.exp}`);
+
+        // ── 이벤트 상태 복원 처리 ──────────────────────────
+        const evState = heroData.event_state;
+        const evSnap  = heroData.event_snapshot;
+        if (evState && evSnap) {
+          const elapsed = (Date.now() - (evSnap.ts || 0)) / 1000;
+          if (elapsed < 3600) { // 1시간 이내만 처리
+            if (evState === 'in_battle') {
+              // 전투 중 종료 → 도망 처리 후 재전투 기회 제공
+              const partialExp = Math.round((evSnap.gold || 0) * 0.1);
+              addReward(partialExp, 0);
+              state.logs.unshift({
+                time:  new Date().toLocaleString('ko-KR'),
+                title: `${evSnap.enemyName || '몬스터'} 전투`,
+                detail: `연결 끊김으로 도망 처리 / 경험치 +${partialExp}`,
+                icon:  '⚔️',
+                retryDecoded: {
+                  _dbRetry:   true,
+                  enemyName:  evSnap.enemyName  || '오크',
+                  enemyGrade: evSnap.enemyGrade || '일반',
+                  eventType:  '몬스터'
+                },
+                retryCount: 0,
+                address: ''
+              });
+              setTimeout(() => alert(`⚔️ 전투 중 연결이 끊겼습니다.
+${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
+탐험 결과에서 재도전할 수 있습니다.`), 1000);
+            } else if (evState === 'pending_event') {
+              // 이벤트 확인 후 결과 처리 중 종료 → 보상 지급
+              if (evSnap.reward) {
+                addReward(evSnap.reward.exp || 0, evSnap.reward.gold || 0);
+              }
+              if (evSnap.item) {
+                obtainItem(evSnap.item);
+              }
+              setTimeout(() => alert(`📦 이전 탐험 보상이 지급되었습니다.
+(연결 끊김으로 인한 자동 처리)`), 800);
+            }
+            // event_state 클리어
+            try {
+              await sb.from('heroes').update({
+                event_state: null, event_snapshot: null
+              }).eq('player_id', PLAYER_ID);
+            } catch(e) {}
+          } else {
+            // 1시간 초과 — 그냥 클리어
+            try {
+              await sb.from('heroes').update({
+                event_state: null, event_snapshot: null
+              }).eq('player_id', PLAYER_ID);
+            } catch(e) {}
+          }
+        }
       } else {
         console.warn('[dbLoadAll] heroData 없음 — 현재 메모리 state 유지');
       }
@@ -3410,6 +3552,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       // 인벤토리
       const { data: invData, error: invErr } = await sb
         .from('inventory_items').select('*').eq('player_id', PLAYER_ID)
+        .eq('is_deleted', false)
         .order('obtained_at', { ascending: false });
       if (invErr) throw invErr;
 
@@ -3501,6 +3644,26 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         .slice(0, 50);
       if (allLogs.length) { state.logs = allLogs; renderLogs(); }
 
+      // 로컬 백업과 비교 — DB보다 최신이면 복원
+      const localBk = loadLocalBackup();
+      if (localBk && localBk.ts) {
+        const dbTs = heroData?.updated_at ? new Date(heroData.updated_at).getTime() : 0;
+        if (localBk.ts > dbTs + 5000) { // 로컬이 5초 이상 최신이면 복원
+          console.warn('[dbLoadAll] 로컬 백업이 더 최신 — 복원 적용');
+          state.level = Math.max(state.level, localBk.level || 1);
+          state.gold  = Math.max(state.gold,  localBk.gold  || 0);
+          state.exp   = localBk.level >= state.level ? localBk.exp : state.exp;
+          if (localBk.inventory?.length > (state.inventory?.length || 0)) {
+            state.inventory = localBk.inventory;
+          }
+          Object.entries(localBk.equipment || {}).forEach(([slot, item]) => {
+            if (item && !state.equipment[slot]) state.equipment[slot] = item;
+          });
+          if (localBk.usedBarcodes?.length) {
+            localBk.usedBarcodes.forEach(b => state.usedBarcodes.add(b));
+          }
+        }
+      }
       _dbLoadComplete = true;
       if (heroData) {
         showDbStatus(`${heroData.hero_name} (Lv.${heroData.level}) 불러오기 완료!`, 'ok');
@@ -3509,7 +3672,39 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       }
 
     } catch (e) {
-      showDbStatus('불러오기 실패: ' + e.message, 'error');
+      _dbLoadComplete = false;
+      if (e.message === 'load_timeout') {
+        sysLog('ERROR', 'dbLoadAll', '로드 타임아웃');
+        showDbStatus('데이터 로드 시간 초과', 'error');
+      } else {
+        sysLog('ERROR', 'dbLoadAll', e.message);
+        showDbStatus('데이터 로드 실패: ' + e.message, 'error');
+      }
+      const localBk = loadLocalBackup();
+      if (localBk) {
+        console.warn('[dbLoadAll] 로드 실패 — 로컬 백업으로 복원');
+        state.level = Math.max(state.level, localBk.level || 1);
+        state.gold  = Math.max(state.gold,  localBk.gold  || 0);
+        state.exp   = localBk.exp || state.exp;
+        if (localBk.inventory?.length) state.inventory = localBk.inventory;
+        Object.entries(localBk.equipment || {}).forEach(([slot, item]) => {
+          if (item) state.equipment[slot] = item;
+        });
+        _dbLoadComplete = true;
+        showDbStatus('로컬 데이터로 복원됨 — 저장 필요', 'error');
+        setTimeout(() => {
+          if (confirm('데이터를 불러오지 못했습니다.\n로컬 백업으로 복원했습니다.\n재접속하시겠습니까?')) {
+            CURRENT_USER = null; PLAYER_ID = null;
+            showScreen('auth');
+          }
+        }, 1500);
+      } else {
+        setTimeout(() => {
+          alert('데이터를 불러오지 못했습니다.\n재접속해 주세요.');
+          CURRENT_USER = null; PLAYER_ID = null;
+          showScreen('auth');
+        }, 500);
+      }
     }
   }
 
@@ -3520,17 +3715,62 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   // ═══════════════════════════════════════════════════════
   let autoSaveTimer = null;
   function scheduleAutoSave() {
-    clearTimeout(autoSaveTimer);
-    // 이벤트 후 1.5초 디바운스로 즉시 저장
-    autoSaveTimer = setTimeout(async () => {
-      await dbSaveAll(true);
-      showDbStatus('✅ 자동 저장 완료', 'ok');
-    }, 1500);
+    // 현재 모든 저장 시점이 dbSaveAll(true) 즉시 저장으로 처리됨 — 미사용
   }
 
-  // ── 저장 실패 카운터 ──
+  // ── 저장 실패 카운터 + localStorage 백업 ──
   let saveFailCount = 0;
-  const MAX_SAVE_FAIL = 3; // 연속 3회 실패 시 경고
+  const MAX_SAVE_FAIL = 5;
+  const LS_BACKUP_KEY = 'scanhero_state_backup';
+
+  function saveLocalBackup() {
+    try {
+      const backup = {
+        ts:        Date.now(),
+        level:     state.level,
+        exp:       state.exp,
+        gold:      state.gold,
+        equipment: Object.fromEntries(
+          Object.entries(state.equipment)
+            .filter(([,v]) => v && !v.isDefault && v.id && v.name)
+            .map(([k,v]) => [k, { id:v.id, name:v.name, baseName:v.baseName, slot:v.slot,
+              icon:v.icon, rarity:v.rarity, stats:v.stats, weaponType:v.weaponType,
+              classes:v.classes, power:v.power }])
+        ),
+        inventory: state.inventory.filter(i => !i.isDefault).map(i => ({
+          id:i.id, name:i.name, baseName:i.baseName, slot:i.slot, slotLabel:i.slotLabel,
+          icon:i.icon, rarity:i.rarity, rarityLabel:i.rarityLabel, power:i.power,
+          stats:i.stats, weaponType:i.weaponType, classes:i.classes
+        })),
+        usedBarcodes: [...state.usedBarcodes],
+      };
+      localStorage.setItem(LS_BACKUP_KEY + '_' + PLAYER_ID, JSON.stringify(backup));
+    } catch(e) { console.warn('[localBackup] 저장 실패:', e.message); }
+  }
+
+  function loadLocalBackup() {
+    if (!PLAYER_ID) return null;
+    try {
+      const raw = localStorage.getItem(LS_BACKUP_KEY + '_' + PLAYER_ID);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  }
+
+  function clearLocalBackup() {
+    if (!PLAYER_ID) return;
+    localStorage.removeItem(LS_BACKUP_KEY + '_' + PLAYER_ID);
+  }
+
+  // 저장 실패 재시도 큐
+  let _saveRetryTimer = null;
+  async function scheduleSaveRetry() {
+    if (_saveRetryTimer) return;
+    _saveRetryTimer = setTimeout(async () => {
+      _saveRetryTimer = null;
+      console.log('[saveRetry] 저장 재시도...');
+      await dbSaveAll(true);
+    }, 10000); // 10초 후 재시도
+  }
 
   function showSaveFailBanner() {
     let banner = document.getElementById('saveFailBanner');
@@ -3556,33 +3796,56 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     localStorage.removeItem('scanhero_save_failed');
   }
 
-  // 즉시 전체 저장
+  // 즉시 전체 저장 — 큐 방식으로 순서 보장
+  let _isSaving = false;
+  let _pendingSave = false; // 저장 중 요청이 들어왔으면 true
   async function dbSaveAll(silent = false) {
     if (!PLAYER_ID || !CURRENT_USER || CURRENT_USER.isGM) return;
-    // DB 로드 미완료 상태에서 저장 금지
     if (!_dbLoadComplete) {
       console.warn('[dbSaveAll] DB 로드 미완료 — 저장 보류');
       return;
     }
-    // 비정상 상태 감지: 레벨/골드/경험치/장비가 모두 초기값이면 저장 보류
-    const hasEquip  = Object.values(state.equipment).some(Boolean);
-    const hasInv    = state.inventory.length > 0;
-    const hasProgress = state.level > 1 || state.gold > 0 || state.exp > 0 || hasEquip || hasInv;
-    if (!hasProgress) {
-      console.warn('[dbSaveAll] 진행 데이터 없음 — 저장 보류 (레벨:' + state.level + ' 골드:' + state.gold + ' 경험치:' + state.exp + ')');
+    // 저장 중이면 완료 후 1회만 재실행 예약
+    if (_isSaving) {
+      _pendingSave = true;
       return;
     }
-    if (!silent) showDbStatus('저장 중...', 'saving');
+    _isSaving = true;
+    _pendingSave = false;
     try {
+      // 비정상 상태 감지: 레벨/골드/경험치/장비가 모두 초기값이면 저장 보류
+      const hasEquip  = Object.values(state.equipment).some(Boolean);
+      const hasInv    = state.inventory.length > 0;
+      const hasProgress = state.level > 1 || state.gold > 0 || state.exp > 0 || hasEquip || hasInv;
+      if (!hasProgress) {
+        console.warn('[dbSaveAll] 진행 데이터 없음 — 저장 보류');
+        return;
+      }
+      if (!silent) showDbStatus('저장 중...', 'saving');
+      saveLocalBackup();
       await dbSaveHero();
       await dbSaveInventory();
       saveFailCount = 0;
+      clearLocalBackup();
+      if (_saveRetryTimer) { clearTimeout(_saveRetryTimer); _saveRetryTimer = null; }
       hideSaveFailBanner();
+      sysLog('INFO', 'dbSaveAll', '저장 완료');
       if (!silent) showDbStatus('저장 완료!', 'ok');
     } catch (e) {
       saveFailCount++;
-      showDbStatus('저장 실패 (' + saveFailCount + '/' + MAX_SAVE_FAIL + ')', 'error');
+      const errMsg = e?.message || e?.toString() || '알 수 없는 오류';
+      const shortMsg = errMsg.length > 40 ? errMsg.slice(0, 40) + '...' : errMsg;
+      console.error('[dbSaveAll] 저장 실패:', errMsg, e);
+      sysLog('ERROR', 'dbSaveAll', errMsg);
+      showDbStatus('저장 실패 (' + saveFailCount + '/' + MAX_SAVE_FAIL + '): ' + shortMsg, 'error');
       if (saveFailCount >= MAX_SAVE_FAIL) showSaveFailBanner();
+      scheduleSaveRetry();
+    } finally {
+      _isSaving = false;
+      if (_pendingSave) {
+        _pendingSave = false;
+        setTimeout(() => dbSaveAll(true), 300);
+      }
     }
   }
   const rankTableByClass = {
@@ -4577,10 +4840,37 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     document.getElementById('usedBarcodeCount').textContent = state.usedBarcodes.size;
   }
 
+  function renderDevLog() {
+    const wrap = document.getElementById('devLogWrap');
+    if (!wrap) return;
+    const logs = getSysLogs();
+    if (!logs.length) {
+      wrap.innerHTML = '<div style="font-size:10px;color:rgba(120,149,220,0.4);padding:6px;">로그 없음</div>';
+      return;
+    }
+    wrap.innerHTML = logs.map(l => {
+      const icon  = LOG_LEVEL[l.level] || '⚪';
+      const time  = l.ts.replace('T',' ').slice(0,19);
+      const state = l.state ? `Lv${l.state.lv} 💰${l.state.gold} 🎒${l.state.inv}` : '';
+      const data  = l.data  ? `<div style="color:rgba(200,210,255,0.4);margin-top:1px;word-break:break-all;">${l.data}</div>` : '';
+      const bg    = l.level==='ERROR' ? 'rgba(255,80,80,0.08)' :
+                    l.level==='WARN'  ? 'rgba(255,200,60,0.06)' : 'rgba(30,45,80,0.5)';
+      return `<div style="padding:5px 7px;border-radius:6px;background:${bg};border:1px solid rgba(110,139,204,0.1);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:10px;font-weight:800;color:#cdd7f2;">${icon} [${l.category}] ${l.message}</span>
+          <span style="font-size:9px;color:rgba(120,149,220,0.5);white-space:nowrap;margin-left:6px;">${state}</span>
+        </div>
+        <div style="font-size:9px;color:rgba(120,149,220,0.4);margin-top:1px;">${time}</div>
+        ${data}
+      </div>`;
+    }).join('');
+  }
+
   function openDevMode() {
     updateDevModeUI();
     const pidEl = document.getElementById('playerIdDisplay');
     if (pidEl) pidEl.textContent = '플레이어 ID: ' + PLAYER_ID;
+    renderDevLog();
     document.getElementById('devModeBackdrop').classList.add('show');
   }
   function closeDevMode() {
@@ -4688,7 +4978,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     refreshBtn.disabled = state.gold < SHOP_REFRESH_COST;
   }
 
-  function buyShopItem(idx) {
+  async function buyShopItem(idx) {
     const item = state.shopStock[idx];
     if (!item || item.soldOut) return;
     if (state.gold < item.shopPrice) {
@@ -4703,9 +4993,9 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     renderShopGrid();
     updateGoblinSpeech(`${item.name} 구매 완료! 좋은 선택이에요! ✨`);
     showDropNotification(`🛒 ${item.name} 구매! -${item.shopPrice}G`, getRarityHex(item.rarity));
-    // DB 저장
+    // DB 저장 (await로 완료 보장)
     dbSaveShopLog(item);
-    dbSaveAll(true);
+    await dbSaveAll(true);
   }
 
   function updateGoblinSpeech(text) {
@@ -5591,7 +5881,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     closeModal(els.itemDetailBackdrop);
     renderHero();
     showDropNotification(`🪙 ${item.name} 판매! +${price}G`);
-    dbSaveAll(true); scheduleAutoSave();
+    dbSaveAll(true);
     openHeroStatsModal();
   }
 
@@ -5878,7 +6168,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     state.currentLocationMarker = L.marker([state.currentLocation.lat,state.currentLocation.lng],{icon}).addTo(state.map).bindPopup('현재 위치');
     state.map.setView([state.currentLocation.lat,state.currentLocation.lng],18);
   }
-  function requestCurrentLocation() {
+  async function requestCurrentLocation() {
     if (!navigator.geolocation) { els.locationStatus.textContent='이 브라우저는 위치 정보를 지원하지 않습니다.'; return; }
     els.locationStatus.textContent='현재 위치를 확인 중입니다...';
     navigator.geolocation.getCurrentPosition(
@@ -5969,7 +6259,25 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     }).join('');
   }
 
-  function openBattleModal(decoded) {
+  async function openBattleModal(decoded) {
+    // 전투 시작 전 현재 상태 DB 저장
+    await dbSaveAll(true);
+    // 전투 상태를 DB에 기록 (앱 완전 종료 후 재접속 시 도망 처리용)
+    try {
+      await sb.from('heroes').update({
+        event_state: 'in_battle',
+        event_snapshot: {
+          type:        'battle',
+          gold:        state.gold,
+          exp:         state.exp,
+          level:       state.level,
+          enemyName:   decoded?.enemy?.name  || '',
+          enemyGrade:  decoded?.enemy?.grade || '',
+          enemyAmount: decoded?.enemy?.amount|| 1,
+          ts:          Date.now()
+        }
+      }).eq('player_id', PLAYER_ID);
+    } catch(e) { console.warn('[battle] 전투 상태 저장 실패:', e.message); }
     // DB 재도전: enemy 객체 및 title 재생성
     if (decoded._dbRetry && !decoded.enemy) {
       const baseName = decoded.enemyName || '오크';
@@ -6101,8 +6409,13 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       });
     }
     await dbSaveAll(true); // silent=true (토스트 숨김)
-    sessionStorage.removeItem('sh_battle_backup'); // 전투 완료 — 백업 제거
-    scheduleAutoSave();
+    sessionStorage.removeItem('sh_battle_backup');
+    // 전투 완료 — event_state 클리어
+    try {
+      await sb.from('heroes').update({
+        event_state: null, event_snapshot: null
+      }).eq('player_id', PLAYER_ID);
+    } catch(e) {}
 
     renderHero(leveled); renderLogs();
     updateEventResultBadge();
@@ -6217,8 +6530,10 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     if (run) run.addEventListener('click', battleRunAway);
   }
 
-  function handleEventConfirm() {
+  async function handleEventConfirm() {
     const decoded = state.pendingDecoded; if (!decoded) return;
+    // 이벤트 확인 전 현재 상태 저장 (이벤트 처리 중 앱 종료 시 복원용)
+    await dbSaveAll(true);
     closeEventModal();
     if (decoded.eventType==='몬스터') { renderEvent(decoded); openBattleModal(decoded); }
     else processNonBattleResult(decoded);
@@ -6237,7 +6552,13 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     renderHero(leveled); renderLogs();
     if (decoded.item) els.eventDesc.textContent += state.equipment[decoded.item.slot]?.id===decoded.item.id?' 더 강한 장비라 자동 장착되었습니다!':" 인벤토리에 보관되었습니다.";
     if (leveled) els.eventDesc.textContent += ' 영웅이 성장하여 레벨이 올랐습니다!';
-    scheduleAutoSave(); // 이벤트 발생 후 즉시 저장
+    await dbSaveAll(true); // 이벤트 결과 즉시 저장
+    // 이벤트 완료 — event_state 클리어
+    try {
+      await sb.from('heroes').update({
+        event_state: null, event_snapshot: null
+      }).eq('player_id', PLAYER_ID);
+    } catch(e) {}
   }
 
   async function stopCameraScanner() {
@@ -6331,7 +6652,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   }
 
   // 카메라 스캔 콜백 — rawText 그대로 전달 (바코드 숫자 or QR 문자열)
-  function handleScanWithCode(code, rawText) {
+  async function handleScanWithCode(code, rawText) {
     const key = rawText.trim(); // 중복 체크 키: 원본 텍스트
     if (!state.currentLocation)  { alert('현재 위치 확인 후 다시 시도해 주세요.'); return; }
     if (!state.devMode.allowDupe && state.usedBarcodes.has(key)) {
@@ -6341,6 +6662,21 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     state.usedBarcodes.add(key);
     renderHero();
     const decoded = decodeEvent(code);
+    // 바코드 인식 즉시 이벤트 상태 DB 저장 (앱 종료 대비)
+    try {
+      const snapshot = {
+        type:      decoded.eventType,
+        barcode:   key,
+        code:      decoded.code,
+        reward:    decoded.reward || null,
+        item:      decoded.item   || null,
+        ts:        Date.now()
+      };
+      await sb.from('heroes').update({
+        event_state:    'pending_event',
+        event_snapshot: snapshot
+      }).eq('player_id', PLAYER_ID);
+    } catch(e) { console.warn('[scan] 이벤트 상태 저장 실패:', e.message); }
     renderEvent(decoded); showEventModal(decoded);
   }
 
@@ -6350,7 +6686,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   }
 
   // 탐험 시작 버튼 — 랜덤 바코드 자동 생성 후 처리
-  function handleScan() {
+  async function handleScan() {
     renderHero();
     if (!state.currentLocation) { alert('현재 위치 확인 후 다시 시도해 주세요.'); return; }
     // 랜덤 바코드 생성 (중복 방지 — 최대 10회 재시도)
@@ -6366,6 +6702,21 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     const digits = onlyDigits(raw);
     const code = digits.length >= 5 ? toFiveCode(digits) : hashToFiveCode(raw);
     const decoded = decodeEvent(code);
+    // 바코드 인식 즉시 이벤트 상태 DB 저장 (앱 종료 대비)
+    try {
+      const snapshot = {
+        type:      decoded.eventType,
+        barcode:   raw,
+        code:      decoded.code,
+        reward:    decoded.reward || null,
+        item:      decoded.item   || null,
+        ts:        Date.now()
+      };
+      await sb.from('heroes').update({
+        event_state:    'pending_event',
+        event_snapshot: snapshot
+      }).eq('player_id', PLAYER_ID);
+    } catch(e) { console.warn('[handleScan] 이벤트 상태 저장 실패:', e.message); }
     renderEvent(decoded); showEventModal(decoded);
   }
 
@@ -6422,10 +6773,30 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     document.getElementById('charScreen').style.display = 'none';
     renderHero(); requestCurrentLocation();
     loadMapHistory(); renderLogs(); renderMapHistoryList(); initMap();
-    if (!window._autoSaveInterval) window._autoSaveInterval = setInterval(async () => { await dbSaveAll(true); }, 30000);
+    // 30초 자동저장 제거 — 이벤트별 즉시 저장으로 대체
   }
 
   // 게임 타이틀 클릭 → 개발자 모드
+  document.getElementById('devLogCopyBtn')?.addEventListener('click', () => {
+    const logs = getSysLogs();
+    const text = logs.map(l => {
+      const state = l.state ? `[Lv${l.state.lv} 골드:${l.state.gold} 경험치:${l.state.exp} 인벤:${l.state.inv} 장착:${l.state.equip}]` : '';
+      const data  = l.data  ? ` | data: ${l.data}` : '';
+      return `[${l.ts}] ${l.level} [${l.category}] ${l.message} ${state}${data} | player:${l.player}`;
+    }).join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      showDbStatus('로그 복사 완료!', 'ok');
+    }).catch(() => {
+      showDbStatus('복사 실패 — 직접 선택해 주세요', 'error');
+    });
+  });
+  document.getElementById('devLogClearBtn')?.addEventListener('click', () => {
+    if (confirm('로그를 모두 삭제하시겠습니까?')) {
+      clearSysLogs();
+      renderDevLog();
+      showDbStatus('로그 초기화 완료', 'ok');
+    }
+  });
   document.getElementById('gameTitleBtn').addEventListener('click', openDevMode);
   document.getElementById('devModeCloseBtn').addEventListener('click', closeDevMode);
   document.getElementById('devSaveBtn').addEventListener('click', async () => {
@@ -6520,46 +6891,82 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     const heroStats = getHeroBaseStats();
     const soldiers  = heroStats.soldiers;
     const counts    = Array.from({length: Math.min(soldiers,3)}, (_,i) => i+1);
-    soldierModalBody.innerHTML = SOLDIER_DATA.map(sd => {
-      const isSelected = sd.key === (els.eventSoldierClassSelect.value || '검병');
-      const cols = counts.map(c => {
-        const stats = Object.entries(sd.mod).map(([k,v]) => {
-          const base = heroStats[k] || 0;
-          const diff = Math.round(base * v) - base;
-          if (diff === 0) return '';
-          const cls = diff > 0 ? 'up' : 'down';
-          const sign = diff > 0 ? '+' : '';
-          return `<div class="soldier-stat-item soldier-stat-${cls}">${STAT_LABELS[k]} ${sign}${diff}</div>`;
-        }).filter(Boolean).join('');
-        return `<div class="soldier-modal-col">
-          <div class="soldier-modal-col-head">${c}명</div>
-          ${stats}
-        </div>`;
-      }).join('');
-      return `<div class="soldier-modal-row${isSelected?' selected':''}" data-soldier="${sd.key}" id="soldierRow_${sd.key}">
-        <div class="soldier-modal-row-img">
-          <img src="${sd.img}" onerror="this.style.opacity=0">
-          <span>${sd.key}</span>
-        </div>
-        <div class="soldier-modal-row-stats">${cols}</div>
-      </div>`;
-    }).join('');
+    // 표 헤더
+    const countHeaders = counts.map(c => `<th>${c}명</th>`).join('');
+    const statKeys = ['atk','def','hp','speed','crit'];
+    const soldierBonus = { atk:1, def:1, hp:8, speed:0, crit:0 };
+
+    soldierModalBody.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:10px;">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(110,139,204,0.2);">
+            <th style="padding:6px 4px;text-align:left;color:#a9b6d6;font-weight:700;min-width:52px;">병사</th>
+            <th style="padding:6px 4px;color:#a9b6d6;font-weight:700;">스탯</th>
+            ${countHeaders}
+          </tr>
+        </thead>
+        <tbody>
+          ${SOLDIER_DATA.map(sd => {
+            const isSelected = sd.key === (els.eventSoldierClassSelect.value || '검병');
+            const selStyle = isSelected ? 'background:rgba(99,208,154,0.08);' : '';
+            const rows = statKeys.map((k, ki) => {
+              const base = heroStats[k] || 0;
+              const vals = counts.map(c => {
+                const diff = Math.round(base * sd.mod[k]) - base + (soldierBonus[k]||0)*c - (soldierBonus[k]||0)*c;
+                // 배율 효과만
+                const modDiff = Math.round(base * sd.mod[k]) - base;
+                const bonusDiff = (soldierBonus[k]||0) * c;
+                const total = modDiff + bonusDiff;
+                if (total === 0) return `<td style="text-align:center;padding:3px 4px;color:#5a6a8a;">-</td>`;
+                const col = total > 0 ? '#63d09a' : '#ff8a65';
+                const sign = total > 0 ? '+' : '';
+                return `<td style="text-align:center;padding:3px 4px;color:${col};font-weight:700;">${sign}${total}</td>`;
+              }).join('');
+              const imgCell = ki === 0
+                ? `<td rowspan="${statKeys.length}" style="padding:6px 4px;vertical-align:middle;border-bottom:1px solid rgba(110,139,204,0.12);">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;" data-soldier="${sd.key}">
+                      <img src="${sd.img}" style="width:32px;height:40px;object-fit:contain;" onerror="this.style.opacity=0">
+                      <span style="font-size:9px;font-weight:800;color:${isSelected?'#63d09a':'#cdd7f2'};">${sd.key}</span>
+                    </div>
+                  </td>`
+                : '';
+              const borderBottom = ki === statKeys.length-1 ? 'border-bottom:1px solid rgba(110,139,204,0.15);' : '';
+              return `<tr style="${selStyle}${borderBottom}" data-soldier="${sd.key}">
+                ${imgCell}
+                <td style="padding:3px 4px;color:#a9b6d6;white-space:nowrap;">${STAT_LABELS[k]}</td>
+                ${vals}
+              </tr>`;
+            }).join('');
+            return rows;
+          }).join('')}
+        </tbody>
+        <tfoot>
+          <tr style="border-top:1px solid rgba(110,139,204,0.2);">
+            <td colspan="2" style="padding:5px 4px;font-size:9px;color:#5a6a8a;">병사수 보너스</td>
+            ${counts.map(c=>`<td style="text-align:center;padding:5px 4px;font-size:9px;color:#7a90be;">⚔️+${c}<br>🛡️+${c}<br>❤️+${c*8}</td>`).join('')}
+          </tr>
+        </tfoot>
+      </table>`;
 
     pendingSoldier = els.eventSoldierClassSelect.value || '검병';
 
-    soldierModalBody.querySelectorAll('.soldier-modal-row').forEach(row => {
+    soldierModalBody.querySelectorAll('tr[data-soldier]').forEach(row => {
       row.addEventListener('click', () => {
         pendingSoldier = row.dataset.soldier;
-        soldierModalBody.querySelectorAll('.soldier-modal-row').forEach(r => {
-          r.classList.toggle('selected', r.dataset.soldier === pendingSoldier);
-          r.querySelector('div[style*="text-align:center"]') && (r.querySelector('div[style*="text-align:center"]').style.color = r.dataset.soldier === pendingSoldier ? '#63d09a' : '#cdd7f2');
+        // 선택 강조
+        soldierModalBody.querySelectorAll('tr[data-soldier]').forEach(r => {
+          r.style.background = r.dataset.soldier === pendingSoldier ? 'rgba(99,208,154,0.08)' : '';
+        });
+        soldierModalBody.querySelectorAll('span[style*="font-size:9px"]').forEach(sp => {
+          const s = sp.closest('[data-soldier]');
+          if (s) sp.style.color = s.dataset.soldier === pendingSoldier ? '#63d09a' : '#cdd7f2';
         });
       });
     });
     soldierModalBackdrop.classList.add('open');
   }
 
-  function closeSoldierModal() { soldierModalBackdrop.classList.remove('open'); }
+  async function closeSoldierModal() { soldierModalBackdrop.classList.remove('open'); }
 
   if (soldierCurBtn) soldierCurBtn.addEventListener('click', openSoldierModal);
   if (soldierConfirmBtn) soldierConfirmBtn.addEventListener('click', () => {
