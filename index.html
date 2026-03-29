@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>ScanHero MVP v34</title>
+  <title>ScanHero MVP v59</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -1123,6 +1123,79 @@
     @keyframes shadowPulse { 0%,100%{transform:scale(1);opacity:.58;} 50%{transform:scale(.92);opacity:.36;} }
     @keyframes sparkleMove { 0%,100%{transform:translateY(0);opacity:.85;} 50%{transform:translateY(-4px);opacity:1;} }
 
+
+    /* ── 영웅 상세창 탭 ── */
+    .hero-detail-tabs { display:flex; border-bottom:1px solid rgba(110,139,204,0.18); margin-bottom:8px; }
+    .hero-detail-tab {
+      flex:1; padding:9px; text-align:center; font-size:12px; font-weight:900;
+      color:#5a7090; cursor:pointer; transition:all 0.2s;
+      border-bottom:2px solid transparent;
+    }
+    .hero-detail-tab.active { color:#eef3ff; border-bottom-color:#4f7cff; background:rgba(79,124,255,0.06); }
+
+    /* ── 병사 배치 패널 ── */
+    .soldier-deploy-wrap { display:flex; flex-direction:column; gap:8px; }
+
+    /* 배치 슬롯 그리드 */
+    /* .deploy-slots — deployStage 인라인 스타일로 통합 */
+    .deploy-slot {
+      width:100%; aspect-ratio:4/5;
+      border-radius:12px; border:1.5px dashed rgba(140,170,220,0.25);
+      background:rgba(14,21,50,0.6); backdrop-filter:blur(4px);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:3px;
+      cursor:pointer; transition:all 0.15s; position:relative;
+    }
+    .deploy-slot.filled { border-style:solid; border-color:rgba(99,208,154,0.6); background:rgba(10,30,18,0.7); }
+    .deploy-slot.filled:hover { border-color:rgba(200,220,255,0.6); }
+    .deploy-slot.selected { border-color:#4f7cff !important; border-style:solid !important; box-shadow:0 0 0 2px rgba(79,124,255,0.4); background:rgba(20,35,80,0.85) !important; }
+    .deploy-slot.selected .deploy-slot-img { filter:drop-shadow(0 0 6px #4f7cff); }
+    .deploy-slot-img { width:44px; height:56px; object-fit:contain; }
+    .deploy-slot-name { font-size:9px; font-weight:700; color:#eef3ff; text-align:center; }
+    .deploy-slot-rarity { font-size:8px; font-weight:700; }
+    .deploy-slot-empty-icon { font-size:24px; opacity:0.25; color:#7a90be; }
+    .deploy-slot-empty-label { font-size:8px; color:#3a5070; }
+    .deploy-slot-remove {
+      position:absolute; top:-5px; right:-5px;
+      width:16px; height:16px; border-radius:50%;
+      background:#ff4444; color:#fff; font-size:9px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; opacity:0; transition:opacity 0.15s;
+      border:none; padding:0;
+    }
+    .deploy-slot.filled:hover .deploy-slot-remove { opacity:1; }
+
+    /* 병사 보관함 */
+    .soldier-inventory-title {
+      font-size:11px; font-weight:900; color:#eef3ff;
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:6px;
+    }
+    .soldier-inv-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+    .soldier-inv-card {
+      background:rgba(14,21,38,0.9); border:1px solid rgba(110,139,204,0.18);
+      border-radius:10px; padding:8px 6px; cursor:pointer;
+      transition:all 0.15s; text-align:center; position:relative;
+    }
+    .soldier-inv-card:hover { border-color:rgba(140,170,255,0.5); transform:translateY(-2px); }
+    .soldier-inv-card.inv-selected { border-color:#4f7cff !important; box-shadow:0 0 0 2px rgba(79,124,255,0.4); transform:translateY(-2px); }
+    .soldier-inv-card.rarity-uncommon { border-color:rgba(99,208,154,0.5); background:rgba(10,30,18,0.9); }
+    .soldier-inv-card.rarity-rare     { border-color:rgba(99,168,255,0.5); background:rgba(10,22,55,0.9); }
+    .soldier-inv-card.rarity-epic     { border-color:rgba(178,125,255,0.5); background:rgba(24,10,52,0.9); }
+    .soldier-inv-card.rarity-legendary{ border-color:rgba(255,207,99,0.6); background:rgba(42,28,4,0.9); box-shadow:0 0 10px rgba(255,207,99,0.15); }
+    .soldier-inv-card.deployed { opacity:0.45; cursor:default; }
+    .soldier-inv-card.deployed::after { content:'배치중'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; color:#63d09a; background:rgba(0,0,0,0.4); border-radius:10px; }
+    .soldier-inv-img { width:36px; height:46px; object-fit:contain; display:block; margin:0 auto 3px; }
+    .soldier-inv-name { font-size:9px; font-weight:700; color:#eef3ff; }
+    .soldier-inv-rarity { font-size:8px; font-weight:700; margin-top:1px; }
+    .soldier-inv-stats { font-size:8px; color:#7a90be; margin-top:2px; line-height:1.4; }
+    .soldier-inv-fire {
+      margin-top:4px; width:100%; padding:3px 0; border-radius:6px;
+      background:rgba(255,80,80,0.12); border:1px solid rgba(255,80,80,0.25);
+      color:#ff8080; font-size:8px; font-weight:700; cursor:pointer;
+    }
+    .soldier-inv-empty { text-align:center; padding:20px; color:#4a6090; font-size:11px; }
+
     /* ── 개발자 모드 패널 ── */
     .devmode-backdrop { position:fixed; inset:0; z-index:9000; background:rgba(5,8,18,0.82); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; }
     .devmode-backdrop.show { display:flex; }
@@ -1185,19 +1258,15 @@
     /* 고블린 상인 */
     .goblin-stage {
       display:flex; align-items:flex-end; justify-content:center;
-      padding:10px 0 0; min-height:110px; position:relative;
+      height:135px; position:relative; overflow:hidden;
       background:url('https://joono1004.github.io/scanhero/assets/shop/shop_bg.png') center/cover no-repeat;
     }
     .goblin-wrap { position:relative; z-index:2; }
     .goblin-speech {
-      position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
-      background:rgba(18,28,50,0.97); border:1px solid rgba(99,208,154,0.3); border-radius:12px;
-      padding:6px 10px; font-size:10px; font-weight:700; color:#c8f5d8; white-space:nowrap;
-      box-shadow:0 4px 12px rgba(0,0,0,0.3);
-    }
-    .goblin-speech::after {
-      content:''; position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
-      border:3px solid transparent; border-top-color:rgba(99,208,154,0.3);
+      position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+      background:rgba(18,28,50,0.85); border:1px solid rgba(99,208,154,0.3); border-radius:12px;
+      padding:6px 14px; font-size:11px; font-weight:700; color:#c8f5d8; white-space:nowrap;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3); backdrop-filter:blur(4px);
     }
 
     /* 상점 아이템 그리드 */
@@ -1388,6 +1457,75 @@
     .save-fail-banner-title { font-size: 13px; font-weight: 900; color: #ff7b7b; margin-bottom: 2px; }
     .save-fail-banner-desc  { font-size: 11px; color: #cc5555; }
 
+
+    /* ── 상점/선술집 탭 ── */
+    .shop-tabs { display:flex; border-bottom:1px solid rgba(99,168,255,0.14); }
+    .shop-tab {
+      flex:1; padding:11px; text-align:center; font-size:13px; font-weight:900;
+      color:#6a7fa8; cursor:pointer; transition:all 0.2s;
+      border-bottom:2px solid transparent;
+    }
+    .shop-tab.active { color:#eef3ff; border-bottom-color:#4f7cff; background:rgba(79,124,255,0.06); }
+
+    /* ── 선술집 스타일 ── */
+    .tavern-stage {
+      display:flex; align-items:flex-end; justify-content:center;
+      height:135px; position:relative; overflow:hidden;
+      background:url('https://joono1004.github.io/scanhero/assets/shop/tavern_bg.png') center/cover no-repeat;
+    }
+    .tavern-wrap { position:relative; z-index:2; }
+    .tavern-speech {
+      position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+      background:rgba(18,28,50,0.85); border:1px solid rgba(255,180,100,0.3); border-radius:12px;
+      padding:6px 14px; font-size:11px; font-weight:700; color:#ffe0b0; white-space:nowrap;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3); backdrop-filter:blur(4px);
+    }
+    .tavern-section { padding:12px 14px 0; }
+    .tavern-grid { display:grid; grid-template-columns:1fr; gap:10px; }
+    .tavern-card {
+      background:linear-gradient(180deg,rgba(20,15,10,0.98),rgba(28,20,14,0.97));
+      border:1px solid rgba(180,140,80,0.25); border-radius:14px;
+      padding:10px 12px; cursor:pointer;
+      transition:transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+      display:flex; align-items:center; gap:12px; position:relative; overflow:hidden;
+    }
+    .tavern-card:hover { transform:translateY(-2px); border-color:rgba(200,160,80,0.5); box-shadow:0 8px 20px rgba(180,120,40,0.15); }
+    .tavern-card.rarity-uncommon { border-color:rgba(99,208,154,.4); background:linear-gradient(180deg,rgba(10,30,18,0.98),rgba(14,38,22,0.97)); }
+    .tavern-card.rarity-rare     { border-color:rgba(99,168,255,.45); box-shadow:0 0 12px rgba(99,168,255,0.1); }
+    .tavern-card.rarity-epic     { border-color:rgba(178,125,255,.5); box-shadow:0 0 14px rgba(178,125,255,0.12); }
+    .tavern-card.rarity-legendary{ border-color:rgba(255,207,99,.6); box-shadow:0 0 18px rgba(255,207,99,0.18); }
+    .tavern-card-img {
+      width:56px; height:72px; flex-shrink:0;
+      display:flex; align-items:flex-end; justify-content:center;
+      background:rgba(0,0,0,0.3); border-radius:8px; overflow:hidden;
+    }
+    .tavern-card-img img { width:100%; height:100%; object-fit:contain; }
+    .tavern-card-info { flex:1; min-width:0; }
+    .tavern-card-name { font-size:14px; font-weight:900; color:#eef3ff; margin-bottom:2px; }
+    .tavern-card-rarity { font-size:10px; font-weight:800; margin-bottom:6px; }
+    .tavern-card-stats { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px; }
+    .tavern-stat-pill {
+      font-size:10px; padding:2px 6px; border-radius:6px;
+      background:rgba(30,45,80,0.9); color:#9fbfff;
+      border:1px solid rgba(79,124,255,0.2);
+    }
+    .tavern-recruit-btn {
+      width:100%; padding:6px 0; border-radius:9px; font-size:11px; font-weight:900;
+      cursor:pointer; transition:all 0.15s; border:1px solid rgba(255,180,60,0.4);
+      background:linear-gradient(180deg,rgba(255,180,60,0.2),rgba(200,120,20,0.12));
+      color:#ffcf63;
+    }
+    .tavern-recruit-btn:hover { background:linear-gradient(180deg,rgba(255,180,60,0.35),rgba(200,120,20,0.25)); }
+    .tavern-recruit-btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .tavern-refresh-row { padding:12px 14px 0; display:flex; gap:8px; align-items:center; }
+    .tavern-refresh-btn {
+      flex:1; padding:10px; border-radius:12px;
+      background:linear-gradient(180deg,rgba(180,120,40,0.18),rgba(140,90,20,0.12));
+      border:1px solid rgba(180,120,40,0.3); color:#d4a060; font-size:12px; font-weight:900;
+      cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; gap:6px;
+    }
+    .tavern-refresh-btn:hover { background:linear-gradient(180deg,rgba(180,120,40,0.3),rgba(140,90,20,0.2)); }
+
     /* 상점 버튼 (메인화면) */
     .shop-fab {
       position:absolute; right:54px; bottom:6px; z-index:6;
@@ -1427,40 +1565,16 @@
       background:rgba(14,24,40,0.9); border:1.5px solid rgba(140,165,230,0.7);
     }
     /* 병사 선택 버튼 */
-    .soldier-select-row { display:flex; align-items:center; justify-content:flex-end; flex:1; }
-    .soldier-cur-btn {
-      display:flex; align-items:center; justify-content:center; gap:4px;
-      padding:4px 12px; min-width:64px;
-      border-radius:8px; border:1.5px solid rgba(134,164,235,0.5);
-      background:linear-gradient(180deg,rgba(50,70,120,0.95),rgba(30,45,85,0.95));
-      font-size:11px; font-weight:900; color:#eef3ff; cursor:pointer; white-space:nowrap;
-      box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-      transition:all 0.12s; margin-left:auto;
-    }
-    .soldier-cur-btn:hover { border-color:rgba(134,164,235,0.8); background:linear-gradient(180deg,rgba(65,90,145,0.95),rgba(45,60,100,0.95)); transform:translateY(-1px); }
+    
+    
+    
     .soldier-cur-btn:active { transform:scale(0.96) translateY(1px); box-shadow:0 1px 4px rgba(0,0,0,0.4); }
     /* 병사 선택 모달 */
-    .soldier-modal-backdrop {
-      position:fixed; inset:0; background:rgba(3,7,16,0.78);
-      backdrop-filter:blur(8px); z-index:1000;
-      display:none; align-items:center; justify-content:center; padding:12px;
-    }
-    .soldier-modal-backdrop.open { display:flex; }
-    .soldier-modal {
-      width:min(390px,100%); max-height:88dvh;
-      background:linear-gradient(180deg,rgba(24,33,57,0.98),rgba(14,21,37,0.98));
-      border:1px solid rgba(134,164,235,0.24); border-radius:20px;
-      box-shadow:0 24px 60px rgba(0,0,0,0.45);
-      display:flex; flex-direction:column; overflow:hidden;
-    }
-    .soldier-modal-head {
-      padding:12px 16px 10px; font-size:14px; font-weight:900; color:#eef3ff;
-      border-bottom:1px solid rgba(110,139,204,0.15); flex-shrink:0;
-    }
-    .soldier-modal-body {
-      padding:10px; display:grid; grid-template-columns:1fr 1fr;
-      gap:10px; overflow-y:auto; flex:1; min-height:0;
-    }
+    
+    
+    
+    
+    
     /* 카드형 레이아웃 */
     .soldier-card {
       background:rgba(14,21,38,0.9); border:1px solid rgba(110,139,204,0.18);
@@ -1501,11 +1615,8 @@
     .soldier-stat-val.sup { color:#63d09a; }
     .soldier-stat-val.sdown { color:#ff8a65; }
     .soldier-stat-val.sneu { color:#4a6090; }
-    .soldier-modal-actions { padding:8px 12px; border-top:1px solid rgba(110,139,204,0.15); flex-shrink:0; }
-    .soldier-confirm-btn {
-      width:100%; padding:10px; border-radius:12px; font-size:13px; font-weight:900;
-      background:linear-gradient(135deg,#4f7cff,#3a5fd9); color:#fff; border:none; cursor:pointer;
-    }
+    
+    
   
     /* BGM 컨트롤 버튼 */
     .bgm-btn {
@@ -1674,7 +1785,7 @@
 
             <!-- 숨김 셀렉트 (기존 로직 유지) -->
             <select id="eventTacticSelect" style="display:none;"><option value="공격 중심">공격 중심</option><option value="균형">균형</option><option value="방어 중심">방어 중심</option></select>
-            <select id="eventSoldierClassSelect" style="display:none;"><option value="검병">검병</option><option value="방패병">방패병</option><option value="궁병">궁병</option><option value="창병">창병</option></select>
+            
             <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
               <!-- 전술 슬라이더 -->
               <div class="tactic-slider-wrap">
@@ -1689,12 +1800,7 @@
                 </div>
                 <span class="tactic-slider-icon">🛡️</span>
               </div>
-              <!-- 병사 선택 버튼 -->
-              <div class="soldier-select-row">
-                <button class="soldier-cur-btn" id="soldierCurBtn">
-                  <span id="soldierCurLabel">검병</span>
-                </button>
-              </div>
+
             </div>
             <button class="scan-wide-btn" id="scanFab" type="button">
               <div class="scan-wide-icon"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
@@ -1794,21 +1900,19 @@
 
 
   <!-- 병사 선택 모달 -->
-  <div class="soldier-modal-backdrop" id="soldierModalBackdrop">
-    <div class="soldier-modal">
-      <div class="soldier-modal-head">🪖 병사 선택</div>
-      <div class="soldier-modal-body" id="soldierModalBody"></div>
-      <div class="soldier-modal-actions">
-        <button class="soldier-confirm-btn" id="soldierConfirmBtn">확인</button>
-      </div>
-    </div>
-  </div>
   <!-- 영웅 상세 -->
   <div class="modal-backdrop" id="heroStatsBackdrop">
     <div class="modal">
-      <div class="modal-head"><div class="modal-title" id="heroStatsTitle" style="font-size:13px;"></div></div>
-      <div class="modal-body" style="padding:6px 12px;">
-        <!-- 스탯 패널 -->
+      <div class="modal-head">
+        <div class="modal-title" id="heroStatsTitle" style="font-size:13px;"></div>
+        <div class="hero-detail-tabs" style="margin:10px -16px -10px;">
+          <div class="hero-detail-tab active" id="heroTabEquip">⚔️ 장비</div>
+          <div class="hero-detail-tab" id="heroTabSoldier">🪖 병사 배치</div>
+        </div>
+      </div>
+
+      <!-- ── 장비 패널 ── -->
+      <div class="modal-body" style="padding:6px 12px;" id="heroEquipPanel">
         <div class="stats-panel" style="margin-bottom:4px;">
           <div class="cp-block">
             <div class="cp-block-label">전투력</div>
@@ -1825,14 +1929,9 @@
           </div>
         </div>
 
-        <!-- 장비 도감: 캐릭터 배경 + 슬롯 오버레이 -->
         <div class="equip-doll-wrap">
           <div class="equip-doll-stage">
-            <!-- 캐릭터+오버레이: renderHeroDoll()이 동적으로 생성 -->
-
-            <!-- 장비 오버레이: renderHeroDoll()이 동적으로 생성/갱신 -->
           </div>
-          <!-- 슬롯들: equip-doll-wrap 기준 absolute (stage overflow:hidden 밖) -->
           <div class="equip-slot-btn" id="eqSlot_helmet"   data-slot="helmet"   title="투구">   <div class="eq-slot-icon" id="eqIcon_helmet">🪖</div>  <div class="eq-slot-label">투구</div></div>
           <div class="equip-slot-btn" id="eqSlot_necklace" data-slot="necklace" title="목걸이"> <div class="eq-slot-icon" id="eqIcon_necklace">📿</div><div class="eq-slot-label">목걸이</div></div>
           <div class="equip-slot-btn" id="eqSlot_weapon"   data-slot="weapon"   title="무기">   <div class="eq-slot-icon" id="eqIcon_weapon">⚔️</div>  <div class="eq-slot-label">무기</div></div>
@@ -1844,7 +1943,6 @@
           <div class="equip-slot-btn" id="eqSlot_armor"    data-slot="armor"    title="갑옷">   <div class="eq-slot-icon" id="eqIcon_armor">🥋</div>  <div class="eq-slot-label">갑옷</div></div>
         </div>
 
-        <!-- 보관 중 인벤토리만 -->
         <div class="inventory-panel" style="margin-top:8px;">
           <div class="inventory-title" style="display:flex;align-items:center;justify-content:space-between;">
             <span>🎒 인벤토리</span>
@@ -1853,11 +1951,59 @@
           <div class="inventory-scroll"><div class="inventory-grid" id="inventoryGrid"></div></div>
         </div>
       </div>
-      <div class="modal-actions center-single"><button class="modal-primary" id="heroStatsCloseBtn">닫기</button></div>
+
+      <!-- ── 병사 배치 패널 ── -->
+      <div id="heroSoldierPanel" class="modal-body" style="display:none; padding:6px 12px;">
+
+        <!-- 1. 스탯 패널 — 장비탭과 동일 -->
+        <div class="stats-panel" style="margin-bottom:4px;">
+          <div class="cp-block">
+            <div class="cp-block-label">전투력</div>
+            <div class="cp-block-value" id="solCombatPower">0</div>
+            <div class="cp-block-sub">CP</div>
+          </div>
+          <div class="stats-compact-row">
+            <div class="stats-compact-item"><span class="stats-compact-label">⚔️ 공격</span><span class="stats-compact-value" id="solStatsAtk">0</span></div>
+            <div class="stats-compact-item"><span class="stats-compact-label">🛡️ 방어</span><span class="stats-compact-value" id="solStatsDef">0</span></div>
+            <div class="stats-compact-item"><span class="stats-compact-label">❤️ 체력</span><span class="stats-compact-value" id="solStatsHp">0</span></div>
+            <div class="stats-compact-item"><span class="stats-compact-label">💨 속도</span><span class="stats-compact-value" id="solStatsSpeed">0</span></div>
+            <div class="stats-compact-item"><span class="stats-compact-label">✨ 치명</span><span class="stats-compact-value" id="solStatsCrit">0%</span></div>
+            <div class="stats-compact-item"><span class="stats-compact-label">🪖 배치</span><span class="stats-compact-value" id="deploySlotCount">0/0</span></div>
+          </div>
+        </div>
+
+        <!-- 2. 배치된 병사 영역 — 도감(288px)과 동일 -->
+        <div id="deployStage" style="
+          width:100%; border-radius:16px; overflow:hidden;
+          background:radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
+          border:1px solid rgba(100,130,200,0.22); margin-bottom:4px;
+          padding:10px;
+        ">
+          <div id="deploySlots" style="
+            display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+          "></div>
+        </div>
+
+        <!-- 3. 보관 병사 — 인벤토리(150px)와 동일, 3열 카드형 -->
+        <div class="inventory-panel" style="margin-top:2px;">
+          <div class="inventory-title" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span>🎒 보관 병사</span>
+            <span id="soldierInvCount" style="font-size:10px;color:#7a90be;">0명</span>
+          </div>
+          <div style="max-height:150px;overflow-y:auto;">
+            <div id="soldierInvGrid" style="
+              display:grid; grid-template-columns:repeat(3,1fr); gap:6px;
+            "></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-actions center-single">
+        <button class="modal-primary" id="heroStatsCloseBtn">닫기</button>
+      </div>
     </div>
   </div>
-
-
   <!-- 아이템 상세 모달 -->
   <div class="modal-backdrop" id="itemDetailBackdrop">
     <div class="modal" style="width:min(440px,100%);">
@@ -1970,35 +2116,67 @@
     <div class="shop-panel">
       <div class="shop-header">
         <div class="shop-title-row">
-          <div class="shop-title">🏪 고블린 상점</div>
+          <div class="shop-title" id="shopPanelTitle">🏪 고블린 상점</div>
           <button class="shop-close-btn" id="shopCloseBtn">✕</button>
         </div>
         <div class="shop-gold-row">🪙 보유 골드: <span id="shopGoldDisplay">0</span>G</div>
       </div>
 
-      <!-- 고블린 상인 -->
-      <div class="goblin-stage">
-        <div class="goblin-wrap">
+      <!-- 상점/선술집 탭 -->
+      <div class="shop-tabs">
+        <div class="shop-tab active" id="shopTabItem">🏪 상점</div>
+        <div class="shop-tab" id="shopTabTavern">🍺 선술집</div>
+      </div>
+
+      <!-- ── 아이템 상점 패널 ── -->
+      <div id="shopItemPanel">
+        <!-- 고블린 상점 배경 -->
+        <div class="goblin-stage">
           <div class="goblin-speech" id="goblinSpeech">어서오세요, 모험가님! 🍀</div>
-          <img src="https://joono1004.github.io/scanhero/assets/shop/goblin.png" width="100" height="125" style="object-fit:contain;display:block;" onerror="this.style.display='none'">
+        </div>
+
+        <!-- 상품 목록 -->
+        <div class="shop-items-section">
+          <div class="shop-section-label">
+            <span>오늘의 상품 (4종)</span>
+            <span id="shopLuckBadge" style="font-size:9px; padding:2px 6px; border-radius:6px; background:rgba(99,208,154,0.15); color:#63d09a;">보통 운</span>
+          </div>
+          <div class="shop-grid" id="shopGrid"></div>
+        </div>
+
+        <div class="shop-refresh-row" id="shopRefreshRow">
+          <button class="shop-refresh-btn" id="shopRefreshBtn">
+            🔄 상품 새로고침
+            <span class="shop-refresh-cost" id="shopRefreshCost">(50G)</span>
+          </button>
         </div>
       </div>
 
-      <!-- 상품 목록 -->
-      <div class="shop-items-section">
-        <div class="shop-section-label">
-          <span>오늘의 상품 (4종)</span>
-          <span id="shopLuckBadge" style="font-size:9px; padding:2px 6px; border-radius:6px; background:rgba(99,208,154,0.15); color:#63d09a;">보통 운</span>
+      <!-- ── 선술집 패널 ── -->
+      <div id="shopTavernPanel" style="display:none;">
+        <!-- 선술집 배경 -->
+        <div class="tavern-stage">
+          <div class="tavern-speech" id="tavernSpeech">어서오세요! 좋은 병사를 소개해 드릴게요! ⚔️</div>
         </div>
-        <div class="shop-grid" id="shopGrid"></div>
+
+        <!-- 병사 목록 -->
+        <div class="tavern-section">
+          <div class="shop-section-label">
+            <span>모집 가능 병사 (3명)</span>
+            <span id="tavernLuckBadge" style="font-size:9px;padding:2px 6px;border-radius:6px;background:rgba(99,208,154,0.15);color:#63d09a;">보통 운</span>
+          </div>
+          <div class="tavern-grid" id="tavernGrid"></div>
+        </div>
+
+        <div class="tavern-refresh-row">
+          <button class="tavern-refresh-btn" id="tavernRefreshBtn">
+            🔄 재모집
+            <span style="font-size:10px;color:#ffcf63;" id="tavernRefreshCost">(50G)</span>
+          </button>
+        </div>
       </div>
 
-      <div class="shop-refresh-row">
-        <button class="shop-refresh-btn" id="shopRefreshBtn">
-          🔄 상품 새로고침
-          <span class="shop-refresh-cost" id="shopRefreshCost">(50G)</span>
-        </button>
-      </div>
+      </div><!-- /#shopItemPanel end -->
     </div>
   </div>
 
@@ -3672,6 +3850,84 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     } catch (e) { console.error('[dbSaveHero]', e); sysLog('ERROR', 'dbSaveHero', e.message); showDbStatus('영웅 저장 실패: ' + e.message, 'error'); throw e; }
   }
 
+
+  // 병사 로드
+  async function dbLoadSoldiers() {
+    if (!PLAYER_ID) return;
+    try {
+      // account_id = auth.uid() 기준으로 조회 (RLS 통과)
+      const accountId = CURRENT_USER?.id;
+      if (!accountId) return;
+      const { data, error } = await sb
+        .from('soldiers').select('*')
+        .eq('account_id', accountId)
+        .eq('player_id', PLAYER_ID)
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      // 데이터 없어도 배열 초기화 (이전 값 유지 방지)
+      soldierInventory  = [];
+      deployedSoldiers  = [];
+      if (!data || !data.length) return;
+      const rd = SOLDIER_RARITY_DATA;
+      const toSol = row => ({
+        id: row.id, cls: row.cls, rarity: row.rarity,
+        name: row.name,
+        stats: row.stats || {},
+        img: row.img || `https://joono1004.github.io/scanhero/assets/soldier/${SOLDIER_CLASS_DATA[row.cls]?.img || 'swordsman.png'}`,
+        rarityColor: row.rarity_color || rd[row.rarity]?.color || '#a9b6d6',
+        rarityLabel: rd[row.rarity]?.label || row.rarity,
+        recruitCost: row.recruit_cost || rd[row.rarity]?.recruitCost || 30,
+        fireCost:    row.fire_cost   || rd[row.rarity]?.fireCost    || 10,
+        desc: SOLDIER_CLASS_DATA[row.cls]?.desc || '',
+        icon: SOLDIER_CLASS_DATA[row.cls]?.icon || '⚔️',
+      });
+      soldierInventory = data.filter(r => !r.is_deployed).map(toSol);
+      const deployed = data.filter(r => r.is_deployed);
+      const maxSlot  = deployed.reduce((mx, r) => Math.max(mx, r.deploy_slot), -1);
+      deployedSoldiers = Array(Math.max(maxSlot + 1, 0)).fill(null);
+      deployed.forEach(r => {
+        if (r.deploy_slot >= 0) deployedSoldiers[r.deploy_slot] = toSol(r);
+      });
+    } catch(e) { console.error('[dbLoadSoldiers]', e.message); }
+  }
+
+
+  // ── 병사 DB 개별 처리 ────────────────────────────────────────
+
+  async function dbInsertSoldier(sol) {
+    if (!PLAYER_ID || !CURRENT_USER || CURRENT_USER.isGM) return;
+    try {
+      const { error } = await sb.from('soldiers').insert({
+        id: sol.id, player_id: PLAYER_ID, account_id: CURRENT_USER.id,
+        cls: sol.cls, rarity: sol.rarity, name: sol.name || sol.cls,
+        stats: sol.stats || {}, img: sol.img || '',
+        rarity_color: sol.rarityColor || '',
+        recruit_cost: sol.recruitCost || 0, fire_cost: sol.fireCost || 0,
+        is_deployed: false, deploy_slot: -1,
+      });
+      if (error) throw error;
+    } catch(e) { console.error('[dbInsertSoldier]', e.message); }
+  }
+
+  async function dbUpdateSoldierDeploy(solId, isDeployed, deploySlot) {
+    if (!PLAYER_ID || !CURRENT_USER || CURRENT_USER.isGM) return;
+    try {
+      const { error } = await sb.from('soldiers')
+        .update({ is_deployed: isDeployed, deploy_slot: deploySlot })
+        .eq('id', solId).eq('account_id', CURRENT_USER.id);
+      if (error) throw error;
+    } catch(e) { console.error('[dbUpdateSoldierDeploy]', e.message); }
+  }
+
+  async function dbDeleteSoldier(solId) {
+    if (!PLAYER_ID || !CURRENT_USER || CURRENT_USER.isGM) return;
+    try {
+      const { error } = await sb.from('soldiers')
+        .delete().eq('id', solId).eq('account_id', CURRENT_USER.id);
+      if (error) throw error;
+    } catch(e) { console.error('[dbDeleteSoldier]', e.message); }
+  }
+
   // 인벤토리 전체 동기화 (전체 교체)
   async function dbSaveInventory() {
     if (!PLAYER_ID || !CURRENT_USER) return;
@@ -3903,6 +4159,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       }
 
       // 인벤토리
+      // 병사 로드
+      await dbLoadSoldiers();
+
       const { data: invData, error: invErr } = await sb
         .from('inventory_items').select('*').eq('player_id', PLAYER_ID)
         .eq('is_deleted', false)
@@ -4169,7 +4428,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       // 비정상 상태 감지: 레벨/골드/경험치/장비가 모두 초기값이면 저장 보류
       const hasEquip  = Object.values(state.equipment).some(Boolean);
       const hasInv    = state.inventory.length > 0;
-      const hasProgress = state.level > 1 || state.gold > 0 || state.exp > 0 || hasEquip || hasInv;
+      const hasSoldiers = soldierInventory.length > 0 || deployedSoldiers.filter(Boolean).length > 0;
+      const hasProgress = state.level > 1 || state.gold > 0 || state.exp > 0 || hasEquip || hasInv || hasSoldiers;
       if (!hasProgress) {
         console.warn('[dbSaveAll] 진행 데이터 없음 — 저장 보류');
         return;
@@ -4178,6 +4438,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       saveLocalBackup();
       await dbSaveHero();
       await dbSaveInventory();
+      // dbSaveSoldiers는 병사 관련 동작에서만 직접 호출 (dbSaveAll에서 제외)
       saveFailCount = 0;
       clearLocalBackup();
       if (_saveRetryTimer) { clearTimeout(_saveRetryTimer); _saveRetryTimer = null; }
@@ -4552,7 +4813,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     decodeBox:q('decodeBox'), decodeCloseBtn:q('decodeCloseBtn'),
     exploreLogBtn:q('exploreLogBtn'), exploreLogBackdrop:q('exploreLogBackdrop'),
     exploreLog:q('exploreLog'), exploreLogCloseBtn:q('exploreLogCloseBtn'),
-    eventTacticSelect:q('eventTacticSelect'), eventSoldierClassSelect:q('eventSoldierClassSelect'), tacticBadgeStats:q('tacticBadgeStats'),
+    eventTacticSelect:q('eventTacticSelect'), tacticBadgeStats:q('tacticBadgeStats'),
     codeOutput:q('codeOutput'), eventTitle:q('eventTitle'),
     eventDesc:q('eventDesc'), eventBadges:q('eventBadges'), eventRetryWrap:q('eventRetryWrap'),
     locationStatus:q('locationStatus'),
@@ -5243,6 +5504,206 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     return [0.75, 1.0, 1.35][state.devMode.difficulty] || 1.0;
   }
 
+
+  // ═══════════════════════════════════════════════════════
+  // 선술집 (병사 모집) 시스템
+  // ═══════════════════════════════════════════════════════
+
+  // 병사 클래스 정의
+  const SOLDIER_CLASS_DATA = {
+    검병:  { icon:'⚔️', img:'swordsman.png', desc:'균형형 근접 전투',
+             stats:{ atk:8,  def:6,  hp:40,  speed:5,  crit:5  },
+             growth:{ atk:1.8, def:1.2, hp:8,  speed:0.4, crit:0.3 } },
+    방패병: { icon:'🛡️', img:'shielder.png',  desc:'고방어 탱커',
+             stats:{ atk:5,  def:10, hp:60,  speed:3,  crit:2  },
+             growth:{ atk:1.0, def:2.0, hp:12, speed:0.2, crit:0.1 } },
+    궁병:  { icon:'🏹', img:'archer.png',    desc:'고속 원거리',
+             stats:{ atk:7,  def:4,  hp:30,  speed:8,  crit:8  },
+             growth:{ atk:1.6, def:0.8, hp:6,  speed:0.7, crit:0.5 } },
+    창병:  { icon:'🗡️', img:'spearman.png',  desc:'균형 올라운더',
+             stats:{ atk:6,  def:8,  hp:50,  speed:5,  crit:4  },
+             growth:{ atk:1.4, def:1.5, hp:10, speed:0.4, crit:0.2 } },
+  };
+
+  // 병사 등급 설정
+  const SOLDIER_RARITY_DATA = {
+    common:    { label:'일반',  color:'#a9b6d6', mult:1.00, prob:40, recruitCost:30,  fireCost:10  },
+    uncommon:  { label:'고급',  color:'#63d09a', mult:1.15, prob:30, recruitCost:80,  fireCost:30  },
+    rare:      { label:'희귀',  color:'#63a8ff', mult:1.35, prob:18, recruitCost:180, fireCost:70  },
+    epic:      { label:'영웅',  color:'#b27dff', mult:1.60, prob:9,  recruitCost:380, fireCost:150 },
+    legendary: { label:'전설',  color:'#ffcf63', mult:2.00, prob:3,  recruitCost:800, fireCost:350 },
+  };
+
+  const TAVERN_REFRESH_COST = 50;
+  let tavernStock = [];        // 현재 선술집 병사 3명
+  let soldierInventory = [];   // 보유 병사 목록
+  let deployedSoldiers = [];   // 배치된 병사 (최대 슬롯 수)
+
+  // 현재 영웅 레벨 기준 병사 스탯 계산
+  function calcSoldierStats(cls, rarity) {
+    const cd  = SOLDIER_CLASS_DATA[cls];
+    const rd  = SOLDIER_RARITY_DATA[rarity];
+    const lv  = state.level || 1;
+    if (!cd || !rd) return {};
+    return {
+      atk:   Math.round((cd.stats.atk   + cd.growth.atk   * lv) * rd.mult),
+      def:   Math.round((cd.stats.def   + cd.growth.def   * lv) * rd.mult),
+      hp:    Math.round((cd.stats.hp    + cd.growth.hp    * lv) * rd.mult),
+      speed: Math.round((cd.stats.speed + cd.growth.speed * lv) * rd.mult),
+      crit:  Math.round((cd.stats.crit  + cd.growth.crit  * lv) * rd.mult),
+    };
+  }
+
+  // 랜덤 등급 추출 (확률 기반)
+  function rollSoldierRarity() {
+    const luck = state.devMode?.luckLevel || 1;
+    // 행운 레벨에 따라 고등급 확률 보정
+    const boosts = [
+      { common:55, uncommon:30, rare:11, epic:3,  legendary:1  }, // 최악
+      { common:40, uncommon:30, rare:18, epic:9,  legendary:3  }, // 보통
+      { common:25, uncommon:28, rare:28, epic:14, legendary:5  }, // 행운
+      { common:10, uncommon:18, rare:28, epic:28, legendary:16 }, // 대박
+    ][luck] || { common:40, uncommon:30, rare:18, epic:9, legendary:3 };
+
+    const total = Object.values(boosts).reduce((a,b)=>a+b, 0);
+    let roll = Math.random() * total;
+    for (const [rarity, prob] of Object.entries(boosts)) {
+      roll -= prob;
+      if (roll <= 0) return rarity;
+    }
+    return 'common';
+  }
+
+  // 선술집 재고 생성 (3명)
+  function generateTavernStock() {
+    const classes  = Object.keys(SOLDIER_CLASS_DATA);
+    const usedCls  = new Set();
+    tavernStock = [];
+    for (let i = 0; i < 3; i++) {
+      const rarity = rollSoldierRarity();
+      let cls;
+      let tries = 0;
+      do { cls = classes[Math.floor(Math.random() * classes.length)]; tries++; }
+      while (usedCls.has(cls) && tries < 10);
+      usedCls.add(cls);
+      const rd    = SOLDIER_RARITY_DATA[rarity];
+      const stats = calcSoldierStats(cls, rarity);
+      tavernStock.push({
+        id:          `sol_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
+        cls, rarity,
+        name:        `${rd.label} ${cls}`,
+        icon:        SOLDIER_CLASS_DATA[cls].icon,
+        img:         `https://joono1004.github.io/scanhero/assets/soldier/${SOLDIER_CLASS_DATA[cls].img}`,
+        desc:        SOLDIER_CLASS_DATA[cls].desc,
+        rarityLabel: rd.label,
+        rarityColor: rd.color,
+        recruitCost: rd.recruitCost,
+        fireCost:    rd.fireCost,
+        stats,
+      });
+    }
+  }
+
+  // 선술집 그리드 렌더
+  function renderTavernGrid() {
+    const grid    = document.getElementById('tavernGrid');
+    const luckBadge = document.getElementById('tavernLuckBadge');
+    const luckNames = ['😞 최악 운','😐 보통 운','🍀 행운','⭐ 대박 운'];
+    const luckColors= ['#a4b4db','#a4b4db','#63d09a','#ffcf63'];
+    const luck = state.devMode?.luckLevel || 1;
+    if (luckBadge) { luckBadge.textContent=luckNames[luck]; luckBadge.style.color=luckColors[luck]; }
+
+    document.getElementById('shopGoldDisplay').textContent = state.gold;
+
+    grid.innerHTML = tavernStock.map((sol, idx) => {
+      const canAfford = state.gold >= sol.recruitCost;
+      const rd = SOLDIER_RARITY_DATA[sol.rarity];
+      const statText = `⚔️${sol.stats.atk} 🛡️${sol.stats.def} ❤️${sol.stats.hp} 💨${sol.stats.speed} ✨${sol.stats.crit}`;
+      return `<div class="tavern-card rarity-${sol.rarity}">
+        <div class="tavern-card-img">
+          <img src="${sol.img}" onerror="this.style.opacity=0">
+        </div>
+        <div class="tavern-card-info">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+            <div class="tavern-card-name">${sol.icon} ${sol.cls}</div>
+            <span style="font-size:10px;font-weight:800;color:${rd.color};">[${rd.label}]</span>
+          </div>
+          <div style="font-size:10px;color:#7a90be;margin-bottom:6px;">${sol.desc}</div>
+          <div class="tavern-card-stats">
+            <span class="tavern-stat-pill">⚔️ ${sol.stats.atk}</span>
+            <span class="tavern-stat-pill">🛡️ ${sol.stats.def}</span>
+            <span class="tavern-stat-pill">❤️ ${sol.stats.hp}</span>
+            <span class="tavern-stat-pill">💨 ${sol.stats.speed}</span>
+            <span class="tavern-stat-pill">✨ ${sol.stats.crit}</span>
+          </div>
+          <button class="tavern-recruit-btn" data-tavern-idx="${idx}"
+            ${canAfford ? '' : 'disabled'}>
+            🪙 ${sol.recruitCost}G ${canAfford ? '모집' : '골드 부족'}
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.tavern-recruit-btn:not(:disabled)').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        recruitSoldier(+btn.dataset.tavernIdx);
+      });
+    });
+
+    document.getElementById('tavernRefreshCost').textContent = `(${TAVERN_REFRESH_COST}G)`;
+    const refreshBtn = document.getElementById('tavernRefreshBtn');
+    if (refreshBtn) refreshBtn.disabled = state.gold < TAVERN_REFRESH_COST;
+  }
+
+  // 병사 모집
+  function recruitSoldier(idx) {
+    const sol = tavernStock[idx];
+    if (!sol) return;
+    if (state.gold < sol.recruitCost) {
+      updateTavernKeeperSpeech('골드가 부족해요... 😢'); return;
+    }
+    state.gold -= sol.recruitCost;
+    // 인벤토리에 추가
+    soldierInventory.unshift({ ...sol });
+    soldierInventory = soldierInventory.slice(0, 30); // 최대 30명 보관
+    // 해당 슬롯 sold-out 처리
+    tavernStock[idx] = { ...sol, soldOut: true };
+    renderHero();
+    renderTavernGrid();
+    updateTavernKeeperSpeech(`${sol.cls} 모집 완료! 함께 싸워봐요! ⚔️`);
+    showDropNotification(`⚔️ ${sol.name} 모집!`, sol.rarityColor);
+    dbSaveAll(true);
+    dbInsertSoldier(sol);
+  }
+
+  // 선술집 주인 대사
+  const TAVERN_SPEECHES = [
+    '어서오세요! 좋은 병사를 소개해 드릴게요! ⚔️',
+    '오늘 실력 좋은 용병들이 많이 왔어요! 🗡️',
+    '최고의 병사를 골라 승리를 거머쥐세요! 🏆',
+    '재모집하면 더 좋은 병사가 나올 수도 있어요! 🍀',
+  ];
+  function updateTavernKeeperSpeech(text) {
+    const el = document.getElementById('tavernSpeech');
+    if (el) el.textContent = text || TAVERN_SPEECHES[Math.floor(Math.random()*TAVERN_SPEECHES.length)];
+  }
+
+  // 탭 전환
+  function switchShopTab(tab) {
+    const isItem = tab === 'item';
+    document.getElementById('shopTabItem').classList.toggle('active', isItem);
+    document.getElementById('shopTabTavern').classList.toggle('active', !isItem);
+    document.getElementById('shopItemPanel').style.display   = isItem ? '' : 'none';
+    document.getElementById('shopTavernPanel').style.display = isItem ? 'none' : '';
+    document.getElementById('shopPanelTitle').textContent    = isItem ? '🏪 고블린 상점' : '🍺 선술집';
+    if (!isItem) {
+      if (!tavernStock.length) generateTavernStock();
+      renderTavernGrid();
+      updateTavernKeeperSpeech();
+    }
+  }
+
   // ─────────────────────────────────────────
   // 상점 시스템
   // ─────────────────────────────────────────
@@ -5373,6 +5834,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   ];
 
   function openShop() {
+    // 아이템 탭으로 초기화
+    switchShopTab('item');
     if (!state.shopStock.length) generateShopStock();
     updateGoblinSpeech(GOBLIN_GREETINGS[Math.floor(Math.random()*GOBLIN_GREETINGS.length)]);
     renderShopGrid();
@@ -5509,16 +5972,14 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // 전술 + 병사 클래스 합산 배지 렌더링
   function renderTacticBadge() {
     const tactic = els.eventTacticSelect?.value || '균형';
-    const soldier = els.eventSoldierClassSelect?.value || '검병';
     const tm = getTacticMod(tactic);
-    const sm = getSoldierClassMod(soldier);
-    // 두 배율 곱해서 최종 효과 계산
+    // 전술 배율만 표시 (병사 클래스 드롭다운 제거됨)
     const combined = {
-      atk:   tm.atk   * sm.atk,
-      def:   tm.def   * sm.def,
-      hp:    tm.hp    * sm.hp,
-      speed: tm.speed * sm.speed,
-      crit:  tm.crit  * sm.crit,
+      atk:   tm.atk,
+      def:   tm.def,
+      hp:    tm.hp,
+      speed: tm.speed,
+      crit:  tm.crit,
     };
     const stats = [
       { key:'공격', val: combined.atk   },
@@ -5842,10 +6303,14 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     updateFormationBg(theme);
   }
 
-  function renderHeroFormation(heroClass, soldierClass, soldierCount) {
+  function renderHeroFormation(heroClass, soldierClassOrArr, soldierCount) {
+    // soldierClassOrArr: 문자열(단일) 또는 클래스 배열
+    const classes = Array.isArray(soldierClassOrArr)
+      ? soldierClassOrArr
+      : Array(soldierCount).fill(soldierClassOrArr || '검병');
     els.heroSpriteWrap.innerHTML = getHeroVisualHtml(heroClass);
-    els.soldierFront.innerHTML = Array.from({length:soldierCount}, (_, i) => {
-      const sprite = getSoldierSprite(soldierClass);
+    els.soldierFront.innerHTML = classes.map((c, i) => {
+      const sprite = getSoldierSprite(c);
       // 그리드 3열 기준: 첫 행(0~2) → margin-bottom으로 아래 행과 간격
       // align-items:flex-end 기준으로 윗줄을 5px 아래로 내림
       if (soldierCount > 3 && i < 3) {
@@ -5867,7 +6332,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     els.heroGoldTop.textContent    = state.gold;
     els.heroExpBarText.textContent = `${state.exp} / ${expNeed}`;
     els.heroTitleBtn.textContent   = formatHeroTopTitle(stats);
-    renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
+    renderHeroFormation(state.heroClass, (deployedSoldiers||[]).filter(Boolean).map(s=>s.cls), stats.soldiers);
 
     if (leveled) {
       // 레벨업 애니메이션: 우측 끝까지 → 번쩍 → 왼쪽부터 새 경험치로 차오름
@@ -6040,6 +6505,250 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 슬롯 UI 갱신 후 도감도 같이 갱신
     const openDoll2 = document.querySelector('.equip-doll-stage');
     if (openDoll2) renderHeroDoll(openDoll2);
+  }
+
+
+  // ═══════════════════════════════════════════════════════
+  // 병사 배치 시스템
+  // ═══════════════════════════════════════════════════════
+
+  // 영웅 상세창 탭 전환
+  function switchHeroTab(tab) {
+    const isEquip = tab === 'equip';
+    window._deploySelected = null; // 탭 전환 시 선택 초기화
+    document.getElementById('heroTabEquip').classList.toggle('active', isEquip);
+    document.getElementById('heroTabSoldier').classList.toggle('active', !isEquip);
+    document.getElementById('heroEquipPanel').style.display   = isEquip ? '' : 'none';
+    document.getElementById('heroSoldierPanel').style.display = isEquip ? 'none' : '';
+    if (!isEquip) renderSoldierDeployPanel();
+  }
+
+  // 배치 슬롯 렌더
+  function renderSoldierDeployPanel() {
+    const stats    = getHeroBaseStats();
+    const maxSlots = stats.soldiers;  // 현재 배치 가능 병사 수
+    const TOTAL    = 6;               // 항상 3×2 고정
+
+    const slotsEl    = document.getElementById('deploySlots');
+    const invEl      = document.getElementById('soldierInvGrid');
+    const invCountEl = document.getElementById('soldierInvCount');
+    if (!slotsEl) return;
+
+    // ── 스탯 패널 업데이트 ────────────────────────────────
+    const cp = calcCombatPower(stats);
+    const set = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+    set('solCombatPower', cp.toLocaleString());
+    set('solStatsAtk',   stats.atk);
+    set('solStatsDef',   stats.def);
+    set('solStatsHp',    stats.hp);
+    set('solStatsSpeed', stats.speed);
+    set('solStatsCrit',  stats.crit + '%');
+
+    // deployedSoldiers를 항상 TOTAL(6) 크기로 유지
+    while (deployedSoldiers.length < TOTAL) deployedSoldiers.push(null);
+    deployedSoldiers = deployedSoldiers.slice(0, TOTAL);
+
+    const filled = deployedSoldiers.filter(Boolean).length;
+    set('deploySlotCount', `${filled}/${maxSlots}`);
+    if (invCountEl) invCountEl.textContent = `${soldierInventory.length}명`;
+
+    // 선택 상태 (슬롯 인덱스 또는 보관병사 인덱스)
+    // _deploySelected: { type:'slot'|'inv', idx:number }
+    if (!window._deploySelected) window._deploySelected = null;
+
+    // ── 배치 슬롯 렌더 (3×2 고정) ─────────────────────────
+    slotsEl.innerHTML = Array.from({length: TOTAL}, (_, i) => {
+      const sol      = deployedSoldiers[i];
+      const isActive = i < maxSlots;   // 현재 배치 가능한 슬롯
+      const isSel    = window._deploySelected?.type === 'slot' && window._deploySelected.idx === i;
+
+      if (sol) {
+        const rd = SOLDIER_RARITY_DATA[sol.rarity];
+        return `<div class="deploy-slot filled rarity-${sol.rarity}${isSel ? ' selected' : ''}"
+            data-slot-idx="${i}" style="cursor:pointer;">
+          <button class="deploy-slot-remove" data-remove-slot="${i}" data-sol-id="${sol.id}">✕</button>
+          <img class="deploy-slot-img" src="${sol.img}" onerror="this.style.opacity=0">
+          <div class="deploy-slot-name">${sol.cls}</div>
+          <div class="deploy-slot-rarity" style="color:${rd.color}">${rd.label}</div>
+        </div>`;
+      }
+      // 빈 슬롯
+      const lockedStyle = !isActive ? 'opacity:0.35;' : '';
+      return `<div class="deploy-slot${isSel ? ' selected' : ''}"
+          data-slot-idx="${i}" style="cursor:${isActive?'pointer':'default'};${lockedStyle}">
+        <div class="deploy-slot-empty-icon" style="font-size:18px;opacity:0.3;">+</div>
+        <div class="deploy-slot-empty-label">${isActive ? '빈 슬롯' : '🔒'}</div>
+      </div>`;
+    }).join('');
+
+    // ── 슬롯 ✕ 버튼 이벤트 (배치 해제) ──────────────────────
+    slotsEl.querySelectorAll('.deploy-slot-remove').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const slotIdx = +btn.dataset.removeSlot;
+        const solId   = btn.dataset.solId;
+        const sol     = deployedSoldiers[slotIdx];
+        deployedSoldiers[slotIdx] = null;
+        window._deploySelected = null;
+        renderSoldierDeployPanel();
+        if (sol) dbUpdateSoldierDeploy(sol.id, false, -1);
+      });
+    });
+
+    // ── 슬롯 클릭 이벤트 ─────────────────────────────────
+    slotsEl.querySelectorAll('.deploy-slot').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx     = +el.dataset.slotIdx;
+        const isActive= idx < maxSlots;
+        const sol     = deployedSoldiers[idx];
+        const prev    = window._deploySelected;
+
+        // 잠긴 슬롯
+        if (!isActive) {
+          showDropNotification('⚔️ 출전 병사가 모두 배치되었습니다!', '#ffcf63');
+          return;
+        }
+
+        // 선택 없는 상태
+        if (!prev) {
+          // 빈 슬롯 선택 → 보관병사 선택 대기
+          window._deploySelected = { type:'slot', idx };
+          renderSoldierDeployPanel();
+          return;
+        }
+
+        // 이전 선택이 슬롯
+        if (prev.type === 'slot') {
+          if (prev.idx === idx) {
+            // 같은 슬롯 클릭 → 선택 해제
+            window._deploySelected = null;
+          } else {
+            // 다른 슬롯 클릭 → 위치 교환
+            const tmp = deployedSoldiers[prev.idx];
+            deployedSoldiers[prev.idx] = deployedSoldiers[idx];
+            deployedSoldiers[idx] = tmp;
+            window._deploySelected = null;
+            renderHero();
+            if (deployedSoldiers[prev.idx]) dbUpdateSoldierDeploy(deployedSoldiers[prev.idx].id, true, prev.idx);
+            if (deployedSoldiers[idx]) dbUpdateSoldierDeploy(deployedSoldiers[idx].id, true, idx);
+          }
+          renderSoldierDeployPanel();
+          return;
+        }
+
+        // 이전 선택이 보관병사 → 슬롯에 배치
+        if (prev.type === 'inv') {
+          const invSol = soldierInventory[prev.idx];
+          if (!invSol) { window._deploySelected = null; renderSoldierDeployPanel(); return; }
+
+          if (filled >= maxSlots && !sol) {
+            // 꽉 찬 상태에서 빈 슬롯에 배치 시도
+            showDropNotification('⚔️ 출전 병사가 모두 배치되었습니다!', '#ffcf63');
+            window._deploySelected = null;
+            renderSoldierDeployPanel();
+            return;
+          }
+
+          // 배치
+          deployedSoldiers[idx] = invSol;
+          window._deploySelected = null;
+          renderSoldierDeployPanel();
+          renderHero();
+          dbUpdateSoldierDeploy(invSol.id, true, idx);
+          showDropNotification(`⚔️ ${invSol.name} 배치!`, invSol.rarityColor);
+        }
+      });
+    });
+
+    // ── 보관 병사 렌더 ────────────────────────────────────
+    if (!soldierInventory.length) {
+      invEl.innerHTML = `<div class="soldier-inv-empty" style="grid-column:span 3;">
+        보관 중인 병사가 없어요.<br>선술집에서 모집해보세요! 🍺
+      </div>`;
+      return;
+    }
+
+    const deployedIds = deployedSoldiers.filter(Boolean).map(s => s.id);
+
+    invEl.innerHTML = soldierInventory.map((sol, idx) => {
+      const rd         = SOLDIER_RARITY_DATA[sol.rarity];
+      const isDeployed = deployedIds.includes(sol.id);
+      const isSel      = window._deploySelected?.type === 'inv' && window._deploySelected.idx === idx;
+      return `<div class="soldier-inv-card rarity-${sol.rarity}
+          ${isDeployed ? 'deployed' : ''} ${isSel ? 'inv-selected' : ''}"
+          data-inv-idx="${idx}">
+        <img class="soldier-inv-img" src="${sol.img}" onerror="this.style.opacity=0">
+        <div class="soldier-inv-name">${sol.cls}</div>
+        <div class="soldier-inv-rarity" style="color:${rd.color}">${rd.label}</div>
+        <div class="soldier-inv-stats">⚔️${sol.stats.atk} 🛡️${sol.stats.def}<br>❤️${sol.stats.hp}</div>
+        <button class="soldier-inv-fire" data-fire-idx="${idx}">해고 +${rd.fireCost}G</button>
+      </div>`;
+    }).join('');
+
+    // 보관 병사 클릭
+    invEl.querySelectorAll('.soldier-inv-card:not(.deployed)').forEach(card => {
+      card.addEventListener('click', e => {
+        if (e.target.classList.contains('soldier-inv-fire')) return;
+        const idx  = +card.dataset.invIdx;
+        const sol  = soldierInventory[idx];
+        const prev = window._deploySelected;
+
+        // 이전 선택이 슬롯 → 해당 슬롯에 배치
+        if (prev?.type === 'slot') {
+          const slotIdx = prev.idx;
+          const isActive = slotIdx < maxSlots;
+          if (!isActive) {
+            showDropNotification('⚔️ 출전 병사가 모두 배치되었습니다!', '#ffcf63');
+            window._deploySelected = null;
+            renderSoldierDeployPanel();
+            return;
+          }
+          if (filled >= maxSlots && !deployedSoldiers[slotIdx]) {
+            showDropNotification('⚔️ 출전 병사가 모두 배치되었습니다!', '#ffcf63');
+            window._deploySelected = null;
+            renderSoldierDeployPanel();
+            return;
+          }
+          deployedSoldiers[slotIdx] = sol;
+          window._deploySelected = null;
+          renderSoldierDeployPanel();
+          renderHero();
+          dbUpdateSoldierDeploy(sol.id, true, slotIdx);
+          showDropNotification(`⚔️ ${sol.name} 배치!`, sol.rarityColor);
+          return;
+        }
+
+        // 같은 카드 다시 클릭 → 선택 해제
+        if (prev?.type === 'inv' && prev.idx === idx) {
+          window._deploySelected = null;
+          renderSoldierDeployPanel();
+          return;
+        }
+
+        // 보관병사 선택
+        window._deploySelected = { type:'inv', idx };
+        renderSoldierDeployPanel();
+      });
+    });
+
+    // 해고 버튼
+    invEl.querySelectorAll('.soldier-inv-fire').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const idx = +btn.dataset.fireIdx;
+        const sol = soldierInventory[idx];
+        if (!confirm(`${sol.name}을(를) 해고하시겠어요?\n${SOLDIER_RARITY_DATA[sol.rarity].fireCost}G를 받습니다.`)) return;
+        deployedSoldiers = deployedSoldiers.map(s => s?.id === sol.id ? null : s);
+        state.gold += SOLDIER_RARITY_DATA[sol.rarity].fireCost;
+        soldierInventory.splice(idx, 1);
+        window._deploySelected = null;
+        renderSoldierDeployPanel();
+        renderHero();
+        showDropNotification(`🪙 ${sol.name} 해고 +${SOLDIER_RARITY_DATA[sol.rarity].fireCost}G`, '#a4b4db');
+        dbSaveAll(true);
+        dbDeleteSoldier(sol.id);
+      });
+    });
   }
 
   function openHeroStatsModal() {
@@ -6573,16 +7282,35 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   function getBattleSetup(enemy) {
     const heroStats = getHeroBaseStats();
-    const tactic = els.eventTacticSelect.value, soldierClass = els.eventSoldierClassSelect.value;
-    const tm = getTacticMod(tactic), sm = getSoldierClassMod(soldierClass);
-    const sc = heroStats.soldiers;
+    const tactic    = els.eventTacticSelect.value;
+    const tm        = getTacticMod(tactic);
+
+    // 배치된 병사 목록 (null 제거)
+    const activeSoldiers = (deployedSoldiers || []).filter(Boolean);
+    const sc             = activeSoldiers.length; // 실제 배치 수
+
+    // 배치된 병사 스탯 합산
+    const soldierBonus = activeSoldiers.reduce((acc, sol) => {
+      acc.atk   += sol.stats.atk   || 0;
+      acc.def   += sol.stats.def   || 0;
+      acc.hp    += sol.stats.hp    || 0;
+      acc.speed += sol.stats.speed || 0;
+      acc.crit  += sol.stats.crit  || 0;
+      return acc;
+    }, { atk:0, def:0, hp:0, speed:0, crit:0 });
+
+    // 배치 병사 클래스 목록 (전투 씬 표시용)
+    const soldierClasses = activeSoldiers.map(s => s.cls);
+
     return {
-      tactic, soldierClass, soldierCount:sc,
-      heroAtk:   Math.round(heroStats.atk*tm.atk*sm.atk+sc*1),
-      heroDef:   Math.round(heroStats.def*tm.def*sm.def+sc*1),
-      heroMax:   Math.round(heroStats.hp*tm.hp*sm.hp+sc*8),
-      heroSpeed: Math.round(heroStats.speed*tm.speed*sm.speed),
-      heroCrit:  Math.round(heroStats.crit*tm.crit*sm.crit),
+      tactic,
+      soldierClasses,               // 배치된 병사 클래스 배열
+      soldierCount: sc,             // 실제 배치 수
+      heroAtk:   Math.round((heroStats.atk   + soldierBonus.atk)   * tm.atk),
+      heroDef:   Math.round((heroStats.def   + soldierBonus.def)   * tm.def),
+      heroMax:   Math.round((heroStats.hp    + soldierBonus.hp)    * tm.hp),
+      heroSpeed: Math.round((heroStats.speed + soldierBonus.speed) * tm.speed),
+      heroCrit:  Math.round((heroStats.crit  + soldierBonus.crit)  * tm.crit),
       enemy
     };
   }
@@ -6614,9 +7342,14 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     els.battleHeroSpriteWrap.innerHTML = `<div class="battle-hero-sprite">${html}</div>`;
   }
   function renderBattleSoldiers(count, cls) {
-    els.battleSoldierGroup.innerHTML = Array.from({length:count}, (_, i) => {
-      const sprite = getSoldierSprite(cls, 'battle');
-      if (count > 3 && i < 3) return sprite.replace('<div class="battle-soldier"', '<div class="battle-soldier" style="position:relative;top:20px;"');
+    const setup   = state.battle?.setup;
+    const classes = (setup?.soldierClasses && setup.soldierClasses.length)
+      ? setup.soldierClasses
+      : Array(count).fill(cls || '검병');
+    els.battleSoldierGroup.innerHTML = classes.map((c, i) => {
+      const sprite = getSoldierSprite(c, 'battle');
+      if (classes.length > 3 && i < 3)
+        return sprite.replace('<div class="battle-soldier"', '<div class="battle-soldier" style="position:relative;top:20px;">');
       return sprite;
     }).join('');
   }
@@ -6654,7 +7387,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     state.battle = { decoded, setup, heroHp:setup.heroMax, heroMax:setup.heroMax, enemyHp:setup.enemy.hp, enemyMax:setup.enemy.hp, turn:1, totalDmg:0, ended:false, locked:false };
     resetBattleAnims(); // ran-away/defeated 포함 모든 클래스 초기화
     clearBattleResultOverlay();
-    renderBattleHeroSprite(); renderBattleSoldiers(setup.soldierCount, setup.soldierClass);
+    renderBattleHeroSprite(); renderBattleSoldiers(setup.soldierCount, (setup.soldierClasses||[])[0] || '검병');
     // 전투 상태 sessionStorage 백업 (끊김 복구용)
     try {
       sessionStorage.setItem('sh_battle_backup', JSON.stringify({
@@ -6712,7 +7445,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         spBadgeEl.style.display = 'none';
       }
     }
-    els.battleHeroMeta.textContent   = `${state.heroClass} / ${setup.tactic} / ${setup.soldierClass} / 병사 ${setup.soldierCount}`;
+    els.battleHeroMeta.textContent   = `${state.heroClass} / ${setup.tactic} / ${(setup.soldierClasses||[]).join(',')||'없음'} / 병사 ${setup.soldierCount}`;
     els.battleEnemyMeta.textContent  = `${amount}마리 · 공격 ${setup.enemy.atk} / 방어 ${setup.enemy.def}`;
     els.battleResultBox.style.display='none'; els.battleResultBox.className='';
     els.battleActions.className='modal-actions two';
@@ -7199,6 +7932,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // 상점 FAB
   document.getElementById('shopFab').addEventListener('click', openShop);
   document.getElementById('shopCloseBtn').addEventListener('click', closeShop);
+  document.getElementById('shopTabItem').addEventListener('click', () => switchShopTab('item'));
+  document.getElementById('shopTabTavern').addEventListener('click', () => switchShopTab('tavern'));
   document.getElementById('shopBackdrop').addEventListener('click', e => {
     if (e.target === document.getElementById('shopBackdrop')) closeShop();
   });
@@ -7209,6 +7944,15 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     renderHero();
     renderShopGrid();
     updateGoblinSpeech('새 물건이 들어왔어요! ✨');
+  });
+
+  document.getElementById('tavernRefreshBtn').addEventListener('click', () => {
+    if (state.gold < TAVERN_REFRESH_COST) { updateTavernKeeperSpeech('골드가 부족해요... 😢'); return; }
+    state.gold -= TAVERN_REFRESH_COST;
+    generateTavernStock();
+    renderHero();
+    renderTavernGrid();
+    updateTavernKeeperSpeech('새로운 병사들이 왔어요! 어서 골라보세요! ⚔️');
   });
 
   els.scanFab.addEventListener('click', async ()=>{ els.scanStatusText.textContent='카메라로 바코드를 스캔하거나 탐험 시작을 눌러주세요.'; els.barcodeInput.value=''; openModal(els.scanModalBackdrop); await startCameraScanner(); if(state.currentLocation?.lat) refreshBgFromLocation(state.currentLocation.lat, state.currentLocation.lng); });
@@ -7231,17 +7975,12 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const val = tacticValues[idx];
     els.eventTacticSelect.value = val;
     const stats = getHeroBaseStats();
-    renderHeroFormation(state.heroClass, els.eventSoldierClassSelect.value, stats.soldiers);
+    renderHeroFormation(state.heroClass, (deployedSoldiers||[]).filter(Boolean).map(s=>s.cls), stats.soldiers);
     renderTacticBadge();
   }
   if (tacticSlider) tacticSlider.addEventListener('input', applyTacticSlider);
 
-  // 병사 선택 모달
-  const soldierModalBackdrop = document.getElementById('soldierModalBackdrop');
-  const soldierModalBody     = document.getElementById('soldierModalBody');
-  const soldierCurBtn        = document.getElementById('soldierCurBtn');
-  const soldierCurLabel      = document.getElementById('soldierCurLabel');
-  const soldierConfirmBtn    = document.getElementById('soldierConfirmBtn');
+
   const SOLDIER_DATA = [
     { key:'검병',  img:'https://joono1004.github.io/scanhero/assets/soldier/swordsman.png', mod:{atk:1.15,def:0.94,hp:1.0,speed:1.0,crit:1.04} },
     { key:'방패병', img:'https://joono1004.github.io/scanhero/assets/soldier/shielder.png', mod:{atk:0.92,def:1.2,hp:1.1,speed:0.94,crit:1.0} },
@@ -7249,100 +7988,15 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     { key:'창병',  img:'https://joono1004.github.io/scanhero/assets/soldier/spearman.png',  mod:{atk:1.05,def:1.05,hp:1.02,speed:1.0,crit:1.02} },
   ];
   const STAT_LABELS = { atk:'⚔️ 공격', def:'🛡️ 방어', hp:'❤️ 체력', speed:'💨 속도', crit:'✨ 치명' };
-  let pendingSoldier = '검병';
 
-  function openSoldierModal() {
-    const heroStats = getHeroBaseStats();
-    const soldierCount = Math.min(heroStats.soldiers, 3);
-    const BASE_STATS = { atk: heroStats.atk, def: heroStats.def, hp: heroStats.hp, speed: heroStats.speed, crit: heroStats.crit };
-    const BONUS_PER  = { atk:1, def:1, hp:8, speed:0, crit:0 };
-    const STAT_META  = [
-      { key:'atk',   icon:'⚔️', posColor:'#63a8ff', negColor:'#ff8a65' },
-      { key:'def',   icon:'🛡️', posColor:'#63d09a', negColor:'#ff8a65' },
-      { key:'hp',    icon:'❤️', posColor:'#ff7b9c', negColor:'#ff8a65' },
-      { key:'speed', icon:'💨', posColor:'#63d09a', negColor:'#ff8a65' },
-      { key:'crit',  icon:'✨', posColor:'#ffcf63', negColor:'#ff8a65' },
-    ];
-    const DESCS = { 검병:'공격 중심 근접 전투', 방패병:'높은 방어와 체력', 궁병:'빠른 속도와 원거리', 창병:'균형잡힌 올라운더' };
 
-    function calcDiff(sd) {
-      const r = {};
-      STAT_META.forEach(({ key }) => {
-        const base = BASE_STATS[key] || 0;
-        r[key] = Math.round(base * sd.mod[key]) - base + (BONUS_PER[key] || 0) * soldierCount;
-      });
-      return r;
-    }
-    function maxAbs(key) {
-      let m = 1;
-      SOLDIER_DATA.forEach(sd => { const d = Math.abs(calcDiff(sd)[key]); if (d > m) m = d; });
-      return m;
-    }
 
-    pendingSoldier = els.eventSoldierClassSelect.value || '검병';
 
-    function renderCards() {
-      soldierModalBody.innerHTML = '';
-      SOLDIER_DATA.forEach(sd => {
-        const diffs  = calcDiff(sd);
-        const isSel  = sd.key === pendingSoldier;
-        const card   = document.createElement('div');
-        card.className = 'soldier-card' + (isSel ? ' selected' : '');
-        card.dataset.soldier = sd.key;
 
-        const statsHtml = STAT_META.map(({ key, icon, posColor, negColor }) => {
-          const val  = diffs[key];
-          const pct  = Math.round(Math.min(100, (Math.abs(val) / maxAbs(key)) * 100));
-          const color = val > 0 ? posColor : val < 0 ? negColor : 'rgba(60,80,130,0.5)';
-          const cls   = val > 0 ? 'sup' : val < 0 ? 'sdown' : 'sneu';
-          const sign  = val > 0 ? '+' : '';
-          return `<div class="soldier-stat-row">
-            <span class="soldier-stat-icon">${icon}</span>
-            <div class="soldier-stat-bar-bg">
-              <div class="soldier-stat-bar-fill" style="width:${pct}%;background:${color};"></div>
-            </div>
-            <span class="soldier-stat-val ${cls}">${val === 0 ? '-' : sign + val}</span>
-          </div>`;
-        }).join('');
 
-        card.innerHTML = `
-          <div class="soldier-card-top">
-            <div class="soldier-card-img">
-              <img src="${sd.img}" onerror="this.style.opacity=0">
-            </div>
-            <div class="soldier-card-info">
-              <div class="soldier-card-name">${sd.key}</div>
-              <div class="soldier-card-desc">${DESCS[sd.key] || ''}</div>
-            </div>
-          </div>
-          <div class="soldier-stat-rows">${statsHtml}</div>`;
 
-        card.addEventListener('click', () => {
-          pendingSoldier = sd.key;
-          renderCards();
-        });
-        soldierModalBody.appendChild(card);
-      });
-    }
 
-    renderCards();
-    soldierModalBackdrop.classList.add('open');
-  }
 
-  async function closeSoldierModal() { soldierModalBackdrop.classList.remove('open'); }
-
-  if (soldierCurBtn) soldierCurBtn.addEventListener('click', openSoldierModal);
-  if (soldierConfirmBtn) soldierConfirmBtn.addEventListener('click', () => {
-    els.eventSoldierClassSelect.value = pendingSoldier;
-    if (soldierCurLabel) soldierCurLabel.textContent = pendingSoldier;
-    const stats = getHeroBaseStats();
-    renderHeroFormation(state.heroClass, pendingSoldier, stats.soldiers);
-    renderTacticBadge();
-    closeSoldierModal();
-  });
-  if (soldierModalBackdrop) soldierModalBackdrop.addEventListener('click', e => {
-    if (e.target === soldierModalBackdrop) closeSoldierModal();
-  });
   // barcodeInput은 숨김 처리 — 카메라 스캔 또는 랜덤 생성으로만 값 설정
   els.startGameBtn.addEventListener('click', applyStartHero);
   els.startHeroName.addEventListener('keydown', e=>{ if(e.key==='Enter') applyStartHero(); });
@@ -7350,7 +8004,13 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   document.addEventListener('click', e => {
     if (e.target && e.target.id === 'autoEquipBtn') autoEquipBest();
   });
-  els.heroStatsCloseBtn.addEventListener('click', ()=>closeModal(els.heroStatsBackdrop));
+  els.heroStatsCloseBtn.addEventListener('click', ()=>{
+    closeModal(els.heroStatsBackdrop);
+    // 장비 탭으로 초기화
+    switchHeroTab('equip');
+  });
+  document.getElementById('heroTabEquip').addEventListener('click', () => switchHeroTab('equip'));
+  document.getElementById('heroTabSoldier').addEventListener('click', () => switchHeroTab('soldier'));
 
   [els.scanModalBackdrop,els.mapBackdrop,els.mapHistoryBackdrop,els.decodeBackdrop,els.exploreLogBackdrop,els.heroStatsBackdrop,els.eventModalBackdrop,els.battleBackdrop,els.itemDetailBackdrop].forEach(bd=>{
     bd.addEventListener('click', async e=>{
