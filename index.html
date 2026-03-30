@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>ScanHero MVP v81</title>
+  <title>ScanHero MVP v82</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -1960,17 +1960,10 @@
 
       <!-- ── 병사 배치 패널 ── -->
       <div id="heroSoldierPanel" class="modal-body" style="display:none; padding:6px 12px; grid-template-columns:unset !important;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;width:100%;">
-          <span style="font-size:12px;font-weight:900;color:#eef3ff;">🏕️ 병사 배치</span>
-          <button onclick="closeSoldierPanel()" style="
-            font-size:11px;padding:4px 12px;border-radius:8px;
-            border:1px solid rgba(110,139,204,0.3);background:rgba(14,21,38,0.8);
-            color:#7a90be;cursor:pointer;white-space:nowrap;width:auto;flex-shrink:0;
-          ">← 장비로</button>
-        </div>
+
 
         <!-- 1. 스탯 패널 — 장비탭과 동일 -->
-        <div class="stats-panel" style="margin-bottom:4px;">
+        <div class="stats-panel" style="margin-bottom:2px;">
           <div class="cp-block">
             <div class="cp-block-label">전투력</div>
             <div class="cp-block-value" id="solCombatPower">0</div>
@@ -1990,7 +1983,7 @@
         <div id="deployStage" style="
           width:100%; border-radius:16px; overflow:hidden;
           background:radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
-          border:1px solid rgba(100,130,200,0.22); margin-bottom:4px;
+          border:1px solid rgba(100,130,200,0.22); margin-bottom:2px;
           padding:10px;
         ">
           <div id="deploySlots" style="
