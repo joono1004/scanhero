@@ -1142,7 +1142,7 @@
     .deploy-slot.filled:hover { border-color:rgba(200,220,255,0.6); }
     .deploy-slot.drag-over { border-color:#ffcf63 !important; background:rgba(255,207,99,0.15) !important; transform:scale(1.05); }
     .deploy-slot.selected { border-color:#4f7cff !important; border-style:solid !important; box-shadow:0 0 0 2px rgba(79,124,255,0.4); background:rgba(20,35,80,0.85) !important; }
-    .deploy-slot.selected .deploy-slot-img { width:100%; height:40px; object-fit:contain; display:block; margin:0 auto 0; }
+    .deploy-slot.selected .deploy-slot-img { width:100%; height:60px; object-fit:contain; display:block; margin:0 auto 0; }
     .deploy-slot-img { width:100%; height:127px; object-fit:contain; display:block; margin:0 auto 0px; }
     .deploy-slot-name { font-size:9px; font-weight:700; color:#eef3ff; text-align:center; }
     .deploy-slot-rarity { font-size:8px; font-weight:700; }
@@ -1981,7 +1981,7 @@
 
         <!-- 2. 배치된 병사 영역 — 도감(288px)과 동일 -->
         <div id="deployStage" style="
-          width:100%; height:180px; border-radius:16px; overflow:hidden; position:relative;
+          width:100%; height:225px; border-radius:16px; overflow:hidden; position:relative;
           background:url('https://joono1004.github.io/scanhero/assets/ui/barracks_bg.png') center/cover no-repeat,
             radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
           border:1px solid rgba(100,130,200,0.22); margin-bottom:2px;
@@ -6871,7 +6871,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
             data-slot-idx="${i}" draggable="true" style="cursor:grab;"
             onclick="openSoldierDetail(${i}, 'deployed')">
           <img class="deploy-slot-img" src="${sol.img}" onerror="this.style.opacity=0">
-          <div style="font-size:7px;color:#7a90be;text-align:center;line-height:1.2;">${slotStats}</div>
+          <div style="font-size:7px;color:#7a90be;text-align:center;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${slotStats}</div>
           <button class="deploy-slot-remove" data-remove-slot="${i}" data-sol-id="${sol.id}">✕</button>
         </div>`;
       }
