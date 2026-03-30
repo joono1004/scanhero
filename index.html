@@ -1143,7 +1143,7 @@
     .deploy-slot.drag-over { border-color:#ffcf63 !important; background:rgba(255,207,99,0.15) !important; transform:scale(1.05); }
     .deploy-slot.selected { border-color:#4f7cff !important; border-style:solid !important; box-shadow:0 0 0 2px rgba(79,124,255,0.4); background:rgba(20,35,80,0.85) !important; }
     .deploy-slot.selected .deploy-slot-img { filter:drop-shadow(0 0 6px #4f7cff); }
-    .deploy-slot-img { width:100%; height:127px; object-fit:contain; display:block; margin:0 auto 1px; }
+    .deploy-slot-img { width:100%; height:127px; object-fit:contain; display:block; margin:0 auto 0px; }
     .deploy-slot-name { font-size:9px; font-weight:700; color:#eef3ff; text-align:center; }
     .deploy-slot-rarity { font-size:8px; font-weight:700; }
     .deploy-slot-empty-icon { font-size:24px; opacity:0.25; color:#7a90be; }
@@ -1167,7 +1167,7 @@
     .soldier-inv-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
     .soldier-inv-card {
       background:rgba(14,21,38,0.9); border:1px solid rgba(110,139,204,0.18);
-      border-radius:10px; padding:3px 4px; cursor:pointer;
+      border-radius:10px; padding:0px 4px; cursor:pointer;
       transition:all 0.15s; text-align:center; position:relative;
     }
     .soldier-inv-card:hover { border-color:rgba(140,170,255,0.5); transform:translateY(-2px); }
@@ -1182,7 +1182,7 @@
     .soldier-inv-name { font-size:9px; font-weight:700; color:#eef3ff; }
     .soldier-inv-rarity { font-size:8px; font-weight:700; margin-top:1px; }
     .soldier-inv-stats {
-      min-height:15px; font-size:8px; color:#7a90be; margin-top:0;
+      min-height:12px; font-size:8px; color:#7a90be; margin-top:0; line-height:12px;
     }
     .soldier-inv-fire {
       margin-top:4px; width:100%; padding:3px 0; border-radius:6px;
