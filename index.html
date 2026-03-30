@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>ScanHero MVP v82</title>
+  <title>ScanHero MVP v84</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -1132,17 +1132,17 @@
     /* .deploy-slots — deployStage 인라인 스타일로 통합 */
     .deploy-slot {
       width:100%;
-      border-radius:12px; border:1.5px dashed rgba(140,170,220,0.25);
+      border-radius:10px; border:1.5px dashed rgba(140,170,220,0.25);
       background:rgba(14,21,50,0.6); backdrop-filter:blur(4px);
       display:flex; flex-direction:column;
-      align-items:center; justify-content:center; gap:3px;
-      padding:3px 4px; cursor:pointer; transition:all 0.15s; position:relative;
+      align-items:center; justify-content:center; gap:2px;
+      padding:2px 3px; cursor:pointer; transition:all 0.15s; position:relative;
     }
     .deploy-slot.filled { border-style:solid; border-color:rgba(99,208,154,0.6); background:rgba(10,30,18,0.7); }
     .deploy-slot.filled:hover { border-color:rgba(200,220,255,0.6); }
     .deploy-slot.drag-over { border-color:#ffcf63 !important; background:rgba(255,207,99,0.15) !important; transform:scale(1.05); }
     .deploy-slot.selected { border-color:#4f7cff !important; border-style:solid !important; box-shadow:0 0 0 2px rgba(79,124,255,0.4); background:rgba(20,35,80,0.85) !important; }
-    .deploy-slot.selected .deploy-slot-img { filter:drop-shadow(0 0 6px #4f7cff); }
+    .deploy-slot.selected .deploy-slot-img { width:100%; height:40px; object-fit:contain; display:block; margin:0 auto 0; }
     .deploy-slot-img { width:100%; height:127px; object-fit:contain; display:block; margin:0 auto 0px; }
     .deploy-slot-name { font-size:9px; font-weight:700; color:#eef3ff; text-align:center; }
     .deploy-slot-rarity { font-size:8px; font-weight:700; }
@@ -1981,13 +1981,15 @@
 
         <!-- 2. 배치된 병사 영역 — 도감(288px)과 동일 -->
         <div id="deployStage" style="
-          width:100%; border-radius:16px; overflow:hidden;
-          background:radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
+          width:100%; height:180px; border-radius:16px; overflow:hidden; position:relative;
+          background:url('https://joono1004.github.io/scanhero/assets/ui/barracks_bg.png') center/cover no-repeat,
+            radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
           border:1px solid rgba(100,130,200,0.22); margin-bottom:2px;
-          padding:10px;
         ">
+          <!-- 배치 슬롯 그리드 — 하단 중앙 고정 -->
           <div id="deploySlots" style="
-            display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px;
+            display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px;
+            padding:4px; position:absolute; bottom:0; left:0; right:0;
           "></div>
         </div>
 
@@ -6869,7 +6871,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
             data-slot-idx="${i}" draggable="true" style="cursor:grab;"
             onclick="openSoldierDetail(${i}, 'deployed')">
           <img class="deploy-slot-img" src="${sol.img}" onerror="this.style.opacity=0">
-          <div style="font-size:8px;color:#7a90be;text-align:center;line-height:1.4;">${slotStats}</div>
+          <div style="font-size:7px;color:#7a90be;text-align:center;line-height:1.2;">${slotStats}</div>
           <button class="deploy-slot-remove" data-remove-slot="${i}" data-sol-id="${sol.id}">✕</button>
         </div>`;
       }
