@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>ScanHero MVP v63</title>
+  <title>ScanHero MVP v64</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -785,7 +785,8 @@
     #eqSlot_gloves   { top: 144px; left: 8px;              transform: none; }
     #eqSlot_ring1    { top: 144px; right: 8px; left: auto; transform: none; }
     #eqSlot_armor    { top: 212px; left: 8px;  bottom: auto; transform: none; }
-    #eqSlot_boots    { top: 212px; left: 76px; bottom: auto; transform: none; }
+    #eqSlot_boots        { top: 212px; left: 76px; bottom: auto; transform: none; }
+
     #eqSlot_cloak    { top: 212px; right: 8px; left: auto; bottom: auto; transform: none; }
 
     .eq-slot-icon { font-size: 22px; line-height: 1; }
@@ -1122,16 +1123,6 @@
     @keyframes soldierBounce{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-3px);} }
     @keyframes shadowPulse { 0%,100%{transform:scale(1);opacity:.58;} 50%{transform:scale(.92);opacity:.36;} }
     @keyframes sparkleMove { 0%,100%{transform:translateY(0);opacity:.85;} 50%{transform:translateY(-4px);opacity:1;} }
-
-
-    /* ── 영웅 상세창 탭 ── */
-    .hero-detail-tabs { display:flex; border-bottom:1px solid rgba(110,139,204,0.18); margin-bottom:8px; }
-    .hero-detail-tab {
-      flex:1; padding:9px; text-align:center; font-size:12px; font-weight:900;
-      color:#5a7090; cursor:pointer; transition:all 0.2s;
-      border-bottom:2px solid transparent;
-    }
-    .hero-detail-tab.active { color:#eef3ff; border-bottom-color:#4f7cff; background:rgba(79,124,255,0.06); }
 
     /* ── 병사 배치 패널 ── */
     .soldier-deploy-wrap { display:flex; flex-direction:column; gap:8px; }
@@ -1905,10 +1896,6 @@
     <div class="modal">
       <div class="modal-head">
         <div class="modal-title" id="heroStatsTitle" style="font-size:13px;"></div>
-        <div class="hero-detail-tabs" style="margin:10px -16px -10px;">
-          <div class="hero-detail-tab active" id="heroTabEquip">⚔️ 장비</div>
-          <div class="hero-detail-tab" id="heroTabSoldier">🪖 병사 배치</div>
-        </div>
       </div>
 
       <!-- ── 장비 패널 ── -->
@@ -1939,6 +1926,21 @@
           <div class="equip-slot-btn" id="eqSlot_shield"   data-slot="shield"   title="방패">   <div class="eq-slot-icon" id="eqIcon_shield">🛡️</div>  <div class="eq-slot-label">방패</div></div>
           <div class="equip-slot-btn" id="eqSlot_ring1"    data-slot="ring1"    title="반지">   <div class="eq-slot-icon" id="eqIcon_ring1">💍</div>   <div class="eq-slot-label">반지</div></div>
           <div class="equip-slot-btn" id="eqSlot_boots"    data-slot="boots"    title="장화">   <div class="eq-slot-icon" id="eqIcon_boots">🥾</div>   <div class="eq-slot-label">장화</div></div>
+          <button id="soldierDeployBtn" title="병사 배치" onclick="openSoldierPanel()" style="
+            position:absolute; top:212px; right:76px; left:auto; transform:none;
+            width:64px; height:64px; border-radius:14px; cursor:pointer; z-index:10;
+            background:rgba(10,30,18,0.85); border:1.5px solid rgba(99,208,154,0.6);
+            backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+            display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+            transition:all 0.15s;
+          ">
+            <img src="https://joono1004.github.io/scanhero/assets/ui/soldier_btn.png"
+              style="width:32px;height:32px;object-fit:contain;"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+            <span style="font-size:22px;line-height:1;display:none;">🏕️</span>
+            <span style="font-size:9px;font-weight:700;color:#63d09a;">병사</span>
+          </button>
+
           <div class="equip-slot-btn" id="eqSlot_cloak"    data-slot="cloak"    title="망토">   <div class="eq-slot-icon" id="eqIcon_cloak">🧥</div>   <div class="eq-slot-label">망토</div></div>
           <div class="equip-slot-btn" id="eqSlot_armor"    data-slot="armor"    title="갑옷">   <div class="eq-slot-icon" id="eqIcon_armor">🥋</div>  <div class="eq-slot-label">갑옷</div></div>
         </div>
@@ -1953,7 +1955,15 @@
       </div>
 
       <!-- ── 병사 배치 패널 ── -->
-      <div id="heroSoldierPanel" class="modal-body" style="display:none; padding:6px 12px;">
+      <div id="heroSoldierPanel" class="modal-body" style="display:none; padding:6px 12px; grid-template-columns:unset !important;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;width:100%;">
+          <span style="font-size:12px;font-weight:900;color:#eef3ff;">🏕️ 병사 배치</span>
+          <button onclick="closeSoldierPanel()" style="
+            font-size:11px;padding:4px 12px;border-radius:8px;
+            border:1px solid rgba(110,139,204,0.3);background:rgba(14,21,38,0.8);
+            color:#7a90be;cursor:pointer;white-space:nowrap;width:auto;flex-shrink:0;
+          ">← 장비로</button>
+        </div>
 
         <!-- 1. 스탯 패널 — 장비탭과 동일 -->
         <div class="stats-panel" style="margin-bottom:4px;">
@@ -6513,14 +6523,23 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // ═══════════════════════════════════════════════════════
 
   // 영웅 상세창 탭 전환
+  window.openSoldierPanel = function openSoldierPanel() {
+    window._deploySelected = null;
+    document.getElementById('heroEquipPanel').style.display   = 'none';
+    document.getElementById('heroSoldierPanel').style.display = '';
+    renderSoldierDeployPanel();
+  }
+
+  window.closeSoldierPanel = function closeSoldierPanel() {
+    window._deploySelected = null;
+    document.getElementById('heroSoldierPanel').style.display = 'none';
+    document.getElementById('heroEquipPanel').style.display   = '';
+  }
+
+  // 하위 호환
   function switchHeroTab(tab) {
-    const isEquip = tab === 'equip';
-    window._deploySelected = null; // 탭 전환 시 선택 초기화
-    document.getElementById('heroTabEquip').classList.toggle('active', isEquip);
-    document.getElementById('heroTabSoldier').classList.toggle('active', !isEquip);
-    document.getElementById('heroEquipPanel').style.display   = isEquip ? '' : 'none';
-    document.getElementById('heroSoldierPanel').style.display = isEquip ? 'none' : '';
-    if (!isEquip) renderSoldierDeployPanel();
+    if (tab === 'soldier') openSoldierPanel();
+    else closeSoldierPanel();
   }
 
   // 배치 슬롯 렌더
@@ -8005,12 +8024,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     if (e.target && e.target.id === 'autoEquipBtn') autoEquipBest();
   });
   els.heroStatsCloseBtn.addEventListener('click', ()=>{
+    closeSoldierPanel();
     closeModal(els.heroStatsBackdrop);
-    // 장비 탭으로 초기화
-    switchHeroTab('equip');
   });
-  document.getElementById('heroTabEquip').addEventListener('click', () => switchHeroTab('equip'));
-  document.getElementById('heroTabSoldier').addEventListener('click', () => switchHeroTab('soldier'));
+  // soldierDeployBtn — onclick으로 처리
 
   [els.scanModalBackdrop,els.mapBackdrop,els.mapHistoryBackdrop,els.decodeBackdrop,els.exploreLogBackdrop,els.heroStatsBackdrop,els.eventModalBackdrop,els.battleBackdrop,els.itemDetailBackdrop].forEach(bd=>{
     bd.addEventListener('click', async e=>{
