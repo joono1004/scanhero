@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>ScanHero MVP v64</title>
+  <title>ScanHero MVP v81</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -329,9 +329,10 @@
     .map-note, .empty-box { background: linear-gradient(180deg, rgba(11, 17, 30, 0.96), rgba(17, 25, 42, 0.96)); border: 1px solid rgba(110, 139, 204, 0.18); border-radius: 12px; padding: 11px; line-height: 1.6; color: #d3dcf5; font-size: 12px; }
     .empty-box { border-style: dashed; color: var(--muted); }
 
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(3, 7, 16, 0.78); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 999; padding: 12px; }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(3, 7, 16, 0.78); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 999; padding: 12px; }
     .modal-backdrop.show { display: flex; }
-    .modal { width: min(390px, 100%); max-height: calc(100dvh - 24px); overflow: auto; background: linear-gradient(180deg, rgba(24, 33, 57, 0.98), rgba(14, 21, 37, 0.98)); border: 1px solid rgba(134, 164, 235, 0.24); border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.45); transform: translateY(10px) scale(0.98); opacity: 0; transition: all 0.25s ease; }
+    .modal {
+      overflow-x: hidden; width: min(390px, calc(100% - 24px)); max-height: calc(100dvh - 24px); overflow: auto; background: linear-gradient(180deg, rgba(24, 33, 57, 0.98), rgba(14, 21, 37, 0.98)); border: 1px solid rgba(134, 164, 235, 0.24); border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.45); transform: translateY(10px) scale(0.98); opacity: 0; transition: all 0.25s ease; }
     .modal-backdrop.show .modal { transform: translateY(0) scale(1); opacity: 1; }
     .modal-head { padding: 14px 16px 10px; border-bottom: 1px solid rgba(112, 138, 203, 0.16); background: linear-gradient(180deg, rgba(49, 71, 133, 0.35), rgba(0,0,0,0)); }
     .modal-title { font-size: 20px; font-weight: 900; }
@@ -514,7 +515,7 @@
 
     /* ===== 영웅 시작 모달 ===== */
     .hero-start-backdrop { position: fixed; inset: 0; z-index: 2100; background: rgba(4, 8, 18, 0.88); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 12px; }
-    .hero-start-modal { width: min(390px, 100%); background: linear-gradient(180deg, rgba(24, 33, 57, 0.98), rgba(14, 21, 37, 0.98)); border: 1px solid rgba(134, 164, 235, 0.24); border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.45); overflow: hidden; }
+    .hero-start-modal { width: min(390px, calc(100% - 24px)); background: linear-gradient(180deg, rgba(24, 33, 57, 0.98), rgba(14, 21, 37, 0.98)); border: 1px solid rgba(134, 164, 235, 0.24); border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.45); overflow: hidden; }
     .hero-start-head { padding: 16px 16px 10px; border-bottom: 1px solid rgba(112, 138, 203, 0.16); background: linear-gradient(180deg, rgba(49, 71, 133, 0.35), rgba(0,0,0,0)); }
     .hero-start-title { font-size: 22px; font-weight: 900; margin-bottom: 5px; }
     .hero-start-desc { color: #d6e2ff; font-size: 12px; line-height: 1.6; }
@@ -1130,18 +1131,19 @@
     /* 배치 슬롯 그리드 */
     /* .deploy-slots — deployStage 인라인 스타일로 통합 */
     .deploy-slot {
-      width:100%; aspect-ratio:4/5;
+      width:100%;
       border-radius:12px; border:1.5px dashed rgba(140,170,220,0.25);
       background:rgba(14,21,50,0.6); backdrop-filter:blur(4px);
       display:flex; flex-direction:column;
       align-items:center; justify-content:center; gap:3px;
-      cursor:pointer; transition:all 0.15s; position:relative;
+      padding:3px 4px; cursor:pointer; transition:all 0.15s; position:relative;
     }
     .deploy-slot.filled { border-style:solid; border-color:rgba(99,208,154,0.6); background:rgba(10,30,18,0.7); }
     .deploy-slot.filled:hover { border-color:rgba(200,220,255,0.6); }
+    .deploy-slot.drag-over { border-color:#ffcf63 !important; background:rgba(255,207,99,0.15) !important; transform:scale(1.05); }
     .deploy-slot.selected { border-color:#4f7cff !important; border-style:solid !important; box-shadow:0 0 0 2px rgba(79,124,255,0.4); background:rgba(20,35,80,0.85) !important; }
     .deploy-slot.selected .deploy-slot-img { filter:drop-shadow(0 0 6px #4f7cff); }
-    .deploy-slot-img { width:44px; height:56px; object-fit:contain; }
+    .deploy-slot-img { width:100%; height:127px; object-fit:contain; display:block; margin:0 auto 1px; }
     .deploy-slot-name { font-size:9px; font-weight:700; color:#eef3ff; text-align:center; }
     .deploy-slot-rarity { font-size:8px; font-weight:700; }
     .deploy-slot-empty-icon { font-size:24px; opacity:0.25; color:#7a90be; }
@@ -1162,10 +1164,10 @@
       display:flex; align-items:center; justify-content:space-between;
       margin-bottom:6px;
     }
-    .soldier-inv-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+    .soldier-inv-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
     .soldier-inv-card {
       background:rgba(14,21,38,0.9); border:1px solid rgba(110,139,204,0.18);
-      border-radius:10px; padding:8px 6px; cursor:pointer;
+      border-radius:10px; padding:3px 4px; cursor:pointer;
       transition:all 0.15s; text-align:center; position:relative;
     }
     .soldier-inv-card:hover { border-color:rgba(140,170,255,0.5); transform:translateY(-2px); }
@@ -1176,10 +1178,12 @@
     .soldier-inv-card.rarity-legendary{ border-color:rgba(255,207,99,0.6); background:rgba(42,28,4,0.9); box-shadow:0 0 10px rgba(255,207,99,0.15); }
     .soldier-inv-card.deployed { opacity:0.45; cursor:default; }
     .soldier-inv-card.deployed::after { content:'배치중'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; color:#63d09a; background:rgba(0,0,0,0.4); border-radius:10px; }
-    .soldier-inv-img { width:36px; height:46px; object-fit:contain; display:block; margin:0 auto 3px; }
+    .soldier-inv-img { width:100%; height:127px; object-fit:contain; display:block; margin:0 auto 1px; }
     .soldier-inv-name { font-size:9px; font-weight:700; color:#eef3ff; }
     .soldier-inv-rarity { font-size:8px; font-weight:700; margin-top:1px; }
-    .soldier-inv-stats { font-size:8px; color:#7a90be; margin-top:2px; line-height:1.4; }
+    .soldier-inv-stats {
+      min-height:15px; font-size:8px; color:#7a90be; margin-top:0;
+    }
     .soldier-inv-fire {
       margin-top:4px; width:100%; padding:3px 0; border-radius:6px;
       background:rgba(255,80,80,0.12); border:1px solid rgba(255,80,80,0.25);
@@ -1990,7 +1994,7 @@
           padding:10px;
         ">
           <div id="deploySlots" style="
-            display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+            display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px;
           "></div>
         </div>
 
@@ -2014,6 +2018,47 @@
       </div>
     </div>
   </div>
+
+  <!-- 병사 상세 모달 -->
+  <div class="modal-backdrop" id="soldierDetailBackdrop" style="display:none;align-items:flex-end;">
+    <div class="modal" style="width:min(440px,100%);">
+      <div class="modal-head">
+        <div class="modal-title" id="soldierDetailTitle">병사 정보</div>
+      </div>
+      <div class="modal-body">
+        <div class="item-detail-card">
+
+          <!-- 상단: 이미지 + 이름/전투력/스탯 -->
+          <div class="item-detail-header">
+            <div id="soldierDetailIcon" class="item-detail-icon" style="
+              width:96px;height:120px;flex-shrink:0;display:flex;align-items:flex-end;
+              justify-content:center;border-radius:14px;overflow:hidden;
+              background:rgba(10,15,35,0.8);border:1px solid rgba(100,130,200,0.2);
+            "></div>
+            <div class="item-detail-info" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <div class="item-detail-name" id="soldierDetailName"></div>
+                <div id="soldierDetailCP" style="font-size:10px;font-weight:900;padding:2px 7px;border-radius:8px;background:rgba(99,208,154,0.12);border:1px solid rgba(99,208,154,0.3);color:#63d09a;white-space:nowrap;"></div>
+              </div>
+              <div class="item-detail-meta" id="soldierDetailMeta"></div>
+              <div id="soldierDetailOwnStats" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+            </div>
+          </div>
+
+          <!-- 배치 시 스탯 변화 힌트 -->
+          <div id="soldierStatChangeHint" class="stat-change-hint neutral" style="display:none;"></div>
+
+          <!-- 스탯 비교 그리드 -->
+          <div class="stat-compare-grid" id="soldierStatCompareGrid"></div>
+
+          <!-- 해고 가격 -->
+          <div class="sell-price-row" id="soldierFirePriceRow"></div>
+        </div>
+      </div>
+      <div class="modal-actions" id="soldierDetailActions"></div>
+    </div>
+  </div>
+
   <!-- 아이템 상세 모달 -->
   <div class="modal-backdrop" id="itemDetailBackdrop">
     <div class="modal" style="width:min(440px,100%);">
@@ -5424,16 +5469,25 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     return total;
   }
   function getHeroBaseStats(equipOverride) {
-    const bonus = getClassBonus(state.heroClass);
+    const bonus    = getClassBonus(state.heroClass);
     const rankInfo = getHeroRankInfo(state.level);
-    const equip = getEquipmentBonus(equipOverride);
+    const equip    = getEquipmentBonus(equipOverride);
+    const solBonus = (deployedSoldiers || []).filter(Boolean).reduce((acc, sol) => {
+      acc.atk   += sol.stats?.atk   || 0;
+      acc.def   += sol.stats?.def   || 0;
+      acc.hp    += sol.stats?.hp    || 0;
+      acc.speed += sol.stats?.speed || 0;
+      acc.crit  += sol.stats?.crit  || 0;
+      return acc;
+    }, { atk:0, def:0, hp:0, speed:0, crit:0 });
     return {
-      atk:     14 + (state.level*2) + bonus.atk + (rankInfo.soldiers-2)*2 + equip.atk,
-      def:     10 + Math.floor(state.level*1.6) + bonus.def + (rankInfo.soldiers-2)*2 + equip.def,
-      hp:      100 + (state.level*18) + bonus.hp + (rankInfo.soldiers-2)*12 + equip.hp,
-      speed:   5 + Math.floor(state.level*0.6) + bonus.spd + equip.speed,
-      crit:    5 + Math.floor(state.level*0.3) + bonus.crit + equip.crit,
-      soldiers: rankInfo.soldiers, rank: rankInfo.rank, emblem: rankInfo.emblem
+      atk:     14 + (state.level*2) + bonus.atk + (rankInfo.soldiers-2)*2 + equip.atk + solBonus.atk,
+      def:     10 + Math.floor(state.level*1.6) + bonus.def + (rankInfo.soldiers-2)*2 + equip.def + solBonus.def,
+      hp:      100 + (state.level*18) + bonus.hp + (rankInfo.soldiers-2)*12 + equip.hp + solBonus.hp,
+      speed:   5 + Math.floor(state.level*0.6) + bonus.spd + equip.speed + solBonus.speed,
+      crit:    5 + Math.floor(state.level*0.3) + bonus.crit + equip.crit + solBonus.crit,
+      soldiers: rankInfo.soldiers, rank: rankInfo.rank, emblem: rankInfo.emblem,
+      solBonus,
     };
   }
 
@@ -5515,24 +5569,247 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   }
 
 
+
+  // ── 병사 상세 모달 ────────────────────────────────────────────
+  let _soldierDetailIdx  = null;
+  let _soldierDetailType = null;
+
+  const STAT_KEYS = [
+    { key:'atk',   label:'⚔️ 공격' },
+    { key:'def',   label:'🛡️ 방어' },
+    { key:'hp',    label:'❤️ 체력' },
+    { key:'speed', label:'💨 속도' },
+    { key:'crit',  label:'✨ 치명' },
+  ];
+
+  window.openSoldierDetail = function(idx, type) {
+    _soldierDetailIdx  = idx;
+    _soldierDetailType = type;
+
+    const sol = type === 'inv'
+      ? soldierInventory[idx]
+      : deployedSoldiers[idx];
+    if (!sol) return;
+
+    const rd       = SOLDIER_RARITY_DATA[sol.rarity];
+    const curStats = getHeroBaseStats();
+    const isDeployed = deployedSoldiers.some(s => s?.id === sol.id);
+    const filled   = deployedSoldiers.filter(Boolean).length;
+    const maxSlots = curStats.soldiers;
+
+    // 배치 시 스탯 미리보기 계산
+    // 현재 배치된 병사 스탯 합산
+    const calcSolBonus = (soldiers) => soldiers.filter(Boolean).reduce((acc, s) => {
+      acc.atk   += s.stats.atk   || 0;
+      acc.def   += s.stats.def   || 0;
+      acc.hp    += s.stats.hp    || 0;
+      acc.speed += s.stats.speed || 0;
+      acc.crit  += s.stats.crit  || 0;
+      return acc;
+    }, { atk:0, def:0, hp:0, speed:0, crit:0 });
+
+    const curBonus  = calcSolBonus(deployedSoldiers);
+    const heroBase  = {
+      atk:   curStats.atk   - curBonus.atk,
+      def:   curStats.def   - curBonus.def,
+      hp:    curStats.hp    - curBonus.hp,
+      speed: curStats.speed - curBonus.speed,
+      crit:  curStats.crit  - curBonus.crit,
+    };
+
+    // 배치 후 예상 스탯
+    let newDeployed = [...deployedSoldiers];
+    if (!isDeployed) {
+      const emptyIdx = newDeployed.indexOf(null);
+      if (emptyIdx >= 0) newDeployed[emptyIdx] = sol;
+    }
+    const newBonus = calcSolBonus(newDeployed);
+    const newStats = {
+      atk:   heroBase.atk   + newBonus.atk,
+      def:   heroBase.def   + newBonus.def,
+      hp:    heroBase.hp    + newBonus.hp,
+      speed: heroBase.speed + newBonus.speed,
+      crit:  heroBase.crit  + newBonus.crit,
+    };
+
+    // 전투력 변화
+    const curCP  = calcCombatPower(curStats);
+    const newCP  = calcCombatPower({...curStats, ...newStats});
+    const cpDiff = newCP - curCP;
+
+    // ── UI 채우기 ──────────────────────────────────────────
+    document.getElementById('soldierDetailTitle').textContent = rd.label + ' 등급 병사';
+
+    // 이름 + 전투력 변화
+    const nameEl = document.getElementById('soldierDetailName');
+    nameEl.textContent  = sol.cls;
+    nameEl.className    = `item-detail-name rarity-${sol.rarity}`;
+
+    const cpEl = document.getElementById('soldierDetailCP');
+    if (!isDeployed && cpDiff !== 0) {
+      cpEl.textContent = `전투력 ${cpDiff > 0 ? '+' : ''}${cpDiff}`;
+      cpEl.style.display = '';
+    } else {
+      cpEl.style.display = 'none';
+    }
+
+    // 이미지
+    document.getElementById('soldierDetailIcon').innerHTML =
+      `<img src="${sol.img}" style="width:86px;height:108px;object-fit:contain;">`;
+
+    // 메타 (등급/설명)
+    document.getElementById('soldierDetailMeta').innerHTML =
+      `<span style="color:${rd.color};font-weight:900;">[${rd.label}]</span> ${sol.desc || ''}`;
+
+    // 병사 자체 스탯 (0 제외)
+    document.getElementById('soldierDetailOwnStats').innerHTML = STAT_KEYS
+      .filter(s => sol.stats[s.key])
+      .map(s => `<span style="font-size:10px;padding:2px 7px;border-radius:7px;font-weight:700;
+        background:rgba(30,45,80,0.9);color:#9fbfff;border:1px solid rgba(79,124,255,0.2);">
+        ${s.label} ${sol.stats[s.key]}</span>`)
+      .join('');
+
+    // 스탯 변화 힌트
+    const hintEl = document.getElementById('soldierStatChangeHint');
+    if (isDeployed) {
+      hintEl.style.display = '';
+      hintEl.className = 'stat-change-hint neutral';
+      hintEl.textContent = '✓ 현재 출전 중 — 해제 시 스탯 변화';
+    } else if (filled >= maxSlots) {
+      hintEl.style.display = '';
+      hintEl.className = 'stat-change-hint negative';
+      hintEl.textContent = '⚠️ 출전 병사가 가득 찼습니다';
+    } else {
+      hintEl.style.display = '';
+      hintEl.className = 'stat-change-hint positive';
+      hintEl.textContent = `⚔️ 배치 시 전투력 ${cpDiff >= 0 ? '+' : ''}${cpDiff} 변화`;
+    }
+
+    // 스탯 비교 그리드
+    document.getElementById('soldierStatCompareGrid').innerHTML = STAT_KEYS.map(({key, label}) => {
+      const before = curStats[key] || 0;
+      const after  = newStats[key] || 0;
+      const diff   = isDeployed ? 0 : after - before;
+      const cls    = diff > 0 ? 'stat-up' : diff < 0 ? 'stat-down' : 'stat-same';
+      const sign   = diff > 0 ? '+' : '';
+      const diffText = diff !== 0
+        ? `<span style="font-size:10px;font-weight:900;"> (${sign}${diff})</span>`
+        : '';
+      return `<div class="stat-compare-item">
+        <div class="stat-compare-label">${label}</div>
+        <div class="stat-compare-value ${cls}" style="font-family:'Georgia',serif;font-weight:900;">
+          ${after}${diffText}
+        </div>
+      </div>`;
+    }).join('');
+
+    // 해고 가격
+    document.getElementById('soldierFirePriceRow').innerHTML =
+      `<span style="font-size:11px;color:#a4b4db;">해고 시</span>
+       <span style="font-size:13px;font-weight:900;color:#ffcf63;">🪙 ${rd.fireCost}G</span>
+       <span style="font-size:11px;color:#a4b4db;">환급</span>`;
+
+    // 버튼
+    const canDeploy = !isDeployed && filled < maxSlots;
+    document.getElementById('soldierDetailActions').innerHTML = `
+      ${isDeployed
+        ? `<button class="modal-secondary" onclick="soldierDetailUndeploy()">🔓 해제</button>`
+        : canDeploy
+          ? `<button class="modal-primary" style="background:linear-gradient(180deg,rgba(99,208,154,0.3),rgba(60,160,100,0.2));border-color:rgba(99,208,154,0.5);color:#63d09a;"
+               onclick="soldierDetailDeploy()">⚔️ 배치</button>`
+          : `<button class="modal-secondary" disabled style="opacity:0.4;">출전 가득참</button>`
+      }
+      <button class="modal-danger" onclick="soldierDetailFire()">🚪 해고</button>
+      <button class="modal-secondary" onclick="closeSoldierDetail()">닫기</button>
+    `;
+
+    // 모달 표시
+    const backdrop = document.getElementById('soldierDetailBackdrop');
+    backdrop.style.display = 'flex';
+    setTimeout(() => backdrop.classList.add('show'), 10);
+  };
+
+  window.closeSoldierDetail = function() {
+    const backdrop = document.getElementById('soldierDetailBackdrop');
+    backdrop.classList.remove('show');
+    setTimeout(() => { backdrop.style.display = 'none'; }, 200);
+    _soldierDetailIdx  = null;
+    _soldierDetailType = null;
+  };
+
+  window.soldierDetailDeploy = function() {
+    const sol = soldierInventory[_soldierDetailIdx];
+    if (!sol) return;
+    const stats    = getHeroBaseStats();
+    const maxSlots = stats.soldiers;
+    const filled   = deployedSoldiers.filter(Boolean).length;
+    if (filled >= maxSlots) {
+      showDropNotification('⚔️ 출전 병사가 모두 배치되었습니다!', '#ffcf63');
+      return;
+    }
+    const emptyIdx = deployedSoldiers.indexOf(null);
+    if (emptyIdx === -1) return;
+    deployedSoldiers[emptyIdx] = sol;
+    closeSoldierDetail();
+    renderSoldierDeployPanel();
+    renderHero();
+    dbUpdateSoldierDeploy(sol.id, true, emptyIdx);
+    showDropNotification(`⚔️ ${sol.name} 배치!`, sol.rarityColor);
+  };
+
+  window.soldierDetailUndeploy = function() {
+    const sol = _soldierDetailType === 'inv'
+      ? soldierInventory[_soldierDetailIdx]
+      : deployedSoldiers[_soldierDetailIdx];
+    if (!sol) return;
+    const slotIdx = deployedSoldiers.findIndex(s => s?.id === sol.id);
+    if (slotIdx >= 0) {
+      deployedSoldiers[slotIdx] = null;
+      dbUpdateSoldierDeploy(sol.id, false, -1);
+    }
+    closeSoldierDetail();
+    renderSoldierDeployPanel();
+    renderHero();
+  };
+
+  window.soldierDetailFire = function() {
+    const sol = _soldierDetailType === 'inv'
+      ? soldierInventory[_soldierDetailIdx]
+      : deployedSoldiers[_soldierDetailIdx];
+    if (!sol) return;
+    if (!confirm(`${sol.name}을(를) 해고하시겠어요?\n${SOLDIER_RARITY_DATA[sol.rarity].fireCost}G를 받습니다.`)) return;
+    deployedSoldiers = deployedSoldiers.map(s => s?.id === sol.id ? null : s);
+    const invIdx = soldierInventory.findIndex(s => s.id === sol.id);
+    if (invIdx >= 0) soldierInventory.splice(invIdx, 1);
+    state.gold += SOLDIER_RARITY_DATA[sol.rarity].fireCost;
+    closeSoldierDetail();
+    renderSoldierDeployPanel();
+    renderHero();
+    showDropNotification(`🪙 ${sol.name} 해고 +${SOLDIER_RARITY_DATA[sol.rarity].fireCost}G`, '#a4b4db');
+    dbSaveAll(true);
+    dbDeleteSoldier(sol.id);
+  };
+
+
+
   // ═══════════════════════════════════════════════════════
   // 선술집 (병사 모집) 시스템
   // ═══════════════════════════════════════════════════════
 
   // 병사 클래스 정의
   const SOLDIER_CLASS_DATA = {
-    검병:  { icon:'⚔️', img:'swordsman.png', desc:'균형형 근접 전투',
-             stats:{ atk:8,  def:6,  hp:40,  speed:5,  crit:5  },
-             growth:{ atk:1.8, def:1.2, hp:8,  speed:0.4, crit:0.3 } },
-    방패병: { icon:'🛡️', img:'shielder.png',  desc:'고방어 탱커',
-             stats:{ atk:5,  def:10, hp:60,  speed:3,  crit:2  },
-             growth:{ atk:1.0, def:2.0, hp:12, speed:0.2, crit:0.1 } },
-    궁병:  { icon:'🏹', img:'archer.png',    desc:'고속 원거리',
-             stats:{ atk:7,  def:4,  hp:30,  speed:8,  crit:8  },
-             growth:{ atk:1.6, def:0.8, hp:6,  speed:0.7, crit:0.5 } },
-    창병:  { icon:'🗡️', img:'spearman.png',  desc:'균형 올라운더',
-             stats:{ atk:6,  def:8,  hp:50,  speed:5,  crit:4  },
-             growth:{ atk:1.4, def:1.5, hp:10, speed:0.4, crit:0.2 } },
+    검병:  { icon:'⚔️', img:'swordsman.png', desc:'공격/체력/속도 특화',
+             stats:{ atk:10, def:0,  hp:50,  speed:6,  crit:0  },
+             growth:{ atk:2.0, def:0,  hp:10, speed:0.5, crit:0  } },
+    방패병: { icon:'🛡️', img:'shielder.png',  desc:'방어/체력 특화',
+             stats:{ atk:0,  def:12, hp:80,  speed:0,  crit:0  },
+             growth:{ atk:0,  def:2.5, hp:15, speed:0,  crit:0  } },
+    궁병:  { icon:'🏹', img:'archer.png',    desc:'공격/속도/치명 특화',
+             stats:{ atk:9,  def:0,  hp:0,   speed:10, crit:10 },
+             growth:{ atk:1.8, def:0,  hp:0,  speed:0.8, crit:0.6 } },
+    창병:  { icon:'🗡️', img:'spearman.png',  desc:'공격/방어/체력 특화',
+             stats:{ atk:7,  def:8,  hp:60,  speed:0,  crit:0  },
+             growth:{ atk:1.5, def:1.5, hp:12, speed:0,  crit:0  } },
   };
 
   // 병사 등급 설정
@@ -6545,8 +6822,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // 배치 슬롯 렌더
   function renderSoldierDeployPanel() {
     const stats    = getHeroBaseStats();
-    const maxSlots = stats.soldiers;  // 현재 배치 가능 병사 수
-    const TOTAL    = 6;               // 항상 3×2 고정
+    const maxSlots = stats.soldiers;
+    const TOTAL    = 6;
 
     const slotsEl    = document.getElementById('deploySlots');
     const invEl      = document.getElementById('soldierInvGrid');
@@ -6555,127 +6832,165 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
     // ── 스탯 패널 업데이트 ────────────────────────────────
     const cp = calcCombatPower(stats);
-    const set = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-    set('solCombatPower', cp.toLocaleString());
-    set('solStatsAtk',   stats.atk);
-    set('solStatsDef',   stats.def);
-    set('solStatsHp',    stats.hp);
-    set('solStatsSpeed', stats.speed);
-    set('solStatsCrit',  stats.crit + '%');
+    const sb2 = stats.solBonus || {};
+    const setEl = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+    const setBonusEl = (id, total, bonus) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = bonus > 0
+        ? `${total - bonus}<span style="color:#63d09a;font-weight:900;"> +${bonus}</span>`
+        : total;
+    };
+    setEl('solCombatPower', cp.toLocaleString());
+    setBonusEl('solStatsAtk',   stats.atk,   sb2.atk   || 0);
+    setBonusEl('solStatsDef',   stats.def,   sb2.def   || 0);
+    setBonusEl('solStatsHp',    stats.hp,    sb2.hp    || 0);
+    setBonusEl('solStatsSpeed', stats.speed, sb2.speed || 0);
+    const critEl2 = document.getElementById('solStatsCrit');
+    if (critEl2) critEl2.innerHTML = sb2.crit > 0
+      ? `${stats.crit - sb2.crit}%<span style="color:#63d09a;font-weight:900;"> +${sb2.crit}%</span>`
+      : `${stats.crit}%`;
 
-    // deployedSoldiers를 항상 TOTAL(6) 크기로 유지
+    // 항상 TOTAL 크기 유지
     while (deployedSoldiers.length < TOTAL) deployedSoldiers.push(null);
     deployedSoldiers = deployedSoldiers.slice(0, TOTAL);
 
     const filled = deployedSoldiers.filter(Boolean).length;
-    set('deploySlotCount', `${filled}/${maxSlots}`);
+    setEl('deploySlotCount', `${filled}/${maxSlots}`);
     if (invCountEl) invCountEl.textContent = `${soldierInventory.length}명`;
 
-    // 선택 상태 (슬롯 인덱스 또는 보관병사 인덱스)
-    // _deploySelected: { type:'slot'|'inv', idx:number }
-    if (!window._deploySelected) window._deploySelected = null;
-
-    // ── 배치 슬롯 렌더 (3×2 고정) ─────────────────────────
+    // ── 배치 슬롯 렌더 (3×2, 잠금 없음) ─────────────────
     slotsEl.innerHTML = Array.from({length: TOTAL}, (_, i) => {
-      const sol      = deployedSoldiers[i];
-      const isActive = i < maxSlots;   // 현재 배치 가능한 슬롯
-      const isSel    = window._deploySelected?.type === 'slot' && window._deploySelected.idx === i;
-
+      const sol = deployedSoldiers[i];
       if (sol) {
         const rd = SOLDIER_RARITY_DATA[sol.rarity];
-        return `<div class="deploy-slot filled rarity-${sol.rarity}${isSel ? ' selected' : ''}"
-            data-slot-idx="${i}" style="cursor:pointer;">
-          <button class="deploy-slot-remove" data-remove-slot="${i}" data-sol-id="${sol.id}">✕</button>
+        // 0 제외 스탯
+        const slotStats = [
+          sol.stats.atk   ? `⚔️${sol.stats.atk}`   : '',
+          sol.stats.def   ? `🛡️${sol.stats.def}`   : '',
+          sol.stats.hp    ? `❤️${sol.stats.hp}`    : '',
+          sol.stats.speed ? `💨${sol.stats.speed}` : '',
+          sol.stats.crit  ? `✨${sol.stats.crit}`  : '',
+        ].filter(Boolean).join(' ');
+        return `<div class="deploy-slot filled rarity-${sol.rarity}"
+            data-slot-idx="${i}" draggable="true" style="cursor:grab;"
+            onclick="openSoldierDetail(${i}, 'deployed')">
           <img class="deploy-slot-img" src="${sol.img}" onerror="this.style.opacity=0">
-          <div class="deploy-slot-name">${sol.cls}</div>
-          <div class="deploy-slot-rarity" style="color:${rd.color}">${rd.label}</div>
+          <div style="font-size:8px;color:#7a90be;text-align:center;line-height:1.4;">${slotStats}</div>
+          <button class="deploy-slot-remove" data-remove-slot="${i}" data-sol-id="${sol.id}">✕</button>
         </div>`;
       }
-      // 빈 슬롯
-      const lockedStyle = !isActive ? 'opacity:0.35;' : '';
-      return `<div class="deploy-slot${isSel ? ' selected' : ''}"
-          data-slot-idx="${i}" style="cursor:${isActive?'pointer':'default'};${lockedStyle}">
-        <div class="deploy-slot-empty-icon" style="font-size:18px;opacity:0.3;">+</div>
-        <div class="deploy-slot-empty-label">${isActive ? '빈 슬롯' : '🔒'}</div>
+      return `<div class="deploy-slot" data-slot-idx="${i}" style="cursor:pointer;">
+        <div class="deploy-slot-empty-icon" style="font-size:18px;opacity:0.25;">+</div>
+        <div class="deploy-slot-empty-label">빈 슬롯</div>
       </div>`;
     }).join('');
 
-    // ── 슬롯 ✕ 버튼 이벤트 (배치 해제) ──────────────────────
+    // ── 드래그 앤 드롭 (배치된 병사끼리 위치 교환) ───────
+    let dragSrcIdx = null;
+
+    slotsEl.querySelectorAll('.deploy-slot.filled').forEach(el => {
+      el.addEventListener('dragstart', e => {
+        dragSrcIdx = +el.dataset.slotIdx;
+        el.style.opacity = '0.5';
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      el.addEventListener('dragend', e => {
+        el.style.opacity = '1';
+        slotsEl.querySelectorAll('.deploy-slot').forEach(s => s.classList.remove('drag-over'));
+      });
+    });
+
+    slotsEl.querySelectorAll('.deploy-slot').forEach(el => {
+      el.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        el.classList.add('drag-over');
+      });
+      el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+      el.addEventListener('drop', e => {
+        e.preventDefault();
+        el.classList.remove('drag-over');
+        const destIdx = +el.dataset.slotIdx;
+        if (dragSrcIdx === null || dragSrcIdx === destIdx) return;
+        // 위치 교환
+        const tmp = deployedSoldiers[dragSrcIdx];
+        deployedSoldiers[dragSrcIdx] = deployedSoldiers[destIdx];
+        deployedSoldiers[destIdx] = tmp;
+        dragSrcIdx = null;
+        renderSoldierDeployPanel();
+        renderHero();
+        if (deployedSoldiers[dragSrcIdx !== null ? dragSrcIdx : destIdx])
+          dbUpdateSoldierDeploy(deployedSoldiers[destIdx].id, true, destIdx);
+        if (deployedSoldiers[dragSrcIdx !== null ? destIdx : dragSrcIdx])
+          dbUpdateSoldierDeploy(deployedSoldiers[dragSrcIdx !== null ? destIdx : dragSrcIdx]?.id, true, dragSrcIdx);
+        // 단순하게 두 슬롯 모두 업데이트
+        [deployedSoldiers[destIdx], deployedSoldiers[dragSrcIdx]].forEach((s, i) => {
+          if (s) dbUpdateSoldierDeploy(s.id, true, i === 0 ? destIdx : dragSrcIdx);
+        });
+      });
+    });
+
+    // 모바일 터치 드래그 앤 드롭
+    let touchSrcIdx = null;
+    let touchClone  = null;
+
+    slotsEl.querySelectorAll('.deploy-slot.filled').forEach(el => {
+      el.addEventListener('touchstart', e => {
+        touchSrcIdx = +el.dataset.slotIdx;
+        const rect = el.getBoundingClientRect();
+        touchClone = el.cloneNode(true);
+        touchClone.style.cssText = `position:fixed;width:${rect.width}px;height:${rect.height}px;
+          opacity:0.75;pointer-events:none;z-index:9999;border-radius:12px;
+          left:${rect.left}px;top:${rect.top}px;`;
+        document.body.appendChild(touchClone);
+        el.style.opacity = '0.4';
+      }, { passive: true });
+
+      el.addEventListener('touchmove', e => {
+        if (!touchClone) return;
+        const t = e.touches[0];
+        touchClone.style.left = (t.clientX - 36) + 'px';
+        touchClone.style.top  = (t.clientY - 45) + 'px';
+        // 드롭 대상 하이라이트
+        slotsEl.querySelectorAll('.deploy-slot').forEach(s => s.classList.remove('drag-over'));
+        const target = document.elementFromPoint(t.clientX, t.clientY)?.closest('.deploy-slot');
+        if (target) target.classList.add('drag-over');
+      }, { passive: true });
+
+      el.addEventListener('touchend', e => {
+        if (touchClone) { touchClone.remove(); touchClone = null; }
+        slotsEl.querySelectorAll('.deploy-slot').forEach(s => {
+          s.classList.remove('drag-over');
+          s.style.opacity = '1';
+        });
+        if (touchSrcIdx === null) return;
+        const t = e.changedTouches[0];
+        const target = document.elementFromPoint(t.clientX, t.clientY)?.closest('.deploy-slot');
+        if (!target) { touchSrcIdx = null; return; }
+        const destIdx = +target.dataset.slotIdx;
+        if (touchSrcIdx === destIdx) { touchSrcIdx = null; return; }
+        const tmp = deployedSoldiers[touchSrcIdx];
+        deployedSoldiers[touchSrcIdx] = deployedSoldiers[destIdx];
+        deployedSoldiers[destIdx] = tmp;
+        const src = touchSrcIdx;
+        touchSrcIdx = null;
+        renderSoldierDeployPanel();
+        renderHero();
+        if (deployedSoldiers[src])   dbUpdateSoldierDeploy(deployedSoldiers[src].id,   true, src);
+        if (deployedSoldiers[destIdx]) dbUpdateSoldierDeploy(deployedSoldiers[destIdx].id, true, destIdx);
+      });
+    });
+
+    // ── 슬롯 ✕ 버튼 (배치 해제) ──────────────────────────
     slotsEl.querySelectorAll('.deploy-slot-remove').forEach(btn => {
       btn.addEventListener('click', e => {
         e.stopPropagation();
         const slotIdx = +btn.dataset.removeSlot;
-        const solId   = btn.dataset.solId;
-        const sol     = deployedSoldiers[slotIdx];
+        const sol = deployedSoldiers[slotIdx];
         deployedSoldiers[slotIdx] = null;
-        window._deploySelected = null;
         renderSoldierDeployPanel();
         if (sol) dbUpdateSoldierDeploy(sol.id, false, -1);
-      });
-    });
-
-    // ── 슬롯 클릭 이벤트 ─────────────────────────────────
-    slotsEl.querySelectorAll('.deploy-slot').forEach(el => {
-      el.addEventListener('click', () => {
-        const idx     = +el.dataset.slotIdx;
-        const isActive= idx < maxSlots;
-        const sol     = deployedSoldiers[idx];
-        const prev    = window._deploySelected;
-
-        // 잠긴 슬롯
-        if (!isActive) {
-          showDropNotification('⚔️ 출전 병사가 모두 배치되었습니다!', '#ffcf63');
-          return;
-        }
-
-        // 선택 없는 상태
-        if (!prev) {
-          // 빈 슬롯 선택 → 보관병사 선택 대기
-          window._deploySelected = { type:'slot', idx };
-          renderSoldierDeployPanel();
-          return;
-        }
-
-        // 이전 선택이 슬롯
-        if (prev.type === 'slot') {
-          if (prev.idx === idx) {
-            // 같은 슬롯 클릭 → 선택 해제
-            window._deploySelected = null;
-          } else {
-            // 다른 슬롯 클릭 → 위치 교환
-            const tmp = deployedSoldiers[prev.idx];
-            deployedSoldiers[prev.idx] = deployedSoldiers[idx];
-            deployedSoldiers[idx] = tmp;
-            window._deploySelected = null;
-            renderHero();
-            if (deployedSoldiers[prev.idx]) dbUpdateSoldierDeploy(deployedSoldiers[prev.idx].id, true, prev.idx);
-            if (deployedSoldiers[idx]) dbUpdateSoldierDeploy(deployedSoldiers[idx].id, true, idx);
-          }
-          renderSoldierDeployPanel();
-          return;
-        }
-
-        // 이전 선택이 보관병사 → 슬롯에 배치
-        if (prev.type === 'inv') {
-          const invSol = soldierInventory[prev.idx];
-          if (!invSol) { window._deploySelected = null; renderSoldierDeployPanel(); return; }
-
-          if (filled >= maxSlots && !sol) {
-            // 꽉 찬 상태에서 빈 슬롯에 배치 시도
-            showDropNotification('⚔️ 출전 병사가 모두 배치되었습니다!', '#ffcf63');
-            window._deploySelected = null;
-            renderSoldierDeployPanel();
-            return;
-          }
-
-          // 배치
-          deployedSoldiers[idx] = invSol;
-          window._deploySelected = null;
-          renderSoldierDeployPanel();
-          renderHero();
-          dbUpdateSoldierDeploy(invSol.id, true, idx);
-          showDropNotification(`⚔️ ${invSol.name} 배치!`, invSol.rarityColor);
-        }
       });
     });
 
@@ -6692,94 +7007,44 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     invEl.innerHTML = soldierInventory.map((sol, idx) => {
       const rd         = SOLDIER_RARITY_DATA[sol.rarity];
       const isDeployed = deployedIds.includes(sol.id);
-      const isSel      = window._deploySelected?.type === 'inv' && window._deploySelected.idx === idx;
-      return `<div class="soldier-inv-card rarity-${sol.rarity}
-          ${isDeployed ? 'deployed' : ''} ${isSel ? 'inv-selected' : ''}"
-          data-inv-idx="${idx}">
+      // 0인 스탯 제외
+      const statPills = [
+        sol.stats.atk   ? `⚔️${sol.stats.atk}`   : '',
+        sol.stats.def   ? `🛡️${sol.stats.def}`   : '',
+        sol.stats.hp    ? `❤️${sol.stats.hp}`    : '',
+        sol.stats.speed ? `💨${sol.stats.speed}` : '',
+        sol.stats.crit  ? `✨${sol.stats.crit}`  : '',
+      ].filter(Boolean).join(' ');
+
+      return `<div class="soldier-inv-card rarity-${sol.rarity} ${isDeployed ? 'deployed' : ''}"
+          data-inv-idx="${idx}" onclick="openSoldierDetail(${idx}, 'inv')" style="cursor:pointer;">
         <img class="soldier-inv-img" src="${sol.img}" onerror="this.style.opacity=0">
-        <div class="soldier-inv-name">${sol.cls}</div>
-        <div class="soldier-inv-rarity" style="color:${rd.color}">${rd.label}</div>
-        <div class="soldier-inv-stats">⚔️${sol.stats.atk} 🛡️${sol.stats.def}<br>❤️${sol.stats.hp}</div>
-        <button class="soldier-inv-fire" data-fire-idx="${idx}">해고 +${rd.fireCost}G</button>
+        <div class="soldier-inv-stats" style="font-size:9px;color:#7a90be;margin-top:2px;">${statPills}</div>
       </div>`;
     }).join('');
 
-    // 보관 병사 클릭
-    invEl.querySelectorAll('.soldier-inv-card:not(.deployed)').forEach(card => {
-      card.addEventListener('click', e => {
-        if (e.target.classList.contains('soldier-inv-fire')) return;
-        const idx  = +card.dataset.invIdx;
-        const sol  = soldierInventory[idx];
-        const prev = window._deploySelected;
 
-        // 이전 선택이 슬롯 → 해당 슬롯에 배치
-        if (prev?.type === 'slot') {
-          const slotIdx = prev.idx;
-          const isActive = slotIdx < maxSlots;
-          if (!isActive) {
-            showDropNotification('⚔️ 출전 병사가 모두 배치되었습니다!', '#ffcf63');
-            window._deploySelected = null;
-            renderSoldierDeployPanel();
-            return;
-          }
-          if (filled >= maxSlots && !deployedSoldiers[slotIdx]) {
-            showDropNotification('⚔️ 출전 병사가 모두 배치되었습니다!', '#ffcf63');
-            window._deploySelected = null;
-            renderSoldierDeployPanel();
-            return;
-          }
-          deployedSoldiers[slotIdx] = sol;
-          window._deploySelected = null;
-          renderSoldierDeployPanel();
-          renderHero();
-          dbUpdateSoldierDeploy(sol.id, true, slotIdx);
-          showDropNotification(`⚔️ ${sol.name} 배치!`, sol.rarityColor);
-          return;
-        }
-
-        // 같은 카드 다시 클릭 → 선택 해제
-        if (prev?.type === 'inv' && prev.idx === idx) {
-          window._deploySelected = null;
-          renderSoldierDeployPanel();
-          return;
-        }
-
-        // 보관병사 선택
-        window._deploySelected = { type:'inv', idx };
-        renderSoldierDeployPanel();
-      });
-    });
-
-    // 해고 버튼
-    invEl.querySelectorAll('.soldier-inv-fire').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const idx = +btn.dataset.fireIdx;
-        const sol = soldierInventory[idx];
-        if (!confirm(`${sol.name}을(를) 해고하시겠어요?\n${SOLDIER_RARITY_DATA[sol.rarity].fireCost}G를 받습니다.`)) return;
-        deployedSoldiers = deployedSoldiers.map(s => s?.id === sol.id ? null : s);
-        state.gold += SOLDIER_RARITY_DATA[sol.rarity].fireCost;
-        soldierInventory.splice(idx, 1);
-        window._deploySelected = null;
-        renderSoldierDeployPanel();
-        renderHero();
-        showDropNotification(`🪙 ${sol.name} 해고 +${SOLDIER_RARITY_DATA[sol.rarity].fireCost}G`, '#a4b4db');
-        dbSaveAll(true);
-        dbDeleteSoldier(sol.id);
-      });
-    });
   }
 
   function openHeroStatsModal() {
     const stats = getHeroBaseStats();
     els.heroStatsTitle.textContent   = formatHeroTopTitle(stats);
     els.heroCombatPower.textContent  = calcCombatPower(stats).toLocaleString();
-    els.heroStatsAtk.textContent     = stats.atk;
-    els.heroStatsDef.textContent     = stats.def;
-    els.heroStatsHp.textContent      = stats.hp;
-    els.heroStatsSpeed.textContent   = stats.speed;
-    els.heroStatsCrit.textContent    = `${stats.crit}%`;
-    els.heroStatsSoldiers.textContent= `${stats.soldiers}명`;
+    const sb = stats.solBonus || {};
+    const setBonus = (el, total, bonus) => {
+      if (!el) return;
+      el.innerHTML = bonus > 0
+        ? `${total - bonus}<span style="color:#63d09a;font-weight:900;"> +${bonus}</span>`
+        : total;
+    };
+    setBonus(els.heroStatsAtk,   stats.atk,   sb.atk   || 0);
+    setBonus(els.heroStatsDef,   stats.def,   sb.def   || 0);
+    setBonus(els.heroStatsHp,    stats.hp,    sb.hp    || 0);
+    setBonus(els.heroStatsSpeed, stats.speed, sb.speed || 0);
+    els.heroStatsCrit.innerHTML  = sb.crit > 0
+      ? `${stats.crit - sb.crit}%<span style="color:#63d09a;font-weight:900;"> +${sb.crit}%</span>`
+      : `${stats.crit}%`;
+    els.heroStatsSoldiers.textContent = `${stats.soldiers}명`;
 
     // 장비 슬롯 버튼 렌더
     updateEquipSlotUI();
@@ -7304,32 +7569,20 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const tactic    = els.eventTacticSelect.value;
     const tm        = getTacticMod(tactic);
 
-    // 배치된 병사 목록 (null 제거)
+    // getHeroBaseStats에 병사 스탯 이미 포함됨
     const activeSoldiers = (deployedSoldiers || []).filter(Boolean);
-    const sc             = activeSoldiers.length; // 실제 배치 수
-
-    // 배치된 병사 스탯 합산
-    const soldierBonus = activeSoldiers.reduce((acc, sol) => {
-      acc.atk   += sol.stats.atk   || 0;
-      acc.def   += sol.stats.def   || 0;
-      acc.hp    += sol.stats.hp    || 0;
-      acc.speed += sol.stats.speed || 0;
-      acc.crit  += sol.stats.crit  || 0;
-      return acc;
-    }, { atk:0, def:0, hp:0, speed:0, crit:0 });
-
-    // 배치 병사 클래스 목록 (전투 씬 표시용)
+    const sc             = activeSoldiers.length;
     const soldierClasses = activeSoldiers.map(s => s.cls);
 
     return {
       tactic,
-      soldierClasses,               // 배치된 병사 클래스 배열
-      soldierCount: sc,             // 실제 배치 수
-      heroAtk:   Math.round((heroStats.atk   + soldierBonus.atk)   * tm.atk),
-      heroDef:   Math.round((heroStats.def   + soldierBonus.def)   * tm.def),
-      heroMax:   Math.round((heroStats.hp    + soldierBonus.hp)    * tm.hp),
-      heroSpeed: Math.round((heroStats.speed + soldierBonus.speed) * tm.speed),
-      heroCrit:  Math.round((heroStats.crit  + soldierBonus.crit)  * tm.crit),
+      soldierClasses,
+      soldierCount: sc,
+      heroAtk:   Math.round(heroStats.atk   * tm.atk),
+      heroDef:   Math.round(heroStats.def   * tm.def),
+      heroMax:   Math.round(heroStats.hp    * tm.hp),
+      heroSpeed: Math.round(heroStats.speed * tm.speed),
+      heroCrit:  Math.round(heroStats.crit  * tm.crit),
       enemy
     };
   }
