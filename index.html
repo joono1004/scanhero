@@ -1131,14 +1131,28 @@
     /* 배치 슬롯 그리드 */
     /* .deploy-slots — deployStage 인라인 스타일로 통합 */
     .deploy-slot {
-      width:100%;
-      border-radius:10px; border:1.5px dashed rgba(140,170,220,0.25);
-      background:rgba(14,21,50,0.6); backdrop-filter:blur(4px);
+      width:75px; height:80px;
+      border-radius:10px; border:1px dashed rgba(140,170,220,0.45);
+      background:transparent;
       display:flex; flex-direction:column;
       align-items:center; justify-content:center; gap:2px;
       padding:2px 3px; cursor:pointer; transition:all 0.15s; position:relative;
+      overflow:hidden;
     }
-    .deploy-slot.filled { border-style:solid; border-color:rgba(99,208,154,0.6); background:rgba(10,30,18,0.7); }
+    .deploy-slot.filled { border-style:solid; border-color:rgba(99,208,154,0.35); background:rgba(10,30,18,0.35); }
+    .deploy-slot.filled.rarity-common    { border:2px solid rgba(169,182,214,0.7); background:rgba(20,28,50,0.35); }
+    .deploy-slot.filled.rarity-uncommon  { border:2px solid rgba(99,208,154,0.7);  background:rgba(10,30,18,0.35); }
+    .deploy-slot.filled.rarity-rare      { border:2px solid rgba(99,168,255,0.7);  background:rgba(10,20,40,0.35); }
+    .deploy-slot.filled.rarity-epic      { border:2px solid rgba(178,125,255,0.7); background:rgba(20,10,40,0.35); }
+    .deploy-slot.filled.rarity-legendary {
+      border:3px solid rgba(255,207,99,0.9) !important;
+      background:rgba(40,30,10,0.35);
+      animation: slotShimmer 2s ease-in-out infinite !important;
+    }
+    @keyframes slotShimmer {
+      0%,100% { box-shadow: 0 0 4px rgba(255,207,99,0.4), 0 0 0 3px rgba(255,207,99,0.5); }
+      50%      { box-shadow: 0 0 12px rgba(255,207,99,0.9), 0 0 0 3px rgba(255,207,99,1); }
+    }
     .deploy-slot.filled:hover { border-color:rgba(200,220,255,0.6); }
     .deploy-slot.drag-over { border-color:#ffcf63 !important; background:rgba(255,207,99,0.15) !important; transform:scale(1.05); }
     .deploy-slot.selected { border-color:#4f7cff !important; border-style:solid !important; box-shadow:0 0 0 2px rgba(79,124,255,0.4); background:rgba(20,35,80,0.85) !important; }
@@ -1147,7 +1161,7 @@
     .deploy-slot-name { font-size:9px; font-weight:700; color:#eef3ff; text-align:center; }
     .deploy-slot-rarity { font-size:8px; font-weight:700; }
     .deploy-slot-empty-icon { font-size:24px; opacity:0.25; color:#7a90be; }
-    .deploy-slot-empty-label { font-size:8px; color:#3a5070; }
+    .deploy-slot-empty-label { font-size:8px; color:#6b7a99; }
     .deploy-slot-remove {
       position:absolute; top:-5px; right:-5px;
       width:16px; height:16px; border-radius:50%;
@@ -1959,11 +1973,11 @@
       </div>
 
       <!-- ── 병사 배치 패널 ── -->
-      <div id="heroSoldierPanel" class="modal-body" style="display:none; padding:6px 12px; grid-template-columns:unset !important;">
+      <div id="heroSoldierPanel" class="modal-body" style="display:none; padding:14px; grid-template-columns:unset !important; gap:12px;">
 
 
         <!-- 1. 스탯 패널 — 장비탭과 동일 -->
-        <div class="stats-panel" style="margin-bottom:2px;">
+        <div class="stats-panel" style="margin-bottom:4px;">
           <div class="cp-block">
             <div class="cp-block-label">전투력</div>
             <div class="cp-block-value" id="solCombatPower">0</div>
@@ -1981,15 +1995,16 @@
 
         <!-- 2. 배치된 병사 영역 — 도감(288px)과 동일 -->
         <div id="deployStage" style="
-          width:100%; height:225px; border-radius:16px; overflow:hidden; position:relative;
-          background:url('https://joono1004.github.io/scanhero/assets/ui/barracks_bg.png') center/cover no-repeat,
+          width:100%; height:288px; border-radius:16px; overflow:hidden;
+          display:flex; flex-direction:column; justify-content:flex-end;
+          background:url('https://joono1004.github.io/scanhero/assets/bg/barracks_bg.png') center/cover no-repeat,
             radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
           border:1px solid rgba(100,130,200,0.22); margin-bottom:2px;
         ">
-          <!-- 배치 슬롯 그리드 — 하단 중앙 고정 -->
+          <!-- 배치 슬롯 그리드 — 하단 정렬 -->
           <div id="deploySlots" style="
-            display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px;
-            padding:4px; position:absolute; bottom:0; left:0; right:0;
+            display:grid; grid-template-columns:repeat(3,75px); gap:4px;
+            padding:4px; flex-shrink:0; justify-content:center;
           "></div>
         </div>
 
@@ -2015,7 +2030,7 @@
   </div>
 
   <!-- 병사 상세 모달 -->
-  <div class="modal-backdrop" id="soldierDetailBackdrop" style="display:none;align-items:flex-end;">
+  <div class="modal-backdrop" id="soldierDetailBackdrop" style="display:none;align-items:center;justify-content:center;">
     <div class="modal" style="width:min(440px,100%);">
       <div class="modal-head">
         <div class="modal-title" id="soldierDetailTitle">병사 정보</div>
@@ -2050,7 +2065,7 @@
           <div class="sell-price-row" id="soldierFirePriceRow"></div>
         </div>
       </div>
-      <div class="modal-actions" id="soldierDetailActions"></div>
+      <div class="modal-actions" id="soldierDetailActions" style="display:flex;flex-direction:row;gap:8px;padding:0 14px 14px;"></div>
     </div>
   </div>
 
@@ -5612,11 +5627,15 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       crit:  curStats.crit  - curBonus.crit,
     };
 
-    // 배치 후 예상 스탯
+    // 배치 후 예상 스탯 (배치→해제, 미배치→배치 모두 반영)
     let newDeployed = [...deployedSoldiers];
     if (!isDeployed) {
+      // 미배치 → 배치 시 빈 슬롯에 추가
       const emptyIdx = newDeployed.indexOf(null);
       if (emptyIdx >= 0) newDeployed[emptyIdx] = sol;
+    } else {
+      // 배치 → 해제 시 해당 병사 제거
+      newDeployed = newDeployed.map(s => s?.id === sol.id ? null : s);
     }
     const newBonus = calcSolBonus(newDeployed);
     const newStats = {
@@ -5684,7 +5703,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     document.getElementById('soldierStatCompareGrid').innerHTML = STAT_KEYS.map(({key, label}) => {
       const before = curStats[key] || 0;
       const after  = newStats[key] || 0;
-      const diff   = isDeployed ? 0 : after - before;
+      const diff   = after - before;
       const cls    = diff > 0 ? 'stat-up' : diff < 0 ? 'stat-down' : 'stat-same';
       const sign   = diff > 0 ? '+' : '';
       const diffText = diff !== 0
@@ -5708,14 +5727,14 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const canDeploy = !isDeployed && filled < maxSlots;
     document.getElementById('soldierDetailActions').innerHTML = `
       ${isDeployed
-        ? `<button class="modal-secondary" onclick="soldierDetailUndeploy()">🔓 해제</button>`
+        ? `<button class="modal-secondary" style="flex:1;" onclick="soldierDetailUndeploy()">🔓 해제</button>`
         : canDeploy
-          ? `<button class="modal-primary" style="background:linear-gradient(180deg,rgba(99,208,154,0.3),rgba(60,160,100,0.2));border-color:rgba(99,208,154,0.5);color:#63d09a;"
+          ? `<button class="modal-primary" style="flex:1;background:linear-gradient(180deg,rgba(99,208,154,0.3),rgba(60,160,100,0.2));border-color:rgba(99,208,154,0.5);color:#63d09a;"
                onclick="soldierDetailDeploy()">⚔️ 배치</button>`
-          : `<button class="modal-secondary" disabled style="opacity:0.4;">출전 가득참</button>`
+          : `<button class="modal-secondary" style="flex:1;" disabled style="opacity:0.4;">출전 가득참</button>`
       }
-      <button class="modal-danger" onclick="soldierDetailFire()">🚪 해고</button>
-      <button class="modal-secondary" onclick="closeSoldierDetail()">닫기</button>
+      <button class="modal-danger" style="flex:1;" onclick="soldierDetailFire()">🚪 해고</button>
+      <button class="modal-secondary" style="flex:1;" onclick="closeSoldierDetail()">닫기</button>
     `;
 
     // 모달 표시
