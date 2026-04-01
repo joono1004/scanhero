@@ -453,7 +453,7 @@
       background-size: cover; background-position: center;
     }
     .char-slot-sprite.bg-전사   { background-image: url('https://joono1004.github.io/scanhero/assets/bg/char_slot_warrior.png'); }
-    .char-slot-sprite.bg-궁사   { background-image: url('https://joono1004.github.io/scanhero/assets/bg/char_slot_archer.png'); }
+    .char-slot-sprite.bg-궁병   { background-image: url('https://joono1004.github.io/scanhero/assets/bg/char_slot_archer.png'); }
     .char-slot-sprite.bg-마법사 { background-image: url('https://joono1004.github.io/scanhero/assets/bg/char_slot_mage.png'); }
     /* hero-doll-thumb: sprite 안 중앙 배치 */
     .hero-doll-thumb {
@@ -465,7 +465,7 @@
     }
     /* 클래스별 캐릭터 빛 번짐 효과 */
     .bg-전사   .hero-doll-thumb .hero-visual-wrap,
-    .bg-궁사   .hero-doll-thumb .hero-visual-wrap,
+    .bg-궁병   .hero-doll-thumb .hero-visual-wrap,
     .bg-마법사 .hero-doll-thumb .hero-visual-wrap { filter: drop-shadow(0 0 6px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4)); }
     /* 선택창 캐릭터: 고정 크기로 표시 */
     .hero-doll-thumb .hero-visual-wrap {
@@ -628,7 +628,7 @@
       background-size: cover; background-position: center;
     }
     .equip-doll-stage.bg-전사  { background-image: url('https://joono1004.github.io/scanhero/assets/bg/stats_bg_warrior.png'); }
-    .equip-doll-stage.bg-궁사  { background-image: url('https://joono1004.github.io/scanhero/assets/bg/stats_bg_archer.png'); }
+    .equip-doll-stage.bg-궁병  { background-image: url('https://joono1004.github.io/scanhero/assets/bg/stats_bg_archer.png'); }
     .equip-doll-stage.bg-마법사 { background-image: url('https://joono1004.github.io/scanhero/assets/bg/stats_bg_mage.png'); }
     /* 캐릭터 — 중앙 배치 */
     .equip-doll-hero, .hero-doll-char {
@@ -1139,6 +1139,11 @@
       padding:2px 3px; cursor:pointer; transition:all 0.15s; position:relative;
     }
     .deploy-slot.filled { border-style:solid; border-color:rgba(99,208,154,0.35); background:rgba(10,30,18,0.35); }
+    .deploy-slot.locked {
+      border:1px dashed rgba(255,207,99,0.3);
+      background:rgba(0,0,0,0.5);
+      cursor:not-allowed; opacity:0.7;
+    }
     .deploy-slot.filled.rarity-common    { border:2px solid rgba(169,182,214,0.7); background:rgba(20,28,50,0.35); }
     .deploy-slot.filled.rarity-uncommon  { border:2px solid rgba(99,208,154,0.7);  background:rgba(10,30,18,0.35); }
     .deploy-slot.filled.rarity-rare      { border:2px solid rgba(99,168,255,0.7);  background:rgba(10,20,40,0.35); }
@@ -1370,7 +1375,7 @@
       box-shadow: 0 10px 28px rgba(79,124,255,0.18);
     }
     .class-card.selected-전사  { border-color: #ff8a6a; background: rgba(255,100,60,0.08); box-shadow: 0 8px 24px rgba(255,100,60,0.2); }
-    .class-card.selected-궁사  { border-color: #63d09a; background: rgba(60,200,120,0.08); box-shadow: 0 8px 24px rgba(60,200,120,0.2); }
+    .class-card.selected-궁병  { border-color: #63d09a; background: rgba(60,200,120,0.08); box-shadow: 0 8px 24px rgba(60,200,120,0.2); }
     .class-card.selected-마법사 { border-color: #b27dff; background: rgba(150,80,255,0.08); box-shadow: 0 8px 24px rgba(150,80,255,0.2); }
     .class-card-sprite {
       width: 88px; height: 90px; margin: 0 auto 8px;
@@ -1380,14 +1385,14 @@
     .class-card-sprite svg { transition: transform 0.3s; }
     .class-card:hover .class-card-sprite svg { transform: scale(1.08); }
     .class-card.selected-전사 .class-card-sprite svg  { animation: classAttackL 0.5s ease forwards; }
-    .class-card.selected-궁사 .class-card-sprite svg  { animation: classAttackR 0.5s ease forwards; }
+    .class-card.selected-궁병 .class-card-sprite svg  { animation: classAttackR 0.5s ease forwards; }
     .class-card.selected-마법사 .class-card-sprite svg { animation: classMagic  0.5s ease forwards; }
     @keyframes classAttackL { 0%{transform:scale(1) rotate(0)} 40%{transform:scale(1.12) rotate(-8deg) translateX(-4px)} 100%{transform:scale(1.06) rotate(-4deg) translateX(-2px)} }
     @keyframes classAttackR { 0%{transform:scale(1) rotate(0)} 40%{transform:scale(1.12) rotate(8deg) translateX(4px)} 100%{transform:scale(1.06) rotate(4deg) translateX(2px)} }
     @keyframes classMagic   { 0%{transform:scale(1)} 30%{transform:scale(1.14) rotate(3deg)} 60%{transform:scale(1.08) rotate(-3deg)} 100%{transform:scale(1.1) rotate(0)} }
     .class-card-name { font-size: 14px; font-weight: 900; margin-bottom: 3px; }
     .class-card-name-전사  { color: #ff9a7a; }
-    .class-card-name-궁사  { color: #63d09a; }
+    .class-card-name-궁병  { color: #63d09a; }
     .class-card-name-마법사 { color: #b27dff; }
     .class-card-desc { font-size: 9.5px; color: #7a90be; line-height: 1.4; }
     .class-card-stats { margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
@@ -1402,10 +1407,10 @@
       font-size: 10px; transition: all 0.2s;
     }
     .class-card.selected-전사  .class-select-check { background: #ff8a6a; border-color: #ff8a6a; color: #fff; }
-    .class-card.selected-궁사  .class-select-check { background: #63d09a; border-color: #63d09a; color: #fff; }
+    .class-card.selected-궁병  .class-select-check { background: #63d09a; border-color: #63d09a; color: #fff; }
     .class-card.selected-마법사 .class-select-check { background: #b27dff; border-color: #b27dff; color: #fff; }
     .class-aura-전사  { filter: drop-shadow(0 0 8px rgba(255,120,60,0.55)); }
-    .class-aura-궁사  { filter: drop-shadow(0 0 8px rgba(60,210,120,0.55)); }
+    .class-aura-궁병  { filter: drop-shadow(0 0 8px rgba(60,210,120,0.55)); }
     .class-aura-마법사 { filter: drop-shadow(0 0 8px rgba(160,80,255,0.55)); }
     .class-select-foot { padding: 0 16px 16px; }
     .class-confirm-btn {
@@ -1435,7 +1440,7 @@
       color: #7a90be;
     }
     .class-inline-btn.active-전사  { border-color: #ff8a6a; color: #ff9a7a; background: rgba(255,100,60,0.1); box-shadow: 0 0 14px rgba(255,100,60,0.2); }
-    .class-inline-btn.active-궁사  { border-color: #63d09a; color: #63d09a; background: rgba(60,200,120,0.1); box-shadow: 0 0 14px rgba(60,200,120,0.2); }
+    .class-inline-btn.active-궁병  { border-color: #63d09a; color: #63d09a; background: rgba(60,200,120,0.1); box-shadow: 0 0 14px rgba(60,200,120,0.2); }
     .class-inline-btn.active-마법사 { border-color: #b27dff; color: #b27dff; background: rgba(150,80,255,0.1); box-shadow: 0 0 14px rgba(150,80,255,0.2); }
     .class-inline-btn:hover { transform: translateY(-2px); }
 
@@ -1463,7 +1468,7 @@
     @keyframes classIdleBow  { 0%,100%{transform:translateY(0) rotate(0)} 30%{transform:translateY(-3px) rotate(3deg) scaleX(1.04)} 70%{transform:translateY(-1px) rotate(-1deg)} }
     @keyframes classIdleMage { 0%,100%{transform:scale(1) rotate(0)} 33%{transform:scale(1.05) rotate(2deg)} 66%{transform:scale(1.03) rotate(-2deg)} }
     .class-preview-anim-전사  svg { animation: classIdleWave 1.6s ease-in-out infinite; }
-    .class-preview-anim-궁사  svg { animation: classIdleBow  1.8s ease-in-out infinite; }
+    .class-preview-anim-궁병  svg { animation: classIdleBow  1.8s ease-in-out infinite; }
     .class-preview-anim-마법사 svg { animation: classIdleMage 1.4s ease-in-out infinite; }
 
     /* ── 저장 실패 배너 ── */
@@ -1736,7 +1741,7 @@
           <label style="display:block;font-size:11px;font-weight:700;color:#8a9dc4;margin-bottom:8px;">클래스 선택</label>
           <div class="class-inline-btns" id="classInlineBtns">
             <button class="class-inline-btn active-전사" data-class="전사">⚔️ 전사</button>
-            <button class="class-inline-btn" data-class="궁사">🏹 궁사</button>
+            <button class="class-inline-btn" data-class="궁병">🏹 궁병</button>
             <button class="class-inline-btn" data-class="마법사">🔮 마법사</button>
           </div>
           <input type="hidden" id="startHeroClass" value="전사" />
@@ -2593,7 +2598,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const STORAGE_BASE = 'https://joono1004.github.io/scanhero/assets';
 
   // 클래스 코드 매핑
-  const CLASS_CODE = { '전사': 'warrior', '궁사': 'archer', '마법사': 'mage' };
+  const CLASS_CODE = { '전사': 'warrior', '궁병': 'archer', '마법사': 'mage' };
 
   // 슬롯별 폴더명
   const SLOT_FOLDER = {
@@ -2618,7 +2623,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '가죽 갑옷':   { folder:'armor',  file:'warrior_armor_01.png', cls:'전사' },
     '강철 갑옷':   { folder:'armor',  file:'warrior_armor_02.png', cls:'전사' },
     '기사 갑옷':   { folder:'armor',  file:'warrior_armor_03.png', cls:'전사' },
-    // 갑옷 (궁사)
+    // 갑옷 (궁병)
     '사슬 갑옷':   { folder:'armor',  file:'archer_armor_02.png'  },
     '사냥꾼 갑옷': { folder:'armor',  file:'archer_armor_03.png'  },
     // 갑옷 (마법사)
@@ -2632,7 +2637,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '가죽 장갑':   { folder:'gloves', file:'warrior_gloves_01.png', cls:'전사' },
     '강철 장갑':   { folder:'gloves', file:'warrior_gloves_02.png', cls:'전사' },
     '기사 장갑':   { folder:'gloves', file:'warrior_gloves_03.png' },
-    // 장갑 (궁사)
+    // 장갑 (궁병)
     '사슬 장갑':   { folder:'gloves', file:'archer_gloves_02.png'  },
     '사냥꾼 장갑': { folder:'gloves', file:'archer_gloves_03.png'  },
     // 장갑 (마법사)
@@ -2642,7 +2647,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '가죽 장화':   { folder:'boots',  file:'warrior_boots_01.png', cls:'전사' },
     '강철 장화':   { folder:'boots',  file:'warrior_boots_02.png', cls:'전사' },
     '기사 장화':   { folder:'boots',  file:'warrior_boots_03.png' },
-    // 장화 (궁사)
+    // 장화 (궁병)
     '사슬 장화':   { folder:'boots',  file:'archer_boots_02.png'  },
     '사냥꾼 장화': { folder:'boots',  file:'archer_boots_03.png'  },
     // 장화 (마법사)
@@ -2653,7 +2658,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '강철 투구':   { folder:'helmet', file:'warrior_helmet_02.png', cls:'전사' },
     '기사 투구':   { folder:'helmet', file:'warrior_helmet_03.png' },
     '가죽 모자':   { folder:'helmet', file:'archer_helmet_01.png'  },
-    '써클렛':      { folder:'helmet', file:'archer_helmet_02.png', cls:'궁사' },
+    '써클렛':      { folder:'helmet', file:'archer_helmet_02.png', cls:'궁병' },
     '천 모자':     { folder:'helmet', file:'mage_helmet_01.png'    },
     '마법사 모자': { folder:'helmet', file:'mage_helmet_03.png'    },
     // 망토
@@ -3266,15 +3271,19 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     const container = document.getElementById('charSlots');
     container.innerHTML = '<div style="color:#5a7090;font-size:12px;text-align:center;padding:30px;">불러오는 중...<br><small style="font-size:10px;color:#3a4a6a;">user: ' + (CURRENT_USER?.id?.slice(0,8) || 'none') + '</small></div>';
 
-    // ── 배치된 병사 스탯 캐시 (실패해도 화면에 영향 없음) ────────
+    // ── 배치된 병사 스탯 캐시 (2초 타임아웃, 실패해도 화면에 영향 없음) ──
     const charSoldiersCache = {};
     try {
-      if (CURRENT_USER?.id) {
-        const { data: solData, error: solErr } = await sb
+      if (CURRENT_USER?.id && typeof sb !== 'undefined') {
+        const timeout = new Promise(resolve => setTimeout(resolve, 2000));
+        const query = sb
           .from('soldiers')
           .select('player_id, stats, is_deployed')
           .eq('account_id', CURRENT_USER.id)
           .eq('is_deployed', true);
+        const result = await Promise.race([query, timeout]);
+        const solData = result?.data;
+        const solErr  = result?.error;
         if (!solErr && solData) {
           solData.forEach(sol => {
             if (!charSoldiersCache[sol.player_id]) charSoldiersCache[sol.player_id] = [];
@@ -3282,7 +3291,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
           });
         }
       }
-    } catch(e) { /* soldiers 로드 실패 시 무시 — 스탯에 병사 미반영 */ }
+    } catch(e) { /* soldiers 로드 실패 시 무시 */ }
     const heroes = await loadMyHeroes();
     if (heroes === null) return; // 오류 시 showCharError가 이미 표시됨
     // GM은 모든 캐릭터를 슬롯 번호 기준으로 표시
@@ -3297,7 +3306,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
     for (let slot = 1; slot <= MAX_SLOTS; slot++) {
       const hero = isGM ? heroes[slot-1] : heroes.find(h => h.char_slot === slot);
       if (hero) {
-        const classIcon = { '전사':'⚔️','궁사':'🏹','마법사':'🔮' }[hero.hero_class] || '🧙';
+        const classIcon = { '전사':'⚔️','궁병':'🏹','마법사':'🔮' }[hero.hero_class] || '🧙';
         const updated = hero.updated_at ? new Date(hero.updated_at).toLocaleDateString('ko-KR') : '';
         html += `
           <div class="char-slot has-char" data-slot="${slot}">
@@ -3346,7 +3355,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
 
       // 이미지 레이어 직접 생성 (state 의존 없음)
       const STORAGE_BASE_LOCAL = 'https://joono1004.github.io/scanhero/assets';
-      const CLASS_CODE_LOCAL   = { '전사':'warrior', '궁사':'archer', '마법사':'mage' };
+      const CLASS_CODE_LOCAL   = { '전사':'warrior', '궁병':'archer', '마법사':'mage' };
       const cls = CLASS_CODE_LOCAL[hClass] || 'warrior';
       const layerStyle = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;';
       const mkImg = (url) => url ? `<img src="${url}" style="${layerStyle}" onerror="this.style.opacity=0">` : '';
@@ -3381,7 +3390,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       const hClass   = hero.hero_class || '전사';
       const hLevel   = hero.level      || 1;
       const hEquip   = hero.equipment  || {};
-      const classBonus = { 전사:{atk:4,def:3,hp:22,spd:0,crit:1}, 궁사:{atk:5,def:1,hp:12,spd:3,crit:3}, 마법사:{atk:6,def:0,hp:10,spd:1,crit:4} }[hClass] || {atk:4,def:3,hp:22,spd:0,crit:1};
+      const classBonus = { 전사:{atk:4,def:3,hp:22,spd:0,crit:1}, 궁병:{atk:5,def:1,hp:12,spd:3,crit:3}, 마법사:{atk:6,def:0,hp:10,spd:1,crit:4} }[hClass] || {atk:4,def:3,hp:22,spd:0,crit:1};
       // rankTableByClass TDZ 방지 — 인라인 테이블 사용
       const _rt = [
         {minLevel:1,soldiers:2},{minLevel:11,soldiers:3},{minLevel:21,soldiers:4},
@@ -3490,7 +3499,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   // 클래스 정보
   const CLASS_INFO = {
     '전사': { icon:'⚔️', color:'#ff9a7a', desc:'강인한 방어와 근접 전투', stats:{atk:80,def:95,spd:50,crit:40} },
-    '궁사': { icon:'🏹', color:'#63d09a', desc:'빠른 속도와 원거리 공격', stats:{atk:75,def:55,spd:95,crit:70} },
+    '궁병': { icon:'🏹', color:'#63d09a', desc:'빠른 속도와 원거리 공격', stats:{atk:75,def:55,spd:95,crit:70} },
     '마법사': { icon:'🔮', color:'#b27dff', desc:'강력한 마법과 높은 치명타', stats:{atk:95,def:40,spd:65,crit:90} }
   };
 
@@ -3620,7 +3629,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   <circle cx="32" cy="40" r="3.5" fill="#ffd34d"/>
   <path d="M32 36.5 L32.8 38.8 L35.2 38.8 L33.3 40.2 L34 42.5 L32 41.1 L30 42.5 L30.7 40.2 L28.8 38.8 L31.2 38.8Z" fill="#fff8d0"/>
 </svg>`;
-    if (heroClass === '궁사') return `<svg viewBox="0 0 64 80" width="72" height="90" class="class-archer" aria-hidden="true">
+    if (heroClass === '궁병') return `<svg viewBox="0 0 64 80" width="72" height="90" class="class-archer" aria-hidden="true">
   <ellipse cx="32" cy="77" rx="11" ry="3" fill="rgba(0,0,0,0.28)"/>
   <rect x="43" y="31" width="5" height="16" rx="2" fill="#7a4e28"/>
   <rect x="44" y="32" width="3.5" height="14" rx="1.5" fill="#8b5c30"/>
@@ -3747,7 +3756,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
 
   function renderClassSelectCards(currentClass) {
     const container = document.getElementById('classSelectCards');
-    const classes = ['전사', '궁사', '마법사'];
+    const classes = ['전사', '궁병', '마법사'];
     container.innerHTML = classes.map(cls => {
       const info = CLASS_INFO[cls];
       const isSelected = cls === currentClass;
@@ -3818,7 +3827,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
       </div>
     </div>`).join('');
 
-    const nameColors = { '전사':'#ff9a7a', '궁사':'#63d09a', '마법사':'#b27dff' };
+    const nameColors = { '전사':'#ff9a7a', '궁병':'#63d09a', '마법사':'#b27dff' };
     infoEl.innerHTML = `
       <div class="class-preview-name" style="color:${nameColors[cls]}">${info.icon} ${cls}</div>
       <div class="class-preview-desc">${info.desc}</div>
@@ -4578,11 +4587,11 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       { minLevel:61, rank:'검신',      emblem:'⚡', soldiers:6 },
       { minLevel:81, rank:'검왕',      emblem:'🔱', soldiers:6 },
     ],
-    '궁사': [
-      { minLevel:1,  rank:'견습 궁사', emblem:'🪶', soldiers:2 },
-      { minLevel:11, rank:'궁사',      emblem:'🏹', soldiers:3 },
+    '궁병': [
+      { minLevel:1,  rank:'견습 궁병', emblem:'🪶', soldiers:2 },
+      { minLevel:11, rank:'궁병',      emblem:'🏹', soldiers:3 },
       { minLevel:21, rank:'명궁',      emblem:'🎯', soldiers:4 },
-      { minLevel:41, rank:'영웅 궁사', emblem:'👑', soldiers:5 },
+      { minLevel:41, rank:'영웅 궁병', emblem:'👑', soldiers:5 },
       { minLevel:61, rank:'신궁',      emblem:'🌟', soldiers:6 },
       { minLevel:81, rank:'궁왕',      emblem:'🦅', soldiers:6 },
     ],
@@ -4769,10 +4778,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     { name:'단검',         slot:'weapon', weaponType:'sword', icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/dagger.png',         classes:['전사'],   stats:{atk:3,def:0,hp:0,speed:1,crit:1} },
     { name:'장검',         slot:'weapon', weaponType:'sword', icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/longsword.png',         classes:['전사'],   stats:{atk:5,def:1,hp:0,speed:0,crit:0} },
     { name:'기사검',       slot:'weapon', weaponType:'sword', icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/knight_sword.png',       classes:['전사'],   stats:{atk:7,def:1,hp:0,speed:0,crit:2} },
-    // ── 무기: 궁사 ──────────────────────────────────
-    { name:'단궁',         slot:'weapon', weaponType:'bow',   icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/short_bow.png',         classes:['궁사'],   stats:{atk:3,def:0,hp:0,speed:2,crit:1} },
-    { name:'장궁',         slot:'weapon', weaponType:'bow',   icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/long_bow.png',         classes:['궁사'],   stats:{atk:5,def:0,hp:0,speed:1,crit:1} },
-    { name:'석궁',         slot:'weapon', weaponType:'bow',   icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/crossbow.png',         classes:['궁사'],   stats:{atk:6,def:0,hp:0,speed:0,crit:3} },
+    // ── 무기: 궁병 ──────────────────────────────────
+    { name:'단궁',         slot:'weapon', weaponType:'bow',   icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/short_bow.png',         classes:['궁병'],   stats:{atk:3,def:0,hp:0,speed:2,crit:1} },
+    { name:'장궁',         slot:'weapon', weaponType:'bow',   icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/long_bow.png',         classes:['궁병'],   stats:{atk:5,def:0,hp:0,speed:1,crit:1} },
+    { name:'석궁',         slot:'weapon', weaponType:'bow',   icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/crossbow.png',         classes:['궁병'],   stats:{atk:6,def:0,hp:0,speed:0,crit:3} },
     // ── 무기: 마법사 ────────────────────────────────
     { name:'나무 지팡이',  slot:'weapon', weaponType:'staff', icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/wood_staff.png',   classes:['마법사'], stats:{atk:3,def:0,hp:0,speed:0,crit:2} },
     { name:'마법 지팡이',  slot:'weapon', weaponType:'staff', icon:'https://joono1004.github.io/scanhero/assets/icons/weapon/magic_staff.png',   classes:['마법사'], stats:{atk:5,def:0,hp:0,speed:0,crit:3} },
@@ -4781,10 +4790,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/leather_armor.png',     classes:['전사'],   stats:{atk:0,def:3,hp:10,speed:0, crit:0} },
     { name:'강철 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/steel_armor.png',     classes:['전사'],   stats:{atk:0,def:6,hp:14,speed:0, crit:0} },
     { name:'기사 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/knight_armor.png',     classes:['전사'],   stats:{atk:0,def:9,hp:18,speed:-1,crit:0} },
-    // ── 갑옷: 궁사 ──────────────────────────────────
-    { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/archer_leather_armor.png', classes:['궁사'],   stats:{atk:0,def:2,hp:8, speed:1, crit:0} },
-    { name:'사슬 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/chain_armor.png',     classes:['궁사'],   stats:{atk:0,def:4,hp:10,speed:0, crit:0} },
-    { name:'사냥꾼 갑옷',  slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/hunter_armor.png',    classes:['궁사'],   stats:{atk:1,def:5,hp:10,speed:1, crit:1} },
+    // ── 갑옷: 궁병 ──────────────────────────────────
+    { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/archer_leather_armor.png', classes:['궁병'],   stats:{atk:0,def:2,hp:8, speed:1, crit:0} },
+    { name:'사슬 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/chain_armor.png',     classes:['궁병'],   stats:{atk:0,def:4,hp:10,speed:0, crit:0} },
+    { name:'사냥꾼 갑옷',  slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/hunter_armor.png',    classes:['궁병'],   stats:{atk:1,def:5,hp:10,speed:1, crit:1} },
     // ── 갑옷: 마법사 ────────────────────────────────
     { name:'천 갑옷',      slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/leather_armor.png',     classes:['마법사'], stats:{atk:0,def:1,hp:6, speed:1, crit:1} },
     { name:'가죽 갑옷',    slot:'armor',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/armor/leather_armor.png',     classes:['마법사'], stats:{atk:0,def:2,hp:8, speed:0, crit:1} },
@@ -4797,10 +4806,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/leather_gloves.png',     classes:['전사'],   stats:{atk:1,def:1,hp:0,speed:0,crit:1} },
     { name:'강철 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/steel_gloves.png',       classes:['전사'],   stats:{atk:2,def:3,hp:0,speed:0,crit:0} },
     { name:'기사 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/knight_gloves.png',     classes:['전사'],   stats:{atk:3,def:3,hp:0,speed:0,crit:1} },
-    // ── 장갑: 궁사 ──────────────────────────────────
-    { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/archer_leather_gloves.png', classes:['궁사'],   stats:{atk:1,def:0,hp:0,speed:1,crit:2} },
-    { name:'사슬 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/chain_gloves.png',       classes:['궁사'],   stats:{atk:1,def:2,hp:0,speed:0,crit:2} },
-    { name:'사냥꾼 장갑',  slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/hunter_gloves.png',     classes:['궁사'],   stats:{atk:2,def:1,hp:0,speed:1,crit:3} },
+    // ── 장갑: 궁병 ──────────────────────────────────
+    { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/archer_leather_gloves.png', classes:['궁병'],   stats:{atk:1,def:0,hp:0,speed:1,crit:2} },
+    { name:'사슬 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/chain_gloves.png',       classes:['궁병'],   stats:{atk:1,def:2,hp:0,speed:0,crit:2} },
+    { name:'사냥꾼 장갑',  slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/hunter_gloves.png',     classes:['궁병'],   stats:{atk:2,def:1,hp:0,speed:1,crit:3} },
     // ── 장갑: 마법사 ────────────────────────────────
     { name:'천 장갑',      slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/cloth_gloves.png',       classes:['마법사'], stats:{atk:0,def:0,hp:4,speed:1,crit:1} },
     { name:'가죽 장갑',    slot:'gloves', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/gloves/leather_gloves.png',     classes:['마법사'], stats:{atk:1,def:0,hp:2,speed:0,crit:2} },
@@ -4809,10 +4818,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/leather_boots.png',     classes:['전사'],   stats:{atk:0,def:1,hp:4,speed:1, crit:0} },
     { name:'강철 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/steel_boots.png',     classes:['전사'],   stats:{atk:0,def:3,hp:6,speed:0, crit:0} },
     { name:'기사 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/knight_boots.png',     classes:['전사'],   stats:{atk:0,def:4,hp:8,speed:0, crit:0} },
-    // ── 장화: 궁사 ──────────────────────────────────
-    { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/archer_leather_boots.png', classes:['궁사'],   stats:{atk:0,def:0,hp:4,speed:2, crit:0} },
-    { name:'사슬 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/chain_boots.png',     classes:['궁사'],   stats:{atk:0,def:1,hp:4,speed:2, crit:0} },
-    { name:'사냥꾼 장화',  slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/hunter_boots.png',   classes:['궁사'],   stats:{atk:0,def:1,hp:4,speed:3, crit:1} },
+    // ── 장화: 궁병 ──────────────────────────────────
+    { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/archer_leather_boots.png', classes:['궁병'],   stats:{atk:0,def:0,hp:4,speed:2, crit:0} },
+    { name:'사슬 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/chain_boots.png',     classes:['궁병'],   stats:{atk:0,def:1,hp:4,speed:2, crit:0} },
+    { name:'사냥꾼 장화',  slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/hunter_boots.png',   classes:['궁병'],   stats:{atk:0,def:1,hp:4,speed:3, crit:1} },
     // ── 장화: 마법사 ────────────────────────────────
     { name:'천 장화',      slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/cloth_boots.png',       classes:['마법사'], stats:{atk:0,def:0,hp:4,speed:1, crit:1} },
     { name:'가죽 장화',    slot:'boots',  weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/boots/leather_boots.png',     classes:['마법사'], stats:{atk:0,def:1,hp:4,speed:1, crit:1} },
@@ -4821,10 +4830,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     { name:'가죽 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/leather_helmet.png',     classes:['전사'],   stats:{atk:0,def:2,hp:5, speed:0, crit:0} },
     { name:'강철 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/steel_helmet.png',       classes:['전사'],   stats:{atk:0,def:4,hp:8, speed:0, crit:0} },
     { name:'기사 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/knight_helmet.png',     classes:['전사'],   stats:{atk:0,def:6,hp:10,speed:-1,crit:0} },
-    // ── 투구: 궁사 ──────────────────────────────────
-    { name:'가죽 모자',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/leather_helmet.png',     classes:['궁사'],   stats:{atk:0,def:1,hp:4, speed:1, crit:1} },
-    { name:'써클렛',       slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/steel_helmet.png',       classes:['궁사'],   stats:{atk:0,def:4,hp:5, speed:2, crit:3} },
-    { name:'강철 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/battle_helmet.png',     classes:['궁사'],   stats:{atk:0,def:4,hp:6, speed:0, crit:1} },
+    // ── 투구: 궁병 ──────────────────────────────────
+    { name:'가죽 모자',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/leather_helmet.png',     classes:['궁병'],   stats:{atk:0,def:1,hp:4, speed:1, crit:1} },
+    { name:'써클렛',       slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/steel_helmet.png',       classes:['궁병'],   stats:{atk:0,def:4,hp:5, speed:2, crit:3} },
+    { name:'강철 투구',    slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/battle_helmet.png',     classes:['궁병'],   stats:{atk:0,def:4,hp:6, speed:0, crit:1} },
     // ── 투구: 마법사 ────────────────────────────────
     { name:'천 모자',      slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/leather_helmet.png',     classes:['마법사'], stats:{atk:0,def:0,hp:4, speed:1, crit:2} },
     { name:'써클렛',       slot:'helmet', weaponType:null,    icon:'https://joono1004.github.io/scanhero/assets/icons/helmet/steel_helmet.png',       classes:['마법사'], stats:{atk:1,def:1,hp:4, speed:0, crit:3} },
@@ -5194,7 +5203,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   <circle cx="32" cy="40" r="3.5" fill="#ffd34d"/>
   <path d="M32 36.5 L32.8 38.8 L35.2 38.8 L33.3 40.2 L34 42.5 L32 41.1 L30 42.5 L30.7 40.2 L28.8 38.8 L31.2 38.8Z" fill="#fff8d0"/>
 </svg>`;
-    if (heroClass === '궁사') return `<svg viewBox="0 0 64 80" width="64" height="80" class="class-archer${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
+    if (heroClass === '궁병') return `<svg viewBox="0 0 64 80" width="64" height="80" class="class-archer${extraClass ? ' '+extraClass : ''}" aria-hidden="true">
   <ellipse cx="32" cy="77" rx="11" ry="3" fill="rgba(0,0,0,0.28)"/>
   <rect x="43" y="31" width="5" height="16" rx="2" fill="#7a4e28"/>
   <rect x="44" y="32" width="3.5" height="14" rx="1.5" fill="#8b5c30"/>
@@ -5383,7 +5392,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // ══════════════════════════════════════════════════════════
   function renderHeroDoll(stageEl, { heroClass = state.heroClass, equipment = state.equipment } = {}) {
     // 클래스별 배경 이미지 적용
-    stageEl.classList.remove('bg-전사', 'bg-궁사', 'bg-마법사');
+    stageEl.classList.remove('bg-전사', 'bg-궁병', 'bg-마법사');
     if (heroClass) stageEl.classList.add(`bg-${heroClass}`);
     if (!stageEl) return;
 
@@ -5505,7 +5514,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   }
 
   function getClassBonus(heroClass) {
-    return { 전사:{atk:4,def:3,hp:22,spd:0,crit:1}, 궁사:{atk:5,def:1,hp:12,spd:3,crit:3}, 마법사:{atk:6,def:0,hp:10,spd:1,crit:4} }[heroClass] || {atk:4,def:3,hp:22,spd:0,crit:1};
+    return { 전사:{atk:4,def:3,hp:22,spd:0,crit:1}, 궁병:{atk:5,def:1,hp:12,spd:3,crit:3}, 마법사:{atk:6,def:0,hp:10,spd:1,crit:4} }[heroClass] || {atk:4,def:3,hp:22,spd:0,crit:1};
   }
   function getEquipmentBonus(equipOverride) {
     const eq = equipOverride || state.equipment;
@@ -5698,8 +5707,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     nameEl.className    = `item-detail-name rarity-${sol.rarity}`;
 
     const cpEl = document.getElementById('soldierDetailCP');
-    if (!isDeployed && cpDiff !== 0) {
-      cpEl.textContent = `전투력 ${cpDiff > 0 ? '+' : ''}${cpDiff}`;
+    if (cpDiff !== 0) {
+      const cpColor = cpDiff > 0 ? '#63d09a' : '#ff6b6b';
+      cpEl.innerHTML = `전투력 <span style="color:${cpColor};font-weight:900;">${cpDiff > 0 ? '+' : ''}${cpDiff}</span>`;
       cpEl.style.display = '';
     } else {
       cpEl.style.display = 'none';
@@ -5744,8 +5754,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       const diff   = after - before;
       const cls    = diff > 0 ? 'stat-up' : diff < 0 ? 'stat-down' : 'stat-same';
       const sign   = diff > 0 ? '+' : '';
+      const diffColor = diff > 0 ? '#63d09a' : '#ff6b6b';
       const diffText = diff !== 0
-        ? `<span style="font-size:10px;font-weight:900;"> (${sign}${diff})</span>`
+        ? `<span style="font-size:10px;font-weight:900;color:${diffColor};"> (${sign}${diff})</span>`
         : '';
       return `<div class="stat-compare-item">
         <div class="stat-compare-label">${label}</div>
@@ -5762,14 +5773,16 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
        <span style="font-size:11px;color:#a4b4db;">환급</span>`;
 
     // 버튼
-    const canDeploy = !isDeployed && filled < maxSlots;
+    // 해당 병사 클래스에 맞는 빈 슬롯 존재 여부
+    const matchSlotIdx = DEPLOY_SLOT_DEFS.findIndex((sd, i) =>
+      sd.cls === sol.cls && state.level >= sd.unlockLv && !deployedSoldiers[i]
+    );
+    const canDeploy = !isDeployed && matchSlotIdx >= 0;
     document.getElementById('soldierDetailActions').innerHTML = `
       ${isDeployed
         ? `<button class="modal-secondary" style="flex:1;" onclick="soldierDetailUndeploy()">🔓 해제</button>`
-        : canDeploy
-          ? `<button class="modal-primary" style="flex:1;background:linear-gradient(180deg,rgba(99,208,154,0.3),rgba(60,160,100,0.2));border-color:rgba(99,208,154,0.5);color:#63d09a;"
-               onclick="soldierDetailDeploy()">⚔️ 배치</button>`
-          : `<button class="modal-secondary" style="flex:1;" disabled style="opacity:0.4;">출전 가득참</button>`
+        : `<button class="modal-primary" style="flex:1;background:linear-gradient(180deg,rgba(99,208,154,0.3),rgba(60,160,100,0.2));border-color:rgba(99,208,154,0.5);color:#63d09a;"
+             onclick="soldierDetailDeploy()">⚔️ 배치</button>`
       }
       <button class="modal-danger" style="flex:1;" onclick="soldierDetailFire()">🚪 해고</button>
       <button class="modal-secondary" style="flex:1;" onclick="closeSoldierDetail()">닫기</button>
@@ -5792,20 +5805,23 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   window.soldierDetailDeploy = function() {
     const sol = soldierInventory[_soldierDetailIdx];
     if (!sol) return;
-    const stats    = getHeroBaseStats();
-    const maxSlots = stats.soldiers;
-    const filled   = deployedSoldiers.filter(Boolean).length;
-    if (filled >= maxSlots) {
-      showDropNotification('⚔️ 출전 병사가 모두 배치되었습니다!', '#ffcf63');
-      return;
+    // 클래스에 맞는 슬롯 찾기 (빈 슬롯 우선, 없으면 기존 병사 교체)
+    const slotDef = DEPLOY_SLOT_DEFS.find(sd => sd.cls === sol.cls);
+    if (!slotDef) { showDropNotification('⚔️ 해당 클래스 슬롯 없음', '#ffcf63'); return; }
+    if (state.level < slotDef.unlockLv) {
+      showDropNotification(`🔒 Lv.${slotDef.unlockLv} 이상 필요`, '#ffcf63'); return;
     }
-    const emptyIdx = deployedSoldiers.indexOf(null);
-    if (emptyIdx === -1) return;
-    deployedSoldiers[emptyIdx] = sol;
+    const targetIdx = DEPLOY_SLOT_DEFS.findIndex(sd => sd.cls === sol.cls);
+    // 기존 배치된 병사 해제 처리
+    const prevSol = deployedSoldiers[targetIdx];
+    if (prevSol) {
+      dbUpdateSoldierDeploy(prevSol.id, false, -1);
+    }
+    deployedSoldiers[targetIdx] = sol;
     closeSoldierDetail();
     renderSoldierDeployPanel();
     renderHero();
-    dbUpdateSoldierDeploy(sol.id, true, emptyIdx);
+    dbUpdateSoldierDeploy(sol.id, true, targetIdx);
     showDropNotification(`⚔️ ${sol.name} 배치!`, sol.rarityColor);
   };
 
@@ -5850,21 +5866,37 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   // 병사 클래스 정의
   const SOLDIER_CLASS_DATA = {
-    검병:  { icon:'⚔️', img:'swordsman.png', desc:'공격/체력/속도 특화',
+    검병:  { icon:'⚔️', img:'swordsman.png',  desc:'공격/체력/속도 특화',
              stats:{ atk:10, def:0,  hp:50,  speed:6,  crit:0  },
              growth:{ atk:2.0, def:0,  hp:10, speed:0.5, crit:0  } },
+    궁병:  { icon:'🏹', img:'archer.png',     desc:'공격/속도/치명 특화',
+             stats:{ atk:9,  def:0,  hp:0,   speed:10, crit:10 },
+             growth:{ atk:1.8, def:0,  hp:0,  speed:0.8, crit:0.6 } },
     방패병: { icon:'🛡️', img:'shielder.png',  desc:'방어/체력 특화',
              stats:{ atk:0,  def:12, hp:80,  speed:0,  crit:0  },
              growth:{ atk:0,  def:2.5, hp:15, speed:0,  crit:0  } },
-    궁병:  { icon:'🏹', img:'archer.png',    desc:'공격/속도/치명 특화',
-             stats:{ atk:9,  def:0,  hp:0,   speed:10, crit:10 },
-             growth:{ atk:1.8, def:0,  hp:0,  speed:0.8, crit:0.6 } },
-    창병:  { icon:'🗡️', img:'spearman.png',  desc:'공격/방어/체력 특화',
+    창병:  { icon:'🔱', img:'spearman.png',   desc:'공격/방어/체력 특화',
              stats:{ atk:7,  def:8,  hp:60,  speed:0,  crit:0  },
              growth:{ atk:1.5, def:1.5, hp:12, speed:0,  crit:0  } },
+    기마병: { icon:'🐴', img:'cavalry.png',   desc:'공격/속도 특화 (Lv.30 해금)',
+             stats:{ atk:14, def:5,  hp:40,  speed:12, crit:5  },
+             growth:{ atk:2.5, def:1.0, hp:8, speed:1.2, crit:0.3 } },
+    마법사: { icon:'🔮', img:'mage.png',      desc:'공격/치명 특화 (Lv.40 해금)',
+             stats:{ atk:18, def:0,  hp:20,  speed:5,  crit:15 },
+             growth:{ atk:3.0, def:0,  hp:5,  speed:0.3, crit:1.0 } },
   };
 
   // 병사 등급 설정
+  // ── 병사 배치 슬롯 정의 (클래스 고정 + 잠금 레벨) ────────────
+  const DEPLOY_SLOT_DEFS = [
+    { cls:'궁병',  unlockLv:10 },
+    { cls:'검병',  unlockLv:1  },
+    { cls:'방패병',unlockLv:15 },
+    { cls:'마법사',unlockLv:40 },
+    { cls:'기마병',unlockLv:30 },
+    { cls:'창병',  unlockLv:20 },
+  ];
+
   const SOLDIER_RARITY_DATA = {
     common:    { label:'일반',  color:'#a9b6d6', mult:1.00, prob:40, recruitCost:30,  fireCost:10  },
     uncommon:  { label:'고급',  color:'#63d09a', mult:1.15, prob:30, recruitCost:80,  fireCost:30  },
@@ -6698,7 +6730,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const hc = state.heroClass;
     if (item.slot === 'weapon') {
       if (item.weaponType === 'sword'  && hc !== '전사')   return { ok:false, reason:'전사만 검 장착 가능' };
-      if (item.weaponType === 'bow'    && hc !== '궁사')   return { ok:false, reason:'궁사만 활 장착 가능' };
+      if (item.weaponType === 'bow'    && hc !== '궁병')   return { ok:false, reason:'궁병만 활 장착 가능' };
       if (item.weaponType === 'staff'  && hc !== '마법사') return { ok:false, reason:'마법사만 지팡이 장착 가능' };
       if (item.classes && !item.classes.includes(hc))     return { ok:false, reason:`${item.classes.join('/')}만 사용 가능` };
     }
@@ -6913,21 +6945,30 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     if (invCountEl) invCountEl.textContent = `${soldierInventory.length}명`;
 
     // ── 배치 슬롯 렌더 (3×2, 잠금 없음) ─────────────────
-    slotsEl.innerHTML = Array.from({length: TOTAL}, (_, i) => {
-      const sol = deployedSoldiers[i];
-      if (sol) {
-        const rd = SOLDIER_RARITY_DATA[sol.rarity];
+    slotsEl.innerHTML = DEPLOY_SLOT_DEFS.map((slotDef, i) => {
+      const sol     = deployedSoldiers[i];
+      const clsData = SOLDIER_CLASS_DATA[slotDef.cls] || {};
+      const locked  = state.level < slotDef.unlockLv;
+
+      if (locked) {
+        return `<div class="deploy-slot locked" title="${slotDef.cls} Lv.${slotDef.unlockLv} 해금">
+          <div class="deploy-slot-empty-icon" style="font-size:16px;opacity:0.6;">🔒</div>
+          <div class="deploy-slot-empty-label" style="color:#ffcf63;opacity:0.8;">Lv.${slotDef.unlockLv}</div>
+          <div class="deploy-slot-empty-label">${clsData.icon||''}${slotDef.cls}</div>
+        </div>`;
+      } else if (sol) {
         return `<div class="deploy-slot filled rarity-${sol.rarity}"
             data-slot-idx="${i}" draggable="true" style="cursor:grab;"
             onclick="openSoldierDetail(${i}, 'deployed')">
           <img class="deploy-slot-img" src="${sol.img}" onerror="this.style.opacity=0">
-
+        </div>`;
+      } else {
+        return `<div class="deploy-slot empty" data-slot-idx="${i}"
+            onclick="openSoldierDetail(${i}, 'empty')">
+          <div class="deploy-slot-empty-icon">${clsData.icon||'+'}</div>
+          <div class="deploy-slot-empty-label">${slotDef.cls}</div>
         </div>`;
       }
-      return `<div class="deploy-slot" data-slot-idx="${i}" style="cursor:pointer;">
-        <div class="deploy-slot-empty-icon" style="font-size:18px;opacity:0.25;">+</div>
-        <div class="deploy-slot-empty-label">빈 슬롯</div>
-      </div>`;
     }).join('');
 
     // ── 드래그 앤 드롭 (배치된 병사끼리 위치 교환) ───────
