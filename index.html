@@ -6863,6 +6863,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     window._deploySelected = null;
     document.getElementById('heroSoldierPanel').style.display = 'none';
     document.getElementById('heroEquipPanel').style.display   = '';
+    refreshEquipStats(); // 병사 배치 변경사항을 장비창 스탯에 반영
   }
 
   // 하위 호환
@@ -7069,7 +7070,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   }
 
-  function openHeroStatsModal() {
+  // 장비창 스탯 수치만 갱신 (모달 열지 않음)
+  function refreshEquipStats() {
     const stats = getHeroBaseStats();
     els.heroStatsTitle.textContent   = formatHeroTopTitle(stats);
     els.heroCombatPower.textContent  = calcCombatPower(stats).toLocaleString();
@@ -7088,6 +7090,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       ? `${stats.crit - sb.crit}%<span style="color:#63d09a;font-weight:900;"> +${sb.crit}%</span>`
       : `${stats.crit}%`;
     els.heroStatsSoldiers.textContent = `${stats.soldiers}명`;
+  }
+
+  function openHeroStatsModal() {
+    refreshEquipStats();
 
     // 장비 슬롯 버튼 렌더
     updateEquipSlotUI();
