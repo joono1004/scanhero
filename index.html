@@ -1132,12 +1132,11 @@
     /* .deploy-slots — deployStage 인라인 스타일로 통합 */
     .deploy-slot {
       width:75px; height:80px;
-      border-radius:10px; border:1px dashed rgba(140,170,220,0.45);
-      background:transparent;
+      border-radius:10px; border:1.5px dashed rgba(255,255,255,0.6);
+      background:rgba(0,0,0,0.35);
       display:flex; flex-direction:column;
       align-items:center; justify-content:center; gap:2px;
       padding:2px 3px; cursor:pointer; transition:all 0.15s; position:relative;
-      overflow:hidden;
     }
     .deploy-slot.filled { border-style:solid; border-color:rgba(99,208,154,0.35); background:rgba(10,30,18,0.35); }
     .deploy-slot.filled.rarity-common    { border:2px solid rgba(169,182,214,0.7); background:rgba(20,28,50,0.35); }
@@ -1145,13 +1144,27 @@
     .deploy-slot.filled.rarity-rare      { border:2px solid rgba(99,168,255,0.7);  background:rgba(10,20,40,0.35); }
     .deploy-slot.filled.rarity-epic      { border:2px solid rgba(178,125,255,0.7); background:rgba(20,10,40,0.35); }
     .deploy-slot.filled.rarity-legendary {
-      border:3px solid rgba(255,207,99,0.9) !important;
-      background:rgba(40,30,10,0.35);
+      border:3px solid rgba(255,207,99,1) !important;
+      background:rgba(40,30,10,0.6) !important;
       animation: slotShimmer 2s ease-in-out infinite !important;
     }
+    .deploy-slot.filled.rarity-legendary::before {
+      content: '✦'; position:absolute; top:-6px; right:-4px;
+      font-size:11px; color:#ffe39c;
+      text-shadow:0 0 6px rgba(255,207,99,0.9);
+      animation:sparkle1 1.8s ease-in-out infinite;
+      pointer-events:none; z-index:20;
+    }
+    .deploy-slot.filled.rarity-legendary::after {
+      content: '✦'; position:absolute; top:-4px; left:-4px;
+      font-size:8px; color:#ffd97a;
+      text-shadow:0 0 5px rgba(255,207,99,0.8);
+      animation:sparkle1 1.8s ease-in-out infinite 0.9s;
+      pointer-events:none; z-index:20;
+    }
     @keyframes slotShimmer {
-      0%,100% { box-shadow: 0 0 4px rgba(255,207,99,0.4), 0 0 0 3px rgba(255,207,99,0.5); }
-      50%      { box-shadow: 0 0 12px rgba(255,207,99,0.9), 0 0 0 3px rgba(255,207,99,1); }
+      0%,100% { box-shadow:0 0 6px 2px rgba(255,207,99,0.6), inset 0 0 6px rgba(255,207,99,0.1); }
+      50%      { box-shadow:0 0 18px 4px rgba(255,207,99,1.0), inset 0 0 10px rgba(255,207,99,0.3); }
     }
     .deploy-slot.filled:hover { border-color:rgba(200,220,255,0.6); }
     .deploy-slot.drag-over { border-color:#ffcf63 !important; background:rgba(255,207,99,0.15) !important; transform:scale(1.05); }
@@ -1160,8 +1173,8 @@
     .deploy-slot-img { width:100%; height:127px; object-fit:contain; display:block; margin:0 auto 0px; }
     .deploy-slot-name { font-size:9px; font-weight:700; color:#eef3ff; text-align:center; }
     .deploy-slot-rarity { font-size:8px; font-weight:700; }
-    .deploy-slot-empty-icon { font-size:24px; opacity:0.25; color:#7a90be; }
-    .deploy-slot-empty-label { font-size:8px; color:#6b7a99; }
+    .deploy-slot-empty-icon { font-size:24px; opacity:0.6; color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
+    .deploy-slot-empty-label { font-size:8px; color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
     .deploy-slot-remove {
       position:absolute; top:-5px; right:-5px;
       width:16px; height:16px; border-radius:50%;
@@ -1973,11 +1986,11 @@
       </div>
 
       <!-- ── 병사 배치 패널 ── -->
-      <div id="heroSoldierPanel" class="modal-body" style="display:none; padding:14px; grid-template-columns:unset !important; gap:12px;">
+      <div id="heroSoldierPanel" class="modal-body" style="display:none; padding:6px 12px; grid-template-columns:unset !important;">
 
 
         <!-- 1. 스탯 패널 — 장비탭과 동일 -->
-        <div class="stats-panel" style="margin-bottom:4px;">
+        <div class="stats-panel" style="margin-bottom:2px;">
           <div class="cp-block">
             <div class="cp-block-label">전투력</div>
             <div class="cp-block-value" id="solCombatPower">0</div>
@@ -2001,7 +2014,6 @@
             radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
           border:1px solid rgba(100,130,200,0.22); margin-bottom:2px;
         ">
-          <!-- 배치 슬롯 그리드 — 하단 정렬 -->
           <div id="deploySlots" style="
             display:grid; grid-template-columns:repeat(3,75px); gap:4px;
             padding:4px; flex-shrink:0; justify-content:center;
@@ -3253,6 +3265,24 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
   async function renderCharSlots() {
     const container = document.getElementById('charSlots');
     container.innerHTML = '<div style="color:#5a7090;font-size:12px;text-align:center;padding:30px;">불러오는 중...<br><small style="font-size:10px;color:#3a4a6a;">user: ' + (CURRENT_USER?.id?.slice(0,8) || 'none') + '</small></div>';
+
+    // ── 배치된 병사 스탯 캐시 (실패해도 화면에 영향 없음) ────────
+    const charSoldiersCache = {};
+    try {
+      if (CURRENT_USER?.id) {
+        const { data: solData, error: solErr } = await sb
+          .from('soldiers')
+          .select('player_id, stats, is_deployed')
+          .eq('account_id', CURRENT_USER.id)
+          .eq('is_deployed', true);
+        if (!solErr && solData) {
+          solData.forEach(sol => {
+            if (!charSoldiersCache[sol.player_id]) charSoldiersCache[sol.player_id] = [];
+            charSoldiersCache[sol.player_id].push(sol);
+          });
+        }
+      }
+    } catch(e) { /* soldiers 로드 실패 시 무시 — 스탯에 병사 미반영 */ }
     const heroes = await loadMyHeroes();
     if (heroes === null) return; // 오류 시 showCharError가 이미 표시됨
     // GM은 모든 캐릭터를 슬롯 번호 기준으로 표시
@@ -3369,12 +3399,24 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         eBonus.speed += Math.round((item.stats.speed||0)*mul);
         eBonus.crit  += Math.round((item.stats.crit ||0)*mul);
       });
+      // 배치된 병사 스탯 합산
+      const herySols = charSoldiersCache[hero.player_id] || [];
+      const solBonus = herySols.reduce((acc, sol) => {
+        const s = sol.stats || {};
+        acc.atk   += s.atk   || 0;
+        acc.def   += s.def   || 0;
+        acc.hp    += s.hp    || 0;
+        acc.speed += s.speed || 0;
+        acc.crit  += s.crit  || 0;
+        return acc;
+      }, { atk:0, def:0, hp:0, speed:0, crit:0 });
+
       const st = {
-        atk:     14 + (hLevel*2)                + classBonus.atk + (sc-2)*2  + eBonus.atk,
-        def:     10 + Math.floor(hLevel*1.6)    + classBonus.def + (sc-2)*2  + eBonus.def,
-        hp:      100 + (hLevel*18)              + classBonus.hp  + (sc-2)*12 + eBonus.hp,
-        speed:   5  + Math.floor(hLevel*0.6)   + classBonus.spd             + eBonus.speed,
-        crit:    5  + Math.floor(hLevel*0.3)   + classBonus.crit            + eBonus.crit,
+        atk:     14 + (hLevel*2)                + classBonus.atk + (sc-2)*2  + eBonus.atk  + solBonus.atk,
+        def:     10 + Math.floor(hLevel*1.6)    + classBonus.def + (sc-2)*2  + eBonus.def  + solBonus.def,
+        hp:      100 + (hLevel*18)              + classBonus.hp  + (sc-2)*12 + eBonus.hp   + solBonus.hp,
+        speed:   5  + Math.floor(hLevel*0.6)   + classBonus.spd             + eBonus.speed + solBonus.speed,
+        crit:    5  + Math.floor(hLevel*0.3)   + classBonus.crit            + eBonus.crit  + solBonus.crit,
         soldiers: sc,
       };
       const pill = (label, val) => `<span class="char-stat-pill" style="background:rgba(79,124,255,0.15);">${label} ${val}</span>`;
@@ -5627,15 +5669,11 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       crit:  curStats.crit  - curBonus.crit,
     };
 
-    // 배치 후 예상 스탯 (배치→해제, 미배치→배치 모두 반영)
+    // 배치 후 예상 스탯
     let newDeployed = [...deployedSoldiers];
     if (!isDeployed) {
-      // 미배치 → 배치 시 빈 슬롯에 추가
       const emptyIdx = newDeployed.indexOf(null);
       if (emptyIdx >= 0) newDeployed[emptyIdx] = sol;
-    } else {
-      // 배치 → 해제 시 해당 병사 제거
-      newDeployed = newDeployed.map(s => s?.id === sol.id ? null : s);
     }
     const newBonus = calcSolBonus(newDeployed);
     const newStats = {
@@ -6878,20 +6916,11 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       const sol = deployedSoldiers[i];
       if (sol) {
         const rd = SOLDIER_RARITY_DATA[sol.rarity];
-        // 0 제외 스탯
-        const slotStats = [
-          sol.stats.atk   ? `⚔️${sol.stats.atk}`   : '',
-          sol.stats.def   ? `🛡️${sol.stats.def}`   : '',
-          sol.stats.hp    ? `❤️${sol.stats.hp}`    : '',
-          sol.stats.speed ? `💨${sol.stats.speed}` : '',
-          sol.stats.crit  ? `✨${sol.stats.crit}`  : '',
-        ].filter(Boolean).join(' ');
         return `<div class="deploy-slot filled rarity-${sol.rarity}"
             data-slot-idx="${i}" draggable="true" style="cursor:grab;"
             onclick="openSoldierDetail(${i}, 'deployed')">
           <img class="deploy-slot-img" src="${sol.img}" onerror="this.style.opacity=0">
-          <div style="font-size:7px;color:#7a90be;text-align:center;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${slotStats}</div>
-          <button class="deploy-slot-remove" data-remove-slot="${i}" data-sol-id="${sol.id}">✕</button>
+
         </div>`;
       }
       return `<div class="deploy-slot" data-slot-idx="${i}" style="cursor:pointer;">
@@ -8291,8 +8320,12 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     if (e.target && e.target.id === 'autoEquipBtn') autoEquipBest();
   });
   els.heroStatsCloseBtn.addEventListener('click', ()=>{
-    closeSoldierPanel();
-    closeModal(els.heroStatsBackdrop);
+    const isSoldierVisible = document.getElementById('heroSoldierPanel').style.display !== 'none';
+    if (isSoldierVisible) {
+      closeSoldierPanel();
+    } else {
+      closeModal(els.heroStatsBackdrop);
+    }
   });
   // soldierDeployBtn — onclick으로 처리
 
