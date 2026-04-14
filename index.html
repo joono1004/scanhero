@@ -7963,6 +7963,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const video = document.getElementById('battleHeroVideo');
     const heroSprite = els.battleHeroSpriteWrap?.querySelector('.battle-hero-sprite');
     let videoPlayed = false;
+    console.log('[전투영상] video 요소 확인:', video, '/ heroSprite:', heroSprite);
 
     // 영상 재생 시도 (실패해도 기존 애니메이션으로 대체)
     if (video) {
