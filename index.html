@@ -7709,11 +7709,12 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 클래스 코드
     const clsCode = cls === '전사' ? 'warrior' : cls === '궁병' ? 'archer' : 'mage';
 
-    // baseName 사용 (name은 '전설 기사 갑옷', baseName은 '기사 갑옷')
-    const armorBase  = eq.armor?.baseName  || eq.armor?.name  || '';
-    const helmBase   = eq.helmet?.baseName || eq.helmet?.name || '';
-    const capeBase   = eq.cloak?.baseName  || eq.cloak?.name  || '';
-    const weaponBase = eq.weapon?.baseName || eq.weapon?.name || '';
+    // baseName 사용 (없으면 name에서 등급 prefix 제거)
+    const stripRarity = n => n ? n.replace(/^(일반|고급|희귀|영웅|전설) /, '') : '';
+    const armorBase  = stripRarity(eq.armor?.baseName  || eq.armor?.name  || '');
+    const helmBase   = stripRarity(eq.helmet?.baseName || eq.helmet?.name || '');
+    const capeBase   = stripRarity(eq.cloak?.baseName  || eq.cloak?.name  || '');
+    const weaponBase = stripRarity(eq.weapon?.baseName || eq.weapon?.name || '');
     console.log('[영상매핑] 클래스:', cls, '/ 갑옷:', armorBase, '/ 투구:', helmBase, '/ 망토:', capeBase);
 
     // 무기 코드
