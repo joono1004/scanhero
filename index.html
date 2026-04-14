@@ -8084,7 +8084,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   function bindBattleActions() {
     const atk=q('battleAttackBtn'), run=q('battleRunBtn');
+    console.log('[전투] bindBattleActions 호출 - atk:', atk, 'run:', run);
     if (atk) atk.addEventListener('click', () => { console.log('[전투] 공격버튼 클릭됨'); battleAttackTurn(); });
+    else console.error('[전투] battleAttackBtn 요소를 찾을 수 없음!');
     if (run) run.addEventListener('click', battleRunAway);
   }
 
