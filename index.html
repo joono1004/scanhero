@@ -7968,7 +7968,11 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 영상 재생 시도 (실패해도 기존 애니메이션으로 대체)
     if (video) {
       try {
-        video.src = getBattleVideoSrc();
+        const src = getBattleVideoSrc();
+        console.log('[전투영상] 재생 시도:', src);
+        console.log('[전투영상] video 요소:', video);
+        console.log('[전투영상] heroSprite:', heroSprite);
+        video.src = src;
         video.currentTime = 0;
         await video.play();
         // 재생 성공 시 영웅 이미지 페이드아웃
