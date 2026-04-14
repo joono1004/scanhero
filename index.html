@@ -1884,12 +1884,14 @@
           <div class="battle-bg-layer battle-bg-layer-far"  id="battleBgFar"></div>
           <div class="battle-bg-layer battle-bg-layer-near" id="battleBgNear"></div>
           <div class="battle-vs">VS</div>
-          <div class="battle-unit battle-hero-unit" id="battleHeroUnit" style="position:relative;">
-            <div class="battle-sprite-wrap" id="battleHeroSpriteWrap"></div>
-            <video id="battleHeroVideo"
-              style="position:absolute;top:0;left:0;width:133px;height:150px;opacity:0;pointer-events:none;z-index:10;"
-              preload="auto" playsinline webkit-playsinline>
-            </video>
+          <div class="battle-unit battle-hero-unit" id="battleHeroUnit">
+            <div style="position:relative;width:133px;height:150px;">
+              <div class="battle-sprite-wrap" id="battleHeroSpriteWrap" style="position:absolute;top:0;left:0;"></div>
+              <video id="battleHeroVideo"
+                style="position:absolute;top:0;left:0;width:133px;height:150px;opacity:0;pointer-events:none;z-index:10;"
+                preload="auto" playsinline webkit-playsinline>
+              </video>
+            </div>
             <div class="battle-shadow"></div>
           </div>
           <div class="battle-soldier-group" id="battleSoldierGroup"></div>
