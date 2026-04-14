@@ -1885,7 +1885,12 @@
           <div class="battle-bg-layer battle-bg-layer-near" id="battleBgNear"></div>
           <div class="battle-vs">VS</div>
           <div class="battle-unit battle-hero-unit" id="battleHeroUnit">
-            <div class="battle-sprite-wrap" id="battleHeroSpriteWrap"></div>
+            <div class="battle-sprite-wrap" id="battleHeroSpriteWrap">
+              <video id="battleHeroVideo"
+                style="position:absolute;top:0;left:0;width:133px;height:150px;opacity:0;pointer-events:none;z-index:10;"
+                preload="auto" playsinline webkit-playsinline>
+              </video>
+            </div>
             <div class="battle-shadow"></div>
           </div>
           <div class="battle-soldier-group" id="battleSoldierGroup"></div>
@@ -7697,6 +7702,50 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   function calcPartialExp(totalDmg, maxHp, enemy) { return Math.max(1, Math.floor(getBattleExp(enemy)*(Math.max(0,Math.min(1,totalDmg/maxHp))))); }
 
+  // 현재 장비 조합에 맞는 공격 영상 파일명 반환
+  function getBattleVideoSrc() {
+    const cls = state.heroClass;
+    const eq  = state.equipment || {};
+
+    // 클래스 코드
+    const clsCode = cls === '전사' ? 'warrior' : cls === '궁병' ? 'archer' : 'mage';
+
+    // 무기 코드
+    const weaponName = eq.weapon?.name || '';
+    let weaponCode = 'sword';
+    if (clsCode === 'warrior') {
+      weaponCode = 'sword';
+    } else if (clsCode === 'archer') {
+      weaponCode = weaponName.includes('석궁') ? 'crossbow' : 'bow';
+    } else {
+      weaponCode = 'staff';
+    }
+
+    // 갑옷 코드
+    const armorMap = {
+      '가죽 갑옷':'armor1','강철 갑옷':'armor2','기사 갑옷':'armor3',
+      '사슬 갑옷':'armor1','사냥꾼 갑옷':'armor2',
+      '천 갑옷':'armor1','마법사 로브':'armor2',
+    };
+    const armorCode = armorMap[eq.armor?.name] || 'armor1';
+
+    // 투구 코드
+    const helmMap = {
+      '가죽 투구':'helm1','강철 투구':'helm2','기사 투구':'helm3',
+      '가죽 모자':'helm1','써클렛':'helm2',
+      '천 모자':'helm1','마법사 모자':'helm2',
+    };
+    const helmCode = helmMap[eq.helmet?.name] || 'helm1';
+
+    // 망토 코드
+    const capeMap = {
+      '용병 망토':'cape1','기사 망토':'cape2','용사 망토':'cape3',
+    };
+    const capeCode = capeMap[eq.cloak?.name] || 'cape1';
+
+    return `https://joono1004.github.io/scanhero/assets/video/${clsCode}_${weaponCode}_${armorCode}_${helmCode}_${capeCode}.webm`;
+  }
+
   function renderBattleHeroSprite() {
     // 전투 전용: hero-visual-wrap 크기를 133×150px로 오버라이드
     const html = getHeroVisualHtml(state.heroClass)
@@ -7908,7 +7957,51 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     els.battleResultOverlay.innerHTML = '';
   }
 
-  async function animHeroAtk()  { SFX.attack(); resetBattleAnims(); els.battleHeroUnit.classList.add('anim-attack-left'); els.battleSoldierGroup.classList.add('anim-attack-left'); await wait(180); els.battleEnemyUnit.classList.add('anim-hit'); els.battleEnemyEmoji.classList.add('anim-fade'); await wait(280); resetBattleAnims(); }
+  async function animHeroAtk() {
+    SFX.attack();
+    resetBattleAnims();
+
+    const video = document.getElementById('battleHeroVideo');
+    const heroSprite = els.battleHeroSpriteWrap?.querySelector('.battle-hero-sprite');
+    let videoPlayed = false;
+
+    // 영상 재생 시도 (실패해도 기존 애니메이션으로 대체)
+    if (video) {
+      try {
+        video.src = getBattleVideoSrc();
+        video.currentTime = 0;
+        await video.play();
+        // 재생 성공 시 영웅 이미지 페이드아웃
+        if (heroSprite) { heroSprite.style.transition = 'opacity 0.1s'; heroSprite.style.opacity = '0'; }
+        video.style.opacity = '1';
+        videoPlayed = true;
+        await Promise.race([
+          new Promise(r => video.addEventListener('ended', r, { once: true })),
+          wait(2000)
+        ]);
+        video.style.opacity = '0';
+        video.pause();
+        if (heroSprite) heroSprite.style.opacity = '1';
+      } catch(e) {
+        // 재생 실패 시 즉시 원상복구
+        video.style.opacity = '0';
+        if (heroSprite) { heroSprite.style.opacity = '1'; heroSprite.style.transition = ''; }
+        videoPlayed = false;
+      }
+    }
+
+    // 영상 재생 안 됐으면 기존 CSS 애니메이션
+    if (!videoPlayed) {
+      els.battleHeroUnit.classList.add('anim-attack-left');
+      els.battleSoldierGroup.classList.add('anim-attack-left');
+    }
+
+    await wait(180);
+    els.battleEnemyUnit.classList.add('anim-hit');
+    els.battleEnemyEmoji.classList.add('anim-fade');
+    await wait(280);
+    resetBattleAnims();
+  }
   async function animEnemyAtk() { SFX.hit(); resetBattleAnims(); els.battleEnemyUnit.classList.add('anim-attack-right'); els.battleEnemyGroup.classList.add('anim-attack-right'); await wait(180); els.battleHeroUnit.classList.add('anim-hit'); els.battleHeroSpriteWrap.classList.add('anim-fade'); els.battleSoldierGroup.classList.add('anim-hit'); await wait(280); resetBattleAnims(); }
   async function animRun()      { SFX.run(); resetBattleAnims(); els.battleTurnTitle.textContent='도망 시도'; els.battleLog.textContent='영웅과 병사들이 전열을 무너뜨리며 급히 후퇴합니다...'; els.battleHeroUnit.classList.add('anim-run'); els.battleSoldierGroup.classList.add('anim-run'); await wait(780); els.battleHeroUnit.classList.add('ran-away'); els.battleSoldierGroup.classList.add('ran-away'); }
 
