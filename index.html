@@ -8010,12 +8010,14 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   async function animRun()      { SFX.run(); resetBattleAnims(); els.battleTurnTitle.textContent='도망 시도'; els.battleLog.textContent='영웅과 병사들이 전열을 무너뜨리며 급히 후퇴합니다...'; els.battleHeroUnit.classList.add('anim-run'); els.battleSoldierGroup.classList.add('anim-run'); await wait(780); els.battleHeroUnit.classList.add('ran-away'); els.battleSoldierGroup.classList.add('ran-away'); }
 
   async function battleAttackTurn() {
+    console.log('[전투] battleAttackTurn 호출됨');
     const b = state.battle; if (!b||b.ended||b.locked) return;
     b.locked = true;
     const enemy = b.setup.enemy, lines=[], t=b.turn;
     const heroFirst = b.setup.heroSpeed >= enemy.speed;
 
     async function heroAtk() {
+      console.log('[전투] heroAtk 호출됨');
       const d=calcDamage(b.setup.heroAtk,enemy.def,b.setup.heroCrit);
       await animHeroAtk(); b.enemyHp-=d.value; b.totalDmg+=d.value;
       lines.push(`${t}턴 - 영웅 부대가 ${enemy.name}에게 ${d.value} 피해${d.critical?' (치명타)':''}`);
@@ -8082,7 +8084,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   function bindBattleActions() {
     const atk=q('battleAttackBtn'), run=q('battleRunBtn');
-    if (atk) atk.addEventListener('click', battleAttackTurn);
+    if (atk) atk.addEventListener('click', () => { console.log('[전투] 공격버튼 클릭됨'); battleAttackTurn(); });
     if (run) run.addEventListener('click', battleRunAway);
   }
 
