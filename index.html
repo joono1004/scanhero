@@ -7708,15 +7708,20 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
     // 클래스 코드
     const clsCode = cls === '전사' ? 'warrior' : cls === '궁병' ? 'archer' : 'mage';
-    console.log('[영상매핑] 클래스:', cls, '/ 갑옷:', eq.armor?.name, '/ 투구:', eq.helmet?.name, '/ 망토:', eq.cloak?.name);
+
+    // baseName 사용 (name은 '전설 기사 갑옷', baseName은 '기사 갑옷')
+    const armorBase  = eq.armor?.baseName  || eq.armor?.name  || '';
+    const helmBase   = eq.helmet?.baseName || eq.helmet?.name || '';
+    const capeBase   = eq.cloak?.baseName  || eq.cloak?.name  || '';
+    const weaponBase = eq.weapon?.baseName || eq.weapon?.name || '';
+    console.log('[영상매핑] 클래스:', cls, '/ 갑옷:', armorBase, '/ 투구:', helmBase, '/ 망토:', capeBase);
 
     // 무기 코드
-    const weaponName = eq.weapon?.name || '';
     let weaponCode = 'sword';
     if (clsCode === 'warrior') {
       weaponCode = 'sword';
     } else if (clsCode === 'archer') {
-      weaponCode = weaponName.includes('석궁') ? 'crossbow' : 'bow';
+      weaponCode = weaponBase.includes('석궁') ? 'crossbow' : 'bow';
     } else {
       weaponCode = 'staff';
     }
@@ -7727,7 +7732,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       '사슬 갑옷':'armor1','사냥꾼 갑옷':'armor2',
       '천 갑옷':'armor1','마법사 로브':'armor2',
     };
-    const armorCode = armorMap[eq.armor?.name] || 'armor1';
+    const armorCode = armorMap[armorBase] || 'armor1';
 
     // 투구 코드
     const helmMap = {
@@ -7735,13 +7740,13 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       '가죽 모자':'helm1','써클렛':'helm2',
       '천 모자':'helm1','마법사 모자':'helm2',
     };
-    const helmCode = helmMap[eq.helmet?.name] || 'helm1';
+    const helmCode = helmMap[helmBase] || 'helm1';
 
     // 망토 코드
     const capeMap = {
       '용병 망토':'cape1','기사 망토':'cape2','용사 망토':'cape3',
     };
-    const capeCode = capeMap[eq.cloak?.name] || 'cape1';
+    const capeCode = capeMap[capeBase] || 'cape1';
 
     return `https://joono1004.github.io/scanhero/assets/video/${clsCode}_${weaponCode}_${armorCode}_${helmCode}_${capeCode}.webm`;
   }
