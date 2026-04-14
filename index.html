@@ -7708,6 +7708,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
     // 클래스 코드
     const clsCode = cls === '전사' ? 'warrior' : cls === '궁병' ? 'archer' : 'mage';
+    console.log('[영상매핑] 클래스:', cls, '/ 갑옷:', eq.armor?.name, '/ 투구:', eq.helmet?.name, '/ 망토:', eq.cloak?.name);
 
     // 무기 코드
     const weaponName = eq.weapon?.name || '';
