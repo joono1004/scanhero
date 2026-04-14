@@ -7757,34 +7757,32 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       .replace('width:155px;height:179px', 'width:133px;height:150px');
     els.battleHeroSpriteWrap.innerHTML = `<div class="battle-hero-sprite">${html}</div>`;
 
-    // 영상 파일 존재 여부 확인 후 이미지/영상 전환
+    // 영상 로드 시도 → 성공하면 이미지 숨김, 실패하면 이미지 유지
     const video = document.getElementById('battleHeroVideo');
     if (!video) return;
     const src = getBattleVideoSrc();
-    // HEAD 요청으로 파일 존재 확인
-    fetch(src, { method: 'HEAD' })
-      .then(res => {
-        if (res.ok) {
-          // 영상 있음 → 이미지 숨기고 영상 첫 프레임 표시
-          els.battleHeroSpriteWrap.style.display = 'none';
-          video.src = src;
-          video.style.display = 'block';
-          video.load();
-          // 첫 프레임 표시를 위해 아주 짧게 재생 후 정지
-          video.play().then(() => {
-            video.pause();
-            video.currentTime = 0;
-          }).catch(() => {});
-        } else {
-          // 영상 없음 → 이미지 표시
-          els.battleHeroSpriteWrap.style.display = '';
-          video.style.display = 'none';
-        }
-      })
-      .catch(() => {
-        els.battleHeroSpriteWrap.style.display = '';
-        video.style.display = 'none';
-      });
+
+    // 기본: 이미지 표시, 영상 숨김
+    els.battleHeroSpriteWrap.style.display = '';
+    video.style.display = 'none';
+    video.src = '';
+
+    // 영상 로드 성공 시 이미지 숨기고 영상 표시
+    const tmpVideo = document.createElement('video');
+    tmpVideo.preload = 'metadata';
+    tmpVideo.onloadedmetadata = () => {
+      // 영상 파일 존재 확인됨 → 실제 video에 적용
+      video.src = src;
+      video.style.display = 'block';
+      video.currentTime = 0;
+      els.battleHeroSpriteWrap.style.display = 'none';
+    };
+    tmpVideo.onerror = () => {
+      // 영상 없음 → 이미지 유지
+      els.battleHeroSpriteWrap.style.display = '';
+      video.style.display = 'none';
+    };
+    tmpVideo.src = src;
   }
   function renderBattleSoldiers(count, cls) {
     const setup   = state.battle?.setup;
