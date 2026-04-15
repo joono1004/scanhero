@@ -969,7 +969,66 @@
 
     .mini-current-marker { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #7ea7ff 0%, #557dff 100%); border: 2px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(0,0,0,0.35); font-size: 14px; }
 
-    .battle-stage { position: relative; width: 100%; height: 270px; border-radius: 18px; overflow: hidden; background: #0a1428; border: 1px solid rgba(115,143,210,0.16); }
+    /* ── 확장 전투씬 ── */
+    .ext-battle-backdrop {
+      position:fixed; inset:0; z-index:9999;
+      background:linear-gradient(180deg,#0a1f0a 0%,#0d2810 40%,#1a3a15 70%,#2a4a1a 100%);
+      display:none; flex-direction:column;
+    }
+    .ext-battle-backdrop.open { display:flex; }
+    .ext-status-bar {
+      height:48px; background:rgba(0,0,0,0.55);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 14px; flex-shrink:0;
+      border-bottom:1px solid rgba(255,255,255,0.07);
+    }
+    .ext-hp-block { display:flex; flex-direction:column; gap:3px; }
+    .ext-hp-block.right { align-items:flex-end; }
+    .ext-hp-name { font-size:9px; color:rgba(255,255,255,0.6); font-weight:600; }
+    .ext-hp-val  { font-size:8px; color:rgba(255,255,255,0.4); }
+    .ext-hp-bar  { width:80px; height:4px; border-radius:2px; background:rgba(255,255,255,0.1); overflow:hidden; }
+    .ext-hp-fill { height:100%; border-radius:2px; }
+    .ext-turn-badge {
+      font-size:10px; font-weight:700; color:#ffcf63;
+      background:rgba(255,207,99,0.15); padding:4px 12px;
+      border-radius:12px; border:1px solid rgba(255,207,99,0.3);
+    }
+    .ext-battle-main { flex:1; position:relative; overflow:hidden; }
+    .ext-bg-sky   { position:absolute; inset:0;
+      background:linear-gradient(180deg,#1a3a5c 0%,#2a5a3a 40%,#3a5a1a 60%,#4a6a1a 100%); }
+    .ext-bg-ground{ position:absolute; bottom:0; left:0; right:0; height:35%;
+      background:linear-gradient(180deg,#3a5a1a,#4a6a1a); }
+    .ext-char { position:absolute; display:flex; flex-direction:column; align-items:center; }
+    .ext-char img { display:block; object-fit:contain;
+      filter:drop-shadow(0 0 3px rgba(255,255,255,0.6)) drop-shadow(0 0 6px rgba(255,255,255,0.3)); }
+    .ext-char .ext-nm { font-size:7px; color:rgba(255,255,255,0.45); margin-top:1px; white-space:nowrap; }
+    .ext-char .ext-sh { border-radius:50%; background:rgba(0,0,0,0.35); margin-top:-2px; }
+    .ext-char.hero img { filter:drop-shadow(0 0 4px rgba(79,124,255,0.8)) drop-shadow(0 0 8px rgba(79,124,255,0.4)); }
+    .ext-char.enemy img { filter:drop-shadow(0 0 4px rgba(255,60,60,0.7)) drop-shadow(0 0 8px rgba(255,60,60,0.3)); }
+    .ext-battle-log {
+      position:absolute; bottom:8px; left:10px; right:10px;
+      background:rgba(0,0,0,0.6); border-radius:8px;
+      padding:6px 10px; border:1px solid rgba(255,255,255,0.07);
+    }
+    .ext-log-title { font-size:9px; color:#ffcf63; font-weight:700; margin-bottom:2px; }
+    .ext-log-text  { font-size:9px; color:rgba(255,255,255,0.5); }
+    .ext-bottom {
+      flex-shrink:0; background:rgba(0,0,0,0.82);
+      border-top:1px solid rgba(255,255,255,0.08);
+      padding:8px 12px 24px;
+    }
+    .ext-gauge-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .ext-gauge-track { flex:1; height:5px; border-radius:3px; background:rgba(255,255,255,0.1); overflow:hidden; }
+    .ext-gauge-fill  { height:100%; border-radius:3px; background:linear-gradient(90deg,#ffcf63,#ff6600); }
+    .ext-btns { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+    .ext-btn {
+      padding:10px 2px; border-radius:10px;
+      font-size:10px; font-weight:700; text-align:center;
+      border:1px solid transparent; cursor:pointer;
+    }
+    .ext-btn:active { transform:scale(0.96); }
+
+        .battle-stage { position: relative; width: 100%; height: 270px; border-radius: 18px; overflow: hidden; background: #0a1428; border: 1px solid rgba(115,143,210,0.16); }
     .battle-result-overlay {
       position: absolute; inset: 0; z-index: 20;
       display: flex; align-items: center; justify-content: center;
@@ -1929,6 +1988,78 @@
     </div>
   </div>
 
+
+  <!-- ── 확장 전투씬 ── -->
+  <div class="ext-battle-backdrop" id="extBattleBackdrop">
+
+    <!-- 상단 상태바 -->
+    <div class="ext-status-bar">
+      <div class="ext-hp-block">
+        <div class="ext-hp-name" id="extHeroName">영웅</div>
+        <div class="ext-hp-val"  id="extHeroHpVal">0/0</div>
+        <div class="ext-hp-bar"><div class="ext-hp-fill" id="extHeroHpBar" style="background:#4f7cff;width:100%;"></div></div>
+      </div>
+      <div class="ext-turn-badge" id="extTurnBadge">1턴</div>
+      <div class="ext-hp-block right">
+        <div class="ext-hp-name" id="extEnemyName">몬스터</div>
+        <div class="ext-hp-val"  id="extEnemyHpVal">0/0</div>
+        <div class="ext-hp-bar"><div class="ext-hp-fill" id="extEnemyHpBar" style="background:#ff4444;width:100%;"></div></div>
+      </div>
+    </div>
+
+    <!-- 전투 메인 -->
+    <div class="ext-battle-main" id="extBattleMain">
+      <div class="ext-bg-sky"></div>
+      <div class="ext-bg-ground"></div>
+
+      <!-- 아군 배치 (JS로 렌더링) -->
+      <div id="extAllyGroup"></div>
+
+      <!-- 영웅 -->
+      <div class="ext-char hero" id="extHeroChar" style="position:absolute;left:10px;top:295px;">
+        <div id="extHeroSprite"></div>
+        <div class="ext-sh" style="width:50px;height:8px;"></div>
+        <div class="ext-nm" style="color:#9fbfff;" id="extHeroLabel">영웅</div>
+        <div style="width:60px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:2px;">
+          <div id="extSpGauge" style="height:100%;width:0%;background:linear-gradient(90deg,#ffcf63,#ff8800);border-radius:2px;"></div>
+        </div>
+      </div>
+
+      <!-- 적군 배치 (JS로 렌더링) -->
+      <div id="extEnemyGroup"></div>
+
+      <!-- 몬스터 -->
+      <div class="ext-char enemy" id="extEnemyChar" style="position:absolute;right:10px;top:292px;">
+        <div id="extEnemySprite"></div>
+        <div class="ext-sh" style="width:50px;height:8px;"></div>
+        <div class="ext-nm" style="color:#ff8888;" id="extEnemyLabel">몬스터</div>
+        <div style="width:60px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:2px;">
+          <div id="extEnemyHpMini" style="height:100%;width:38%;background:#ff4444;border-radius:2px;"></div>
+        </div>
+      </div>
+
+      <!-- 전투 로그 -->
+      <div class="ext-battle-log">
+        <div class="ext-log-title" id="extLogTitle">전투 시작</div>
+        <div class="ext-log-text"  id="extLogText">공격 또는 도망을 선택하세요.</div>
+      </div>
+    </div>
+
+    <!-- 하단 버튼 -->
+    <div class="ext-bottom">
+      <div class="ext-gauge-row">
+        <div style="font-size:9px;color:#ffcf63;white-space:nowrap;">필살기</div>
+        <div class="ext-gauge-track"><div class="ext-gauge-fill" id="extGaugeFill" style="width:0%;"></div></div>
+        <div style="font-size:9px;color:#ffcf63;font-weight:700;" id="extGaugeText">0%</div>
+      </div>
+      <div class="ext-btns" id="extBattleActions">
+        <div class="ext-btn" id="extAttackBtn"  style="background:rgba(79,124,255,0.35);color:#9fbfff;border-color:rgba(79,124,255,0.4);">⚔<br>공격</div>
+        <div class="ext-btn" id="extSkillBtn"   style="background:rgba(255,207,99,0.1);color:rgba(255,207,99,0.35);border-color:rgba(255,207,99,0.15);">✨<br>필살기</div>
+        <div class="ext-btn" id="extDefendBtn"  style="background:rgba(99,208,154,0.22);color:#63d09a;border-color:rgba(99,208,154,0.3);">🛡<br>방어</div>
+        <div class="ext-btn" id="extRunBtn"     style="background:rgba(255,80,80,0.18);color:#ff8888;border-color:rgba(255,80,80,0.25);">💨<br>도망</div>
+      </div>
+    </div>
+  </div>
 
   <!-- 병사 선택 모달 -->
   <!-- 영웅 상세 -->
@@ -7774,6 +7905,131 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     }).join('');
   }
 
+  // ── 확장 전투씬 좌표 정의 ─────────────────────────────────────
+  // 아군 / 형태 (엇갈리기)
+  const EXT_ALLY_POS = [
+    { slot:0, style:'left:86px;top:28px;'   },  // 기마병
+    { slot:1, style:'left:14px;top:116px;'  },  // 마법사
+    { slot:2, style:'left:86px;top:116px;'  },  // 창병
+    { slot:3, style:'left:14px;top:208px;'  },  // 궁병
+    { slot:4, style:'left:86px;top:208px;'  },  // 방패병
+    { slot:5, style:'left:86px;top:300px;'  },  // 검병
+  ];
+  // 적 병사 \ 형태 (엇갈리기) — 최대 6명
+  const EXT_ENEMY_POS = [
+    'right:158px;top:300px;',  // 적1
+    'right:86px;top:208px;',   // 적2
+    'right:158px;top:208px;',  // 적3
+    'right:86px;top:116px;',   // 적4
+    'right:158px;top:116px;',  // 적5
+    'right:86px;top:28px;',    // 적6
+  ];
+
+  function openExtBattle() {
+    const b = state.battle;
+    if (!b) return;
+
+    const setup = b.setup;
+    const enemy = setup.enemy;
+
+    // 상태바 업데이트
+    document.getElementById('extHeroName').textContent  = state.heroName || '영웅';
+    document.getElementById('extHeroHpVal').textContent = `${b.heroHp} / ${b.heroMax}`;
+    document.getElementById('extHeroHpBar').style.width = `${Math.round(b.heroHp/b.heroMax*100)}%`;
+    document.getElementById('extEnemyName').textContent  = enemy.name;
+    document.getElementById('extEnemyHpVal').textContent = `${b.enemyHp} / ${b.enemyMax}`;
+    document.getElementById('extEnemyHpBar').style.width = `${Math.round(b.enemyHp/b.enemyMax*100)}%`;
+    document.getElementById('extEnemyLabel').textContent = enemy.name;
+    document.getElementById('extTurnBadge').textContent  = `${b.turn}턴`;
+
+    // 영웅 스프라이트
+    const heroHtml = getHeroVisualHtml(state.heroClass)
+      .replace('width:155px;height:179px','width:66px;height:76px');
+    document.getElementById('extHeroSprite').innerHTML =
+      `<div style="width:66px;height:76px;">${heroHtml}</div>`;
+    document.getElementById('extHeroLabel').textContent = state.heroName || '영웅';
+
+    // 몬스터 스프라이트
+    const mobUrl = setup.enemy.img || '';
+    document.getElementById('extEnemySprite').innerHTML =
+      `<img src="${mobUrl}" width="66" height="76" style="object-fit:contain;" onerror="this.style.opacity=0">`;
+    document.getElementById('extEnemyHpMini').style.width =
+      `${Math.round(b.enemyHp/b.enemyMax*100)}%`;
+
+    // 아군 병사 배치
+    const allyEl = document.getElementById('extAllyGroup');
+    allyEl.innerHTML = '';
+    const deployed = deployedSoldiers.filter(Boolean);
+    EXT_ALLY_POS.forEach((pos, i) => {
+      const sol = deployed[i];
+      if (!sol) return;
+      const clsData = SOLDIER_CLASS_DATA[sol.cls] || {};
+      const file = SOLDIER_FILE[sol.cls] || SOLDIER_FILE['검병'];
+      const url  = `${SOLDIER_BASE}/${file}`;
+      const div  = document.createElement('div');
+      div.className = 'ext-char';
+      div.style.cssText = `position:absolute;${pos.style}`;
+      div.innerHTML = `
+        <img src="${url}" width="44" height="56" style="object-fit:contain;"
+             onerror="this.style.opacity=0">
+        <div class="ext-sh" style="width:30px;height:5px;"></div>
+        <div class="ext-nm">${clsData.icon||''}${sol.cls}</div>`;
+      allyEl.appendChild(div);
+    });
+
+    // 적 병사 배치
+    const enemyEl = document.getElementById('extEnemyGroup');
+    enemyEl.innerHTML = '';
+    const amount = Math.min(setup.amount || 1, 6) - 1; // 몬스터 1마리 제외
+    const mobGradeClass = `mob-${enemy.grade||'일반'}`;
+    for (let i = 0; i < amount; i++) {
+      const div = document.createElement('div');
+      div.className = 'ext-char';
+      div.style.cssText = `position:absolute;${EXT_ENEMY_POS[i]}`;
+      div.innerHTML = `
+        <img src="${mobUrl}" width="44" height="56" style="object-fit:contain;filter:drop-shadow(0 0 3px rgba(255,80,80,0.6));"
+             onerror="this.style.opacity=0">
+        <div class="ext-sh" style="width:30px;height:5px;"></div>
+        <div class="ext-nm" style="color:rgba(255,150,150,0.6);">적병${i+1}</div>`;
+      enemyEl.appendChild(div);
+    }
+
+    // 로그 초기화
+    document.getElementById('extLogTitle').textContent = '전투 시작';
+    document.getElementById('extLogText').textContent  = '공격 또는 도망을 선택하세요.';
+
+    // 버튼 이벤트
+    document.getElementById('extAttackBtn').onclick  = extBattleAttack;
+    document.getElementById('extDefendBtn').onclick  = extBattleDefend;
+    document.getElementById('extRunBtn').onclick     = extBattleRun;
+    document.getElementById('extSkillBtn').onclick   = extBattleSkill;
+
+    // 화면 표시
+    document.getElementById('extBattleBackdrop').classList.add('open');
+  }
+
+  function closeExtBattle() {
+    document.getElementById('extBattleBackdrop').classList.remove('open');
+  }
+
+  function updateExtBattleUI(title, log) {
+    const b = state.battle; if (!b) return;
+    document.getElementById('extLogTitle').textContent   = title;
+    document.getElementById('extLogText').textContent    = log;
+    document.getElementById('extTurnBadge').textContent  = `${b.turn}턴`;
+    document.getElementById('extHeroHpVal').textContent  = `${Math.max(0,b.heroHp)} / ${b.heroMax}`;
+    document.getElementById('extHeroHpBar').style.width  = `${Math.round(Math.max(0,b.heroHp)/b.heroMax*100)}%`;
+    document.getElementById('extEnemyHpVal').textContent = `${Math.max(0,b.enemyHp)} / ${b.enemyMax}`;
+    document.getElementById('extEnemyHpBar').style.width = `${Math.round(Math.max(0,b.enemyHp)/b.enemyMax*100)}%`;
+    document.getElementById('extEnemyHpMini').style.width= `${Math.round(Math.max(0,b.enemyHp)/b.enemyMax*100)}%`;
+  }
+
+  // 확장 전투씬 버튼 핸들러 (기존 로직 재활용)
+  async function extBattleAttack()  { await battleAttackTurn(); }
+  async function extBattleDefend()  { /* TODO: 방어 로직 */ }
+  async function extBattleRun()     { await battleRunAway(); }
+  async function extBattleSkill()   { /* TODO: 필살기 로직 */ }
+
   async function openBattleModal(decoded) {
     // 전투 시작 전 현재 상태 DB 저장
     await dbSaveAll(true);
@@ -7995,6 +8251,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       await animHeroAtk(); b.enemyHp-=d.value; b.totalDmg+=d.value;
       lines.push(`${t}턴 - 영웅 부대가 ${enemy.name}에게 ${d.value} 피해${d.critical?' (치명타)':''}`);
       updateBattleUI(`${t}턴 진행 중`, lines.join('\n'));
+      updateExtBattleUI(`${t}턴 진행 중`, lines.join('\n'));
     }
     async function enemyAtk() {
       const d=calcDamage(enemy.atk,b.setup.heroDef,enemy.crit);
@@ -8058,7 +8315,11 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   function bindBattleActions() {
     const atk=q('battleAttackBtn'), run=q('battleRunBtn');
     console.log('[전투] bindBattleActions 호출 - atk:', atk, 'run:', run);
-    if (atk) atk.addEventListener('click', () => { console.log('[전투] 공격버튼 클릭됨'); battleAttackTurn(); });
+    if (atk) atk.addEventListener('click', () => {
+        console.log('[전투] 전투시작 클릭됨');
+        closeModal(els.battleBackdrop);
+        openExtBattle();
+      });
     else console.error('[전투] battleAttackBtn 요소를 찾을 수 없음!');
     if (run) run.addEventListener('click', battleRunAway);
   }
