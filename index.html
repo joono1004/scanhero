@@ -7949,8 +7949,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       `<div style="width:66px;height:76px;">${heroHtml}</div>`;
     document.getElementById('extHeroLabel').textContent = state.heroName || '영웅';
 
-    // 몬스터 스프라이트
-    const mobUrl = setup.enemy.img || '';
+    // 몬스터 스프라이트 (기존 전투씬과 동일한 URL 함수 사용)
+    const mobUrl    = getMonsterRepUrl(setup.enemy.name);
+    const mobUrlGrp = getMonsterGroupUrl(setup.enemy.name);
     document.getElementById('extEnemySprite').innerHTML =
       `<img src="${mobUrl}" width="66" height="76" style="object-fit:contain;" onerror="this.style.opacity=0">`;
     document.getElementById('extEnemyHpMini').style.width =
@@ -7987,7 +7988,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       div.className = 'ext-char';
       div.style.cssText = `position:absolute;${EXT_ENEMY_POS[i]}`;
       div.innerHTML = `
-        <img src="${mobUrl}" width="44" height="56" style="object-fit:contain;filter:drop-shadow(0 0 3px rgba(255,80,80,0.6));"
+        <img src="${mobUrlGrp}" width="44" height="56" style="object-fit:contain;filter:drop-shadow(0 0 3px rgba(255,80,80,0.6));"
              onerror="this.style.opacity=0">
         <div class="ext-sh" style="width:30px;height:5px;"></div>
         <div class="ext-nm" style="color:rgba(255,150,150,0.6);">적병${i+1}</div>`;
