@@ -970,6 +970,45 @@
     .mini-current-marker { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #7ea7ff 0%, #557dff 100%); border: 2px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(0,0,0,0.35); font-size: 14px; }
 
     /* ── 확장 전투씬 ── */
+    @keyframes extHeroCharge {
+      0%   { transform: translateX(0)   scaleX(1); }
+      40%  { transform: translateX(160px) scaleX(1); }
+      55%  { transform: translateX(150px) scaleX(1); }
+      85%  { transform: translateX(160px) scaleX(1); }
+      100% { transform: translateX(0)   scaleX(1); }
+    }
+    @keyframes extEnemyHit {
+      0%,100% { transform: translateX(0); filter:drop-shadow(0 0 4px rgba(255,60,60,0.7)); }
+      20%  { transform: translateX(-14px); filter:drop-shadow(0 0 12px rgba(255,60,60,1)) brightness(2); }
+      40%  { transform: translateX(8px);  filter:drop-shadow(0 0 8px rgba(255,60,60,0.9)); }
+      60%  { transform: translateX(-6px); }
+      80%  { transform: translateX(4px);  }
+    }
+    @keyframes extImpactFlash {
+      0%   { opacity:0; transform:scale(0.2); }
+      30%  { opacity:1; transform:scale(1.4); }
+      60%  { opacity:0.6; transform:scale(1.1); }
+      100% { opacity:0; transform:scale(0.6); }
+    }
+    @keyframes extDmgFloat {
+      0%   { transform:translateY(0);  opacity:1; }
+      100% { transform:translateY(-50px); opacity:0; }
+    }
+    .ext-hero-charging { animation: extHeroCharge 0.7s ease forwards; }
+    .ext-enemy-hit     { animation: extEnemyHit   0.4s ease; }
+    #extImpactEl {
+      position:absolute; pointer-events:none;
+      font-size:40px; display:none;
+      animation: extImpactFlash 0.4s ease forwards;
+    }
+    #extDmgEl {
+      position:absolute; pointer-events:none;
+      font-size:22px; font-weight:900; display:none;
+      animation: extDmgFloat 0.9s ease forwards;
+      color:#ffcf63; text-shadow:0 0 8px rgba(255,207,99,0.8);
+    }
+
+
     .ext-battle-backdrop {
       position:fixed; inset:0; z-index:9999;
       background:linear-gradient(180deg,#0a1f0a 0%,#0d2810 40%,#1a3a15 70%,#2a4a1a 100%);
@@ -984,12 +1023,12 @@
     }
     .ext-hp-block { display:flex; flex-direction:column; gap:3px; }
     .ext-hp-block.right { align-items:flex-end; }
-    .ext-hp-name { font-size:9px; color:rgba(255,255,255,0.6); font-weight:600; }
-    .ext-hp-val  { font-size:8px; color:rgba(255,255,255,0.4); }
+    .ext-hp-name { font-size:14px; color:rgba(255,255,255,0.7); font-weight:600; }
+    .ext-hp-val  { font-size:12px; color:rgba(255,255,255,0.5); }
     .ext-hp-bar  { width:80px; height:4px; border-radius:2px; background:rgba(255,255,255,0.1); overflow:hidden; }
     .ext-hp-fill { height:100%; border-radius:2px; }
     .ext-turn-badge {
-      font-size:10px; font-weight:700; color:#ffcf63;
+      font-size:15px; font-weight:700; color:#ffcf63;
       background:rgba(255,207,99,0.15); padding:4px 12px;
       border-radius:12px; border:1px solid rgba(255,207,99,0.3);
     }
@@ -1001,7 +1040,7 @@
     .ext-char { position:absolute; display:flex; flex-direction:column; align-items:center; }
     .ext-char img { display:block; object-fit:contain;
       filter:drop-shadow(0 0 3px rgba(255,255,255,0.6)) drop-shadow(0 0 6px rgba(255,255,255,0.3)); }
-    .ext-char .ext-nm { font-size:7px; color:rgba(255,255,255,0.45); margin-top:1px; white-space:nowrap; }
+    .ext-char .ext-nm { font-size:13px; color:rgba(255,255,255,0.55); margin-top:2px; white-space:nowrap; }
     .ext-char .ext-sh { border-radius:50%; background:rgba(0,0,0,0.35); margin-top:-2px; }
     .ext-char.hero img { filter:drop-shadow(0 0 4px rgba(79,124,255,0.8)) drop-shadow(0 0 8px rgba(79,124,255,0.4)); }
     .ext-char.enemy img { filter:drop-shadow(0 0 4px rgba(255,60,60,0.7)) drop-shadow(0 0 8px rgba(255,60,60,0.3)); }
@@ -1010,8 +1049,8 @@
       background:rgba(0,0,0,0.6); border-radius:8px;
       padding:6px 10px; border:1px solid rgba(255,255,255,0.07);
     }
-    .ext-log-title { font-size:9px; color:#ffcf63; font-weight:700; margin-bottom:2px; }
-    .ext-log-text  { font-size:9px; color:rgba(255,255,255,0.5); }
+    .ext-log-title { font-size:14px; color:#ffcf63; font-weight:700; margin-bottom:3px; }
+    .ext-log-text  { font-size:13px; color:rgba(255,255,255,0.55); }
     .ext-bottom {
       flex-shrink:0; background:rgba(0,0,0,0.82);
       border-top:1px solid rgba(255,255,255,0.08);
@@ -1023,7 +1062,7 @@
     .ext-btns { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
     .ext-btn {
       padding:10px 2px; border-radius:10px;
-      font-size:10px; font-weight:700; text-align:center;
+      font-size:14px; font-weight:700; text-align:center;
       border:1px solid transparent; cursor:pointer;
     }
     .ext-btn:active { transform:scale(0.96); }
@@ -2038,6 +2077,10 @@
         </div>
       </div>
 
+      <!-- 타격 이펙트 -->
+      <div id="extImpactEl">💥</div>
+      <div id="extDmgEl"></div>
+
       <!-- 전투 로그 -->
       <div class="ext-battle-log">
         <div class="ext-log-title" id="extLogTitle">전투 시작</div>
@@ -2048,7 +2091,7 @@
     <!-- 하단 버튼 -->
     <div class="ext-bottom">
       <div class="ext-gauge-row">
-        <div style="font-size:9px;color:#ffcf63;white-space:nowrap;">필살기</div>
+        <div style="font-size:13px;color:#ffcf63;white-space:nowrap;font-weight:600;">필살기</div>
         <div class="ext-gauge-track"><div class="ext-gauge-fill" id="extGaugeFill" style="width:0%;"></div></div>
         <div style="font-size:9px;color:#ffcf63;font-weight:700;" id="extGaugeText">0%</div>
       </div>
@@ -8025,10 +8068,120 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     document.getElementById('extEnemyHpMini').style.width= `${Math.round(Math.max(0,b.enemyHp)/b.enemyMax*100)}%`;
   }
 
+  // ── 확장 전투씬 공격 애니메이션 ───────────────────────────────
+  function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  async function extAnimHeroCharge(dmg) {
+    const heroEl  = document.getElementById('extHeroChar');
+    const enemyEl = document.getElementById('extEnemyChar');
+    const impactEl = document.getElementById('extImpactEl');
+    const dmgEl   = document.getElementById('extDmgEl');
+    if (!heroEl || !enemyEl) return;
+
+    // 영웅 돌진
+    heroEl.classList.add('ext-hero-charging');
+
+    // 0.35초 후 몬스터 타격 이펙트
+    await wait(350);
+
+    // 타격 이펙트 위치 (몬스터 위치)
+    const enemyRect = enemyEl.getBoundingClientRect();
+    const mainRect  = document.getElementById('extBattleMain').getBoundingClientRect();
+    const ex = enemyRect.left - mainRect.left + enemyRect.width/2 - 20;
+    const ey = enemyRect.top  - mainRect.top  + enemyRect.height/2 - 20;
+
+    // 💥 이펙트
+    impactEl.style.left = ex + 'px';
+    impactEl.style.top  = ey + 'px';
+    impactEl.style.display = 'block';
+    impactEl.style.animation = 'none';
+    void impactEl.offsetWidth;
+    impactEl.style.animation = 'extImpactFlash 0.4s ease forwards';
+    setTimeout(() => { impactEl.style.display = 'none'; }, 450);
+
+    // 데미지 숫자
+    dmgEl.textContent = '-' + dmg.toLocaleString();
+    dmgEl.style.left  = (ex - 10) + 'px';
+    dmgEl.style.top   = (ey - 20) + 'px';
+    dmgEl.style.display = 'block';
+    dmgEl.style.animation = 'none';
+    void dmgEl.offsetWidth;
+    dmgEl.style.animation = 'extDmgFloat 0.9s ease forwards';
+    setTimeout(() => { dmgEl.style.display = 'none'; }, 950);
+
+    // 몬스터 피격
+    enemyEl.classList.add('ext-enemy-hit');
+    setTimeout(() => enemyEl.classList.remove('ext-enemy-hit'), 450);
+
+    // 영웅 복귀 대기
+    await wait(400);
+    heroEl.classList.remove('ext-hero-charging');
+  }
+
   // 확장 전투씬 버튼 핸들러 (기존 로직 재활용)
-  async function extBattleAttack()  { await battleAttackTurn(); }
+  async function extBattleAttack() {
+    const b = state.battle; if (!b || b.ended || b.locked) return;
+    b.locked = true;
+    const enemy = b.setup.enemy;
+    const lines = [], t = b.turn;
+
+    // 영웅 공격
+    const d = calcDamage(b.setup.heroAtk, enemy.def, b.setup.heroCrit);
+    await extAnimHeroCharge(d.value);
+    b.enemyHp -= d.value; b.totalDmg += d.value;
+    lines.push(`${t}턴 - 영웅이 ${enemy.name}에게 ${d.value} 피해${d.critical?' (치명타!)':''}`);
+    updateExtBattleUI(`${t}턴 진행 중`, lines.join('
+'));
+
+    // 몬스터 반격
+    if (b.enemyHp > 0) {
+      await wait(300);
+      const d2 = calcDamage(enemy.atk, b.setup.heroDef, enemy.crit);
+      b.heroHp -= d2.value;
+      lines.push(`${enemy.name}이(가) 영웅에게 ${d2.value} 반격${d2.critical?' (치명타!)':''}`);
+      // 영웅 피격 효과
+      const heroEl = document.getElementById('extHeroChar');
+      if (heroEl) { heroEl.style.filter='brightness(2)'; setTimeout(()=>heroEl.style.filter='',300); }
+      updateExtBattleUI(`${t}턴 진행 중`, lines.join('
+'));
+    }
+
+    // 전투 종료 체크
+    if (b.enemyHp <= 0) {
+      b.ended = true;
+      SFX.victory();
+      const exp = getBattleExp(enemy), gold = getBattleGold(enemy);
+      const dropItem = rollMonsterDrop(enemy);
+      updateExtBattleUI(`${t}턴 종료`, lines.join('
+'));
+      await endBattle({ title:'승리', desc:`전투 승리!<br>경험치 ${exp}, 골드 ${gold} 획득`,
+        exp, gold, resultType:'success',
+        logTitle:`${enemy.grade} ${enemy.name} 전투`,
+        logDetail:`${enemy.grade} ${enemy.name} 전투 / 승리 / 경험치 ${exp} / 골드 ${gold}`, dropItem });
+      closeExtBattle(); b.locked=false; return;
+    }
+    if (b.heroHp <= 0) {
+      b.ended = true;
+      SFX.defeat();
+      const exp = calcPartialExp(b.totalDmg, b.enemyMax, enemy);
+      updateExtBattleUI(`${t}턴 종료`, lines.join('
+'));
+      await endBattle({ title:'패배', desc:`전투 패배.<br>경험치 ${exp} 획득`,
+        exp, gold:0, resultType:'fail',
+        logTitle:`${enemy.grade} ${enemy.name} 전투`,
+        logDetail:`${enemy.grade} ${enemy.name} 전투 / 패배 / 경험치 ${exp}` });
+      closeExtBattle(); b.locked=false; return;
+    }
+
+    updateExtBattleUI(`${t}턴 종료`, lines.join('
+'));
+    b.turn++; b.locked = false;
+  }
   async function extBattleDefend()  { /* TODO: 방어 로직 */ }
-  async function extBattleRun()     { await battleRunAway(); }
+  async function extBattleRun() {
+    await battleRunAway();
+    closeExtBattle();
+  }
   async function extBattleSkill()   { /* TODO: 필살기 로직 */ }
 
   async function openBattleModal(decoded) {
