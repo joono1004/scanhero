@@ -7756,33 +7756,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const html = getHeroVisualHtml(state.heroClass)
       .replace('width:155px;height:179px', 'width:133px;height:150px');
     els.battleHeroSpriteWrap.innerHTML = `<div class="battle-hero-sprite">${html}</div>`;
-
-    // 영상 로드 시도 → 성공하면 이미지 숨김, 실패하면 이미지 유지
-    const video = document.getElementById('battleHeroVideo');
-    if (!video) return;
-    const src = getBattleVideoSrc();
-
-    // 기본: 이미지 표시, 영상 숨김
     els.battleHeroSpriteWrap.style.display = '';
-    video.style.display = 'none';
-    video.src = '';
-
-    // 영상 로드 성공 시 이미지 숨기고 영상 표시
-    const tmpVideo = document.createElement('video');
-    tmpVideo.preload = 'metadata';
-    tmpVideo.onloadedmetadata = () => {
-      // 영상 파일 존재 확인됨 → 실제 video에 적용
-      video.src = src;
-      video.style.display = 'block';
-      video.currentTime = 0;
-      els.battleHeroSpriteWrap.style.display = 'none';
-    };
-    tmpVideo.onerror = () => {
-      // 영상 없음 → 이미지 유지
-      els.battleHeroSpriteWrap.style.display = '';
-      video.style.display = 'none';
-    };
-    tmpVideo.src = src;
+    // 영상은 전투씬에서만 사용 — 전투 준비 화면에서는 이미지만 표시
+    const video = document.getElementById('battleHeroVideo');
+    if (video) { video.style.display = 'none'; video.src = ''; }
   }
   function renderBattleSoldiers(count, cls) {
     const setup   = state.battle?.setup;
@@ -7992,35 +7969,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   async function animHeroAtk() {
     SFX.attack();
     resetBattleAnims();
-
-    const video = document.getElementById('battleHeroVideo');
-    let videoPlayed = false;
-
-    // video가 표시 중이면 (영상 파일 있음) 재생
-    if (video && video.style.display !== 'none' && video.src) {
-      try {
-        video.currentTime = 0;
-        await video.play();
-        videoPlayed = true;
-        // 영상 끝날 때까지 대기 (최대 3초)
-        await Promise.race([
-          new Promise(r => video.addEventListener('ended', r, { once: true })),
-          wait(3000)
-        ]);
-        // 재생 후 첫 프레임으로 복귀
-        video.pause();
-        video.currentTime = 0;
-      } catch(e) {
-        videoPlayed = false;
-      }
-    }
-
-    // 영상 없으면 기존 CSS 애니메이션
-    if (!videoPlayed) {
-      els.battleHeroUnit.classList.add('anim-attack-left');
-      els.battleSoldierGroup.classList.add('anim-attack-left');
-    }
-
+    // 전투 준비 화면에서는 기존 CSS 애니메이션만 사용
+    // (WebM 영상은 추후 확장 전투씬에서 연결)
+    els.battleHeroUnit.classList.add('anim-attack-left');
+    els.battleSoldierGroup.classList.add('anim-attack-left');
     await wait(180);
     els.battleEnemyUnit.classList.add('anim-hit');
     els.battleEnemyEmoji.classList.add('anim-fade');
