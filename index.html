@@ -8069,8 +8069,6 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   }
 
   // ── 확장 전투씬 공격 애니메이션 ───────────────────────────────
-  function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
-
   async function extAnimHeroCharge(dmg) {
     const heroEl  = document.getElementById('extHeroChar');
     const enemyEl = document.getElementById('extEnemyChar');
@@ -8125,56 +8123,45 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const enemy = b.setup.enemy;
     const lines = [], t = b.turn;
 
-    // 영웅 공격
     const d = calcDamage(b.setup.heroAtk, enemy.def, b.setup.heroCrit);
     await extAnimHeroCharge(d.value);
     b.enemyHp -= d.value; b.totalDmg += d.value;
-    lines.push(`${t}턴 - 영웅이 ${enemy.name}에게 ${d.value} 피해${d.critical?' (치명타!)':''}`);
-    updateExtBattleUI(`${t}턴 진행 중`, lines.join('
-'));
+    lines.push(t+'턴 - 영웅이 '+enemy.name+'에게 '+d.value+' 피해'+(d.critical?' (치명타!)':''));
+    updateExtBattleUI(t+'턴 진행 중', lines.join('\n'));
 
-    // 몬스터 반격
     if (b.enemyHp > 0) {
       await wait(300);
       const d2 = calcDamage(enemy.atk, b.setup.heroDef, enemy.crit);
       b.heroHp -= d2.value;
-      lines.push(`${enemy.name}이(가) 영웅에게 ${d2.value} 반격${d2.critical?' (치명타!)':''}`);
-      // 영웅 피격 효과
+      lines.push(enemy.name+'이(가) 영웅에게 '+d2.value+' 반격'+(d2.critical?' (치명타!)':''));
       const heroEl = document.getElementById('extHeroChar');
-      if (heroEl) { heroEl.style.filter='brightness(2)'; setTimeout(()=>heroEl.style.filter='',300); }
-      updateExtBattleUI(`${t}턴 진행 중`, lines.join('
-'));
+      if (heroEl) { heroEl.style.filter='brightness(2)'; setTimeout(()=>{heroEl.style.filter='';},300); }
+      updateExtBattleUI(t+'턴 진행 중', lines.join('\n'));
     }
 
-    // 전투 종료 체크
     if (b.enemyHp <= 0) {
-      b.ended = true;
-      SFX.victory();
+      b.ended = true; SFX.victory();
       const exp = getBattleExp(enemy), gold = getBattleGold(enemy);
       const dropItem = rollMonsterDrop(enemy);
-      updateExtBattleUI(`${t}턴 종료`, lines.join('
-'));
-      await endBattle({ title:'승리', desc:`전투 승리!<br>경험치 ${exp}, 골드 ${gold} 획득`,
+      updateExtBattleUI(t+'턴 종료', lines.join('\n'));
+      await endBattle({ title:'승리', desc:'전투 승리!<br>경험치 '+exp+', 골드 '+gold+' 획득',
         exp, gold, resultType:'success',
-        logTitle:`${enemy.grade} ${enemy.name} 전투`,
-        logDetail:`${enemy.grade} ${enemy.name} 전투 / 승리 / 경험치 ${exp} / 골드 ${gold}`, dropItem });
+        logTitle:enemy.grade+' '+enemy.name+' 전투',
+        logDetail:enemy.grade+' '+enemy.name+' 전투 / 승리 / 경험치 '+exp+' / 골드 '+gold, dropItem });
       closeExtBattle(); b.locked=false; return;
     }
     if (b.heroHp <= 0) {
-      b.ended = true;
-      SFX.defeat();
+      b.ended = true; SFX.defeat();
       const exp = calcPartialExp(b.totalDmg, b.enemyMax, enemy);
-      updateExtBattleUI(`${t}턴 종료`, lines.join('
-'));
-      await endBattle({ title:'패배', desc:`전투 패배.<br>경험치 ${exp} 획득`,
+      updateExtBattleUI(t+'턴 종료', lines.join('\n'));
+      await endBattle({ title:'패배', desc:'전투 패배.<br>경험치 '+exp+' 획득',
         exp, gold:0, resultType:'fail',
-        logTitle:`${enemy.grade} ${enemy.name} 전투`,
-        logDetail:`${enemy.grade} ${enemy.name} 전투 / 패배 / 경험치 ${exp}` });
+        logTitle:enemy.grade+' '+enemy.name+' 전투',
+        logDetail:enemy.grade+' '+enemy.name+' 전투 / 패배 / 경험치 '+exp });
       closeExtBattle(); b.locked=false; return;
     }
 
-    updateExtBattleUI(`${t}턴 종료`, lines.join('
-'));
+    updateExtBattleUI(t+'턴 종료', lines.join('\n'));
     b.turn++; b.locked = false;
   }
   async function extBattleDefend()  { /* TODO: 방어 로직 */ }
