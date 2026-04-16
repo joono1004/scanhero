@@ -1028,10 +1028,18 @@
 
     .ext-battle-backdrop {
       position:fixed; inset:0; z-index:9999;
-      background:linear-gradient(180deg,#0a1f0a 0%,#0d2810 40%,#1a3a15 70%,#2a4a1a 100%);
-      display:none; flex-direction:column;
+      background:#000;
+      display:none;
+      align-items:center; justify-content:center;
     }
     .ext-battle-backdrop.open { display:flex; }
+    .ext-battle-container {
+      width:390px; height:844px;
+      display:flex; flex-direction:column;
+      overflow:hidden; position:relative;
+      background:linear-gradient(180deg,#0a1f0a 0%,#0d2810 40%,#1a3a15 70%,#2a4a1a 100%);
+      transform-origin: top center;
+    }
     .ext-status-bar {
       height:48px; background:rgba(0,0,0,0.55);
       display:flex; align-items:center; justify-content:space-between;
@@ -2050,6 +2058,7 @@
 
   <!-- ── 확장 전투씬 ── -->
   <div class="ext-battle-backdrop" id="extBattleBackdrop">
+  <div class="ext-battle-container" id="extBattleContainer">
 
     <!-- 상단 상태바 -->
     <div class="ext-status-bar">
@@ -2122,6 +2131,7 @@
         <div class="ext-btn" id="extRunBtn"     style="background:rgba(255,80,80,0.18);color:#ff8888;border-color:rgba(255,80,80,0.25);">💨<br>도망</div>
       </div>
     </div>
+  </div>
   </div>
 
   <!-- 병사 선택 모달 -->
@@ -7998,6 +8008,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   function applyExtBattleBg() {
     const url   = getExtBgUrl();
     const main  = document.getElementById('extBattleMain');
+    const cont  = document.getElementById('extBattleContainer');
     if (!main) return;
 
     // 이미지 로드 시도 → 성공하면 배경 적용, 실패하면 CSS 그라디언트 유지
@@ -8126,12 +8137,32 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 배경 이미지 적용
     applyExtBattleBg();
 
+    // 화면 크기에 맞게 scale 조정
+    const scaleExtBattle = () => {
+      const container = document.getElementById('extBattleContainer');
+      if (!container) return;
+      const scaleX = window.innerWidth  / 390;
+      const scaleY = window.innerHeight / 844;
+      const scale  = Math.min(scaleX, scaleY, 1); // 최대 1배 (확대 안 함)
+      container.style.transform = 'scale('+scale+')';
+      container.style.marginTop = scale < 1
+        ? Math.round((window.innerHeight - 844 * scale) / 2)+'px'
+        : '0';
+    };
+    scaleExtBattle();
+    window._extBattleScaleHandler = scaleExtBattle;
+    window.addEventListener('resize', window._extBattleScaleHandler);
+
     // 화면 표시
     document.getElementById('extBattleBackdrop').classList.add('open');
   }
 
   function closeExtBattle() {
     document.getElementById('extBattleBackdrop').classList.remove('open');
+    if (window._extBattleScaleHandler) {
+      window.removeEventListener('resize', window._extBattleScaleHandler);
+      window._extBattleScaleHandler = null;
+    }
   }
 
   function updateExtBattleUI(title, log) {
