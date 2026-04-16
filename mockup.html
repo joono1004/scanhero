@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>전투화면 위치 목업 v4</title>
+<title>전투화면 위치 목업 v5</title>
 <style>
   body { margin:0; background:#111827; display:flex; flex-direction:column; align-items:center; padding:20px 12px; font-family:sans-serif; color:#fff; }
   h2 { color:#ffcf63; margin-bottom:4px; font-size:15px; }
@@ -11,7 +11,6 @@
 
   .scene-wrap { transform-origin:top center; transform:scale(0.52); margin-bottom:-405px; }
 
-  /* ── 실제 게임과 동일한 구조 ── */
   .ext-battle-container {
     width:430px; height:844px;
     position:relative; overflow:hidden;
@@ -20,7 +19,7 @@
     border:2px solid #334;
   }
 
-  /* ① 상태바 48px */
+  /* 상태바 48px */
   .status-bar {
     height:48px; flex-shrink:0; position:relative; z-index:20;
     background:rgba(0,0,0,0.65);
@@ -36,13 +35,13 @@
   .hp-fill { height:100%; border-radius:2px; }
   .turn    { font-size:18px; font-weight:700; color:#ffcf63; background:rgba(255,207,99,0.15); padding:4px 12px; border-radius:12px; }
 
-  /* ② 전투 메인 — flex:1, 병사들의 bottom 좌표 기준점 */
+  /* 전투 메인 */
   .battle-main {
     flex:1; position:relative; overflow:visible;
     background:linear-gradient(180deg,#0a1830 0%,#162a18 60%,#1e3010 100%);
   }
 
-  /* 로그 (실제 위치: top:56px) */
+  /* 로그 */
   .log {
     position:absolute; top:56px; left:10px; right:10px; z-index:15;
     background:rgba(0,0,0,0.6); border-radius:8px;
@@ -51,14 +50,13 @@
   .log-t { font-size:17px; color:#ffcf63; font-weight:700; margin-bottom:3px; }
   .log-b { font-size:13px; color:rgba(255,255,255,0.5); }
 
-  /* 배경선택기 */
   .bgsel {
     position:absolute; top:4px; right:8px; z-index:20;
-    display:flex; gap:3px; align-items:center; font-size:10px;
+    display:flex; gap:3px; font-size:10px;
   }
   .bgsel span { padding:2px 5px; border-radius:5px; border:1px solid rgba(255,207,99,0.45); background:rgba(0,0,0,0.7); color:#ffcf63; }
 
-  /* ── 병사 슬롯 (battle-main 기준 bottom) ── */
+  /* 병사 슬롯 */
   .slot {
     position:absolute;
     display:flex; flex-direction:column; align-items:center;
@@ -67,16 +65,14 @@
     width:66px; height:84px;
     border-radius:8px; border:2px solid;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    font-size:9.5px; font-weight:700; text-align:center; line-height:1.4;
+    font-size:9px; font-weight:700; text-align:center; line-height:1.4;
   }
   .slot .sh { width:44px; height:6px; border-radius:50%; background:rgba(0,0,0,0.3); margin-top:-1px; }
 
-  /* 아군 슬롯 색상 */
-  .ally .card { background:rgba(60,140,255,0.22); border-color:#4488ee; color:#aaccff; }
-  /* 적 슬롯 색상 */
-  .esol .card { background:rgba(255,80,60,0.22);  border-color:#ee5544; color:#ffaaaa; }
+  .ally .card { background:rgba(60,140,255,0.28); border-color:#4488ee; color:#cce0ff; }
+  .esol .card { background:rgba(255,80,60,0.28);  border-color:#ee5544; color:#ffcccc; }
 
-  /* ③ 영웅 — 컨테이너 기준, z-index:10 */
+  /* 영웅 */
   #heroChar {
     position:absolute; left:10px; bottom:120px; z-index:10;
     display:flex; flex-direction:column; align-items:center;
@@ -90,7 +86,7 @@
   #heroChar .sh { width:90px; height:10px; border-radius:50%; background:rgba(0,0,0,0.3); margin-top:-1px; }
   #heroChar .sp { width:60px; height:3px; background:rgba(255,255,255,0.1); border-radius:2px; margin-top:2px; }
 
-  /* ④ 몬스터 — 컨테이너 기준, z-index:10 */
+  /* 몬스터 */
   #enemyChar {
     position:absolute; right:10px; bottom:120px; z-index:10;
     display:flex; flex-direction:column; align-items:center;
@@ -103,7 +99,7 @@
   }
   #enemyChar .sh { width:90px; height:10px; border-radius:50%; background:rgba(0,0,0,0.3); margin-top:-1px; }
 
-  /* ⑤ 하단 버튼 패널 */
+  /* 하단 패널 */
   .bottom-panel {
     flex-shrink:0; background:rgba(0,0,0,0.85);
     border-top:1px solid rgba(255,255,255,0.08);
@@ -120,29 +116,16 @@
   .b1 { background:rgba(255,207,99,0.25); color:#ffcf63;  border-color:rgba(255,207,99,0.4); }
   .b2 { background:rgba(99,208,154,0.22); color:#63d09a;  border-color:rgba(99,208,154,0.3); }
   .b3 { background:rgba(180,40,40,0.35);  color:#ff8888;  border-color:rgba(200,50,50,0.4); }
-
-  /* 가이드선 */
-  .guide {
-    position:absolute; left:0; right:0; height:1px; pointer-events:none; z-index:25;
-    border-top:1px dashed rgba(255,255,100,0.2);
-    display:flex; align-items:flex-end; justify-content:center;
-  }
-  .guide span {
-    font-size:8.5px; color:rgba(255,255,120,0.45);
-    background:rgba(0,0,0,0.4); padding:1px 5px; border-radius:3px; margin-bottom:2px;
-    white-space:nowrap;
-  }
 </style>
 </head>
 <body>
 
-<h2>전투화면 위치 목업 v4</h2>
-<p>슬롯 좌표 기준 (이름 아닌 숫자) / 55% 축소</p>
+<h2>전투화면 위치 목업 v5 — 새 대형</h2>
+<p>55% 축소 / battle-main 기준 좌표</p>
 
 <div class="scene-wrap">
 <div class="ext-battle-container">
 
-  <!-- ① 상태바 -->
   <div class="status-bar">
     <div class="hp-blk">
       <div class="hp-name">무적</div>
@@ -157,7 +140,6 @@
     </div>
   </div>
 
-  <!-- ② 전투 메인 (병사 bottom 기준점) -->
   <div class="battle-main">
 
     <div class="bgsel">
@@ -169,112 +151,91 @@
       <div class="log-b">공격 또는 도망을 선택하세요.</div>
     </div>
 
-    <!-- 높이 가이드선 (battle-main 기준 bottom) -->
-    <div class="guide" style="bottom:250px;"><span>battle-main B:250</span></div>
-    <div class="guide" style="bottom:185px;"><span>battle-main B:185</span></div>
-    <div class="guide" style="bottom:120px;"><span>battle-main B:120</span></div>
-    <div class="guide" style="bottom:55px;"><span>battle-main B:55</span></div>
+    <!-- ══ 아군 병사 ══ -->
 
-    <!-- ══ 아군 병사 슬롯 (battle-main 기준) ══ -->
-
-    <!-- 슬롯 0 : L86 B250 (아군 최상단) -->
-    <div class="slot ally" style="left:86px; bottom:250px;">
-      <div class="card">슬롯0<br>L86 B250<br><span style="font-size:8px;color:#7af;">아군 맨뒤</span></div>
+    <!-- 뒷줄: 슬롯5(왼) 슬롯4(오) — bottom:365 -->
+    <div class="slot ally" style="left:60px; bottom:365px;">
+      <div class="card">슬롯5<br>L60 B365<br><span style="font-size:8px;color:#88aaff;">뒷줄 왼</span></div>
+      <div class="sh"></div>
+    </div>
+    <div class="slot ally" style="left:128px; bottom:365px;">
+      <div class="card">슬롯4<br>L128 B365<br><span style="font-size:8px;color:#88aaff;">뒷줄 오</span></div>
       <div class="sh"></div>
     </div>
 
-    <!-- 슬롯 1 : L14 B185 (아군 뒷줄 왼) -->
-    <div class="slot ally" style="left:14px; bottom:185px;">
-      <div class="card">슬롯1<br>L14 B185<br><span style="font-size:8px;color:#7af;">뒷줄 왼</span></div>
+    <!-- 중간줄: 슬롯3(왼) 슬롯2(오) — bottom:270 -->
+    <div class="slot ally" style="left:36px; bottom:270px;">
+      <div class="card">슬롯3<br>L36 B270<br><span style="font-size:8px;color:#88aaff;">중간 왼</span></div>
+      <div class="sh"></div>
+    </div>
+    <div class="slot ally" style="left:104px; bottom:270px;">
+      <div class="card">슬롯2<br>L104 B270<br><span style="font-size:8px;color:#88aaff;">중간 오</span></div>
       <div class="sh"></div>
     </div>
 
-    <!-- 슬롯 2 : L86 B185 (아군 뒷줄 오) -->
-    <div class="slot ally" style="left:86px; bottom:185px;">
-      <div class="card">슬롯2<br>L86 B185<br><span style="font-size:8px;color:#7af;">뒷줄 오</span></div>
+    <!-- 앞줄: 슬롯1(왼) 슬롯0(오) — bottom:175 -->
+    <div class="slot ally" style="left:12px; bottom:175px;">
+      <div class="card">슬롯1<br>L12 B175<br><span style="font-size:8px;color:#88aaff;">앞줄 왼</span></div>
+      <div class="sh"></div>
+    </div>
+    <div class="slot ally" style="left:80px; bottom:175px;">
+      <div class="card">슬롯0<br>L80 B175<br><span style="font-size:8px;color:#88aaff;">앞줄 오</span></div>
       <div class="sh"></div>
     </div>
 
-    <!-- 슬롯 3 : L14 B120 (아군 중간 왼) -->
-    <div class="slot ally" style="left:14px; bottom:120px;">
-      <div class="card">슬롯3<br>L14 B120<br><span style="font-size:8px;color:#7af;">중간 왼</span></div>
+    <!-- ══ 적 병사 ══ -->
+
+    <!-- 뒷줄: 몬적4(왼) 몬적5(오) — bottom:365 -->
+    <div class="slot esol" style="right:126px; bottom:365px;">
+      <div class="card">몬적4<br>R126 B365<br><span style="font-size:8px;color:#ff9999;">뒷줄 왼</span></div>
+      <div class="sh"></div>
+    </div>
+    <div class="slot esol" style="right:58px; bottom:365px;">
+      <div class="card">몬적5<br>R58 B365<br><span style="font-size:8px;color:#ff9999;">뒷줄 오</span></div>
       <div class="sh"></div>
     </div>
 
-    <!-- 슬롯 4 : L86 B120 (아군 중간 오) -->
-    <div class="slot ally" style="left:86px; bottom:120px;">
-      <div class="card">슬롯4<br>L86 B120<br><span style="font-size:8px;color:#7af;">중간 오</span></div>
+    <!-- 중간줄: 몬적2(왼) 몬적3(오) — bottom:270 -->
+    <div class="slot esol" style="right:102px; bottom:270px;">
+      <div class="card">몬적2<br>R102 B270<br><span style="font-size:8px;color:#ff9999;">중간 왼</span></div>
+      <div class="sh"></div>
+    </div>
+    <div class="slot esol" style="right:34px; bottom:270px;">
+      <div class="card">몬적3<br>R34 B270<br><span style="font-size:8px;color:#ff9999;">중간 오</span></div>
       <div class="sh"></div>
     </div>
 
-    <!-- 슬롯 5 : L86 B55 (아군 앞줄) ※ 영웅과 겹침 → 반투명 -->
-    <div class="slot ally" style="left:86px; bottom:55px; opacity:0.3;">
-      <div class="card" style="border-style:dashed;">슬롯5<br>L86 B55<br><span style="font-size:8px;color:#fa8;">앞줄★영웅뒤</span></div>
+    <!-- 앞줄: 몬적0(왼) 몬적1(오) — bottom:175 -->
+    <div class="slot esol" style="right:78px; bottom:175px;">
+      <div class="card">몬적0<br>R78 B175<br><span style="font-size:8px;color:#ff9999;">앞줄 왼</span></div>
+      <div class="sh"></div>
+    </div>
+    <div class="slot esol" style="right:10px; bottom:175px;">
+      <div class="card">몬적1<br>R10 B175<br><span style="font-size:8px;color:#ff9999;">앞줄 오</span></div>
       <div class="sh"></div>
     </div>
 
-    <!-- ══ 적 병사 슬롯 (battle-main 기준) ══ -->
+  </div>
 
-    <!-- 적 슬롯 0 : R158 B55 -->
-    <div class="slot esol" style="right:158px; bottom:55px;">
-      <div class="card">적0<br>R158 B55<br><span style="font-size:8px;color:#f99;">앞줄</span></div>
-      <div class="sh"></div>
-    </div>
-
-    <!-- 적 슬롯 1 : R86 B120 -->
-    <div class="slot esol" style="right:86px; bottom:120px;">
-      <div class="card">적1<br>R86 B120<br><span style="font-size:8px;color:#f99;">중간 왼</span></div>
-      <div class="sh"></div>
-    </div>
-
-    <!-- 적 슬롯 2 : R158 B120 -->
-    <div class="slot esol" style="right:158px; bottom:120px;">
-      <div class="card">적2<br>R158 B120<br><span style="font-size:8px;color:#f99;">중간 오</span></div>
-      <div class="sh"></div>
-    </div>
-
-    <!-- 적 슬롯 3 : R86 B185 -->
-    <div class="slot esol" style="right:86px; bottom:185px;">
-      <div class="card">적3<br>R86 B185<br><span style="font-size:8px;color:#f99;">뒷줄 왼</span></div>
-      <div class="sh"></div>
-    </div>
-
-    <!-- 적 슬롯 4 : R158 B185 -->
-    <div class="slot esol" style="right:158px; bottom:185px;">
-      <div class="card">적4<br>R158 B185<br><span style="font-size:8px;color:#f99;">뒷줄 오</span></div>
-      <div class="sh"></div>
-    </div>
-
-    <!-- 적 슬롯 5 : R86 B250 -->
-    <div class="slot esol" style="right:86px; bottom:250px;">
-      <div class="card">적5<br>R86 B250<br><span style="font-size:8px;color:#f99;">맨뒤</span></div>
-      <div class="sh"></div>
-    </div>
-
-  </div><!-- /battle-main -->
-
-  <!-- ③ 영웅 (컨테이너 기준, z-index:10) -->
+  <!-- 영웅 (컨테이너 기준) -->
   <div id="heroChar">
     <div class="card">
-      영웅<br>
-      133×150px<br>
-      <span style="font-size:10px;color:#7fa0ff;">L10 B120<br>컨테이너 기준</span>
+      영웅<br>133×150<br>
+      <span style="font-size:10px;color:#7fa0ff;">L10 B120<br>컨테이너</span>
     </div>
     <div class="sh"></div>
     <div class="sp"></div>
   </div>
 
-  <!-- ④ 몬스터 (컨테이너 기준, z-index:10) -->
+  <!-- 몬스터 (컨테이너 기준) -->
   <div id="enemyChar">
     <div class="card">
-      몬스터<br>
-      133×150px<br>
-      <span style="font-size:10px;color:#ff8888;">R10 B120<br>컨테이너 기준</span>
+      몬스터<br>133×150<br>
+      <span style="font-size:10px;color:#ff8888;">R10 B120<br>컨테이너</span>
     </div>
     <div class="sh"></div>
   </div>
 
-  <!-- ⑤ 하단 버튼 패널 -->
   <div class="bottom-panel">
     <div class="gauge-row">
       <div class="g-lbl">필살기</div>
@@ -289,19 +250,18 @@
     </div>
   </div>
 
-</div><!-- /container -->
-</div><!-- /scene-wrap -->
+</div>
+</div>
 
-<div style="margin-top:20px; background:#1e2535; border-radius:10px; padding:14px 18px; max-width:260px; font-size:11px; line-height:1.9; color:#ccc;">
-  <div style="color:#ffcf63; font-weight:700; margin-bottom:6px;">📌 슬롯 배치 원칙</div>
-  <div><b style="color:#aaccff;">아군 슬롯</b> → battle-main 기준 <b>left + bottom</b></div>
-  <div><b style="color:#ffaaaa;">적 슬롯</b> → battle-main 기준 <b>right + bottom</b></div>
-  <div><b style="color:#9fbfff;">영웅/몬스터</b> → 컨테이너 기준 <b>bottom:120px</b></div>
-  <div style="margin-top:8px; padding-top:8px; border-top:1px solid #333; color:#fa8; font-size:10.5px;">
-    ⚠ 슬롯5 (L86 B55) 는 영웅과 겹쳐<br>
-    &nbsp;&nbsp;영웅이 앞에 그려져 가려짐<br><br>
-    ⚠ 각 슬롯에 어떤 병사든 배치 가능<br>
-    &nbsp;&nbsp;(슬롯번호 ≠ 병사 종류)
+<div style="margin-top:20px; background:#1e2535; border-radius:10px; padding:14px 18px; max-width:260px; font-size:11px; line-height:2; color:#ccc;">
+  <div style="color:#ffcf63;font-weight:700;margin-bottom:4px;">새 대형 구조</div>
+  <div>[슬롯5][슬롯4] &nbsp;&nbsp;&nbsp; [몬적4][몬적5]</div>
+  <div>&nbsp;&nbsp;[슬롯3][슬롯2] &nbsp;&nbsp; [몬적2][몬적3]</div>
+  <div>[슬롯1][슬롯0] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [몬적0][몬적1]</div>
+  <div>[&nbsp;&nbsp;영웅&nbsp;&nbsp;] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&nbsp;몬스터&nbsp;]</div>
+  <div style="margin-top:8px;padding-top:8px;border-top:1px solid #333;color:#aaa;font-size:10px;">
+    ↕ 각 줄 90px 간격<br>
+    ↔ 각 줄 24px씩 우측 이동 (위로 갈수록)
   </div>
 </div>
 
