@@ -8344,11 +8344,11 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 편집 토글 버튼
     const editBtn = document.createElement('button');
     editBtn.id = 'extEditModeBtn';
-    editBtn.textContent = '✏️ 편집';
+    editBtn.textContent = '✏️';
     editBtn.style.cssText =
-      'position:absolute;top:4px;left:8px;z-index:100;font-size:11px;' +
-      'padding:3px 10px;border-radius:6px;cursor:pointer;' +
-      'border:1px solid rgba(255,220,0,0.6);background:rgba(0,0,0,0.8);color:#ffdc00;';
+      'position:absolute;top:4px;left:0;z-index:100;font-size:13px;' +
+      'padding:3px 6px;border-radius:0 6px 6px 0;cursor:pointer;' +
+      'border:1px solid rgba(255,220,0,0.6);border-left:none;background:rgba(0,0,0,0.8);color:#ffdc00;';
     main.appendChild(editBtn);
 
     // 좌표 출력 오버레이
@@ -8493,12 +8493,12 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     editBtn.onclick = () => {
       editMode = !editMode;
       if (editMode) {
-        editBtn.textContent = '📋 값 보기';
+        editBtn.textContent = '📋';
         editBtn.style.color = '#63d09a';
         editBtn.style.borderColor = 'rgba(99,208,154,0.6)';
         enableDrag();
       } else {
-        editBtn.textContent = '✏️ 편집';
+        editBtn.textContent = '✏️';
         editBtn.style.color = '#ffdc00';
         editBtn.style.borderColor = 'rgba(255,220,0,0.6)';
         disableDrag();
