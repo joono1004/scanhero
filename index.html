@@ -8331,6 +8331,180 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     scaleExtBattle();
     window._extBattleScaleHandler = scaleExtBattle;
     window.addEventListener('resize', window._extBattleScaleHandler);
+
+    // 개발용 드래그 편집 모드 초기화
+    initExtBattleEditMode();
+  }
+
+  // ── 개발용: 드래그 배치 편집 모드 ────────────────────────────
+  function initExtBattleEditMode() {
+    const main = document.getElementById('extBattleMain');
+    if (!main || document.getElementById('extEditModeBtn')) return;
+
+    // 편집 토글 버튼
+    const editBtn = document.createElement('button');
+    editBtn.id = 'extEditModeBtn';
+    editBtn.textContent = '✏️ 편집';
+    editBtn.style.cssText =
+      'position:absolute;top:4px;left:8px;z-index:100;font-size:11px;' +
+      'padding:3px 10px;border-radius:6px;cursor:pointer;' +
+      'border:1px solid rgba(255,220,0,0.6);background:rgba(0,0,0,0.8);color:#ffdc00;';
+    main.appendChild(editBtn);
+
+    // 좌표 출력 오버레이
+    const outputPanel = document.createElement('div');
+    outputPanel.id = 'extEditOutput';
+    outputPanel.style.cssText =
+      'display:none;position:absolute;inset:0;z-index:200;' +
+      'background:rgba(0,0,0,0.93);padding:20px;overflow-y:auto;';
+    main.appendChild(outputPanel);
+
+    let editMode = false;
+
+    function getScale() {
+      const c = document.getElementById('extBattleContainer');
+      if (!c) return 1;
+      const m = (c.style.transform || '').match(/scale\(([^)]+)\)/);
+      return m ? parseFloat(m[1]) : 1;
+    }
+
+    function makeDraggable(el, type) {
+      // type: 'left' | 'right'
+      el.style.cursor = 'grab';
+      el.style.userSelect = 'none';
+      el.style.touchAction = 'none';
+
+      // 좌표 라벨
+      let label = el.querySelector('.ext-drag-label');
+      if (!label) {
+        label = document.createElement('div');
+        label.className = 'ext-drag-label';
+        label.style.cssText =
+          'position:absolute;top:-20px;left:0;right:0;text-align:center;' +
+          'font-size:10px;color:#ffdc00;font-weight:700;pointer-events:none;' +
+          'text-shadow:0 0 4px #000,0 0 4px #000;white-space:nowrap;z-index:99;';
+        el.appendChild(label);
+      }
+
+      function updateLabel() {
+        const b = Math.round(parseFloat(el.style.bottom) || 0);
+        if (type === 'right') {
+          label.textContent = 'R:' + Math.round(parseFloat(el.style.right) || 0) + ' B:' + b;
+        } else {
+          label.textContent = 'L:' + Math.round(parseFloat(el.style.left) || 0) + ' B:' + b;
+        }
+      }
+      updateLabel();
+      el._editUpdateLabel = updateLabel;
+
+      let active = false, startX, startY, startPos, startBottom;
+
+      el.addEventListener('pointerdown', e => {
+        e.preventDefault(); e.stopPropagation();
+        active = true;
+        el.setPointerCapture(e.pointerId);
+        startX = e.clientX; startY = e.clientY;
+        startPos    = parseFloat(type === 'right' ? el.style.right  : el.style.left)  || 0;
+        startBottom = parseFloat(el.style.bottom) || 0;
+        el.style.cursor = 'grabbing';
+        el.style.zIndex = '50';
+      });
+
+      el.addEventListener('pointermove', e => {
+        if (!active) return;
+        const s  = getScale();
+        const dx = (e.clientX - startX) / s;
+        const dy = (e.clientY - startY) / s;
+        const newBottom = Math.max(0, Math.round(startBottom - dy));
+        el.style.bottom = newBottom + 'px';
+        if (type === 'right') {
+          el.style.right = Math.max(0, Math.round(startPos - dx)) + 'px';
+        } else {
+          el.style.left  = Math.max(0, Math.round(startPos + dx)) + 'px';
+        }
+        updateLabel();
+      });
+
+      el.addEventListener('pointerup', () => {
+        active = false;
+        el.style.cursor = 'grab';
+        el.style.zIndex = '10';
+      });
+    }
+
+    function enableDrag() {
+      // 영웅
+      const heroEl = document.getElementById('extHeroChar');
+      if (heroEl) makeDraggable(heroEl, 'left');
+      // 몬스터
+      const enemyEl = document.getElementById('extEnemyChar');
+      if (enemyEl) makeDraggable(enemyEl, 'right');
+      // 아군 병사
+      document.querySelectorAll('#extAllyGroup .ext-char').forEach(el => makeDraggable(el, 'left'));
+      // 적 병사
+      document.querySelectorAll('#extEnemyGroup .ext-char').forEach(el => makeDraggable(el, 'right'));
+    }
+
+    function disableDrag() {
+      [
+        document.getElementById('extHeroChar'),
+        document.getElementById('extEnemyChar'),
+        ...document.querySelectorAll('#extAllyGroup .ext-char'),
+        ...document.querySelectorAll('#extEnemyGroup .ext-char'),
+      ].forEach(el => {
+        if (!el) return;
+        el.style.cursor = '';
+        el.style.userSelect = '';
+        el.style.touchAction = '';
+        const lbl = el.querySelector('.ext-drag-label');
+        if (lbl) lbl.remove();
+      });
+    }
+
+    function showOutput() {
+      const lines = [];
+
+      function fmt(el, type, name) {
+        if (!el) return;
+        const b = Math.round(parseFloat(el.style.bottom) || 0);
+        const p = Math.round(parseFloat(type === 'right' ? el.style.right : el.style.left) || 0);
+        const key = type === 'right' ? 'right' : 'left';
+        lines.push(name + ': ' + key + ':' + p + 'px  bottom:' + b + 'px');
+      }
+
+      fmt(document.getElementById('extHeroChar'),  'left',  '영웅   ');
+      fmt(document.getElementById('extEnemyChar'), 'right', '몬스터 ');
+      lines.push('');
+      document.querySelectorAll('#extAllyGroup .ext-char').forEach((el, i) => fmt(el, 'left',  '슬롯' + i + '  '));
+      lines.push('');
+      document.querySelectorAll('#extEnemyGroup .ext-char').forEach((el, i) => fmt(el, 'right', '적' + i + '    '));
+
+      outputPanel.innerHTML =
+        '<div style="color:#ffcf63;font-size:15px;font-weight:700;margin-bottom:12px;">📋 현재 배치 좌표</div>' +
+        '<pre style="color:#fff;font-size:12px;line-height:2;font-family:monospace;background:rgba(255,255,255,0.05);' +
+        'padding:12px;border-radius:8px;white-space:pre;">' + lines.join('\n') + '</pre>' +
+        '<div style="color:#aaa;font-size:11px;margin-top:10px;">이 화면을 캡처해서 전달해 주세요</div>' +
+        '<button onclick="document.getElementById(\'extEditOutput\').style.display=\'none\';" ' +
+        'style="margin-top:14px;padding:10px 28px;background:#4f7cff;color:#fff;border:none;' +
+        'border-radius:8px;font-size:14px;cursor:pointer;width:100%;">닫기</button>';
+      outputPanel.style.display = 'block';
+    }
+
+    editBtn.onclick = () => {
+      editMode = !editMode;
+      if (editMode) {
+        editBtn.textContent = '📋 값 보기';
+        editBtn.style.color = '#63d09a';
+        editBtn.style.borderColor = 'rgba(99,208,154,0.6)';
+        enableDrag();
+      } else {
+        editBtn.textContent = '✏️ 편집';
+        editBtn.style.color = '#ffdc00';
+        editBtn.style.borderColor = 'rgba(255,220,0,0.6)';
+        disableDrag();
+        showOutput();
+      }
+    };
   }
 
   function closeExtBattle() {
