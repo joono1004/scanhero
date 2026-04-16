@@ -1051,9 +1051,12 @@
     }
     .ext-battle-main { flex:1; position:relative; overflow:hidden; }
     .ext-bg-sky   { position:absolute; inset:0;
-      background:linear-gradient(180deg,#1a3a5c 0%,#2a5a3a 40%,#3a5a1a 60%,#4a6a1a 100%); }
+      background:linear-gradient(180deg,#1a3a5c 0%,#2a5a3a 40%,#3a5a1a 60%,#4a6a1a 100%);
+      transition:opacity 0.5s; }
     .ext-bg-ground{ position:absolute; bottom:0; left:0; right:0; height:35%;
-      background:linear-gradient(180deg,#3a5a1a,#4a6a1a); }
+      background:linear-gradient(180deg,#3a5a1a,#4a6a1a);
+      transition:opacity 0.5s; }
+    .ext-battle-main { background-size:cover; background-position:center; transition:background-image 0.3s; }
     .ext-char { position:absolute; display:flex; flex-direction:column; align-items:center; }
     .ext-char img { display:block; object-fit:contain;
       filter:drop-shadow(0 0 3px rgba(255,255,255,0.6)) drop-shadow(0 0 6px rgba(255,255,255,0.3)); }
@@ -7965,6 +7968,61 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     }).join('');
   }
 
+  // ── 확장 전투씬 배경 이미지 ──────────────────────────────────────
+  const EXT_BG_BASE = 'https://joono1004.github.io/scanhero/assets/bg/battle';
+
+  // 지역×낮밤 매핑
+  const EXT_BG_MAP = {
+    city:     { day: 'battle_city_day.png',     night: 'battle_city_night.png'     },
+    forest:   { day: 'battle_forest_day.png',   night: 'battle_forest_night.png'   },
+    mountain: { day: 'battle_mountain_day.png', night: 'battle_mountain_night.png' },
+    river:    { day: 'battle_river_day.png',    night: 'battle_river_night.png'    },
+    lake:     { day: 'battle_lake_day.png',     night: 'battle_lake_night.png'     },
+    default:  { day: 'battle_city_day.png',     night: 'battle_city_night.png'     },
+  };
+
+  // 시간대 슬롯 → 낮/밤
+  function getExtBgDayNight() {
+    const slot = getTimeSlot();
+    // 0=새벽→night, 1=아침→day, 2=낮→day, 3=저녁→day, 4=밤→night
+    return (slot === 0 || slot === 4) ? 'night' : 'day';
+  }
+
+  function getExtBgUrl() {
+    const theme = _bgTheme || 'city';
+    const dn    = getExtBgDayNight();
+    const map   = EXT_BG_MAP[theme] || EXT_BG_MAP['default'];
+    return EXT_BG_BASE + '/' + (map[dn] || map['day']);
+  }
+
+  function applyExtBattleBg() {
+    const url   = getExtBgUrl();
+    const main  = document.getElementById('extBattleMain');
+    if (!main) return;
+
+    // 이미지 로드 시도 → 성공하면 배경 적용, 실패하면 CSS 그라디언트 유지
+    const img = new Image();
+    img.onload = () => {
+      main.style.backgroundImage    = 'url('+url+')';
+      main.style.backgroundSize     = 'cover';
+      main.style.backgroundPosition = 'center';
+      // 배경 이미지 적용 시 CSS 배경 레이어 숨기기
+      const sky    = main.querySelector('.ext-bg-sky');
+      const ground = main.querySelector('.ext-bg-ground');
+      if (sky)    sky.style.opacity    = '0';
+      if (ground) ground.style.opacity = '0';
+    };
+    img.onerror = () => {
+      // 이미지 없으면 기존 CSS 그라디언트 유지
+      main.style.backgroundImage = '';
+      const sky    = main.querySelector('.ext-bg-sky');
+      const ground = main.querySelector('.ext-bg-ground');
+      if (sky)    sky.style.opacity    = '1';
+      if (ground) ground.style.opacity = '1';
+    };
+    img.src = url;
+  }
+
   // ── 확장 전투씬 좌표 정의 ─────────────────────────────────────
   // 아군 / 형태 (엇갈리기)
   const EXT_ALLY_POS = [
@@ -8064,6 +8122,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     document.getElementById('extDefendBtn').onclick  = extBattleDefend;
     document.getElementById('extRunBtn').onclick     = extBattleRun;
     document.getElementById('extSkillBtn').onclick   = extBattleSkill;
+
+    // 배경 이미지 적용
+    applyExtBattleBg();
 
     // 화면 표시
     document.getElementById('extBattleBackdrop').classList.add('open');
