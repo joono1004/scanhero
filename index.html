@@ -2127,6 +2127,12 @@
     <!-- 영웅 (container 직속 - overflow 문제 해결) -->
     <div class="ext-char hero" id="extHeroChar"
          style="position:absolute;left:10px;bottom:120px;z-index:10;">
+      <!-- WebM 영상 (있으면 이미지 대체) -->
+      <video id="extHeroVideo"
+        style="display:none;width:133px;height:150px;pointer-events:none;"
+        preload="auto" playsinline webkit-playsinline>
+      </video>
+      <!-- 이미지 레이어 (영상 없을 때 표시) -->
       <div id="extHeroSprite"></div>
       <div class="ext-sh" style="width:90px;height:10px;"></div>
       <div class="ext-nm" style="color:#9fbfff;display:none;" id="extHeroLabel">영웅</div>
@@ -8127,12 +8133,32 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     document.getElementById('extEnemyLabel').textContent = enemy.name;
     document.getElementById('extTurnBadge').textContent  = `${b.turn}턴`;
 
-    // 영웅 스프라이트
+    // 영웅 스프라이트 + WebM 감지
     const heroHtml = getHeroVisualHtml(state.heroClass)
       .replace('width:155px;height:179px','width:133px;height:150px');
-    document.getElementById('extHeroSprite').innerHTML =
-      `<div style="width:133px;height:150px;overflow:hidden;">${heroHtml}</div>`;
+    const extHeroSpriteEl = document.getElementById('extHeroSprite');
+    const extHeroVideoEl  = document.getElementById('extHeroVideo');
+    extHeroSpriteEl.innerHTML =
+      '<div style="width:133px;height:150px;overflow:hidden;">'+heroHtml+'</div>';
     document.getElementById('extHeroLabel').textContent = state.heroName || '영웅';
+
+    // WebM 존재 확인 → 있으면 영상으로 대체
+    if (extHeroVideoEl) {
+      const videoSrc = getBattleVideoSrc();
+      const tmpV = document.createElement('video');
+      tmpV.preload = 'metadata';
+      tmpV.onloadedmetadata = () => {
+        extHeroVideoEl.src = videoSrc;
+        extHeroVideoEl.style.display = 'block';
+        extHeroVideoEl.currentTime = 0;
+        extHeroSpriteEl.style.display = 'none';
+      };
+      tmpV.onerror = () => {
+        extHeroVideoEl.style.display = 'none';
+        extHeroSpriteEl.style.display = '';
+      };
+      tmpV.src = videoSrc;
+    }
 
     // 몬스터 스프라이트 (기존 전투씬과 동일한 URL 함수 사용)
     const mobUrl    = getMonsterRepUrl(setup.enemy.name);
@@ -8260,13 +8286,25 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   // ── 확장 전투씬 공격 애니메이션 ───────────────────────────────
   async function extAnimHeroCharge(dmg) {
-    const heroEl  = document.getElementById('extHeroChar');
-    const enemyEl = document.getElementById('extEnemyChar');
+    const heroEl   = document.getElementById('extHeroChar');
+    const enemyEl  = document.getElementById('extEnemyChar');
     const impactEl = document.getElementById('extImpactEl');
-    const dmgEl   = document.getElementById('extDmgEl');
+    const dmgEl    = document.getElementById('extDmgEl');
+    const videoEl  = document.getElementById('extHeroVideo');
+    const spriteEl = document.getElementById('extHeroSprite');
     if (!heroEl || !enemyEl) return;
 
-    // 영웅 돌진
+    // WebM 재생 시작 (있으면)
+    let videoPlayed = false;
+    if (videoEl && videoEl.style.display !== 'none' && videoEl.src) {
+      try {
+        videoEl.currentTime = 0;
+        await videoEl.play();
+        videoPlayed = true;
+      } catch(e) { videoPlayed = false; }
+    }
+
+    // 영웅 돌진 (CSS 이동 애니메이션)
     heroEl.classList.add('ext-hero-charging');
 
     // 0.35초 후 몬스터 타격 이펙트
@@ -8304,6 +8342,12 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 영웅 복귀 대기
     await wait(400);
     heroEl.classList.remove('ext-hero-charging');
+
+    // WebM 정지 후 첫 프레임
+    if (videoPlayed && videoEl) {
+      videoEl.pause();
+      videoEl.currentTime = 0;
+    }
   }
 
   // 확장 전투씬 버튼 핸들러 (기존 로직 재활용)
