@@ -8152,21 +8152,21 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // ── 확장 전투씬 좌표 정의 ─────────────────────────────────────
   // 아군 / 형태 (엇갈리기)
   const EXT_ALLY_POS = [
-    { slot:0, style:'left:86px;bottom:250px;'  },  // 기마병  (맨 뒤)
-    { slot:1, style:'left:14px;bottom:185px;'  },  // 마법사  (뒷줄 왼)
-    { slot:2, style:'left:86px;bottom:185px;'  },  // 창병    (뒷줄 오)
-    { slot:3, style:'left:14px;bottom:120px;'  },  // 궁병    (중간 왼)
-    { slot:4, style:'left:86px;bottom:120px;'  },  // 방패병  (중간 오)
-    { slot:5, style:'left:86px;bottom:55px;'   },  // 검병    (앞줄)
+    { slot:0, style:'left:80px;bottom:175px;'  },  // 앞줄 오
+    { slot:1, style:'left:12px;bottom:175px;'  },  // 앞줄 왼
+    { slot:2, style:'left:104px;bottom:270px;' },  // 중간 오
+    { slot:3, style:'left:36px;bottom:270px;'  },  // 중간 왼
+    { slot:4, style:'left:128px;bottom:365px;' },  // 뒷줄 오
+    { slot:5, style:'left:60px;bottom:365px;'  },  // 뒷줄 왼
   ];
-  // 적 병사 \ 형태 (엇갈리기) — 최대 6명
+  // 적 병사 — 최대 6명
   const EXT_ENEMY_POS = [
-    'right:158px;bottom:55px;',   // 적1  (앞줄)
-    'right:86px;bottom:120px;',   // 적2  (중간 왼)
-    'right:158px;bottom:120px;',  // 적3  (중간 오)
-    'right:86px;bottom:185px;',   // 적4  (뒷줄 왼)
-    'right:158px;bottom:185px;',  // 적5  (뒷줄 오)
-    'right:86px;bottom:250px;',   // 적6  (맨 뒤)
+    'right:78px;bottom:175px;',   // 적0 앞줄 왼
+    'right:10px;bottom:175px;',   // 적1 앞줄 오
+    'right:102px;bottom:270px;',  // 적2 중간 왼
+    'right:34px;bottom:270px;',   // 적3 중간 오
+    'right:126px;bottom:365px;',  // 적4 뒷줄 왼
+    'right:58px;bottom:365px;',   // 적5 뒷줄 오
   ];
 
   function openExtBattle() {
