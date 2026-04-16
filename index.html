@@ -1024,6 +1024,45 @@
       animation: extDmgFloat 0.9s ease forwards;
       color:#ffcf63; text-shadow:0 0 8px rgba(255,207,99,0.8);
     }
+    /* ── 방어 애니메이션 ── */
+    @keyframes extHeroDefend {
+      0%   { transform:translateX(0) scaleX(1); filter:brightness(1); }
+      20%  { transform:translateX(-18px) scaleX(0.92); filter:brightness(1.4) saturate(0.4); }
+      50%  { transform:translateX(-10px) scaleX(0.95); filter:brightness(2) saturate(0) drop-shadow(0 0 10px rgba(99,208,154,0.9)); }
+      100% { transform:translateX(0) scaleX(1); filter:brightness(1); }
+    }
+    .ext-hero-defending { animation: extHeroDefend 0.6s ease forwards; }
+    #extShieldFx {
+      position:absolute; left:0; bottom:116px; z-index:12; pointer-events:none;
+      font-size:60px; display:none; opacity:0;
+      animation: extShieldPop 0.65s ease forwards;
+    }
+    @keyframes extShieldPop {
+      0%   { opacity:0; transform:scale(0.4) translateY(10px); }
+      35%  { opacity:1; transform:scale(1.3) translateY(-4px); }
+      65%  { opacity:0.8; transform:scale(1.0) translateY(0); }
+      100% { opacity:0; transform:scale(0.7) translateY(4px); }
+    }
+    /* ── 필살기 플래시 ── */
+    @keyframes extSkillFlash {
+      0%   { box-shadow:inset 0 0 0 0 rgba(255,207,99,0); }
+      20%  { box-shadow:inset 0 0 80px 40px rgba(255,207,99,0.55); }
+      60%  { box-shadow:inset 0 0 40px 20px rgba(255,150,30,0.30); }
+      100% { box-shadow:inset 0 0 0 0 rgba(255,207,99,0); }
+    }
+    .ext-skill-flash { animation: extSkillFlash 0.65s ease forwards !important; }
+    /* 필살기 데미지 색 */
+    #extDmgEl.skill-dmg { color:#ffcf63; font-size:28px; text-shadow:0 0 16px rgba(255,207,99,1),0 0 6px #fff; }
+    /* ── 속도 배너 ── */
+    #extSpeedBanner {
+      position:absolute; top:46px; left:50%; transform:translateX(-50%);
+      z-index:25; pointer-events:none; opacity:0;
+      font-size:14px; font-weight:800; padding:3px 14px;
+      border-radius:20px; background:rgba(0,0,0,0.65);
+      border:1px solid rgba(255,255,255,0.18);
+      white-space:nowrap; letter-spacing:0.5px;
+      transition:opacity 0.3s;
+    }
 
 
     .ext-battle-backdrop {
@@ -2100,6 +2139,10 @@
       <!-- 타격 이펙트 -->
       <div id="extImpactEl">💥</div>
       <div id="extDmgEl"></div>
+      <!-- 속도 선제 배너 -->
+      <div id="extSpeedBanner"></div>
+      <!-- 방어 실드 이펙트 -->
+      <div id="extShieldFx">🛡</div>
 
       <!-- 배경 테스트 콤보박스 (개발용) -->
       <div id="extBgTestPanel" style="position:absolute;top:4px;right:8px;z-index:20;display:flex;gap:4px;align-items:center;">
@@ -2151,6 +2194,12 @@
     <!-- 몬스터 (container 직속) -->
     <div class="ext-char enemy" id="extEnemyChar"
          style="position:absolute;right:10px;bottom:120px;z-index:10;">
+      <!-- WebM 영상 (있으면 이미지 대체) -->
+      <video id="extEnemyVideo"
+        style="display:none;width:133px;height:150px;pointer-events:none;
+               filter:drop-shadow(0 0 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,0.9)) drop-shadow(0 0 1px rgba(0,0,0,1));"
+        preload="auto" playsinline webkit-playsinline loop>
+      </video>
       <div id="extEnemySprite"></div>
       <div class="ext-sh" style="width:90px;height:10px;"></div>
       <div class="ext-nm" style="color:#ff8888;display:none;" id="extEnemyLabel">몬스터</div>
@@ -8164,15 +8213,39 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       tmpV.src = videoSrc;
     }
 
-    // 몬스터 스프라이트 (기존 전투씬과 동일한 URL 함수 사용)
+    // 몬스터 스프라이트 + WebM 감지
     const mobUrl    = getMonsterRepUrl(setup.enemy.name);
     const mobUrlGrp = getMonsterGroupUrl(setup.enemy.name);
-    document.getElementById('extEnemySprite').innerHTML =
+    const extEnemySpriteEl = document.getElementById('extEnemySprite');
+    const extEnemyVideoEl  = document.getElementById('extEnemyVideo');
+    extEnemySpriteEl.innerHTML =
       `<img src="${mobUrl}" width="133" height="150" style="object-fit:contain;" onerror="this.style.opacity=0">`;
     document.getElementById('extEnemyHpMini').style.width =
       `${Math.round(b.enemyHp/b.enemyMax*100)}%`;
 
-    // 아군 병사 배치
+    // 몬스터 WebM 시도 (assets/video/monster_<baseName>.webm)
+    if (extEnemyVideoEl) {
+      extEnemyVideoEl.style.display = 'none';
+      extEnemySpriteEl.style.display = '';
+      const monsterBaseName = getMonsterBaseName(setup.enemy.name);
+      const monsterVideoSrc = `${SOLDIER_BASE.replace('/soldier','/video')}/monster_${monsterBaseName}.webm`;
+      const tmpMv = document.createElement('video');
+      tmpMv.preload = 'metadata';
+      tmpMv.onloadedmetadata = () => {
+        extEnemyVideoEl.src = monsterVideoSrc;
+        extEnemyVideoEl.style.display = 'block';
+        extEnemyVideoEl.currentTime = 0;
+        extEnemyVideoEl.play().catch(()=>{});
+        extEnemySpriteEl.style.display = 'none';
+      };
+      tmpMv.onerror = () => {
+        extEnemyVideoEl.style.display = 'none';
+        extEnemySpriteEl.style.display = '';
+      };
+      tmpMv.src = monsterVideoSrc;
+    }
+
+    // 아군 병사 배치 (WebM 지원)
     const allyEl = document.getElementById('extAllyGroup');
     allyEl.innerHTML = '';
     const deployed = deployedSoldiers.filter(Boolean);
@@ -8184,21 +8257,38 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       const url  = `${SOLDIER_BASE}/${file}`;
       const rarityToGrade = { common:'일반', uncommon:'일반', rare:'챔피언', epic:'엘리트', legendary:'전설' };
       const gradeFx = 'grade-fx-' + (rarityToGrade[sol.rarity] || '일반');
+      const solVideoSrc = `${SOLDIER_BASE.replace('/soldier','/video')}/soldier_${(sol.cls||'검병')}.webm`;
       const div  = document.createElement('div');
       div.className = 'ext-char';
       div.style.cssText = `position:absolute;${pos.style}`;
+      // 이미지 기본, WebM 있으면 교체
+      const imgId  = `extSolImg_${i}`;
+      const vidId  = `extSolVid_${i}`;
       div.innerHTML = `
-        <img src="${url}" width="66" height="84" style="object-fit:contain;" class="${gradeFx}"
+        <video id="${vidId}" style="display:none;width:66px;height:84px;object-fit:contain;pointer-events:none;
+               filter:drop-shadow(0 0 2px rgba(0,0,0,1));" preload="auto" playsinline loop></video>
+        <img id="${imgId}" src="${url}" width="66" height="84" style="object-fit:contain;" class="${gradeFx}"
              onerror="this.style.opacity=0">
         <div class="ext-sh" style="width:44px;height:6px;"></div>
         <div class="ext-nm">${clsData.icon||''}${sol.cls}</div>`;
       allyEl.appendChild(div);
+      // WebM 병사 감지
+      const tmpSv = document.createElement('video');
+      tmpSv.preload = 'metadata';
+      tmpSv.onloadedmetadata = () => {
+        const vEl = document.getElementById(vidId);
+        const iEl = document.getElementById(imgId);
+        if (vEl) { vEl.src = solVideoSrc; vEl.style.display='block'; vEl.play().catch(()=>{}); }
+        if (iEl) iEl.style.display = 'none';
+      };
+      tmpSv.onerror = () => {};
+      tmpSv.src = solVideoSrc;
     });
 
     // 적 병사 배치
     const enemyEl = document.getElementById('extEnemyGroup');
     enemyEl.innerHTML = '';
-    const amount = Math.min(setup.amount || 1, 6) - 1; // 몬스터 1마리 제외
+    const amount = Math.min(setup.enemy.amount || 1, 6) - 1; // 몬스터 1마리 제외
     const mobGradeClass = `mob-${enemy.grade||'일반'}`;
     for (let i = 0; i < amount; i++) {
       const div = document.createElement('div');
@@ -8265,8 +8355,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     document.getElementById('extEnemyHpBar').style.width = Math.round(Math.max(0,b.enemyHp)/b.enemyMax*100)+'%';
     document.getElementById('extEnemyHpMini').style.width= Math.round(Math.max(0,b.enemyHp)/b.enemyMax*100)+'%';
 
-    // 필살기 게이지 (임시: 데미지 누적으로 계산)
-    const spPct = Math.min(100, Math.round((b.totalDmg||0) / (b.enemyMax||1) * 100));
+    // 필살기 게이지 (실제 sp 상태값 사용)
+    const spPct = Math.min(100, Math.round(b.sp || 0));
     const gaugeFill = document.getElementById('extGaugeFill');
     const gaugeText = document.getElementById('extGaugeText');
     const skillBtn  = document.getElementById('extSkillBtn');
@@ -8357,29 +8447,20 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     }
   }
 
-  // 확장 전투씬 버튼 핸들러 (기존 로직 재활용)
-  async function extBattleAttack() {
-    const b = state.battle; if (!b || b.ended || b.locked) return;
-    b.locked = true;
-    const enemy = b.setup.enemy;
-    const lines = [], t = b.turn;
+  // ── 속도 배너 헬퍼 ──────────────────────────────────────────
+  function showSpeedBanner(text, color, duration=1400) {
+    const el = document.getElementById('extSpeedBanner');
+    if (!el) return;
+    el.textContent = text;
+    el.style.color = color;
+    el.style.borderColor = color.replace(')', ',0.4)').replace('rgb','rgba');
+    el.style.opacity = '1';
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.style.opacity = '0'; }, duration);
+  }
 
-    const d = calcDamage(b.setup.heroAtk, enemy.def, b.setup.heroCrit);
-    await extAnimHeroCharge(d.value);
-    b.enemyHp -= d.value; b.totalDmg += d.value;
-    lines.push(t+'턴 - 영웅이 '+enemy.name+'에게 '+d.value+' 피해'+(d.critical?' (치명타!)':''));
-    updateExtBattleUI(t+'턴 진행 중', lines.join('\n'));
-
-    if (b.enemyHp > 0) {
-      await wait(300);
-      const d2 = calcDamage(enemy.atk, b.setup.heroDef, enemy.crit);
-      b.heroHp -= d2.value;
-      lines.push(enemy.name+'이(가) 영웅에게 '+d2.value+' 반격'+(d2.critical?' (치명타!)':''));
-      const heroEl = document.getElementById('extHeroChar');
-      if (heroEl) { heroEl.style.filter='brightness(2)'; setTimeout(()=>{heroEl.style.filter='';},300); }
-      updateExtBattleUI(t+'턴 진행 중', lines.join('\n'));
-    }
-
+  // ── 승패 판정 공통 헬퍼 ─────────────────────────────────────
+  async function _checkBattleEnd(b, enemy, lines, t, reason='') {
     if (b.enemyHp <= 0) {
       b.ended = true; SFX.victory();
       const exp = getBattleExp(enemy), gold = getBattleGold(enemy);
@@ -8388,8 +8469,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       await endBattle({ title:'승리', desc:'전투 승리!<br>경험치 '+exp+', 골드 '+gold+' 획득',
         exp, gold, resultType:'success',
         logTitle:enemy.grade+' '+enemy.name+' 전투',
-        logDetail:enemy.grade+' '+enemy.name+' 전투 / 승리 / 경험치 '+exp+' / 골드 '+gold, dropItem });
-      closeExtBattle(); b.locked=false; return;
+        logDetail:enemy.grade+' '+enemy.name+' 전투 / 승리'+reason+' / 경험치 '+exp+' / 골드 '+gold, dropItem });
+      closeExtBattle(); b.locked=false; return true;
     }
     if (b.heroHp <= 0) {
       b.ended = true; SFX.defeat();
@@ -8398,19 +8479,170 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       await endBattle({ title:'패배', desc:'전투 패배.<br>경험치 '+exp+' 획득',
         exp, gold:0, resultType:'fail',
         logTitle:enemy.grade+' '+enemy.name+' 전투',
-        logDetail:enemy.grade+' '+enemy.name+' 전투 / 패배 / 경험치 '+exp });
-      closeExtBattle(); b.locked=false; return;
+        logDetail:enemy.grade+' '+enemy.name+' 전투 / 패배'+reason+' / 경험치 '+exp });
+      closeExtBattle(); b.locked=false; return true;
+    }
+    return false;
+  }
+
+  // ── 적 피격 연출 ─────────────────────────────────────────────
+  function flashHeroHit() {
+    const heroEl = document.getElementById('extHeroChar');
+    if (heroEl) { heroEl.style.filter='brightness(2.5) hue-rotate(330deg)'; setTimeout(()=>{heroEl.style.filter='';},320); }
+  }
+
+  // 확장 전투씬 버튼 핸들러 — 속도 기반 턴제
+  async function extBattleAttack() {
+    const b = state.battle; if (!b || b.ended || b.locked) return;
+    b.locked = true;
+    const enemy    = b.setup.enemy;
+    const lines    = [], t = b.turn;
+    const heroSpd  = b.setup.heroSpeed;
+    const enemySpd = enemy.speed;
+    const heroFirst  = heroSpd >= enemySpd;           // 속도 동점·우위 → 영웅 선제
+    const heroBonus  = heroSpd >= enemySpd * 1.7;     // 압도적 속도 → 추가공격
+    const enemyBonus = enemySpd >= heroSpd * 1.7;     // 적 압도적 속도 → 적 추가공격
+
+    // 속도 배너
+    if (!heroFirst)       showSpeedBanner(`⚡ ${enemy.name} 선제공격!`, '#ff8888');
+    else if (heroBonus)   showSpeedBanner('⚡ 압도적 속도!', '#ffcf63');
+    else                  showSpeedBanner('⚡ 선제공격!', '#9fbfff', 900);
+
+    // ① 적 선제 (영웅보다 빠른 경우)
+    if (!heroFirst) {
+      await wait(420);
+      const de = calcDamage(enemy.atk, b.setup.heroDef, enemy.crit);
+      b.heroHp -= de.value;
+      lines.push(`${t}턴 - ${enemy.name} 선제! 영웅에게 ${de.value} 피해${de.critical?' (치명타!)':''}`);
+      flashHeroHit();
+      updateExtBattleUI(t+'턴 진행 중', lines.join('\n'));
+      if (await _checkBattleEnd(b, enemy, lines, t, '(선제패배)')) return;
+      await wait(280);
+    }
+
+    // ② 영웅 공격
+    const d = calcDamage(b.setup.heroAtk, enemy.def, b.setup.heroCrit);
+    await extAnimHeroCharge(d.value);
+    b.enemyHp -= d.value; b.totalDmg += d.value;
+    b.sp = Math.min(100, (b.sp||0) + Math.max(8, Math.round(d.value / b.enemyMax * 150)));
+    lines.push(`${t}턴 - 영웅이 ${enemy.name}에게 ${d.value} 피해${d.critical?' (치명타!)':''}`);
+    updateExtBattleUI(t+'턴 진행 중', lines.join('\n'));
+    if (await _checkBattleEnd(b, enemy, lines, t)) return;
+
+    // ③ 적 반격 (영웅이 먼저였을 때)
+    if (heroFirst) {
+      await wait(300);
+      const d2 = calcDamage(enemy.atk, b.setup.heroDef, enemy.crit);
+      b.heroHp -= d2.value;
+      lines.push(`${enemy.name}이(가) 영웅에게 ${d2.value} 반격${d2.critical?' (치명타!)':''}`);
+      flashHeroHit();
+      updateExtBattleUI(t+'턴 진행 중', lines.join('\n'));
+      if (await _checkBattleEnd(b, enemy, lines, t)) return;
+    }
+
+    // ④ 영웅 추가공격 (압도적 속도)
+    if (heroBonus) {
+      await wait(340);
+      const db = calcDamage(Math.round(b.setup.heroAtk * 0.55), enemy.def, b.setup.heroCrit);
+      await extAnimHeroCharge(db.value);
+      b.enemyHp -= db.value; b.totalDmg += db.value;
+      b.sp = Math.min(100, (b.sp||0) + 5);
+      lines.push(`⚡ 추가공격! ${enemy.name}에게 ${db.value} 피해`);
+      updateExtBattleUI(t+'턴 진행 중', lines.join('\n'));
+      if (await _checkBattleEnd(b, enemy, lines, t, '(추가공격)')) return;
+    }
+
+    // ⑤ 적 추가공격 (적 압도적 속도)
+    if (enemyBonus) {
+      await wait(280);
+      const de2 = calcDamage(enemy.atk, b.setup.heroDef, enemy.crit);
+      b.heroHp -= de2.value;
+      lines.push(`⚡ ${enemy.name} 추가공격! 영웅에게 ${de2.value} 피해`);
+      flashHeroHit();
+      updateExtBattleUI(t+'턴 진행 중', lines.join('\n'));
+      if (await _checkBattleEnd(b, enemy, lines, t)) return;
     }
 
     updateExtBattleUI(t+'턴 종료', lines.join('\n'));
     b.turn++; b.locked = false;
   }
-  async function extBattleDefend()  { /* TODO: 방어 로직 */ }
+
+  // ── 방어 ─────────────────────────────────────────────────────
+  async function extBattleDefend() {
+    const b = state.battle; if (!b || b.ended || b.locked) return;
+    b.locked = true;
+    const enemy  = b.setup.enemy;
+    const lines  = [], t = b.turn;
+    const heroEl = document.getElementById('extHeroChar');
+
+    // 방어 자세 연출
+    if (heroEl) heroEl.classList.add('ext-hero-defending');
+    const shieldEl = document.getElementById('extShieldFx');
+    if (shieldEl) { shieldEl.style.display='block'; setTimeout(()=>{shieldEl.style.display='none';},700); }
+    lines.push(`${t}턴 - 🛡 방어 자세!`);
+    updateExtBattleUI(t+'턴 진행 중', lines.join('\n'));
+    await wait(450);
+    if (heroEl) heroEl.classList.remove('ext-hero-defending');
+
+    // 적 공격 (방어력 2배 적용)
+    const d = calcDamage(enemy.atk, b.setup.heroDef * 2, enemy.crit);
+    b.heroHp = Math.max(0, b.heroHp - d.value);
+
+    // SP +25, 소량 자가회복
+    b.sp = Math.min(100, (b.sp||0) + 25);
+    const healAmt = Math.max(1, Math.round(b.heroMax * 0.03));
+    b.heroHp = Math.min(b.heroMax, b.heroHp + healAmt);
+
+    lines.push(`${enemy.name}의 공격 차단! (${d.value} 피해 감소 / +${healAmt} 회복)`);
+    lines.push(`필살기 게이지 +25%`);
+    if (heroEl) { heroEl.style.filter='brightness(1.6) saturate(0.4)'; setTimeout(()=>{heroEl.style.filter='';},350); }
+
+    if (await _checkBattleEnd(b, enemy, lines, t, '(방어 중 패배)')) return;
+    updateExtBattleUI(t+'턴 종료', lines.join('\n'));
+    b.turn++; b.locked = false;
+  }
+
   async function extBattleRun() {
     await battleRunAway();
     closeExtBattle();
   }
-  async function extBattleSkill()   { /* TODO: 필살기 로직 */ }
+
+  // ── 필살기 ───────────────────────────────────────────────────
+  async function extBattleSkill() {
+    const b = state.battle; if (!b || b.ended || b.locked) return;
+    if ((b.sp||0) < 100) return;   // 게이지 미달
+    b.locked = true;
+    const enemy = b.setup.enemy;
+    const lines = [], t = b.turn;
+
+    // 클래스별 필살기 이름
+    const SKILL_NAMES = { 전사:'분노의 일격', 궁병:'폭풍 화살', 마법사:'마력 폭발', 기사:'신성한 강타', 암살자:'그림자 찌르기' };
+    const skillName = SKILL_NAMES[state.heroClass] || '필살기';
+
+    // SP 리셋 + 화면 플래시
+    b.sp = 0;
+    const backdrop = document.getElementById('extBattleBackdrop');
+    if (backdrop) { backdrop.classList.add('ext-skill-flash'); setTimeout(()=>backdrop.classList.remove('ext-skill-flash'),700); }
+    showSpeedBanner(`✨ ${skillName}!`, '#ffcf63', 1600);
+    await wait(250);
+
+    // 3배 데미지, 방어 30%만 적용, 무조건 치명타
+    const dmg = calcDamage(b.setup.heroAtk * 3, Math.floor(enemy.def * 0.3), 100).value;
+    const dmgEl = document.getElementById('extDmgEl');
+    if (dmgEl) dmgEl.classList.add('skill-dmg');
+    await extAnimHeroCharge(dmg);
+    if (dmgEl) setTimeout(()=>dmgEl.classList.remove('skill-dmg'), 1000);
+    b.enemyHp -= dmg; b.totalDmg += dmg;
+
+    lines.push(`${t}턴 - ✨ ${skillName}! ${enemy.name}에게 ${dmg} 치명 피해!`);
+    updateExtBattleUI(t+'턴 진행 중', lines.join('\n'));
+    if (await _checkBattleEnd(b, enemy, lines, t, '(필살기)')) return;
+
+    // 필살기 → 적 반격 없음
+    lines.push(`${enemy.name}이(가) 압도되어 반격하지 못했습니다!`);
+    updateExtBattleUI(t+'턴 종료', lines.join('\n'));
+    b.turn++; b.locked = false;
+  }
 
   async function openBattleModal(decoded) {
     // 전투 시작 전 현재 상태 DB 저장
@@ -8442,7 +8674,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       decoded.desc      = decoded.desc  || `${decoded.enemy.name} 1마리가 나타났습니다.`;
     }
     const setup = getBattleSetup(decoded.enemy);
-    state.battle = { decoded, setup, heroHp:setup.heroMax, heroMax:setup.heroMax, enemyHp:setup.enemy.hp, enemyMax:setup.enemy.hp, turn:1, totalDmg:0, ended:false, locked:false };
+    state.battle = { decoded, setup, heroHp:setup.heroMax, heroMax:setup.heroMax, enemyHp:setup.enemy.hp, enemyMax:setup.enemy.hp, turn:1, totalDmg:0, sp:0, ended:false, locked:false };
     resetBattleAnims(); // ran-away/defeated 포함 모든 클래스 초기화
     clearBattleResultOverlay();
     renderBattleHeroSprite(); renderBattleSoldiers(setup.soldierCount, (setup.soldierClasses||[])[0] || '검병');
