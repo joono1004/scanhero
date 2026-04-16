@@ -1072,32 +1072,15 @@
       align-items:center;
       justify-content:center;
     }
-    .ext-battle-backdrop.open { display:flex; align-items:center; justify-content:center; }
-    /* 배경 이미지 확장 영역 (양옆 검은 여백 → 배경으로 채움) */
-    .ext-battle-backdrop.open::before {
-      content:''; position:absolute; inset:0; z-index:0;
-      background-image: inherit;
-      background-size: cover;
-      background-position: center;
-      filter: blur(8px) brightness(0.55);
-      transform: scale(1.05);
-    }
-    /* 양옆 끝 자연스럽게 어둡게 처리 */
-    .ext-battle-backdrop.open::after {
-      content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
-      background: radial-gradient(ellipse 70% 100% at center, transparent 60%, rgba(0,0,0,0.75) 100%);
-    }
+    .ext-battle-backdrop.open { display:flex; }
     .ext-battle-container {
-      width:390px; height:844px;
-      flex-shrink:0;
-      position:relative; z-index:2;
+      width:100vw; height:100vh; height:100dvh;
       display:flex; flex-direction:column;
-      overflow:hidden;
+      overflow:hidden; position:relative;
       background:linear-gradient(180deg,#0a1f0a 0%,#0d2810 40%,#1a3a15 70%,#2a4a1a 100%);
-      background-size:390px 844px;
-      background-position:top center;
+      background-size:100% 100%;
+      background-position:center;
       background-repeat:no-repeat;
-      transform-origin:center center;
     }
     .ext-status-bar {
       height:48px; background:rgba(0,0,0,0.55);
@@ -8143,12 +8126,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     img.onload = () => {
       // container(390×844 고정)에 배경 적용 → 항상 같은 비율 유지
       cont.style.backgroundImage    = 'url('+url+')';
-      cont.style.backgroundSize     = '390px 844px'; // 완전 고정
-      cont.style.backgroundPosition = 'top center';
+      cont.style.backgroundSize     = '100% 100%'; // 폰 크기에 맞게 늘어남
+      cont.style.backgroundPosition = 'center';
       cont.style.backgroundRepeat   = 'no-repeat';
-      // backdrop 전체에도 같은 이미지 적용 → 양옆 검은 여백 대신 배경 확장
-      const bd = document.getElementById('extBattleBackdrop');
-      if (bd) bd.style.backgroundImage = 'url('+url+')';
       // CSS 그라디언트 레이어 숨기기
       if (main) main.style.background = 'transparent';
       const sky    = main && main.querySelector('.ext-bg-sky');
@@ -8158,8 +8138,6 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     };
     img.onerror = () => {
       cont.style.backgroundImage = '';
-      const bd = document.getElementById('extBattleBackdrop');
-      if (bd) bd.style.backgroundImage = '';
       if (main) main.style.background = '';
       const sky    = main && main.querySelector('.ext-bg-sky');
       const ground = main && main.querySelector('.ext-bg-ground');
@@ -8336,29 +8314,14 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 배경 이미지 적용
     applyExtBattleBg();
 
-    // 화면 크기에 맞게 scale 조정 (비율 유지 → 캐릭터 위치 일정)
-    const scaleExtBattle = () => {
-      const container = document.getElementById('extBattleContainer');
-      if (!container) return;
-      const scale = Math.min(window.innerWidth / 390, window.innerHeight / 844);
-      container.style.transform = 'scale(' + scale + ')';
-    };
-    scaleExtBattle();
-    window._extBattleScaleHandler = scaleExtBattle;
-    window.addEventListener('resize', window._extBattleScaleHandler);
+    // 컨테이너가 100vw×100dvh CSS로 폰 화면을 꽉 채움 (JS 스케일링 불필요)
 
     // 화면 표시
     document.getElementById('extBattleBackdrop').classList.add('open');
   }
 
   function closeExtBattle() {
-    const bd = document.getElementById('extBattleBackdrop');
-    bd.classList.remove('open');
-    bd.style.backgroundImage = '';
-    if (window._extBattleScaleHandler) {
-      window.removeEventListener('resize', window._extBattleScaleHandler);
-      window._extBattleScaleHandler = null;
-    }
+    document.getElementById('extBattleBackdrop').classList.remove('open');
   }
 
   function updateExtBattleUI(title, log) {
