@@ -1072,17 +1072,15 @@
       align-items:center;
       justify-content:center;
     }
-    .ext-battle-backdrop.open { display:flex; }
+    .ext-battle-backdrop.open { display:flex; align-items:stretch; }
     .ext-battle-container {
-      width:390px; height:844px;
-      flex-shrink:0;
+      width:100%; flex:1;
       display:flex; flex-direction:column;
       overflow:hidden; position:relative;
       background:linear-gradient(180deg,#0a1f0a 0%,#0d2810 40%,#1a3a15 70%,#2a4a1a 100%);
-      background-size:390px 844px;
-      background-position:top center;
+      background-size:cover;
+      background-position:center;
       background-repeat:no-repeat;
-      transform-origin:center center;
     }
     .ext-status-bar {
       height:48px; background:rgba(0,0,0,0.55);
@@ -8316,21 +8314,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 배경 이미지 적용
     applyExtBattleBg();
 
-    // 화면 크기에 맞게 scale 조정
-    const scaleExtBattle = () => {
-      const container = document.getElementById('extBattleContainer');
-      if (!container) return;
-      const scaleX = window.innerWidth  / 390;
-      const scaleY = window.innerHeight / 844;
-      // 가로를 항상 꽉 채움 (세로가 심하게 부족할 때만 세로 기준으로 전환)
-      // 예: 주소창/네비바로 높이가 줄어도 가로 폭은 유지됨
-      const scale = scaleY < scaleX - 0.15 ? scaleY : scaleX;
-      container.style.transform = 'scale('+scale+')';
-      container.style.margin = '0';
-    };
-    scaleExtBattle();
-    window._extBattleScaleHandler = scaleExtBattle;
-    window.addEventListener('resize', window._extBattleScaleHandler);
+    // 컨테이너가 CSS로 폰 화면을 꽉 채우므로 JS 스케일링 불필요
 
     // 화면 표시
     document.getElementById('extBattleBackdrop').classList.add('open');
@@ -8338,10 +8322,6 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   function closeExtBattle() {
     document.getElementById('extBattleBackdrop').classList.remove('open');
-    if (window._extBattleScaleHandler) {
-      window.removeEventListener('resize', window._extBattleScaleHandler);
-      window._extBattleScaleHandler = null;
-    }
   }
 
   function updateExtBattleUI(title, log) {
