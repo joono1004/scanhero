@@ -1038,7 +1038,10 @@
       display:flex; flex-direction:column;
       overflow:hidden; position:relative;
       background:linear-gradient(180deg,#0a1f0a 0%,#0d2810 40%,#1a3a15 70%,#2a4a1a 100%);
-      transform-origin: top center;
+      background-size:390px 844px;
+      background-position:top center;
+      background-repeat:no-repeat;
+      transform-origin:top center;
     }
     .ext-status-bar {
       height:48px; background:rgba(0,0,0,0.55);
@@ -8006,29 +8009,31 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   }
 
   function applyExtBattleBg() {
-    const url   = getExtBgUrl();
-    const main  = document.getElementById('extBattleMain');
-    const cont  = document.getElementById('extBattleContainer');
-    if (!main) return;
+    const url  = getExtBgUrl();
+    const cont = document.getElementById('extBattleContainer');
+    const main = document.getElementById('extBattleMain');
+    if (!cont) return;
 
-    // 이미지 로드 시도 → 성공하면 배경 적용, 실패하면 CSS 그라디언트 유지
     const img = new Image();
     img.onload = () => {
-      main.style.backgroundImage    = 'url('+url+')';
-      main.style.backgroundSize     = 'cover';
-      main.style.backgroundPosition = 'center';
-      // 배경 이미지 적용 시 CSS 배경 레이어 숨기기
-      const sky    = main.querySelector('.ext-bg-sky');
-      const ground = main.querySelector('.ext-bg-ground');
-      if (sky)    sky.style.opacity    = '0';
+      // container(390×844 고정)에 배경 적용 → 항상 같은 비율 유지
+      cont.style.backgroundImage    = 'url('+url+')';
+      cont.style.backgroundSize     = '390px 844px'; // 완전 고정
+      cont.style.backgroundPosition = 'top center';
+      cont.style.backgroundRepeat   = 'no-repeat';
+      // CSS 그라디언트 레이어 숨기기
+      if (main) main.style.background = 'transparent';
+      const sky    = main && main.querySelector('.ext-bg-sky');
+      const ground = main && main.querySelector('.ext-bg-ground');
+      if (sky)    sky.style.opacity = '0';
       if (ground) ground.style.opacity = '0';
     };
     img.onerror = () => {
-      // 이미지 없으면 기존 CSS 그라디언트 유지
-      main.style.backgroundImage = '';
-      const sky    = main.querySelector('.ext-bg-sky');
-      const ground = main.querySelector('.ext-bg-ground');
-      if (sky)    sky.style.opacity    = '1';
+      cont.style.backgroundImage = '';
+      if (main) main.style.background = '';
+      const sky    = main && main.querySelector('.ext-bg-sky');
+      const ground = main && main.querySelector('.ext-bg-ground');
+      if (sky)    sky.style.opacity = '1';
       if (ground) ground.style.opacity = '1';
     };
     img.src = url;
@@ -8143,11 +8148,13 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       if (!container) return;
       const scaleX = window.innerWidth  / 390;
       const scaleY = window.innerHeight / 844;
-      const scale  = Math.min(scaleX, scaleY, 1); // 최대 1배 (확대 안 함)
+      const scale  = Math.min(scaleX, scaleY); // 화면에 꽉 맞게
       container.style.transform = 'scale('+scale+')';
-      container.style.marginTop = scale < 1
-        ? Math.round((window.innerHeight - 844 * scale) / 2)+'px'
-        : '0';
+      container.style.transformOrigin = 'top center';
+      // 축소 시 세로 여백 보정
+      const scaledH = Math.round(844 * scale);
+      container.style.marginTop  = Math.round((window.innerHeight - scaledH) / 2)+'px';
+      container.style.marginLeft = Math.round((window.innerWidth - 390 * scale) / 2)+'px';
     };
     scaleExtBattle();
     window._extBattleScaleHandler = scaleExtBattle;
