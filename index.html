@@ -1072,12 +1072,15 @@
     .ext-battle-main { background-size:cover; background-position:center; transition:background-image 0.3s; }
     .ext-char { position:absolute; display:flex; flex-direction:column; align-items:center; }
     .ext-char img { display:block; object-fit:contain;
-      filter:drop-shadow(0 0 4px rgba(0,0,0,1)) drop-shadow(0 0 8px rgba(0,0,0,0.9))
-             drop-shadow(0 0 2px rgba(0,0,0,1)); }
+      filter:drop-shadow(0 0 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,0.9)) drop-shadow(0 0 1px rgba(0,0,0,1)); }
+    .ext-char img.grade-fx-일반   { filter: drop-shadow(0 0 3px rgba(255,255,255,0.8)) drop-shadow(0 0 6px rgba(255,255,255,0.4)) drop-shadow(0 0 2px rgba(0,0,0,1)); }
+    .ext-char img.grade-fx-챔피언 { filter: drop-shadow(0 0 6px rgba(99,208,154,0.9)) drop-shadow(0 0 12px rgba(99,208,154,0.5)) drop-shadow(0 0 2px rgba(0,0,0,1)); }
+    .ext-char img.grade-fx-엘리트 { filter: drop-shadow(0 0 8px rgba(99,168,255,1.0)) drop-shadow(0 0 18px rgba(99,168,255,0.6)) brightness(1.1) drop-shadow(0 0 2px rgba(0,0,0,1)); }
+    .ext-char img.grade-fx-전설   { filter: drop-shadow(0 0 10px rgba(178,125,255,1.0)) drop-shadow(0 0 22px rgba(178,125,255,0.7)) brightness(1.15) drop-shadow(0 0 2px rgba(0,0,0,1)); animation: legendPulse 2s ease-in-out infinite; }
     .ext-char .ext-nm { font-size:15px; color:rgba(255,255,255,0.6); margin-top:2px; white-space:nowrap; display:none; }
     .ext-char .ext-sh { border-radius:50%; background:rgba(0,0,0,0.35); margin-top:-2px; }
-    .ext-char.hero img { filter:drop-shadow(0 0 4px rgba(0,0,0,1)) drop-shadow(0 0 8px rgba(0,0,0,0.9)) drop-shadow(0 0 2px rgba(0,0,0,1)); }
-    .ext-char.enemy img { filter:drop-shadow(0 0 4px rgba(0,0,0,1)) drop-shadow(0 0 8px rgba(0,0,0,0.9)) drop-shadow(0 0 2px rgba(0,0,0,1)); }
+    .ext-char.hero img { filter:drop-shadow(0 0 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,0.9)) drop-shadow(0 0 1px rgba(0,0,0,1)); }
+    .ext-char.enemy img { filter:drop-shadow(0 0 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,0.9)) drop-shadow(0 0 1px rgba(0,0,0,1)); }
     .ext-battle-log {
       position:absolute; top:56px; left:10px; right:10px;
       background:rgba(0,0,0,0.55); border-radius:8px;
@@ -2133,7 +2136,7 @@
       <!-- WebM 영상 (있으면 이미지 대체) -->
       <video id="extHeroVideo"
         style="display:none;width:133px;height:150px;pointer-events:none;
-               filter:drop-shadow(0 0 4px rgba(0,0,0,1)) drop-shadow(0 0 8px rgba(0,0,0,0.9)) drop-shadow(0 0 2px rgba(0,0,0,1));"
+               filter:drop-shadow(0 0 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,0.9)) drop-shadow(0 0 1px rgba(0,0,0,1));"
         preload="auto" playsinline webkit-playsinline>
       </video>
       <!-- 이미지 레이어 (영상 없을 때 표시) -->
@@ -8179,11 +8182,13 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       const clsData = SOLDIER_CLASS_DATA[sol.cls] || {};
       const file = SOLDIER_FILE[sol.cls] || SOLDIER_FILE['검병'];
       const url  = `${SOLDIER_BASE}/${file}`;
+      const rarityToGrade = { common:'일반', uncommon:'일반', rare:'챔피언', epic:'엘리트', legendary:'전설' };
+      const gradeFx = 'grade-fx-' + (rarityToGrade[sol.rarity] || '일반');
       const div  = document.createElement('div');
       div.className = 'ext-char';
       div.style.cssText = `position:absolute;${pos.style}`;
       div.innerHTML = `
-        <img src="${url}" width="66" height="84" style="object-fit:contain;"
+        <img src="${url}" width="66" height="84" style="object-fit:contain;" class="${gradeFx}"
              onerror="this.style.opacity=0">
         <div class="ext-sh" style="width:44px;height:6px;"></div>
         <div class="ext-nm">${clsData.icon||''}${sol.cls}</div>`;
@@ -8199,8 +8204,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       const div = document.createElement('div');
       div.className = 'ext-char';
       div.style.cssText = `position:absolute;${EXT_ENEMY_POS[i]}`;
+      const enemyGradeFx = 'grade-fx-' + (enemy.grade || '일반');
       div.innerHTML = `
-        <img src="${mobUrlGrp}" width="66" height="84" style="object-fit:contain;filter:drop-shadow(0 0 3px rgba(255,80,80,0.6));"
+        <img src="${mobUrlGrp}" width="66" height="84" style="object-fit:contain;" class="${enemyGradeFx}"
              onerror="this.style.opacity=0">
         <div class="ext-sh" style="width:44px;height:6px;"></div>
         <div class="ext-nm" style="color:rgba(255,150,150,0.6);">적병${i+1}</div>`;
