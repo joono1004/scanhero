@@ -970,6 +970,23 @@
     .mini-current-marker { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #7ea7ff 0%, #557dff 100%); border: 2px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(0,0,0,0.35); font-size: 14px; }
 
     /* ── 확장 전투씬 ── */
+    @keyframes extGaugeShimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    .ext-gauge-fill.full {
+      background: linear-gradient(90deg, #ffcf63 0%, #fffaaa 40%, #ffcf63 60%, #ff8800 100%) !important;
+      background-size: 200% auto !important;
+      animation: extGaugeShimmer 1.2s linear infinite;
+    }
+    @keyframes extGaugePctFlash {
+      0%,100% { color:#ffcf63; }
+      50%      { color:#fffaaa; }
+    }
+    #extGaugeText.full {
+      animation: extGaugePctFlash 0.8s ease infinite;
+    }
+
     @keyframes extHeroCharge {
       0%   { transform: translateX(0)   scaleX(1); }
       40%  { transform: translateX(160px) scaleX(1); }
@@ -1023,12 +1040,12 @@
     }
     .ext-hp-block { display:flex; flex-direction:column; gap:3px; }
     .ext-hp-block.right { align-items:flex-end; }
-    .ext-hp-name { font-size:14px; color:rgba(255,255,255,0.7); font-weight:600; }
+    .ext-hp-name { font-size:17px; color:rgba(255,255,255,0.7); font-weight:600; }
     .ext-hp-val  { font-size:12px; color:rgba(255,255,255,0.5); }
     .ext-hp-bar  { width:80px; height:4px; border-radius:2px; background:rgba(255,255,255,0.1); overflow:hidden; }
     .ext-hp-fill { height:100%; border-radius:2px; }
     .ext-turn-badge {
-      font-size:15px; font-weight:700; color:#ffcf63;
+      font-size:18px; font-weight:700; color:#ffcf63;
       background:rgba(255,207,99,0.15); padding:4px 12px;
       border-radius:12px; border:1px solid rgba(255,207,99,0.3);
     }
@@ -1040,7 +1057,7 @@
     .ext-char { position:absolute; display:flex; flex-direction:column; align-items:center; }
     .ext-char img { display:block; object-fit:contain;
       filter:drop-shadow(0 0 3px rgba(255,255,255,0.6)) drop-shadow(0 0 6px rgba(255,255,255,0.3)); }
-    .ext-char .ext-nm { font-size:13px; color:rgba(255,255,255,0.55); margin-top:2px; white-space:nowrap; }
+    .ext-char .ext-nm { font-size:15px; color:rgba(255,255,255,0.6); margin-top:2px; white-space:nowrap; }
     .ext-char .ext-sh { border-radius:50%; background:rgba(0,0,0,0.35); margin-top:-2px; }
     .ext-char.hero img { filter:drop-shadow(0 0 4px rgba(79,124,255,0.8)) drop-shadow(0 0 8px rgba(79,124,255,0.4)); }
     .ext-char.enemy img { filter:drop-shadow(0 0 4px rgba(255,60,60,0.7)) drop-shadow(0 0 8px rgba(255,60,60,0.3)); }
@@ -1049,7 +1066,7 @@
       background:rgba(0,0,0,0.6); border-radius:8px;
       padding:6px 10px; border:1px solid rgba(255,255,255,0.07);
     }
-    .ext-log-title { font-size:14px; color:#ffcf63; font-weight:700; margin-bottom:3px; }
+    .ext-log-title { font-size:17px; color:#ffcf63; font-weight:700; margin-bottom:3px; }
     .ext-log-text  { font-size:13px; color:rgba(255,255,255,0.55); }
     .ext-bottom {
       flex-shrink:0; background:rgba(0,0,0,0.82);
@@ -1062,7 +1079,7 @@
     .ext-btns { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
     .ext-btn {
       padding:10px 2px; border-radius:10px;
-      font-size:14px; font-weight:700; text-align:center;
+      font-size:18px; font-weight:700; text-align:center;
       border:1px solid transparent; cursor:pointer;
     }
     .ext-btn:active { transform:scale(0.96); }
@@ -2091,7 +2108,7 @@
     <!-- 하단 버튼 -->
     <div class="ext-bottom">
       <div class="ext-gauge-row">
-        <div style="font-size:13px;color:#ffcf63;white-space:nowrap;font-weight:600;">필살기</div>
+        <div style="font-size:16px;color:#ffcf63;white-space:nowrap;font-weight:600;">필살기</div>
         <div class="ext-gauge-track"><div class="ext-gauge-fill" id="extGaugeFill" style="width:0%;"></div></div>
         <div style="font-size:9px;color:#ffcf63;font-weight:700;" id="extGaugeText">0%</div>
       </div>
@@ -8014,9 +8031,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       div.className = 'ext-char';
       div.style.cssText = `position:absolute;${pos.style}`;
       div.innerHTML = `
-        <img src="${url}" width="44" height="56" style="object-fit:contain;"
+        <img src="${url}" width="66" height="84" style="object-fit:contain;"
              onerror="this.style.opacity=0">
-        <div class="ext-sh" style="width:30px;height:5px;"></div>
+        <div class="ext-sh" style="width:44px;height:6px;"></div>
         <div class="ext-nm">${clsData.icon||''}${sol.cls}</div>`;
       allyEl.appendChild(div);
     });
@@ -8031,9 +8048,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       div.className = 'ext-char';
       div.style.cssText = `position:absolute;${EXT_ENEMY_POS[i]}`;
       div.innerHTML = `
-        <img src="${mobUrlGrp}" width="44" height="56" style="object-fit:contain;filter:drop-shadow(0 0 3px rgba(255,80,80,0.6));"
+        <img src="${mobUrlGrp}" width="66" height="84" style="object-fit:contain;filter:drop-shadow(0 0 3px rgba(255,80,80,0.6));"
              onerror="this.style.opacity=0">
-        <div class="ext-sh" style="width:30px;height:5px;"></div>
+        <div class="ext-sh" style="width:44px;height:6px;"></div>
         <div class="ext-nm" style="color:rgba(255,150,150,0.6);">적병${i+1}</div>`;
       enemyEl.appendChild(div);
     }
@@ -8060,12 +8077,37 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const b = state.battle; if (!b) return;
     document.getElementById('extLogTitle').textContent   = title;
     document.getElementById('extLogText').textContent    = log;
-    document.getElementById('extTurnBadge').textContent  = `${b.turn}턴`;
-    document.getElementById('extHeroHpVal').textContent  = `${Math.max(0,b.heroHp)} / ${b.heroMax}`;
-    document.getElementById('extHeroHpBar').style.width  = `${Math.round(Math.max(0,b.heroHp)/b.heroMax*100)}%`;
-    document.getElementById('extEnemyHpVal').textContent = `${Math.max(0,b.enemyHp)} / ${b.enemyMax}`;
-    document.getElementById('extEnemyHpBar').style.width = `${Math.round(Math.max(0,b.enemyHp)/b.enemyMax*100)}%`;
-    document.getElementById('extEnemyHpMini').style.width= `${Math.round(Math.max(0,b.enemyHp)/b.enemyMax*100)}%`;
+    document.getElementById('extTurnBadge').textContent  = b.turn+'턴';
+    document.getElementById('extHeroHpVal').textContent  = Math.max(0,b.heroHp)+' / '+b.heroMax;
+    document.getElementById('extHeroHpBar').style.width  = Math.round(Math.max(0,b.heroHp)/b.heroMax*100)+'%';
+    document.getElementById('extEnemyHpVal').textContent = Math.max(0,b.enemyHp)+' / '+b.enemyMax;
+    document.getElementById('extEnemyHpBar').style.width = Math.round(Math.max(0,b.enemyHp)/b.enemyMax*100)+'%';
+    document.getElementById('extEnemyHpMini').style.width= Math.round(Math.max(0,b.enemyHp)/b.enemyMax*100)+'%';
+
+    // 필살기 게이지 (임시: 데미지 누적으로 계산)
+    const spPct = Math.min(100, Math.round((b.totalDmg||0) / (b.enemyMax||1) * 100));
+    const gaugeFill = document.getElementById('extGaugeFill');
+    const gaugeText = document.getElementById('extGaugeText');
+    const skillBtn  = document.getElementById('extSkillBtn');
+    if (gaugeFill) {
+      gaugeFill.style.width = spPct+'%';
+      gaugeFill.classList.toggle('full', spPct >= 100);
+    }
+    if (gaugeText) {
+      gaugeText.textContent = spPct >= 100 ? 'MAX!' : spPct+'%';
+      gaugeText.classList.toggle('full', spPct >= 100);
+    }
+    if (skillBtn) {
+      if (spPct >= 100) {
+        skillBtn.style.color = '#ffcf63';
+        skillBtn.style.borderColor = 'rgba(255,207,99,0.8)';
+        skillBtn.style.background = 'rgba(255,207,99,0.2)';
+      } else {
+        skillBtn.style.color = 'rgba(255,207,99,0.35)';
+        skillBtn.style.borderColor = 'rgba(255,207,99,0.15)';
+        skillBtn.style.background = 'rgba(255,207,99,0.1)';
+      }
+    }
   }
 
   // ── 확장 전투씬 공격 애니메이션 ───────────────────────────────
