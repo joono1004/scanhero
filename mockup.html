@@ -3,272 +3,328 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>전투화면 위치 목업</title>
+<title>전투화면 위치 목업 v2</title>
 <style>
-  body { margin:0; background:#1a1a2e; display:flex; flex-direction:column; align-items:center; padding:20px; font-family:sans-serif; }
-  h2 { color:#fff; margin-bottom:8px; font-size:16px; }
-  p  { color:#aaa; font-size:12px; margin:0 0 16px 0; }
+  body { margin:0; background:#1a1a2e; display:flex; flex-direction:column; align-items:center; padding:20px; font-family:sans-serif; color:#fff; }
+  h2 { color:#fff; margin-bottom:4px; font-size:15px; }
+  p  { color:#aaa; font-size:11px; margin:0 0 12px 0; }
 
   .scene-wrap {
     transform-origin: top center;
     transform: scale(0.55);
-    margin-bottom: -380px; /* scale 후 빈 공간 보정 */
+    margin-bottom: -385px;
   }
 
-  /* ── 컨테이너 430×844 ── */
-  .container {
-    width: 430px; height: 844px;
-    position: relative; overflow: hidden;
-    background: linear-gradient(180deg, #0a1f0a 0%, #0d2810 40%, #1a3a15 70%, #2a4a1a 100%);
-    border: 2px solid #444;
+  /* ── 실제 게임 구조 그대로 ── */
+  .ext-battle-container {
+    width:430px; height:844px;
+    position:relative; overflow:hidden;
+    background:linear-gradient(180deg,#0a1f0a 0%,#0d2810 40%,#1a3a15 70%,#2a4a1a 100%);
+    display:flex; flex-direction:column;
+    border:2px solid #555;
   }
 
-  /* 상단 상태바 */
-  .status-bar {
-    height: 48px; background: rgba(0,0,0,0.55);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 14px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    box-sizing: border-box;
+  /* 상태바 48px */
+  .ext-status-bar {
+    height:48px; background:rgba(0,0,0,0.6);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 14px; flex-shrink:0; box-sizing:border-box;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+    z-index:20; position:relative;
   }
   .hp-block { display:flex; flex-direction:column; gap:3px; }
   .hp-block.right { align-items:flex-end; }
   .hp-name { font-size:12px; color:rgba(255,255,255,0.7); }
-  .hp-bar-wrap { width:80px; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; }
-  .hp-bar { height:100%; border-radius:2px; }
-  .turn-badge { font-size:11px; color:#fff; background:rgba(255,255,255,0.15); padding:3px 8px; border-radius:10px; }
+  .hp-val  { font-size:10px; color:rgba(255,255,255,0.4); }
+  .hp-bar  { width:80px; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; }
+  .hp-fill { height:100%; border-radius:2px; }
+  .turn-badge { font-size:18px; font-weight:700; color:#ffcf63; background:rgba(255,207,99,0.15); padding:4px 12px; border-radius:12px; }
 
-  /* 지면 */
-  .ground-line {
-    position:absolute; bottom:55px; left:0; right:0;
-    height:1px; background:rgba(255,255,255,0.08);
+  /* 전투 메인 영역 — flex:1 */
+  .ext-battle-main {
+    flex:1; position:relative; overflow:visible;
+    background: linear-gradient(180deg,#0a1f3a 0%,#1a3a1a 60%,#2a4a0a 100%);
   }
+
+  /* 배경 선택기 (개발용) */
+  .bg-selector {
+    position:absolute; top:4px; right:8px; z-index:20;
+    display:flex; gap:4px; align-items:center;
+  }
+  .bg-sel-box {
+    font-size:10px; padding:2px 4px; border-radius:6px;
+    border:1px solid rgba(255,207,99,0.5);
+    background:rgba(0,0,0,0.7); color:#ffcf63;
+  }
+  .bg-sel-btn {
+    font-size:10px; padding:2px 8px; border-radius:6px;
+    border:1px solid rgba(255,207,99,0.5);
+    background:rgba(255,207,99,0.2); color:#ffcf63; cursor:pointer;
+  }
+
+  /* 전투 로그 — top:56px (실제 위치) */
+  .ext-battle-log {
+    position:absolute; top:56px; left:10px; right:10px; z-index:15;
+    background:rgba(0,0,0,0.55); border-radius:8px;
+    padding:6px 10px; border:1px solid rgba(255,255,255,0.07);
+  }
+  .log-title { font-size:17px; color:#ffcf63; font-weight:700; margin-bottom:3px; }
+  .log-text  { font-size:13px; color:rgba(255,255,255,0.55); }
 
   /* 캐릭터 공통 */
-  .char {
-    position: absolute;
-    display: flex; flex-direction: column; align-items: center;
-    font-size: 10px; color: #fff;
-    text-shadow: 0 1px 3px #000;
+  .char-box {
+    display:flex; flex-direction:column; align-items:center;
+    position:absolute;
   }
-  .char .box {
+  .char-sprite {
     display:flex; align-items:center; justify-content:center;
-    border-radius: 8px; font-size:11px; font-weight:bold;
-    border: 2px solid;
+    border-radius:8px; font-size:11px; font-weight:bold;
+    border:2px solid; text-align:center;
   }
-  .char .label { margin-top:3px; font-size:10px; white-space:nowrap; }
-  .char .shadow {
-    width:60%; height:6px; background:rgba(0,0,0,0.4);
-    border-radius:50%; margin-top:2px;
-  }
+  .char-shadow { border-radius:50%; background:rgba(0,0,0,0.4); margin-top:2px; }
+  .char-label  { font-size:9px; color:rgba(255,255,255,0.5); margin-top:2px; white-space:nowrap; }
+  .char-coord  { font-size:9px; color:rgba(255,255,200,0.4); }
 
-  /* 영웅 */
-  .hero-main .box   { width:133px; height:150px; background:rgba(80,120,255,0.25); border-color:#5588ff; color:#9fbfff; }
-  /* 몬스터 */
-  .enemy-main .box  { width:133px; height:150px; background:rgba(255,80,80,0.25);  border-color:#ff5555; color:#ff9999; }
-  /* 아군 병사 */
-  .ally-sol .box    { width:66px;  height:84px;  background:rgba(60,180,120,0.3);  border-color:#4ec97a; color:#9fffcc; }
-  /* 적 병사 */
-  .enemy-sol .box   { width:66px;  height:84px;  background:rgba(255,100,60,0.3);  border-color:#ff6644; color:#ffccaa; }
+  /* 영웅/몬스터 133×150 */
+  .hero-sprite  { width:133px; height:150px; background:rgba(79,124,255,0.3); border-color:#4f7cff; color:#9fbfff; }
+  .enemy-sprite { width:133px; height:150px; background:rgba(255,68,68,0.3);  border-color:#ff4444; color:#ff9999; }
+  .hero-shadow  { width:90px;  height:10px; }
+  .enemy-shadow { width:90px;  height:10px; }
 
-  /* 버튼 영역 */
-  .btn-area {
-    position:absolute; bottom:0; left:0; right:0; height:140px;
-    background:rgba(0,0,0,0.65);
+  /* 병사 66×84 */
+  .ally-sprite  { width:66px; height:84px; background:rgba(60,180,120,0.35); border-color:#4ec97a; color:#9fffcc; line-height:1.2; }
+  .esol-sprite  { width:66px; height:84px; background:rgba(255,100,60,0.35);  border-color:#ff6644; color:#ffccaa; line-height:1.2; }
+  .sol-shadow   { width:44px; height:6px; }
+
+  /* ── 영웅 / 몬스터: 컨테이너 기준 absolute ── */
+  #heroChar  { position:absolute; left:10px;  bottom:120px; z-index:10; }
+  #enemyChar { position:absolute; right:10px; bottom:120px; z-index:10; }
+
+  /* SP 게이지 */
+  .sp-gauge-wrap { width:60px; height:3px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; margin-top:2px; }
+  .sp-gauge-fill { height:100%; width:35%; background:linear-gradient(90deg,#ffcf63,#ff8800); border-radius:2px; }
+
+  /* 하단 버튼 영역 */
+  .ext-bottom {
+    flex-shrink:0; background:rgba(0,0,0,0.82);
     border-top:1px solid rgba(255,255,255,0.08);
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    padding:8px 12px 24px; box-sizing:border-box;
+    position:relative; z-index:5;
   }
-  .btn-row { display:flex; gap:8px; }
-  .btn { width:90px; height:36px; border-radius:8px; border:none; color:#fff; font-size:12px; font-weight:bold; cursor:pointer; }
-  .btn.atk { background:#e74c3c; }
-  .btn.def { background:#2980b9; }
-  .btn.skl { background:#8e44ad; }
-  .btn.run { background:#555; }
-
-  /* 로그 */
-  .log-area {
-    position:absolute; bottom:140px; left:0; right:0;
-    height:60px; background:rgba(0,0,0,0.45);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding:0 12px; box-sizing:border-box;
+  .gauge-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .gauge-label { font-size:11px; color:#ffcf63; white-space:nowrap; font-weight:600; }
+  .gauge-track { flex:1; height:12px; border-radius:6px; background:rgba(255,255,255,0.1); overflow:hidden; }
+  .gauge-fill  { height:100%; width:5%; background:linear-gradient(90deg,#ffcf63,#ff6600); border-radius:3px; }
+  .gauge-pct   { font-size:11px; color:#ffcf63; font-weight:700; }
+  .ext-btns { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .ext-btn {
+    padding:10px 2px; border-radius:10px;
+    font-size:18px; font-weight:700; text-align:center;
+    border:1px solid transparent; cursor:pointer; color:#fff;
   }
-  .log-title { font-size:11px; color:rgba(255,255,255,0.5); }
-  .log-text  { font-size:12px; color:#fff; text-align:center; }
+  .btn-atk { background:rgba(79,124,255,0.35); color:#9fbfff; border-color:rgba(79,124,255,0.4); }
+  .btn-skl { background:rgba(255,207,99,0.1);  color:rgba(255,207,99,0.4); border-color:rgba(255,207,99,0.15); }
+  .btn-def { background:rgba(99,208,154,0.22); color:#63d09a; border-color:rgba(99,208,154,0.3); }
+  .btn-run { background:rgba(255,80,80,0.18);  color:#ff8888; border-color:rgba(255,80,80,0.25); }
 
-  /* 좌표 표시 */
-  .coord { font-size:9px; color:rgba(255,255,255,0.5); margin-top:1px; }
-
-  /* 구분선 */
-  .center-line {
-    position:absolute; top:48px; bottom:200px; left:215px;
-    width:1px; background:rgba(255,255,255,0.05);
+  /* 높이 가이드라인 */
+  .guide {
+    position:absolute; left:0; right:0; height:1px;
+    pointer-events:none; z-index:30;
   }
 
   /* 범례 */
-  .legend {
-    display:flex; gap:16px; margin-top:20px; flex-wrap:wrap; justify-content:center;
+  .legend { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:16px; }
+  .li { display:flex; align-items:center; gap:5px; font-size:11px; color:#ccc; }
+  .lb { width:12px; height:12px; border-radius:2px; border:2px solid; }
+
+  /* 치수 표시 */
+  .dim-label {
+    position:absolute; right:2px; font-size:8px; color:rgba(255,255,100,0.5);
+    white-space:nowrap; pointer-events:none; z-index:40;
   }
-  .legend-item { display:flex; align-items:center; gap:6px; font-size:12px; color:#ccc; }
-  .legend-box { width:14px; height:14px; border-radius:3px; border:2px solid; }
 </style>
 </head>
 <body>
 
-<h2>전투화면 위치 목업 (430 × 844px)</h2>
-<p>※ 화면에 맞게 55% 축소 표시</p>
+<h2>전투화면 위치 목업 v2 (실제 구조 반영)</h2>
+<p>※ 55% 축소 표시 / 실제 크기 430×844px</p>
 
 <div class="scene-wrap">
-<div class="container">
+<div class="ext-battle-container">
 
-  <!-- 상단 상태바 -->
-  <div class="status-bar">
+  <!-- ① 상태바 48px -->
+  <div class="ext-status-bar">
     <div class="hp-block">
-      <div class="hp-name">영웅</div>
-      <div class="hp-bar-wrap"><div class="hp-bar" style="width:70%;background:#4ec97a;"></div></div>
+      <div class="hp-name">무적</div>
+      <div class="hp-val">5866 / 5866</div>
+      <div class="hp-bar"><div class="hp-fill" style="width:100%;background:#4f7cff;"></div></div>
     </div>
     <div class="turn-badge">1턴</div>
     <div class="hp-block right">
-      <div class="hp-name">몬스터</div>
-      <div class="hp-bar-wrap"><div class="hp-bar" style="width:90%;background:#ff4444;"></div></div>
+      <div class="hp-name">악마</div>
+      <div class="hp-val">76 / 76</div>
+      <div class="hp-bar"><div class="hp-fill" style="width:100%;background:#ff4444;"></div></div>
     </div>
+    <div class="dim-label" style="top:0;">← 상태바 48px →</div>
   </div>
 
-  <!-- 중앙 구분선 (참고용) -->
-  <div class="center-line"></div>
+  <!-- ② 전투 메인 (flex:1, position:relative) -->
+  <div class="ext-battle-main">
 
-  <!-- 지면 라인 -->
-  <div class="ground-line"></div>
-
-  <!-- ── 아군 병사 ── -->
-
-  <!-- 슬롯0: 기마병 left:86 bottom:250 -->
-  <div class="char ally-sol" style="left:86px; bottom:250px;">
-    <div class="box">기마병</div>
-    <div class="shadow"></div>
-    <div class="coord">L86 B250</div>
-  </div>
-
-  <!-- 슬롯1: 마법사 left:14 bottom:185 -->
-  <div class="char ally-sol" style="left:14px; bottom:185px;">
-    <div class="box">마법사</div>
-    <div class="shadow"></div>
-    <div class="coord">L14 B185</div>
-  </div>
-
-  <!-- 슬롯2: 창병 left:86 bottom:185 -->
-  <div class="char ally-sol" style="left:86px; bottom:185px;">
-    <div class="box">창병</div>
-    <div class="shadow"></div>
-    <div class="coord">L86 B185</div>
-  </div>
-
-  <!-- 슬롯3: 궁병 left:14 bottom:120 -->
-  <div class="char ally-sol" style="left:14px; bottom:120px;">
-    <div class="box">궁병</div>
-    <div class="shadow"></div>
-    <div class="coord">L14 B120</div>
-  </div>
-
-  <!-- 슬롯4: 방패병 left:86 bottom:120 -->
-  <div class="char ally-sol" style="left:86px; bottom:120px;">
-    <div class="box">방패병</div>
-    <div class="shadow"></div>
-    <div class="coord">L86 B120</div>
-  </div>
-
-  <!-- 슬롯5: 검병 left:86 bottom:55 -->
-  <div class="char ally-sol" style="left:86px; bottom:55px;">
-    <div class="box">검병</div>
-    <div class="shadow"></div>
-    <div class="coord">L86 B55</div>
-  </div>
-
-  <!-- ── 적 병사 ── -->
-
-  <!-- 적0: right:158 bottom:55 -->
-  <div class="char enemy-sol" style="right:158px; bottom:55px;">
-    <div class="box">적병1</div>
-    <div class="shadow"></div>
-    <div class="coord">R158 B55</div>
-  </div>
-
-  <!-- 적1: right:86 bottom:120 -->
-  <div class="char enemy-sol" style="right:86px; bottom:120px;">
-    <div class="box">적병2</div>
-    <div class="shadow"></div>
-    <div class="coord">R86 B120</div>
-  </div>
-
-  <!-- 적2: right:158 bottom:120 -->
-  <div class="char enemy-sol" style="right:158px; bottom:120px;">
-    <div class="box">적병3</div>
-    <div class="shadow"></div>
-    <div class="coord">R158 B120</div>
-  </div>
-
-  <!-- 적3: right:86 bottom:185 -->
-  <div class="char enemy-sol" style="right:86px; bottom:185px;">
-    <div class="box">적병4</div>
-    <div class="shadow"></div>
-    <div class="coord">R86 B185</div>
-  </div>
-
-  <!-- 적4: right:158 bottom:185 -->
-  <div class="char enemy-sol" style="right:158px; bottom:185px;">
-    <div class="box">적병5</div>
-    <div class="shadow"></div>
-    <div class="coord">R158 B185</div>
-  </div>
-
-  <!-- 적5: right:86 bottom:250 -->
-  <div class="char enemy-sol" style="right:86px; bottom:250px;">
-    <div class="box">적병6</div>
-    <div class="shadow"></div>
-    <div class="coord">R86 B250</div>
-  </div>
-
-  <!-- ── 영웅 (메인) ── -->
-  <div class="char hero-main" style="left:10px; bottom:120px; z-index:10;">
-    <div class="box">영웅</div>
-    <div class="shadow"></div>
-    <div class="coord">L10 B120</div>
-  </div>
-
-  <!-- ── 몬스터 (메인) ── -->
-  <div class="char enemy-main" style="right:10px; bottom:120px; z-index:10;">
-    <div class="box">몬스터</div>
-    <div class="shadow"></div>
-    <div class="coord">R10 B120</div>
-  </div>
-
-  <!-- 로그 영역 -->
-  <div class="log-area">
-    <div class="log-title">전투 시작</div>
-    <div class="log-text">공격 또는 도망을 선택하세요.</div>
-  </div>
-
-  <!-- 버튼 영역 -->
-  <div class="btn-area">
-    <div class="btn-row">
-      <button class="btn atk">⚔ 공격</button>
-      <button class="btn def">🛡 방어</button>
+    <!-- 높이 가이드 선들 (병사 bottom 위치 표시) -->
+    <!-- B250 기준선 -->
+    <div class="guide" style="bottom:250px; background:rgba(60,255,120,0.25);">
+      <span class="dim-label" style="top:-10px;">─ 병사 B:250 ─</span>
     </div>
-    <div class="btn-row">
-      <button class="btn skl">✨ 필살기</button>
-      <button class="btn run">🏃 도망</button>
+    <!-- B185 기준선 -->
+    <div class="guide" style="bottom:185px; background:rgba(60,255,120,0.2);">
+      <span class="dim-label" style="top:-10px;">─ 병사 B:185 ─</span>
+    </div>
+    <!-- B120 기준선 -->
+    <div class="guide" style="bottom:120px; background:rgba(60,255,120,0.2);">
+      <span class="dim-label" style="top:-10px;">─ 병사 B:120 ─</span>
+    </div>
+    <!-- B55 기준선 -->
+    <div class="guide" style="bottom:55px; background:rgba(60,255,120,0.15);">
+      <span class="dim-label" style="top:-10px;">─ 병사 B:55 ─</span>
+    </div>
+
+    <!-- 배경 선택기 -->
+    <div class="bg-selector">
+      <span class="bg-sel-box">🏙 도시</span>
+      <span class="bg-sel-box">☀ 낮</span>
+      <span class="bg-sel-btn">적용</span>
+    </div>
+
+    <!-- 전투 로그 (top:56px — 화면 위쪽) -->
+    <div class="ext-battle-log">
+      <div class="log-title">전투 시작</div>
+      <div class="log-text">공격 또는 도망을 선택하세요.</div>
+    </div>
+
+    <!-- ── 아군 병사 (main 기준 bottom) ── -->
+
+    <!-- 슬롯0: 기마병 left:86 bottom:250 -->
+    <div class="char-box" style="left:86px; bottom:250px;">
+      <div class="char-sprite ally-sprite">기마병<br>L86 B250</div>
+      <div class="char-shadow sol-shadow"></div>
+    </div>
+
+    <!-- 슬롯1: 마법사 left:14 bottom:185 -->
+    <div class="char-box" style="left:14px; bottom:185px;">
+      <div class="char-sprite ally-sprite">마법사<br>L14 B185</div>
+      <div class="char-shadow sol-shadow"></div>
+    </div>
+
+    <!-- 슬롯2: 창병 left:86 bottom:185 -->
+    <div class="char-box" style="left:86px; bottom:185px;">
+      <div class="char-sprite ally-sprite">창병<br>L86 B185</div>
+      <div class="char-shadow sol-shadow"></div>
+    </div>
+
+    <!-- 슬롯3: 궁병 left:14 bottom:120 -->
+    <div class="char-box" style="left:14px; bottom:120px;">
+      <div class="char-sprite ally-sprite">궁병<br>L14 B120</div>
+      <div class="char-shadow sol-shadow"></div>
+    </div>
+
+    <!-- 슬롯4: 방패병 left:86 bottom:120 -->
+    <div class="char-box" style="left:86px; bottom:120px;">
+      <div class="char-sprite ally-sprite">방패병<br>L86 B120</div>
+      <div class="char-shadow sol-shadow"></div>
+    </div>
+
+    <!-- 슬롯5: 검병 left:86 bottom:55 -->
+    <div class="char-box" style="left:86px; bottom:55px;">
+      <div class="char-sprite ally-sprite">검병<br>L86 B55</div>
+      <div class="char-shadow sol-shadow"></div>
+    </div>
+
+    <!-- ── 적 병사 (main 기준 bottom) ── -->
+
+    <!-- 적0: right:158 bottom:55 -->
+    <div class="char-box" style="right:158px; bottom:55px;">
+      <div class="char-sprite esol-sprite">적병1<br>R158 B55</div>
+      <div class="char-shadow sol-shadow"></div>
+    </div>
+
+    <!-- 적1: right:86 bottom:120 -->
+    <div class="char-box" style="right:86px; bottom:120px;">
+      <div class="char-sprite esol-sprite">적병2<br>R86 B120</div>
+      <div class="char-shadow sol-shadow"></div>
+    </div>
+
+    <!-- 적2: right:158 bottom:120 -->
+    <div class="char-box" style="right:158px; bottom:120px;">
+      <div class="char-sprite esol-sprite">적병3<br>R158 B120</div>
+      <div class="char-shadow sol-shadow"></div>
+    </div>
+
+    <!-- 적3: right:86 bottom:185 -->
+    <div class="char-box" style="right:86px; bottom:185px;">
+      <div class="char-sprite esol-sprite">적병4<br>R86 B185</div>
+      <div class="char-shadow sol-shadow"></div>
+    </div>
+
+    <!-- 적4: right:158 bottom:185 -->
+    <div class="char-box" style="right:158px; bottom:185px;">
+      <div class="char-sprite esol-sprite">적병5<br>R158 B185</div>
+      <div class="char-shadow sol-shadow"></div>
+    </div>
+
+    <!-- 적5: right:86 bottom:250 -->
+    <div class="char-box" style="right:86px; bottom:250px;">
+      <div class="char-sprite esol-sprite">적병6<br>R86 B250</div>
+      <div class="char-shadow sol-shadow"></div>
+    </div>
+
+  </div><!-- /ext-battle-main -->
+
+  <!-- ③ 영웅 — 컨테이너 기준 absolute (버튼 영역에 걸침) -->
+  <div id="heroChar" class="char-box">
+    <div class="char-sprite hero-sprite">영웅<br>133×150<br>L10 B120</div>
+    <div class="char-shadow hero-shadow"></div>
+    <div class="char-label" style="color:#9fbfff;">영웅</div>
+    <div class="sp-gauge-wrap"><div class="sp-gauge-fill"></div></div>
+  </div>
+
+  <!-- ③ 몬스터 — 컨테이너 기준 absolute (버튼 영역에 걸침) -->
+  <div id="enemyChar" class="char-box">
+    <div class="char-sprite enemy-sprite">몬스터<br>133×150<br>R10 B120</div>
+    <div class="char-shadow enemy-shadow"></div>
+  </div>
+
+  <!-- ④ 하단 버튼 패널 (~110px) -->
+  <div class="ext-bottom">
+    <div class="gauge-row">
+      <div class="gauge-label">필살기</div>
+      <div class="gauge-track"><div class="gauge-fill"></div></div>
+      <div class="gauge-pct">5%</div>
+    </div>
+    <div class="ext-btns">
+      <div class="ext-btn btn-atk">⚔<br>공격</div>
+      <div class="ext-btn btn-skl">✨<br>필살기</div>
+      <div class="ext-btn btn-def">🛡<br>방어</div>
+      <div class="ext-btn btn-run">💨<br>도망</div>
     </div>
   </div>
 
 </div><!-- /container -->
 </div><!-- /scene-wrap -->
 
-<!-- 범례 -->
 <div class="legend">
-  <div class="legend-item"><div class="legend-box" style="background:rgba(80,120,255,0.25);border-color:#5588ff;"></div>영웅 (133×150)</div>
-  <div class="legend-item"><div class="legend-box" style="background:rgba(255,80,80,0.25);border-color:#ff5555;"></div>몬스터 (133×150)</div>
-  <div class="legend-item"><div class="legend-box" style="background:rgba(60,180,120,0.3);border-color:#4ec97a;"></div>아군병사 (66×84)</div>
-  <div class="legend-item"><div class="legend-box" style="background:rgba(255,100,60,0.3);border-color:#ff6644;"></div>적병사 (66×84)</div>
+  <div class="li"><div class="lb" style="background:rgba(79,124,255,0.3);border-color:#4f7cff;"></div>영웅 (133×150, 컨테이너 기준)</div>
+  <div class="li"><div class="lb" style="background:rgba(255,68,68,0.3);border-color:#ff4444;"></div>몬스터 (133×150, 컨테이너 기준)</div>
+  <div class="li"><div class="lb" style="background:rgba(60,180,120,0.35);border-color:#4ec97a;"></div>아군병사 (66×84, battle-main 기준)</div>
+  <div class="li"><div class="lb" style="background:rgba(255,100,60,0.35);border-color:#ff6644;"></div>적병사 (66×84, battle-main 기준)</div>
+  <div class="li"><div class="lb" style="background:rgba(60,255,120,0.25);border-color:rgba(60,255,120,0.5);"></div>높이 가이드선</div>
 </div>
+
+<p style="margin-top:12px; text-align:center; color:#888; font-size:11px;">
+  ※ 영웅/몬스터는 <b>컨테이너 기준</b> bottom:120px → 버튼 패널과 살짝 겹침<br>
+  ※ 병사들은 <b>battle-main 기준</b> bottom 값 → 버튼 패널 높이만큼 실제론 더 위에 위치
+</p>
 
 </body>
 </html>
