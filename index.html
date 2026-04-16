@@ -8322,10 +8322,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       if (!container) return;
       const scaleX = window.innerWidth  / 390;
       const scaleY = window.innerHeight / 844;
-      const scale  = Math.min(scaleX, scaleY);
-      // transform-origin:center center 기준으로 scale
+      // 가로를 항상 꽉 채움 (세로가 심하게 부족할 때만 세로 기준으로 전환)
+      // 예: 주소창/네비바로 높이가 줄어도 가로 폭은 유지됨
+      const scale = scaleY < scaleX - 0.15 ? scaleY : scaleX;
       container.style.transform = 'scale('+scale+')';
-      // margin 초기화 (flexbox 중앙정렬이 담당)
       container.style.margin = '0';
     };
     scaleExtBattle();
