@@ -1062,7 +1062,7 @@
       background:rgba(255,207,99,0.15); padding:4px 12px;
       border-radius:12px; border:1px solid rgba(255,207,99,0.3);
     }
-    .ext-battle-main { flex:1; position:relative; overflow:hidden; }
+    .ext-battle-main { flex:1; position:relative; overflow:visible; }
     .ext-bg-sky   { position:absolute; inset:0;
       background:linear-gradient(180deg,#1a3a5c 0%,#2a5a3a 40%,#3a5a1a 60%,#4a6a1a 100%);
       transition:opacity 0.5s; }
@@ -1073,13 +1073,13 @@
     .ext-char { position:absolute; display:flex; flex-direction:column; align-items:center; }
     .ext-char img { display:block; object-fit:contain;
       filter:drop-shadow(0 0 3px rgba(255,255,255,0.6)) drop-shadow(0 0 6px rgba(255,255,255,0.3)); }
-    .ext-char .ext-nm { font-size:15px; color:rgba(255,255,255,0.6); margin-top:2px; white-space:nowrap; }
+    .ext-char .ext-nm { font-size:15px; color:rgba(255,255,255,0.6); margin-top:2px; white-space:nowrap; display:none; }
     .ext-char .ext-sh { border-radius:50%; background:rgba(0,0,0,0.35); margin-top:-2px; }
     .ext-char.hero img { filter:drop-shadow(0 0 4px rgba(79,124,255,0.8)) drop-shadow(0 0 8px rgba(79,124,255,0.4)); }
     .ext-char.enemy img { filter:drop-shadow(0 0 4px rgba(255,60,60,0.7)) drop-shadow(0 0 8px rgba(255,60,60,0.3)); }
     .ext-battle-log {
-      position:absolute; bottom:8px; left:10px; right:10px;
-      background:rgba(0,0,0,0.6); border-radius:8px;
+      position:absolute; top:56px; left:10px; right:10px;
+      background:rgba(0,0,0,0.55); border-radius:8px;
       padding:6px 10px; border:1px solid rgba(255,255,255,0.07);
     }
     .ext-log-title { font-size:17px; color:#ffcf63; font-weight:700; margin-bottom:3px; }
@@ -1090,7 +1090,7 @@
       padding:8px 12px 24px;
     }
     .ext-gauge-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
-    .ext-gauge-track { flex:1; height:5px; border-radius:3px; background:rgba(255,255,255,0.1); overflow:hidden; }
+    .ext-gauge-track { flex:1; height:12px; border-radius:6px; background:rgba(255,255,255,0.1); overflow:hidden; }
     .ext-gauge-fill  { height:100%; border-radius:3px; background:linear-gradient(90deg,#ffcf63,#ff6600); }
     .ext-btns { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
     .ext-btn {
@@ -2088,28 +2088,8 @@
       <!-- 아군 배치 (JS로 렌더링) -->
       <div id="extAllyGroup"></div>
 
-      <!-- 영웅 -->
-      <div class="ext-char hero" id="extHeroChar" style="position:absolute;left:10px;top:295px;">
-        <div id="extHeroSprite"></div>
-        <div class="ext-sh" style="width:50px;height:8px;"></div>
-        <div class="ext-nm" style="color:#9fbfff;" id="extHeroLabel">영웅</div>
-        <div style="width:60px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:2px;">
-          <div id="extSpGauge" style="height:100%;width:0%;background:linear-gradient(90deg,#ffcf63,#ff8800);border-radius:2px;"></div>
-        </div>
-      </div>
-
       <!-- 적군 배치 (JS로 렌더링) -->
       <div id="extEnemyGroup"></div>
-
-      <!-- 몬스터 -->
-      <div class="ext-char enemy" id="extEnemyChar" style="position:absolute;right:10px;top:292px;">
-        <div id="extEnemySprite"></div>
-        <div class="ext-sh" style="width:50px;height:8px;"></div>
-        <div class="ext-nm" style="color:#ff8888;" id="extEnemyLabel">몬스터</div>
-        <div style="width:60px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:2px;">
-          <div id="extEnemyHpMini" style="height:100%;width:38%;background:#ff4444;border-radius:2px;"></div>
-        </div>
-      </div>
 
       <!-- 타격 이펙트 -->
       <div id="extImpactEl">💥</div>
@@ -2122,12 +2102,34 @@
       </div>
     </div>
 
+    <!-- 영웅 (container 직속 - overflow 문제 해결) -->
+    <div class="ext-char hero" id="extHeroChar"
+         style="position:absolute;left:10px;bottom:115px;z-index:10;">
+      <div id="extHeroSprite"></div>
+      <div class="ext-sh" style="width:90px;height:10px;"></div>
+      <div class="ext-nm" style="color:#9fbfff;display:none;" id="extHeroLabel">영웅</div>
+      <div style="width:60px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:2px;">
+        <div id="extSpGauge" style="height:100%;width:0%;background:linear-gradient(90deg,#ffcf63,#ff8800);border-radius:2px;"></div>
+      </div>
+    </div>
+
+    <!-- 몬스터 (container 직속) -->
+    <div class="ext-char enemy" id="extEnemyChar"
+         style="position:absolute;right:10px;bottom:115px;z-index:10;">
+      <div id="extEnemySprite"></div>
+      <div class="ext-sh" style="width:90px;height:10px;"></div>
+      <div class="ext-nm" style="color:#ff8888;display:none;" id="extEnemyLabel">몬스터</div>
+      <div style="width:60px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:2px;">
+        <div id="extEnemyHpMini" style="height:100%;width:38%;background:#ff4444;border-radius:2px;"></div>
+      </div>
+    </div>
+
     <!-- 하단 버튼 -->
     <div class="ext-bottom">
       <div class="ext-gauge-row">
-        <div style="font-size:16px;color:#ffcf63;white-space:nowrap;font-weight:600;">필살기</div>
+        <div style="font-size:11px;color:#ffcf63;white-space:nowrap;font-weight:600;">필살기</div>
         <div class="ext-gauge-track"><div class="ext-gauge-fill" id="extGaugeFill" style="width:0%;"></div></div>
-        <div style="font-size:9px;color:#ffcf63;font-weight:700;" id="extGaugeText">0%</div>
+        <div style="font-size:11px;color:#ffcf63;font-weight:700;" id="extGaugeText">0%</div>
       </div>
       <div class="ext-btns" id="extBattleActions">
         <div class="ext-btn" id="extAttackBtn"  style="background:rgba(79,124,255,0.35);color:#9fbfff;border-color:rgba(79,124,255,0.4);">⚔<br>공격</div>
@@ -8044,21 +8046,21 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // ── 확장 전투씬 좌표 정의 ─────────────────────────────────────
   // 아군 / 형태 (엇갈리기)
   const EXT_ALLY_POS = [
-    { slot:0, style:'left:86px;top:28px;'   },  // 기마병
-    { slot:1, style:'left:14px;top:116px;'  },  // 마법사
-    { slot:2, style:'left:86px;top:116px;'  },  // 창병
-    { slot:3, style:'left:14px;top:208px;'  },  // 궁병
-    { slot:4, style:'left:86px;top:208px;'  },  // 방패병
-    { slot:5, style:'left:86px;top:300px;'  },  // 검병
+    { slot:0, style:'left:86px;bottom:250px;'  },  // 기마병  (맨 뒤)
+    { slot:1, style:'left:14px;bottom:185px;'  },  // 마법사  (뒷줄 왼)
+    { slot:2, style:'left:86px;bottom:185px;'  },  // 창병    (뒷줄 오)
+    { slot:3, style:'left:14px;bottom:120px;'  },  // 궁병    (중간 왼)
+    { slot:4, style:'left:86px;bottom:120px;'  },  // 방패병  (중간 오)
+    { slot:5, style:'left:86px;bottom:55px;'   },  // 검병    (앞줄)
   ];
   // 적 병사 \ 형태 (엇갈리기) — 최대 6명
   const EXT_ENEMY_POS = [
-    'right:158px;top:300px;',  // 적1
-    'right:86px;top:208px;',   // 적2
-    'right:158px;top:208px;',  // 적3
-    'right:86px;top:116px;',   // 적4
-    'right:158px;top:116px;',  // 적5
-    'right:86px;top:28px;',    // 적6
+    'right:158px;bottom:55px;',   // 적1  (앞줄)
+    'right:86px;bottom:120px;',   // 적2  (중간 왼)
+    'right:158px;bottom:120px;',  // 적3  (중간 오)
+    'right:86px;bottom:185px;',   // 적4  (뒷줄 왼)
+    'right:158px;bottom:185px;',  // 적5  (뒷줄 오)
+    'right:86px;bottom:250px;',   // 적6  (맨 뒤)
   ];
 
   function openExtBattle() {
@@ -8080,16 +8082,16 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
     // 영웅 스프라이트
     const heroHtml = getHeroVisualHtml(state.heroClass)
-      .replace('width:155px;height:179px','width:66px;height:76px');
+      .replace('width:155px;height:179px','width:133px;height:150px');
     document.getElementById('extHeroSprite').innerHTML =
-      `<div style="width:66px;height:76px;">${heroHtml}</div>`;
+      `<div style="width:133px;height:150px;overflow:hidden;">${heroHtml}</div>`;
     document.getElementById('extHeroLabel').textContent = state.heroName || '영웅';
 
     // 몬스터 스프라이트 (기존 전투씬과 동일한 URL 함수 사용)
     const mobUrl    = getMonsterRepUrl(setup.enemy.name);
     const mobUrlGrp = getMonsterGroupUrl(setup.enemy.name);
     document.getElementById('extEnemySprite').innerHTML =
-      `<img src="${mobUrl}" width="66" height="76" style="object-fit:contain;" onerror="this.style.opacity=0">`;
+      `<img src="${mobUrl}" width="133" height="150" style="object-fit:contain;" onerror="this.style.opacity=0">`;
     document.getElementById('extEnemyHpMini').style.width =
       `${Math.round(b.enemyHp/b.enemyMax*100)}%`;
 
