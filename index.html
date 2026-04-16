@@ -1072,15 +1072,17 @@
       align-items:center;
       justify-content:center;
     }
-    .ext-battle-backdrop.open { display:flex; }
+    .ext-battle-backdrop.open { display:flex; align-items:center; justify-content:center; }
     .ext-battle-container {
-      width:100vw; height:100vh; height:100dvh;
+      width:430px; height:844px;
+      flex-shrink:0;
       display:flex; flex-direction:column;
       overflow:hidden; position:relative;
       background:linear-gradient(180deg,#0a1f0a 0%,#0d2810 40%,#1a3a15 70%,#2a4a1a 100%);
-      background-size:100% 100%;
-      background-position:center;
+      background-size:430px 844px;
+      background-position:top center;
       background-repeat:no-repeat;
+      transform-origin:center center;
     }
     .ext-status-bar {
       height:48px; background:rgba(0,0,0,0.55);
@@ -8126,7 +8128,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     img.onload = () => {
       // container(390×844 고정)에 배경 적용 → 항상 같은 비율 유지
       cont.style.backgroundImage    = 'url('+url+')';
-      cont.style.backgroundSize     = '100% 100%'; // 폰 크기에 맞게 늘어남
+      cont.style.backgroundSize     = '430px 844px';
       cont.style.backgroundPosition = 'center';
       cont.style.backgroundRepeat   = 'no-repeat';
       // CSS 그라디언트 레이어 숨기기
@@ -8314,14 +8316,27 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 배경 이미지 적용
     applyExtBattleBg();
 
-    // 컨테이너가 100vw×100dvh CSS로 폰 화면을 꽉 채움 (JS 스케일링 불필요)
-
     // 화면 표시
     document.getElementById('extBattleBackdrop').classList.add('open');
+
+    // 430×844 고정 컨테이너를 폰 화면에 맞게 스케일
+    const scaleExtBattle = () => {
+      const container = document.getElementById('extBattleContainer');
+      if (!container) return;
+      const scale = Math.min(window.innerWidth / 430, window.innerHeight / 844);
+      container.style.transform = 'scale(' + scale + ')';
+    };
+    scaleExtBattle();
+    window._extBattleScaleHandler = scaleExtBattle;
+    window.addEventListener('resize', window._extBattleScaleHandler);
   }
 
   function closeExtBattle() {
     document.getElementById('extBattleBackdrop').classList.remove('open');
+    if (window._extBattleScaleHandler) {
+      window.removeEventListener('resize', window._extBattleScaleHandler);
+      window._extBattleScaleHandler = null;
+    }
   }
 
   function updateExtBattleUI(title, log) {
