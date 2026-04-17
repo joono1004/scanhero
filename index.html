@@ -2179,7 +2179,7 @@
 
       <!-- 영웅 (battle-main 기준) -->
       <div class="ext-char hero" id="extHeroChar"
-           style="position:absolute;left:10px;bottom:5px;z-index:10;">
+           style="position:absolute;left:10px;bottom:0px;z-index:10;">
         <video id="extHeroVideo"
           style="display:none;width:133px;height:150px;pointer-events:none;
                  filter:drop-shadow(0 0 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,0.9)) drop-shadow(0 0 1px rgba(0,0,0,1));"
@@ -2195,7 +2195,7 @@
 
       <!-- 몬스터 (battle-main 기준) -->
       <div class="ext-char enemy" id="extEnemyChar"
-           style="position:absolute;right:10px;bottom:5px;z-index:10;">
+           style="position:absolute;right:10px;bottom:0px;z-index:10;">
         <video id="extEnemyVideo"
           style="display:none;width:133px;height:150px;pointer-events:none;
                  filter:drop-shadow(0 0 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,0.9)) drop-shadow(0 0 1px rgba(0,0,0,1));"
@@ -8155,21 +8155,21 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // ── 확장 전투씬 좌표 정의 ─────────────────────────────────────
   // 아군 / 형태 (엇갈리기)
   const EXT_ALLY_POS = [
-    { slot:0, style:'left:80px;bottom:175px;'  },  // 앞줄 오
-    { slot:1, style:'left:12px;bottom:175px;'  },  // 앞줄 왼
-    { slot:2, style:'left:104px;bottom:270px;' },  // 중간 오
-    { slot:3, style:'left:36px;bottom:270px;'  },  // 중간 왼
-    { slot:4, style:'left:128px;bottom:365px;' },  // 뒷줄 오
-    { slot:5, style:'left:60px;bottom:365px;'  },  // 뒷줄 왼
+    { slot:0, style:'left:80px;bottom:140px;'  },  // 앞줄 오
+    { slot:1, style:'left:12px;bottom:140px;'  },  // 앞줄 왼
+    { slot:2, style:'left:110px;bottom:200px;' },  // 중간 오
+    { slot:3, style:'left:42px;bottom:200px;'  },  // 중간 왼
+    { slot:4, style:'left:140px;bottom:260px;' },  // 뒷줄 오
+    { slot:5, style:'left:72px;bottom:260px;'  },  // 뒷줄 왼
   ];
   // 적 병사 — 최대 6명
   const EXT_ENEMY_POS = [
-    'right:78px;bottom:175px;',   // 적0 앞줄 왼
-    'right:10px;bottom:175px;',   // 적1 앞줄 오
-    'right:102px;bottom:270px;',  // 적2 중간 왼
-    'right:34px;bottom:270px;',   // 적3 중간 오
-    'right:126px;bottom:365px;',  // 적4 뒷줄 왼
-    'right:58px;bottom:365px;',   // 적5 뒷줄 오
+    'right:78px;bottom:140px;',   // 적0 앞줄 왼
+    'right:10px;bottom:140px;',   // 적1 앞줄 오
+    'right:108px;bottom:200px;',  // 적2 중간 왼
+    'right:40px;bottom:200px;',   // 적3 중간 오
+    'right:138px;bottom:260px;',  // 적4 뒷줄 왼
+    'right:70px;bottom:260px;',   // 적5 뒷줄 오
   ];
 
   function openExtBattle() {
