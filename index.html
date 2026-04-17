@@ -8293,7 +8293,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 적 병사 배치
     const enemyEl = document.getElementById('extEnemyGroup');
     enemyEl.innerHTML = '';
-    const amount = Math.min(setup.enemy.amount || 1, 6) - 1; // 몬스터 1마리 제외
+    const amount = Math.min(setup.enemy.amount || 0, 6);
     const mobGradeClass = `mob-${enemy.grade||'일반'}`;
     for (let i = 0; i < amount; i++) {
       const div = document.createElement('div');
