@@ -141,9 +141,9 @@
       background-repeat: repeat-x;
       background-size: auto 100%;
     }
-    .bg-layer-sky  { animation: bgScrollSky  40s linear infinite; z-index: 0; }
-    .bg-layer-far  { animation: bgScrollFar  20s linear infinite; z-index: 1; }
-    .bg-layer-near { animation: bgScrollNear 10s linear infinite; z-index: 2; }
+    .bg-layer-sky  { animation: bgScrollSky  80s linear infinite; z-index: 0; }
+    .bg-layer-far  { animation: bgScrollFar  40s linear infinite; z-index: 1; }
+    .bg-layer-near { animation: bgScrollNear 20s linear infinite; z-index: 2; }
     @keyframes bgScrollSky  { from{background-position:0 0} to{background-position:-860px 0} }
     @keyframes bgScrollFar  { from{background-position:0 0} to{background-position:-860px 0} }
     @keyframes bgScrollNear { from{background-position:0 0} to{background-position:-860px 0} }
@@ -169,31 +169,19 @@
       50%     { box-shadow:0 0 0 3px rgba(255,220,60,0.35),0 0 11px 5px rgba(255,190,30,0.7),0 0 28px 10px rgba(255,140,0,0.38),0 0 45px 16px rgba(255,100,0,0.18); }
     }
 
-    /* ── 달 ── */
+    /* ── 달 (clip-path 초승달, 진짜 투명) ── */
     .css-moon {
       position:absolute; top:16px; left:12px;
-      width:17px; height:17px; border-radius:50%;
-      background:radial-gradient(circle at 38% 38%, #f0f4ff 0%, #d8e4ff 45%, #b0c4f8 75%, #8aaae8 100%);
-      box-shadow:0 0 0 1px rgba(180,210,255,0.2),
-                 0 0 6px 2px rgba(140,180,255,0.45),
-                 0 0 15px 5px rgba(100,150,255,0.22),
-                 inset -3px -2px 5px rgba(60,90,180,0.18);
-      overflow:hidden;
+      width:17px; height:17px;
+      background:radial-gradient(circle at 35% 40%, #f0f4ff 0%, #d8e4ff 45%, #8aaae8 100%);
+      clip-path: path('M 12 0.75 A 8.5 8.5 0 1 0 12 16.25 A 8 8 0 1 1 12 0.75 Z');
+      filter: drop-shadow(0 0 3px rgba(140,180,255,0.7))
+              drop-shadow(0 0 8px rgba(100,150,255,0.35));
       animation: moonGlow 5s ease-in-out infinite;
     }
-    .css-moon::before {
-      content:''; position:absolute;
-      top:-2px; right:-3px;
-      width:14px; height:14px; border-radius:50%;
-      background:var(--moon-shadow, #1a2540);
-    }
-    .css-moon::after {
-      content:''; position:absolute; inset:-7px; border-radius:50%;
-      background:radial-gradient(circle, rgba(160,200,255,0.12) 0%, transparent 65%);
-    }
     @keyframes moonGlow {
-      0%,100% { box-shadow:0 0 0 1px rgba(180,210,255,0.2),0 0 6px 2px rgba(140,180,255,0.45),0 0 15px 5px rgba(100,150,255,0.22),inset -3px -2px 5px rgba(60,90,180,0.18); }
-      50%     { box-shadow:0 0 0 2px rgba(180,210,255,0.3),0 0 9px 4px rgba(140,180,255,0.6),0 0 23px 8px rgba(100,150,255,0.32),inset -3px -2px 5px rgba(60,90,180,0.18); }
+      0%,100% { filter: drop-shadow(0 0 3px rgba(140,180,255,0.7)) drop-shadow(0 0 8px rgba(100,150,255,0.35)); }
+      50%     { filter: drop-shadow(0 0 5px rgba(140,180,255,0.95)) drop-shadow(0 0 14px rgba(100,150,255,0.55)); }
     }
     /* formation-doll-overlay: hero-unit과 동일한 위치/크기/애니메이션 */
     .formation-doll-overlay {
