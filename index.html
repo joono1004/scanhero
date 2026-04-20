@@ -110,7 +110,7 @@
     }
 
     .formation-stage {
-      position: relative; width: 100%; height: 192px; border-radius: 18px; overflow: hidden;
+      position: relative; width: 100%; height: 240px; border-radius: 18px; overflow: hidden;
       background: #0a1428;
     }
     .tactic-badge {
@@ -135,14 +135,19 @@
     .tactic-stat.neu  { color: rgba(255,255,255,0.4); }
     .bg-layer {
       position: absolute; inset: 0;
-      width: 200%; height: 100%;
-      will-change: transform;
+      width: 100%; height: 100%;
+      will-change: background-position;
       pointer-events: none;
+      background-repeat: repeat-x;
+      background-size: auto 100%;
     }
-    .bg-layer-far  { animation: bgFar  20s linear infinite; z-index: 0; }
-    .bg-layer-near { animation: bgNear 10s linear infinite; z-index: 1; }
-    @keyframes bgFar  { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-    @keyframes bgNear { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .bg-layer-sky  { animation: bgScrollSky  80s linear infinite; z-index: 0; }
+    .bg-layer-far  { animation: bgScrollFar  40s linear infinite; z-index: 1; }
+    .bg-layer-near { animation: bgScrollNear 20s linear infinite; z-index: 2; }
+    @keyframes bgScrollSky  { from{background-position:0 0} to{background-position:-860px 0} }
+    @keyframes bgScrollFar  { from{background-position:0 0} to{background-position:-860px 0} }
+    @keyframes bgScrollNear { from{background-position:0 0} to{background-position:-860px 0} }
+
     /* formation-doll-overlay: hero-unit과 동일한 위치/크기/애니메이션 */
     .formation-doll-overlay {
       position: absolute;
@@ -231,12 +236,12 @@
 
     /* ── 경험치 바 영역 ── */
     .hero-exp-wrap {
-      position: absolute; left: 10px; right: 98px; bottom: 1px; z-index: 5;
+      position: relative; width: 100%; margin-top: 4px; z-index: 5;
       background: rgba(10,15,27,0.62); border: 1px solid rgba(151,175,235,0.18);
-      border-radius: 12px; padding: 7px 9px 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+      border-radius: 8px; padding: 3px 8px; box-sizing: border-box;
     }
-    .hero-exp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; font-size: 10px; font-weight: 800; color: #d8e4ff; }
-    .hero-exp-bar { width: 100%; height: 9px; background: rgba(8, 12, 22, 0.9); border-radius: 999px; border: 1px solid rgba(73, 94, 143, 0.4); overflow: hidden; }
+    .hero-exp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; font-size: 9px; font-weight: 700; color: #d8e4ff; }
+    .hero-exp-bar { width: 100%; height: 5px; background: rgba(8, 12, 22, 0.9); border-radius: 999px; border: 1px solid rgba(73, 94, 143, 0.4); overflow: hidden; }
     .hero-exp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #6ea6ff, #88d8ff); transition: width 0.5s ease; border-radius: 999px; }
     @keyframes expLevelUp {
       0%   { width: var(--exp-from); background: linear-gradient(90deg,#6ea6ff,#88d8ff); }
@@ -260,7 +265,7 @@
     }
     .game-logout-btn:hover { background: rgba(200,40,40,0.2); color: #ff8070; border-color: rgba(255,80,80,0.5); }
     .hero-map-btn {
-      position: absolute; right: 10px; bottom: 6px;
+      position: relative;
       width: 38px; height: 38px;
       border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;
       font-size: 20px;
@@ -1120,10 +1125,8 @@
     .ext-char .ext-sh { border-radius:50%; background:rgba(0,0,0,0.35); margin-top:-2px; }
     .ext-char.hero img { filter:drop-shadow(0 0 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,0.9)) drop-shadow(0 0 1px rgba(0,0,0,1)); }
     .ext-char.enemy img { filter:drop-shadow(0 0 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,0.9)) drop-shadow(0 0 1px rgba(0,0,0,1)); }
-    /* ── 배치 확인용 점선 테두리 — 배치 완료 후 이 블록만 삭제 ── */
-    .ext-char { outline:2px dashed rgba(255,220,0,0.7); }
-    .ext-char img, .ext-char video { outline:2px dashed rgba(0,255,200,0.7); }
-    /* ─────────────────────────────────────────────────────────── */
+    .ext-char.edit-mode { outline:2px dashed rgba(255,220,0,0.7); }
+    .ext-char.edit-mode img, .ext-char.edit-mode video { outline:2px dashed rgba(0,255,200,0.7); }
     .ext-battle-log {
       position:absolute; top:56px; left:10px; right:10px;
       background:rgba(0,0,0,0.55); border-radius:8px;
@@ -1733,7 +1736,7 @@
 
     /* 상점 버튼 (메인화면) */
     .shop-fab {
-      position:absolute; right:54px; bottom:6px; z-index:6;
+      position:relative; z-index:6;
       width:38px; height:38px; border-radius:50%;
       background:linear-gradient(180deg,rgba(99,208,154,0.28),rgba(50,160,100,0.18));
       border:1px solid rgba(99,208,154,0.45); color:#63d09a; font-size:20px;
@@ -1744,31 +1747,6 @@
 
 
     /* 전술 슬라이더 */
-    .tactic-slider-wrap { display:flex; align-items:center; gap:6px; width:55%; flex-shrink:0; }
-    .tactic-slider-icon { font-size:16px; flex-shrink:0; }
-    .tactic-slider-track { flex:1; position:relative; height:28px; display:flex; align-items:center; overflow:visible; }
-    .tactic-slider {
-      -webkit-appearance:none; appearance:none;
-      width:100%; height:2px; border-radius:0;
-      background:rgba(140,160,210,0.5);
-      border:none; padding:0; box-shadow:none;
-      outline:none; cursor:pointer; position:relative; z-index:2;
-    }
-    .tactic-slider::-webkit-slider-thumb {
-      -webkit-appearance:none;
-      width:20px; height:20px; border-radius:50%;
-      background:#eef3ff; border:3px solid #4f7cff;
-      cursor:pointer; box-shadow:0 0 0 3px rgba(79,124,255,0.25);
-    }
-    .tactic-slider-dots {
-      position:absolute; top:50%; transform:translateY(-50%);
-      left:10px; right:10px; display:flex; justify-content:space-between;
-      pointer-events:none; z-index:1;
-    }
-    .tactic-slider-dot {
-      width:8px; height:8px; border-radius:50%;
-      background:rgba(14,24,40,0.9); border:1.5px solid rgba(140,165,230,0.7);
-    }
     /* 병사 선택 버튼 */
     
     
@@ -1969,21 +1947,42 @@
               <div class="hero-gold-box"><span>🪙</span><span id="heroGoldTop">0</span></div>
             </div>
             <div class="formation-stage" id="formationStage">
+              <div class="bg-layer bg-layer-sky"  id="bgLayerSky"></div>
               <div class="bg-layer bg-layer-far"  id="bgLayerFar"></div>
               <div class="bg-layer bg-layer-near" id="bgLayerNear"></div>
+              <div id="mainBgTestPanel" style="position:absolute;bottom:6px;left:6px;z-index:20;display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+                <select id="mainBgThemeSelect" style="font-size:10px;padding:2px 4px;border-radius:6px;border:1px solid rgba(255,207,99,0.5);background:rgba(0,0,0,0.7);color:#ffcf63;cursor:pointer;">
+                  <option value="city">🏙 도시</option>
+                  <option value="forest">🌲 숲</option>
+                  <option value="mountain">⛰ 산</option>
+                  <option value="river">🌊 강</option>
+                  <option value="lake">🏞 호수</option>
+                </select>
+                <select id="mainBgDnSelect" style="font-size:10px;padding:2px 4px;border-radius:6px;border:1px solid rgba(255,207,99,0.5);background:rgba(0,0,0,0.7);color:#ffcf63;cursor:pointer;">
+                  <option value="auto">⏱ 자동</option>
+                  <option value="day">☀ 낮</option>
+                  <option value="night">🌙 밤</option>
+                  <option value="dawn">🌅 새벽</option>
+                  <option value="morning">🌄 아침</option>
+                  <option value="evening">🌆 저녁</option>
+                </select>
+                <button onclick="applyMainBgTest()" style="font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid rgba(255,207,99,0.5);background:rgba(255,207,99,0.2);color:#ffcf63;cursor:pointer;">적용</button>
+              </div>
               <div class="hero-unit"><div class="hero-sprite" id="heroSpriteWrap"></div><div class="hero-shadow"></div></div>
               <div class="soldier-row" id="soldierFront"></div>
               <div class="formation-ground"></div>
               <div class="hero-doll-stage formation-doll-overlay" id="formationDollOverlay"></div>
-              <!-- 전술 스탯 오버레이 -->
-              <div id="tacticStatOverlay" style="position:absolute;top:6px;right:6px;z-index:10;display:flex;flex-direction:column;gap:3px;"></div>
+              <!-- 우측 오버레이: 스탯 + 지도 + 상점 -->
+              <div style="position:absolute;top:6px;right:6px;z-index:10;display:flex;flex-direction:column;gap:4px;align-items:center;">
+                <div id="tacticStatOverlay" style="display:flex;flex-direction:column;gap:3px;"></div>
+                <button class="hero-map-btn" id="heroMapBtn" type="button" title="지도 보기">🗺️</button>
+                <button class="shop-fab" id="shopFab" title="상점">🏪</button>
+              </div>
             </div>
             <div class="hero-exp-wrap">
               <div class="hero-exp-head"><span>경험치</span><span id="heroExpBarText">0 / 20</span></div>
               <div class="hero-exp-bar"><div class="hero-exp-fill" id="heroExpFill"></div></div>
             </div>
-            <button class="shop-fab" id="shopFab" title="상점">🏪</button>
-            <button class="hero-map-btn" id="heroMapBtn" type="button" title="지도 보기">🗺️</button>
           </div>
 
           <div>
@@ -1991,22 +1990,6 @@
             <!-- 숨김 셀렉트 (기존 로직 유지) -->
             <select id="eventTacticSelect" style="display:none;"><option value="공격 중심">공격 중심</option><option value="균형">균형</option><option value="방어 중심">방어 중심</option></select>
             
-            <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
-              <!-- 전술 슬라이더 -->
-              <div class="tactic-slider-wrap">
-                <span class="tactic-slider-icon">⚔️</span>
-                <div class="tactic-slider-track">
-                  <input type="range" class="tactic-slider" id="tacticSlider" min="0" max="2" step="1" value="0">
-                  <div class="tactic-slider-dots">
-                    <div class="tactic-slider-dot"></div>
-                    <div class="tactic-slider-dot"></div>
-                    <div class="tactic-slider-dot"></div>
-                  </div>
-                </div>
-                <span class="tactic-slider-icon">🛡️</span>
-              </div>
-
-            </div>
             <button class="scan-wide-btn" id="scanFab" type="button">
               <div class="scan-wide-icon"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
               <span>바코드 스캔 시작</span>
@@ -2181,7 +2164,7 @@
 
       <!-- 영웅 (battle-main 기준) -->
       <div class="ext-char hero" id="extHeroChar"
-           style="position:absolute;left:10px;bottom:5px;z-index:10;">
+           style="position:absolute;left:10px;bottom:0px;z-index:10;">
         <video id="extHeroVideo"
           style="display:none;width:133px;height:150px;pointer-events:none;
                  filter:drop-shadow(0 0 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,0.9)) drop-shadow(0 0 1px rgba(0,0,0,1));"
@@ -2197,7 +2180,7 @@
 
       <!-- 몬스터 (battle-main 기준) -->
       <div class="ext-char enemy" id="extEnemyChar"
-           style="position:absolute;right:10px;bottom:5px;z-index:10;">
+           style="position:absolute;right:10px;bottom:0px;z-index:10;">
         <video id="extEnemyVideo"
           style="display:none;width:133px;height:150px;pointer-events:none;
                  filter:drop-shadow(0 0 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,0.9)) drop-shadow(0 0 1px rgba(0,0,0,1));"
@@ -6933,13 +6916,55 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   // 배경 업데이트 (테마 + 시간대 적용)
   let _bgTheme = 'city';
+  let _bgDnOverride = 'auto'; // 'auto' | 'day' | 'night'
+  const MAIN_BG_BASE = 'https://joono1004.github.io/scanhero/assets/bg/main';
+  const MAIN_BG_THEMES = ['city']; // 이미지 제작된 테마 목록
+
+  window.applyMainBgTest = function() {
+    const themeVal = document.getElementById('mainBgThemeSelect')?.value || 'city';
+    _bgDnOverride = document.getElementById('mainBgDnSelect')?.value || 'auto';
+    updateFormationBg(themeVal);
+  };
+
+  // 시간대 슬롯 → day/night 매핑
+  function slotToDn(slot) {
+    if (slot === 0) return 'night'; // 새벽 → night
+    if (slot === 1) return 'day';   // 아침
+    if (slot === 2) return 'day';   // 낮
+    if (slot === 3) return 'day';   // 저녁
+    return 'night';                  // 밤
+  }
+
   function updateFormationBg(theme) {
     if (theme) _bgTheme = theme;
     const slot = getTimeSlot();
+    let dn;
+    if (_bgDnOverride === 'auto')    dn = slotToDn(slot);
+    else if (_bgDnOverride === 'dawn' || _bgDnOverride === 'night') dn = 'night';
+    else if (_bgDnOverride === 'morning' || _bgDnOverride === 'day' || _bgDnOverride === 'evening') dn = 'day';
+    else dn = 'day';
+
+    const sky  = document.getElementById('bgLayerSky');
     const far  = document.getElementById('bgLayerFar');
     const near = document.getElementById('bgLayerNear');
-    if (far)  far.innerHTML  = makeBgSVG('far',  _bgTheme, slot);
-    if (near) near.innerHTML = makeBgSVG('near', _bgTheme, slot);
+
+    if (MAIN_BG_THEMES.includes(_bgTheme)) {
+      const base = `${MAIN_BG_BASE}/main_${_bgTheme}_${dn}`;
+      function applyImg(el, url) {
+        if (!el) return;
+        el.innerHTML = '';
+        el.style.backgroundImage = `url(${url})`;
+      }
+      applyImg(sky,  base + '_sky.png');
+      applyImg(far,  base + '_far.png');
+      applyImg(near, base + '_near.png');
+    } else {
+      // 이미지 없는 테마는 SVG 폴백
+      if (sky)  { sky.style.backgroundImage = ''; sky.innerHTML = ''; }
+      if (far)  far.innerHTML  = makeBgSVG('far',  _bgTheme, slot);
+      if (near) near.innerHTML = makeBgSVG('near', _bgTheme, slot);
+    }
+
   }
 
   // Overpass API로 위치 기반 테마 결정
@@ -8110,12 +8135,13 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     console.log('[배경테스트] url:', url, '/ cont:', cont);
     if (!cont) { alert('컨테이너 없음'); return; }
 
-    // 이미지 로드 없이 바로 적용 (이미 캐시된 경우 onload 안 불릴 수 있음)
-    cont.style.backgroundImage    = 'url('+url+')';
-    cont.style.backgroundSize     = '390px 844px';
-    cont.style.backgroundPosition = 'top center';
-    cont.style.backgroundRepeat   = 'no-repeat';
-    if (main) main.style.background = 'transparent';
+    // battle-main 영역에만 배경 적용 (상태바·버튼 패널 제외)
+    if (!main) { alert('main 없음'); return; }
+    cont.style.backgroundImage = '';
+    main.style.backgroundImage    = 'url('+url+')';
+    main.style.backgroundSize     = 'cover';
+    main.style.backgroundPosition = 'center';
+    main.style.backgroundRepeat   = 'no-repeat';
     const sky    = main && main.querySelector('.ext-bg-sky');
     const ground = main && main.querySelector('.ext-bg-ground');
     if (sky)    sky.style.opacity = '0';
@@ -8131,13 +8157,14 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
     const img = new Image();
     img.onload = () => {
-      // container(390×844 고정)에 배경 적용 → 항상 같은 비율 유지
-      cont.style.backgroundImage    = 'url('+url+')';
-      cont.style.backgroundSize     = '430px 844px';
-      cont.style.backgroundPosition = 'center';
-      cont.style.backgroundRepeat   = 'no-repeat';
-      // CSS 그라디언트 레이어 숨기기
-      if (main) main.style.background = 'transparent';
+      // battle-main 영역에만 배경 적용 (상태바·버튼 패널 제외)
+      cont.style.backgroundImage = '';
+      if (main) {
+        main.style.backgroundImage    = 'url('+url+')';
+        main.style.backgroundSize     = 'cover';
+        main.style.backgroundPosition = 'center';
+        main.style.backgroundRepeat   = 'no-repeat';
+      }
       const sky    = main && main.querySelector('.ext-bg-sky');
       const ground = main && main.querySelector('.ext-bg-ground');
       if (sky)    sky.style.opacity = '0';
@@ -8145,7 +8172,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     };
     img.onerror = () => {
       cont.style.backgroundImage = '';
-      if (main) main.style.background = '';
+      if (main) main.style.backgroundImage = '';
       const sky    = main && main.querySelector('.ext-bg-sky');
       const ground = main && main.querySelector('.ext-bg-ground');
       if (sky)    sky.style.opacity = '1';
@@ -8157,21 +8184,21 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // ── 확장 전투씬 좌표 정의 ─────────────────────────────────────
   // 아군 / 형태 (엇갈리기)
   const EXT_ALLY_POS = [
-    { slot:0, style:'left:80px;bottom:175px;'  },  // 앞줄 오
-    { slot:1, style:'left:12px;bottom:175px;'  },  // 앞줄 왼
-    { slot:2, style:'left:104px;bottom:270px;' },  // 중간 오
-    { slot:3, style:'left:36px;bottom:270px;'  },  // 중간 왼
-    { slot:4, style:'left:128px;bottom:365px;' },  // 뒷줄 오
-    { slot:5, style:'left:60px;bottom:365px;'  },  // 뒷줄 왼
+    { slot:0, style:'left:80px;bottom:140px;'  },  // 앞줄 오
+    { slot:1, style:'left:12px;bottom:140px;'  },  // 앞줄 왼
+    { slot:2, style:'left:110px;bottom:200px;' },  // 중간 오
+    { slot:3, style:'left:42px;bottom:200px;'  },  // 중간 왼
+    { slot:4, style:'left:140px;bottom:260px;' },  // 뒷줄 오
+    { slot:5, style:'left:72px;bottom:260px;'  },  // 뒷줄 왼
   ];
   // 적 병사 — 최대 6명
   const EXT_ENEMY_POS = [
-    'right:78px;bottom:175px;',   // 적0 앞줄 왼
-    'right:10px;bottom:175px;',   // 적1 앞줄 오
-    'right:102px;bottom:270px;',  // 적2 중간 왼
-    'right:34px;bottom:270px;',   // 적3 중간 오
-    'right:126px;bottom:365px;',  // 적4 뒷줄 왼
-    'right:58px;bottom:365px;',   // 적5 뒷줄 오
+    'right:80px;bottom:140px;',   // 적0 앞줄 왼
+    'right:12px;bottom:140px;',   // 적1 앞줄 오
+    'right:110px;bottom:200px;',  // 적2 중간 왼
+    'right:42px;bottom:200px;',   // 적3 중간 오
+    'right:140px;bottom:260px;',  // 적4 뒷줄 왼
+    'right:72px;bottom:260px;',   // 적5 뒷줄 오
   ];
 
   function openExtBattle() {
@@ -8293,7 +8320,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 적 병사 배치
     const enemyEl = document.getElementById('extEnemyGroup');
     enemyEl.innerHTML = '';
-    const amount = Math.min(setup.enemy.amount || 1, 6) - 1; // 몬스터 1마리 제외
+    const amount = Math.min(setup.enemy.amount || 0, 6);
     const mobGradeClass = `mob-${enemy.grade||'일반'}`;
     for (let i = 0; i < amount; i++) {
       const div = document.createElement('div');
@@ -8433,27 +8460,28 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       });
     }
 
-    function enableDrag() {
-      // 영웅
-      const heroEl = document.getElementById('extHeroChar');
-      if (heroEl) makeDraggable(heroEl, 'left');
-      // 몬스터
-      const enemyEl = document.getElementById('extEnemyChar');
-      if (enemyEl) makeDraggable(enemyEl, 'right');
-      // 아군 병사
-      document.querySelectorAll('#extAllyGroup .ext-char').forEach(el => makeDraggable(el, 'left'));
-      // 적 병사
-      document.querySelectorAll('#extEnemyGroup .ext-char').forEach(el => makeDraggable(el, 'right'));
-    }
-
-    function disableDrag() {
-      [
+    function allChars() {
+      return [
         document.getElementById('extHeroChar'),
         document.getElementById('extEnemyChar'),
         ...document.querySelectorAll('#extAllyGroup .ext-char'),
         ...document.querySelectorAll('#extEnemyGroup .ext-char'),
-      ].forEach(el => {
-        if (!el) return;
+      ].filter(Boolean);
+    }
+
+    function enableDrag() {
+      const heroEl  = document.getElementById('extHeroChar');
+      const enemyEl = document.getElementById('extEnemyChar');
+      if (heroEl)  makeDraggable(heroEl,  'left');
+      if (enemyEl) makeDraggable(enemyEl, 'right');
+      document.querySelectorAll('#extAllyGroup .ext-char').forEach(el  => makeDraggable(el, 'left'));
+      document.querySelectorAll('#extEnemyGroup .ext-char').forEach(el => makeDraggable(el, 'right'));
+      allChars().forEach(el => el.classList.add('edit-mode'));
+    }
+
+    function disableDrag() {
+      allChars().forEach(el => {
+        el.classList.remove('edit-mode');
         el.style.cursor = '';
         el.style.userSelect = '';
         el.style.touchAction = '';
@@ -9452,18 +9480,6 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   els.decodeCloseBtn.addEventListener('click', ()=>closeModal(els.decodeBackdrop));
   els.exploreLogBtn.addEventListener('click', ()=>{ renderLogs(); openModal(els.exploreLogBackdrop); setTimeout(()=>{ const el=document.getElementById('exploreLog'); if(el) el.scrollTop=0; },50); });
   els.exploreLogCloseBtn.addEventListener('click', ()=>closeModal(els.exploreLogBackdrop));
-  // 전술 슬라이더
-  const tacticSlider = document.getElementById('tacticSlider');
-  const tacticValues = ['공격 중심', '균형', '방어 중심'];
-  function applyTacticSlider() {
-    const idx = parseInt(tacticSlider.value);
-    const val = tacticValues[idx];
-    els.eventTacticSelect.value = val;
-    const stats = getHeroBaseStats();
-    renderHeroFormation(state.heroClass, (deployedSoldiers||[]).filter(Boolean).map(s=>s.cls), stats.soldiers);
-    renderTacticBadge();
-  }
-  if (tacticSlider) tacticSlider.addEventListener('input', applyTacticSlider);
 
 
   const SOLDIER_DATA = [
