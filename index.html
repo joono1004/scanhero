@@ -260,7 +260,7 @@
     }
     .game-logout-btn:hover { background: rgba(200,40,40,0.2); color: #ff8070; border-color: rgba(255,80,80,0.5); }
     .hero-map-btn {
-      position: absolute; right: 10px; bottom: 6px;
+      position: relative;
       width: 38px; height: 38px;
       border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;
       font-size: 20px;
@@ -1731,7 +1731,7 @@
 
     /* 상점 버튼 (메인화면) */
     .shop-fab {
-      position:absolute; right:54px; bottom:6px; z-index:6;
+      position:relative; z-index:6;
       width:38px; height:38px; border-radius:50%;
       background:linear-gradient(180deg,rgba(99,208,154,0.28),rgba(50,160,100,0.18));
       border:1px solid rgba(99,208,154,0.45); color:#63d09a; font-size:20px;
@@ -1948,15 +1948,17 @@
               <div class="soldier-row" id="soldierFront"></div>
               <div class="formation-ground"></div>
               <div class="hero-doll-stage formation-doll-overlay" id="formationDollOverlay"></div>
-              <!-- 전술 스탯 오버레이 -->
-              <div id="tacticStatOverlay" style="position:absolute;top:6px;right:6px;z-index:10;display:flex;flex-direction:column;gap:3px;"></div>
+              <!-- 우측 오버레이: 스탯 + 지도 + 상점 -->
+              <div style="position:absolute;top:6px;right:6px;z-index:10;display:flex;flex-direction:column;gap:4px;align-items:center;">
+                <div id="tacticStatOverlay" style="display:flex;flex-direction:column;gap:3px;"></div>
+                <button class="hero-map-btn" id="heroMapBtn" type="button" title="지도 보기">🗺️</button>
+                <button class="shop-fab" id="shopFab" title="상점">🏪</button>
+              </div>
             </div>
             <div class="hero-exp-wrap">
               <div class="hero-exp-head"><span>경험치</span><span id="heroExpBarText">0 / 20</span></div>
               <div class="hero-exp-bar"><div class="hero-exp-fill" id="heroExpFill"></div></div>
             </div>
-            <button class="shop-fab" id="shopFab" title="상점">🏪</button>
-            <button class="hero-map-btn" id="heroMapBtn" type="button" title="지도 보기">🗺️</button>
           </div>
 
           <div>
