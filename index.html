@@ -6915,7 +6915,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   let _bgTheme = 'city';
   let _bgDnOverride = 'auto'; // 'auto' | 'day' | 'night'
   const MAIN_BG_BASE = 'https://joono1004.github.io/scanhero/assets/bg/main';
-  const MAIN_BG_THEMES = ['city']; // 이미지 제작된 테마 목록
+  const MAIN_BG_THEMES = ['city', 'forest']; // 이미지 제작된 테마 목록
+  const MAIN_BG_SKY_THEME = 'city'; // sky 레이어는 모든 테마 공통
 
   window.applyMainBgTest = function() {
     const themeVal = document.getElementById('mainBgThemeSelect')?.value || 'city';
@@ -6950,7 +6951,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         el.innerHTML = '';
         el.style.backgroundImage = `url(${url})`;
       }
-      applyImg(sky,  base + '_sky.png');
+      applyImg(sky,  `${MAIN_BG_BASE}/main_${MAIN_BG_SKY_THEME}_${dn}_sky.png`);
       applyImg(far,  base + '_far.png');
       applyImg(near, base + '_near.png');
     } else {
