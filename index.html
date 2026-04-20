@@ -135,15 +135,18 @@
     .tactic-stat.neu  { color: rgba(255,255,255,0.4); }
     .bg-layer {
       position: absolute; inset: 0;
-      width: 200%; height: 100%;
-      will-change: transform;
+      width: 100%; height: 100%;
+      will-change: background-position;
       pointer-events: none;
+      background-repeat: repeat-x;
+      background-size: auto 100%;
     }
-    .bg-layer-sky  { animation: bgFar  40s linear infinite; z-index: 0; }
-    .bg-layer-far  { animation: bgFar  20s linear infinite; z-index: 1; }
-    .bg-layer-near { animation: bgNear 10s linear infinite; z-index: 2; }
-    @keyframes bgFar  { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-    @keyframes bgNear { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .bg-layer-sky  { animation: bgScrollSky  40s linear infinite; z-index: 0; }
+    .bg-layer-far  { animation: bgScrollFar  20s linear infinite; z-index: 1; }
+    .bg-layer-near { animation: bgScrollNear 10s linear infinite; z-index: 2; }
+    @keyframes bgScrollSky  { from{background-position:0 0} to{background-position:-860px 0} }
+    @keyframes bgScrollFar  { from{background-position:0 0} to{background-position:-860px 0} }
+    @keyframes bgScrollNear { from{background-position:0 0} to{background-position:-860px 0} }
     /* formation-doll-overlay: hero-unit과 동일한 위치/크기/애니메이션 */
     .formation-doll-overlay {
       position: absolute;
@@ -6949,10 +6952,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       function applyImg(el, url) {
         if (!el) return;
         el.innerHTML = '';
-        el.style.backgroundImage    = `url(${url})`;
-        el.style.backgroundSize     = '50% 100%';
-        el.style.backgroundRepeat   = 'repeat-x';
-        el.style.backgroundColor    = 'transparent';
+        el.style.backgroundImage = `url(${url})`;
       }
       applyImg(sky,  base + '_sky.png');
       applyImg(far,  base + '_far.png');
