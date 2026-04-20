@@ -1946,6 +1946,14 @@
               <div class="bg-layer bg-layer-sky"  id="bgLayerSky"></div>
               <div class="bg-layer bg-layer-far"  id="bgLayerFar"></div>
               <div class="bg-layer bg-layer-near" id="bgLayerNear"></div>
+              <div id="mainBgTestPanel" style="position:absolute;bottom:6px;left:6px;z-index:20;display:flex;gap:4px;align-items:center;">
+                <select id="mainBgDnSelect" style="font-size:10px;padding:2px 4px;border-radius:6px;border:1px solid rgba(255,207,99,0.5);background:rgba(0,0,0,0.7);color:#ffcf63;cursor:pointer;">
+                  <option value="auto">⏱ 자동</option>
+                  <option value="day">☀ 낮</option>
+                  <option value="night">🌙 밤</option>
+                </select>
+                <button onclick="applyMainBgTest()" style="font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid rgba(255,207,99,0.5);background:rgba(255,207,99,0.2);color:#ffcf63;cursor:pointer;">적용</button>
+              </div>
               <div class="hero-unit"><div class="hero-sprite" id="heroSpriteWrap"></div><div class="hero-shadow"></div></div>
               <div class="soldier-row" id="soldierFront"></div>
               <div class="formation-ground"></div>
@@ -6894,13 +6902,20 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   // 배경 업데이트 (테마 + 시간대 적용)
   let _bgTheme = 'city';
+  let _bgDnOverride = 'auto'; // 'auto' | 'day' | 'night'
   const MAIN_BG_BASE = 'https://joono1004.github.io/scanhero/assets/bg/main';
   const MAIN_BG_THEMES = ['city']; // 이미지 제작된 테마 목록
+
+  window.applyMainBgTest = function() {
+    _bgDnOverride = document.getElementById('mainBgDnSelect')?.value || 'auto';
+    updateFormationBg();
+  };
 
   function updateFormationBg(theme) {
     if (theme) _bgTheme = theme;
     const slot = getTimeSlot();
-    const dn   = (slot >= 1 && slot <= 3) ? 'day' : 'night'; // 1~3=낮, 0,4=밤
+    const autoDn = (slot >= 1 && slot <= 3) ? 'day' : 'night';
+    const dn = (_bgDnOverride === 'auto') ? autoDn : _bgDnOverride;
 
     const sky  = document.getElementById('bgLayerSky');
     const far  = document.getElementById('bgLayerFar');
