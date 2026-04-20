@@ -110,7 +110,7 @@
     }
 
     .formation-stage {
-      position: relative; width: 100%; height: 192px; border-radius: 18px; overflow: hidden;
+      position: relative; width: 100%; height: 240px; border-radius: 18px; overflow: hidden;
       background: #0a1428;
     }
     .tactic-badge {
@@ -1742,31 +1742,6 @@
 
 
     /* 전술 슬라이더 */
-    .tactic-slider-wrap { display:flex; align-items:center; gap:6px; width:55%; flex-shrink:0; }
-    .tactic-slider-icon { font-size:16px; flex-shrink:0; }
-    .tactic-slider-track { flex:1; position:relative; height:28px; display:flex; align-items:center; overflow:visible; }
-    .tactic-slider {
-      -webkit-appearance:none; appearance:none;
-      width:100%; height:2px; border-radius:0;
-      background:rgba(140,160,210,0.5);
-      border:none; padding:0; box-shadow:none;
-      outline:none; cursor:pointer; position:relative; z-index:2;
-    }
-    .tactic-slider::-webkit-slider-thumb {
-      -webkit-appearance:none;
-      width:20px; height:20px; border-radius:50%;
-      background:#eef3ff; border:3px solid #4f7cff;
-      cursor:pointer; box-shadow:0 0 0 3px rgba(79,124,255,0.25);
-    }
-    .tactic-slider-dots {
-      position:absolute; top:50%; transform:translateY(-50%);
-      left:10px; right:10px; display:flex; justify-content:space-between;
-      pointer-events:none; z-index:1;
-    }
-    .tactic-slider-dot {
-      width:8px; height:8px; border-radius:50%;
-      background:rgba(14,24,40,0.9); border:1.5px solid rgba(140,165,230,0.7);
-    }
     /* 병사 선택 버튼 */
     
     
@@ -1989,22 +1964,6 @@
             <!-- 숨김 셀렉트 (기존 로직 유지) -->
             <select id="eventTacticSelect" style="display:none;"><option value="공격 중심">공격 중심</option><option value="균형">균형</option><option value="방어 중심">방어 중심</option></select>
             
-            <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
-              <!-- 전술 슬라이더 -->
-              <div class="tactic-slider-wrap">
-                <span class="tactic-slider-icon">⚔️</span>
-                <div class="tactic-slider-track">
-                  <input type="range" class="tactic-slider" id="tacticSlider" min="0" max="2" step="1" value="0">
-                  <div class="tactic-slider-dots">
-                    <div class="tactic-slider-dot"></div>
-                    <div class="tactic-slider-dot"></div>
-                    <div class="tactic-slider-dot"></div>
-                  </div>
-                </div>
-                <span class="tactic-slider-icon">🛡️</span>
-              </div>
-
-            </div>
             <button class="scan-wide-btn" id="scanFab" type="button">
               <div class="scan-wide-icon"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
               <span>바코드 스캔 시작</span>
@@ -9453,18 +9412,6 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   els.decodeCloseBtn.addEventListener('click', ()=>closeModal(els.decodeBackdrop));
   els.exploreLogBtn.addEventListener('click', ()=>{ renderLogs(); openModal(els.exploreLogBackdrop); setTimeout(()=>{ const el=document.getElementById('exploreLog'); if(el) el.scrollTop=0; },50); });
   els.exploreLogCloseBtn.addEventListener('click', ()=>closeModal(els.exploreLogBackdrop));
-  // 전술 슬라이더
-  const tacticSlider = document.getElementById('tacticSlider');
-  const tacticValues = ['공격 중심', '균형', '방어 중심'];
-  function applyTacticSlider() {
-    const idx = parseInt(tacticSlider.value);
-    const val = tacticValues[idx];
-    els.eventTacticSelect.value = val;
-    const stats = getHeroBaseStats();
-    renderHeroFormation(state.heroClass, (deployedSoldiers||[]).filter(Boolean).map(s=>s.cls), stats.soldiers);
-    renderTacticBadge();
-  }
-  if (tacticSlider) tacticSlider.addEventListener('input', applyTacticSlider);
 
 
   const SOLDIER_DATA = [
