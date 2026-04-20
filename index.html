@@ -139,8 +139,9 @@
       will-change: transform;
       pointer-events: none;
     }
-    .bg-layer-far  { animation: bgFar  20s linear infinite; z-index: 0; }
-    .bg-layer-near { animation: bgNear 10s linear infinite; z-index: 1; }
+    .bg-layer-sky  { animation: bgFar  40s linear infinite; z-index: 0; }
+    .bg-layer-far  { animation: bgFar  20s linear infinite; z-index: 1; }
+    .bg-layer-near { animation: bgNear 10s linear infinite; z-index: 2; }
     @keyframes bgFar  { from{transform:translateX(0)} to{transform:translateX(-50%)} }
     @keyframes bgNear { from{transform:translateX(0)} to{transform:translateX(-50%)} }
     /* formation-doll-overlay: hero-unit과 동일한 위치/크기/애니메이션 */
@@ -1942,6 +1943,7 @@
               <div class="hero-gold-box"><span>🪙</span><span id="heroGoldTop">0</span></div>
             </div>
             <div class="formation-stage" id="formationStage">
+              <div class="bg-layer bg-layer-sky"  id="bgLayerSky"></div>
               <div class="bg-layer bg-layer-far"  id="bgLayerFar"></div>
               <div class="bg-layer bg-layer-near" id="bgLayerNear"></div>
               <div class="hero-unit"><div class="hero-sprite" id="heroSpriteWrap"></div><div class="hero-shadow"></div></div>
@@ -6892,13 +6894,37 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   // 배경 업데이트 (테마 + 시간대 적용)
   let _bgTheme = 'city';
+  const MAIN_BG_BASE = 'https://joono1004.github.io/scanhero/assets/bg/main';
+  const MAIN_BG_THEMES = ['city']; // 이미지 제작된 테마 목록
+
   function updateFormationBg(theme) {
     if (theme) _bgTheme = theme;
     const slot = getTimeSlot();
+    const dn   = (slot >= 1 && slot <= 3) ? 'day' : 'night'; // 1~3=낮, 0,4=밤
+
+    const sky  = document.getElementById('bgLayerSky');
     const far  = document.getElementById('bgLayerFar');
     const near = document.getElementById('bgLayerNear');
-    if (far)  far.innerHTML  = makeBgSVG('far',  _bgTheme, slot);
-    if (near) near.innerHTML = makeBgSVG('near', _bgTheme, slot);
+
+    if (MAIN_BG_THEMES.includes(_bgTheme)) {
+      const base = `${MAIN_BG_BASE}/main_${_bgTheme}_${dn}`;
+      function applyImg(el, url) {
+        if (!el) return;
+        el.innerHTML = '';
+        el.style.backgroundImage    = `url(${url})`;
+        el.style.backgroundSize     = '50% 100%';
+        el.style.backgroundRepeat   = 'repeat-x';
+        el.style.backgroundColor    = 'transparent';
+      }
+      applyImg(sky,  base + '_sky.png');
+      applyImg(far,  base + '_far.png');
+      applyImg(near, base + '_near.png');
+    } else {
+      // 이미지 없는 테마는 SVG 폴백
+      if (sky)  { sky.style.backgroundImage = ''; sky.innerHTML = ''; }
+      if (far)  far.innerHTML  = makeBgSVG('far',  _bgTheme, slot);
+      if (near) near.innerHTML = makeBgSVG('near', _bgTheme, slot);
+    }
   }
 
   // Overpass API로 위치 기반 테마 결정
