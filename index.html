@@ -1962,9 +1962,6 @@
                   <option value="auto">⏱ 자동</option>
                   <option value="day">☀ 낮</option>
                   <option value="night">🌙 밤</option>
-                  <option value="dawn">🌅 새벽</option>
-                  <option value="morning">🌄 아침</option>
-                  <option value="evening">🌆 저녁</option>
                 </select>
                 <button onclick="applyMainBgTest()" style="font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid rgba(255,207,99,0.5);background:rgba(255,207,99,0.2);color:#ffcf63;cursor:pointer;">적용</button>
               </div>
@@ -6918,7 +6915,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   let _bgTheme = 'city';
   let _bgDnOverride = 'auto'; // 'auto' | 'day' | 'night'
   const MAIN_BG_BASE = 'https://joono1004.github.io/scanhero/assets/bg/main';
-  const MAIN_BG_THEMES = ['city']; // 이미지 제작된 테마 목록
+  const MAIN_BG_THEMES = ['city', 'forest']; // 이미지 제작된 테마 목록
+  const MAIN_BG_SKY_THEME = 'city'; // sky 레이어는 모든 테마 공통
 
   window.applyMainBgTest = function() {
     const themeVal = document.getElementById('mainBgThemeSelect')?.value || 'city';
@@ -6940,9 +6938,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const slot = getTimeSlot();
     let dn;
     if (_bgDnOverride === 'auto')    dn = slotToDn(slot);
-    else if (_bgDnOverride === 'dawn' || _bgDnOverride === 'night') dn = 'night';
-    else if (_bgDnOverride === 'morning' || _bgDnOverride === 'day' || _bgDnOverride === 'evening') dn = 'day';
-    else dn = 'day';
+    else dn = _bgDnOverride === 'night' ? 'night' : 'day';
 
     const sky  = document.getElementById('bgLayerSky');
     const far  = document.getElementById('bgLayerFar');
@@ -6955,7 +6951,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         el.innerHTML = '';
         el.style.backgroundImage = `url(${url})`;
       }
-      applyImg(sky,  base + '_sky.png');
+      applyImg(sky,  `${MAIN_BG_BASE}/main_${MAIN_BG_SKY_THEME}_${dn}_sky.png`);
       applyImg(far,  base + '_far.png');
       applyImg(near, base + '_near.png');
     } else {
