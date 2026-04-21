@@ -6966,12 +6966,12 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       const data = await res.json();
       const tags = data.elements?.map(e=>e.tags)||[];
       const has = (key, val) => tags.some(t => val ? t[key]===val : t[key]);
-      if (has('natural','water') || has('natural','wetland')) return 'lake';
+      if (has('natural','water') || has('natural','wetland')) return 'river';
       if (has('waterway')) return 'river';
       if (has('natural','wood') || has('landuse','forest')) return 'forest';
       if (has('natural','peak')) return 'mountain';
       if (has('landuse')) return 'city';
-      return 'default';
+      return 'city';
     } catch(e) {
       return _bgTheme || 'city';
     }
@@ -8125,8 +8125,6 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     forest:   { day: 'battle_forest_day.png',   night: 'battle_forest_night.png'   },
     mountain: { day: 'battle_mountain_day.png', night: 'battle_mountain_night.png' },
     river:    { day: 'battle_river_day.png',    night: 'battle_river_night.png'    },
-    lake:     { day: 'battle_lake_day.png',     night: 'battle_lake_night.png'     },
-    default:  { day: 'battle_city_day.png',     night: 'battle_city_night.png'     },
   };
 
   // 시간대 슬롯 → 낮/밤 (0:낮 / 1:밤)
@@ -8137,7 +8135,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   function getExtBgUrl() {
     const theme = _bgTheme || 'city';
     const dn    = getExtBgDayNight();
-    const map   = EXT_BG_MAP[theme] || EXT_BG_MAP['default'];
+    const map   = EXT_BG_MAP[theme] || EXT_BG_MAP['city'];
     return EXT_BG_BASE + '/' + (map[dn] || map['day']);
   }
 
