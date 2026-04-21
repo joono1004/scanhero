@@ -6375,8 +6375,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
             <span class="tavern-stat-pill">✨ ${sol.stats.crit}</span>
           </div>
           <button class="tavern-recruit-btn" data-tavern-idx="${idx}"
-            ${canAfford ? '' : 'disabled'}>
-            🪙 ${sol.recruitCost}G ${canAfford ? '모집' : '골드 부족'}
+            ${sol.soldOut || !canAfford ? 'disabled' : ''}
+            style="${sol.soldOut ? 'opacity:1;color:#63d09a;border-color:rgba(99,208,154,0.4);background:rgba(99,208,154,0.08);cursor:default;' : ''}">
+            ${sol.soldOut ? '✅ 모집완료' : `🪙 ${sol.recruitCost}G ${canAfford ? '모집' : '골드 부족'}`}
           </button>
         </div>
       </div>`;
