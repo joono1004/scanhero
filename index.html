@@ -8933,7 +8933,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       monster:       setup.monster,
       enemySoldiers: setup.enemySoldiers,
       heroHp: setup.heroMax, heroMax: setup.heroMax,
-      enemyHp: setup.enemy.hp, enemyMax: setup.enemy.hp,
+      enemyHp: setup.monster.hp, enemyMax: setup.monster.hp,
       turn:1, totalDmg:0, sp:0, ended:false, locked:false,
     };
     resetBattleAnims(); // ran-away/defeated 포함 모든 클래스 초기화
@@ -8989,7 +8989,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       }
     }
     els.battleHeroMeta.textContent   = `${state.heroClass} / ${setup.tactic} / ${(setup.soldierClasses||[]).join(',')||'없음'} / 병사 ${setup.soldierCount}`;
-    els.battleEnemyMeta.textContent  = `${amount}마리 · 공격 ${setup.enemy.atk} / 방어 ${setup.enemy.def}`;
+    els.battleEnemyMeta.textContent  = `${amount}마리 · 공격 ${setup.monster.atk} / 방어 ${setup.monster.def}`;
     els.battleResultBox.style.display='none'; els.battleResultBox.className='';
     els.battleActions.className='modal-actions two';
     els.battleActions.innerHTML='<button class="modal-primary" id="battleAttackBtn">⚔ 전투 시작</button><button class="modal-danger" id="battleRunBtn">💨 도망</button>';
