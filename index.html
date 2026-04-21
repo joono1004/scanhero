@@ -8097,9 +8097,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const tm             = getTacticMod(tactic);
     const activeSoldiers = (deployedSoldiers || []).filter(Boolean).slice(0, MAX_DEPLOY_SLOTS);
 
-    // 레벨 스케일: 레벨마다 15% 증가
+    // 레벨 스케일: 레벨마다 10% 증가
     const lv      = state.level || 1;
-    const lvScale = 1 + (lv - 1) * 0.15;
+    const lvScale = 1 + (lv - 1) * 0.10;
 
     // 영웅 개별 유닛
     const hero = {
@@ -8155,6 +8155,12 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       heroMax: hero.maxHp, heroSpeed: hero.speed, heroCrit: hero.crit,
       enemy,
     };
+  }
+
+  function calcOverwhelmRatio(setup) {
+    const monsterThreat = setup.monster.atk / Math.max(1, setup.hero.hp);
+    const heroThreat    = setup.hero.atk    / Math.max(1, setup.monster.hp);
+    return monsterThreat / Math.max(0.001, heroThreat);
   }
 
   function resetBattleAnims() {
@@ -8488,8 +8494,11 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     }
 
     // 로그 초기화
-    document.getElementById('extLogTitle').textContent = '전투 시작';
-    document.getElementById('extLogText').textContent  = '공격 또는 도망을 선택하세요.';
+    const _ow = state.battle?.isOverwhelming;
+    document.getElementById('extLogTitle').textContent = _ow ? '⚠️ 압도적 강적!' : '전투 시작';
+    document.getElementById('extLogText').textContent  = _ow
+      ? '이 몬스터는 상대하기 매우 어렵습니다.\n도전 성공 시 보상 2배 / 도망 패널티 없음'
+      : '공격 또는 도망을 선택하세요.';
 
     // 버튼 이벤트
     document.getElementById('extAttackBtn').onclick  = extBattleAttack;
@@ -8817,13 +8826,16 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   async function _checkBattleEnd(b, enemy, lines, t, reason='') {
     if (b.enemyHp <= 0) {
       b.ended = true; SFX.victory();
-      const exp = getBattleExp(enemy), gold = getBattleGold(enemy);
+      let exp = getBattleExp(enemy), gold = getBattleGold(enemy);
+      const ow = b.isOverwhelming;
+      if (ow) { exp *= 2; gold *= 2; }
       const dropItem = rollMonsterDrop(enemy);
       updateExtBattleUI(t+'턴 종료', lines.join('\n'));
-      await endBattle({ title:'승리', desc:'전투 승리!<br>경험치 '+exp+', 골드 '+gold+' 획득',
+      await endBattle({ title: ow ? '🏆 압도적 강적 처치!' : '승리',
+        desc: ow ? '압도적 강적 처치!<br>경험치 '+exp+', 골드 '+gold+' 획득 🎉 (2배!)' : '전투 승리!<br>경험치 '+exp+', 골드 '+gold+' 획득',
         exp, gold, resultType:'success',
         logTitle:enemy.grade+' '+enemy.name+' 전투',
-        logDetail:enemy.grade+' '+enemy.name+' 전투 / 승리'+reason+' / 경험치 '+exp+' / 골드 '+gold, dropItem });
+        logDetail:enemy.grade+' '+enemy.name+' 전투 / '+(ow?'압도적 처치':'승리')+reason+' / 경험치 '+exp+' / 골드 '+gold, dropItem });
       closeExtBattle(); b.locked=false; return true;
     }
     if (b.heroHp <= 0) {
@@ -9023,9 +9035,23 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     els.battleEnemyMeta.textContent  = `${amount}마리 · 공격 ${setup.monster.atk} / 방어 ${setup.monster.def}`;
     els.battleResultBox.style.display='none'; els.battleResultBox.className='';
     els.battleActions.className='modal-actions two';
-    els.battleActions.innerHTML='<button class="modal-primary" id="battleAttackBtn">⚔ 전투 시작</button><button class="modal-danger" id="battleRunBtn">💨 도망</button>';
+
+    const _owRatio = calcOverwhelmRatio(setup);
+    const _isOW    = _owRatio >= 2.5;
+    state.battle.isOverwhelming = _isOW;
+
+    if (_isOW) {
+      els.battleActions.innerHTML =
+        `<button class="modal-primary" id="battleAttackBtn" style="background:linear-gradient(135deg,rgba(255,150,50,0.45),rgba(220,80,0,0.3));border-color:rgba(255,150,50,0.65);">⚠️ 도전! (보상 2배)</button>` +
+        `<button class="modal-danger"  id="battleRunBtn"  style="background:rgba(99,208,154,0.12);border-color:rgba(99,208,154,0.3);color:#63d09a;">🏃 후퇴 (패널티 없음)</button>`;
+    } else {
+      els.battleActions.innerHTML='<button class="modal-primary" id="battleAttackBtn">⚔ 전투 시작</button><button class="modal-danger" id="battleRunBtn">💨 도망</button>';
+    }
     bindBattleActions();
-    updateBattleUI('전투 준비', `${setup.enemy.grade} ${setup.enemy.name} ${amount}마리가 나타났습니다!\n전투 시작 또는 도망을 선택하세요.`);
+    const _initLog = _isOW
+      ? `⚠️ 압도적인 강적!\n${setup.enemy.grade} ${setup.enemy.name} ${amount}마리가 나타났습니다!\n현재 레벨로 상대하기 매우 어렵습니다.\n도전 성공 시 보상 2배 / 후퇴는 패널티 없음`
+      : `${setup.enemy.grade} ${setup.enemy.name} ${amount}마리가 나타났습니다!\n전투 시작 또는 도망을 선택하세요.`;
+    updateBattleUI(_isOW ? '⚠️ 압도적 강적' : '전투 준비', _initLog);
     openModal(els.battleBackdrop);
   }
 
@@ -9397,6 +9423,13 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     b.locked=true; b.ended=true;
     const enemy=b.setup.enemy;
     await animRun();
+    if (b.isOverwhelming) {
+      updateBattleUI('현명한 후퇴', '압도적인 강적 앞에서 현명하게 후퇴했습니다.\n패널티 없이 귀환합니다.');
+      await endBattle({ title:'🏃 후퇴 성공', desc:'압도적 강적 앞에서 현명하게 후퇴했습니다.<br>패널티 없음', exp:0, gold:0, resultType:'fail',
+        logTitle:b.decoded?.title||`${enemy.grade} ${enemy.name} 전투`,
+        logDetail:`${b.decoded?.title||`${enemy.grade} ${enemy.name} 전투`} / 후퇴 (패널티 없음)` });
+      b.locked=false; return;
+    }
     const exp = calcPartialExp(b.totalDmg,b.enemyMax,enemy);
     let lostGold=0, lostText='다행히 골드는 지켜냈습니다.';
     if (Math.random()<0.55 && state.gold>0) {
