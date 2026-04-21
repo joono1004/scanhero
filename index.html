@@ -7976,13 +7976,14 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   }
   function closeEventModal() { state.pendingDecoded=null; closeModal(els.eventModalBackdrop); }
 
-  function calcEnemySoldierStats(enemy) {
+  function calcEnemySoldierStats(enemy, lvScale) {
+    const ls = lvScale || 1;
     return {
-      atk:   Math.max(1, Math.round((enemy.atk   || 5) * 0.45)),
-      def:   Math.max(0, Math.round((enemy.def   || 3) * 0.40)),
-      hp:    Math.max(5, Math.round((enemy.hp    || 30) * 0.35)),
-      speed: Math.max(1, Math.round((enemy.speed || 5) * 0.75)),
-      crit:  Math.max(0, Math.round((enemy.crit  || 3) * 0.50)),
+      atk:   Math.max(1, Math.round((enemy.atk   || 5)  * 0.45 * ls * 3)),
+      def:   Math.max(0, Math.round((enemy.def   || 3)  * 0.40 * ls * 2)),
+      hp:    Math.max(5, Math.round((enemy.hp    || 30) * 0.35 * ls * 5)),
+      speed: Math.max(1, Math.round((enemy.speed || 5)  * 0.75)),
+      crit:  Math.max(0, Math.round((enemy.crit  || 3)  * 0.50)),
     };
   }
 
@@ -7991,6 +7992,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const tactic         = els.eventTacticSelect.value;
     const tm             = getTacticMod(tactic);
     const activeSoldiers = (deployedSoldiers || []).filter(Boolean).slice(0, MAX_DEPLOY_SLOTS);
+
+    // 레벨 스케일: 레벨마다 15% 증가
+    const lv      = state.level || 1;
+    const lvScale = 1 + (lv - 1) * 0.15;
 
     // 영웅 개별 유닛
     const hero = {
@@ -8004,7 +8009,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       alive: true,
     };
 
-    // 아군 병사 개별 유닛
+    // 아군 병사 개별 유닛 (최대 3명)
     const soldiers = activeSoldiers.map((sol, i) => {
       const s = sol.stats || calcSoldierStats(sol.cls, sol.rarity);
       return {
@@ -8015,20 +8020,21 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       };
     });
 
-    // 몬스터 개별 유닛 (후열)
+    // 몬스터 개별 유닛 (후열) — 레벨 스케일 적용
     const monster = {
       id:'monster', type:'monster',
       name: enemy.name, grade: enemy.grade,
-      atk: enemy.atk, def: enemy.def,
-      hp: enemy.hp, maxHp: enemy.hp,
+      atk:   Math.round((enemy.atk   || 5)  * 4 * lvScale),
+      def:   Math.round((enemy.def   || 3)  * 2 * lvScale),
+      hp:    Math.round((enemy.hp    || 30) * 8 * lvScale),
+      maxHp: Math.round((enemy.hp    || 30) * 8 * lvScale),
       speed: enemy.speed || 5, crit: enemy.crit || 5,
       alive: true,
     };
 
-    // 적 병사 개별 유닛 (전열)
-    const enemySolCount = Math.max(1, Math.min(enemy.amount || 3, 3));
-    const eStats = calcEnemySoldierStats(enemy);
-    const enemySoldiers = Array.from({length: enemySolCount}, (_, i) => ({
+    // 적 병사 항상 3명 (전열) — 레벨 스케일 적용
+    const eStats = calcEnemySoldierStats(enemy, lvScale);
+    const enemySoldiers = Array.from({length: 3}, (_, i) => ({
       id:`esol_${i}`, type:'enemySoldier', slotIdx:i,
       atk: eStats.atk, def: eStats.def,
       hp: eStats.hp, maxHp: eStats.hp,
