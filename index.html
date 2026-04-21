@@ -7291,12 +7291,6 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
           <div class="deploy-slot-empty-label">${slotDef.label}</div>
         </div>`;
       }
-      } else if (sol) {
-        return `<div class="deploy-slot filled rarity-${sol.rarity}"
-            data-slot-idx="${i}" draggable="true" style="cursor:grab;"
-            onclick="openSoldierDetail(${i}, 'deployed')">
-          <img class="deploy-slot-img" src="${sol.img}" onerror="this.style.opacity=0">
-        </div>`;
     }).join('');
 
     // ── 드래그 앤 드롭 (배치된 병사끼리 위치 교환) ───────
