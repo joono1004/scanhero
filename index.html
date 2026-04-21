@@ -8130,8 +8130,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       name: enemy.name, grade: enemy.grade,
       atk:   Math.round((enemy.atk   || 5)  * 4 * lvScale),
       def:   Math.round((enemy.def   || 3)  * 2 * lvScale),
-      hp:    Math.round((enemy.hp    || 30) * 8 * lvScale),
-      maxHp: Math.round((enemy.hp    || 30) * 8 * lvScale),
+      hp:    Math.round((enemy.hp    || 30) * 2 * lvScale),
+      maxHp: Math.round((enemy.hp    || 30) * 2 * lvScale),
       speed: enemy.speed || 5, crit: enemy.crit || 5,
       alive: true,
     };
