@@ -4724,7 +4724,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         return {
           time:         new Date(r.battled_at).toLocaleString('ko-KR'),
           title:        `${r.enemy_grade} ${r.enemy_name} 전투 — ${resultLabel}`,
-          detail:       `규모 ${r.enemy_amount} / ${r.turns}턴 / 경험치 +${r.exp_gained} / 골드 +${r.gold_gained}`,
+          detail:       `적병사 4명 / ${r.turns}턴 / 경험치 +${r.exp_gained} / 골드 +${r.gold_gained}`,
           retryDecoded: canRetry ? { _dbRetry:true, enemyName:r.enemy_name, enemyGrade:r.enemy_grade, eventType:'몬스터' } : null,
           retryCount:   0,
           icon:         '⚔️',
@@ -7792,7 +7792,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       const entry = getMonsterEntry(d4);
       const mn = entry.name;
       title=`${grade} ${mn} 출현`; desc=`${mn} 무리가 나타났습니다. 특수 효과: ${special}.`;
-      badges=[eventType, grade, `규모 ${amount}`, ...(special!=='없음'?[special]:[])]; enemy=makeEnemy(mn, grade, amount, special, d4);
+      badges=[eventType, grade, `적병사 4명`, ...(special!=='없음'?[special]:[])]; enemy=makeEnemy(mn, grade, amount, special, d4);
     } else if (eventType==='보물') {
       const tEntry = getTreasureEntry(d4);
       const gold = evalFormula(tEntry.gold_formula, d2, d3, d5) || (20+d2*8+d3*5+d5*3);
