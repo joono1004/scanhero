@@ -1016,8 +1016,15 @@
       0%   { transform:translateY(0);  opacity:1; }
       100% { transform:translateY(-50px); opacity:0; }
     }
-    .ext-hero-charging { animation: extHeroCharge 0.7s ease forwards; }
-    .ext-enemy-hit     { animation: extEnemyHit   0.4s ease; }
+    .ext-hero-charging  { animation: extHeroCharge  0.7s ease forwards; }
+    .ext-enemy-hit      { animation: extEnemyHit    0.4s ease; }
+    @keyframes extEnemyCharge {
+      0%   { transform: translateX(0)    scaleX(1); }
+      40%  { transform: translateX(-80px) scaleX(1); }
+      70%  { transform: translateX(-65px) scaleX(1); }
+      100% { transform: translateX(0)    scaleX(1); }
+    }
+    .ext-enemy-charging { animation: extEnemyCharge 0.7s ease forwards; }
     #extImpactEl {
       position:absolute; pointer-events:none;
       font-size:40px; display:none;
@@ -9147,8 +9154,77 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     });
   }
 
-  async function animUnitAction(unit, target) {
+  function getExtUnitElement(unit) {
+    if (unit.type === 'hero')         return document.getElementById('extHeroChar');
+    if (unit.type === 'monster')      return document.getElementById('extEnemyChar');
+    if (unit.type === 'soldier')      return document.querySelectorAll('#extAllyGroup .ext-char')[unit.slotIdx] || null;
+    if (unit.type === 'enemySoldier') return document.querySelectorAll('#extEnemyGroup .ext-char')[unit.slotIdx] || null;
+    return null;
+  }
+
+  function showExtImpact(targetEl, dmg, dmgColor) {
+    const impactEl = document.getElementById('extImpactEl');
+    const dmgEl    = document.getElementById('extDmgEl');
+    if (!targetEl) return;
+    const rect     = targetEl.getBoundingClientRect();
+    const mainRect = document.getElementById('extBattleMain').getBoundingClientRect();
+    const ex = rect.left - mainRect.left + rect.width / 2 - 20;
+    const ey = rect.top  - mainRect.top  + rect.height / 2 - 20;
+    if (impactEl) {
+      impactEl.style.cssText = `left:${ex}px;top:${ey}px;display:block;animation:none;`;
+      void impactEl.offsetWidth;
+      impactEl.style.animation = 'extImpactFlash 0.4s ease forwards';
+      setTimeout(() => { impactEl.style.display = 'none'; }, 450);
+    }
+    if (dmgEl && dmg != null) {
+      dmgEl.style.cssText = `left:${ex-10}px;top:${ey-20}px;display:block;animation:none;color:${dmgColor||'#ffcf63'};`;
+      dmgEl.textContent = '-' + dmg.toLocaleString();
+      void dmgEl.offsetWidth;
+      dmgEl.style.animation = 'extDmgFloat 0.9s ease forwards';
+      setTimeout(() => { dmgEl.style.display = 'none'; }, 950);
+    }
+  }
+
+  async function animUnitAction(unit, target, dmgValue) {
     SFX.hit();
+    const extOpen = document.getElementById('extBattleBackdrop')?.classList.contains('open');
+
+    if (extOpen) {
+      const isAlly  = unit.type === 'hero' || unit.type === 'soldier';
+      const atkEl   = getExtUnitElement(unit);
+      const hitEl   = getExtUnitElement(target);
+
+      // WebM 재생 (공격자)
+      let videoEl = null;
+      if (unit.type === 'hero')    videoEl = document.getElementById('extHeroVideo');
+      else if (unit.type === 'soldier') videoEl = document.getElementById(`extSolVid_${unit.slotIdx}`);
+      else if (unit.type === 'monster') videoEl = document.getElementById('extEnemyVideo');
+      if (videoEl && videoEl.style.display !== 'none' && videoEl.src) {
+        try { videoEl.currentTime = 0; videoEl.play().catch(()=>{}); } catch(e) {}
+      }
+
+      // 돌진 애니메이션
+      const chargeClass = isAlly ? 'ext-hero-charging' : 'ext-enemy-charging';
+      if (atkEl) atkEl.classList.add(chargeClass);
+
+      await wait(350);
+
+      // 타격 이펙트 + 데미지
+      showExtImpact(hitEl, dmgValue, isAlly ? '#ffcf63' : '#ff6464');
+      if (hitEl) {
+        hitEl.classList.add('ext-enemy-hit');
+        setTimeout(() => hitEl.classList.remove('ext-enemy-hit'), 450);
+      }
+
+      await wait(400);
+      if (atkEl) atkEl.classList.remove(chargeClass);
+
+      // WebM 정지
+      if (videoEl) { try { videoEl.pause(); videoEl.currentTime = 0; } catch(e) {} }
+      return;
+    }
+
+    // 팝업 모달 애니메이션 (폴백)
     const atkEl = getUnitElement(unit);
     const hitEl = getUnitElement(target);
     const isAlly = unit.type === 'hero' || unit.type === 'soldier';
@@ -9185,7 +9261,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       if (unit.type === 'hero' || unit.type === 'soldier') b.totalDmg += d.value;
       if (target.hp <= 0) { target.alive = false; markUnitDead(target); }
 
-      await animUnitAction(unit, target);
+      await animUnitAction(unit, target, d.value);
       updateAllHpBars(b);
 
       const uName = getUnitDisplayName(unit);
