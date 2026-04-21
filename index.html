@@ -4724,7 +4724,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         return {
           time:         new Date(r.battled_at).toLocaleString('ko-KR'),
           title:        `${r.enemy_grade} ${r.enemy_name} 전투 — ${resultLabel}`,
-          detail:       `${r.enemy_amount}마리 / ${r.turns}턴 / 경험치 +${r.exp_gained} / 골드 +${r.gold_gained}`,
+          detail:       `규모 ${r.enemy_amount} / ${r.turns}턴 / 경험치 +${r.exp_gained} / 골드 +${r.gold_gained}`,
           retryDecoded: canRetry ? { _dbRetry:true, enemyName:r.enemy_name, enemyGrade:r.enemy_grade, eventType:'몬스터' } : null,
           retryCount:   0,
           icon:         '⚔️',
@@ -7791,8 +7791,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     if (eventType==='몬스터') {
       const entry = getMonsterEntry(d4);
       const mn = entry.name;
-      title=`${grade} ${mn} 출현`; desc=`${mn} ${amount}마리가 나타났습니다. 특수 효과: ${special}.`;
-      badges=[eventType, grade, `${amount}마리`, ...(special!=='없음'?[special]:[])]; enemy=makeEnemy(mn, grade, amount, special, d4);
+      title=`${grade} ${mn} 출현`; desc=`${mn} 무리가 나타났습니다. 특수 효과: ${special}.`;
+      badges=[eventType, grade, `규모 ${amount}`, ...(special!=='없음'?[special]:[])]; enemy=makeEnemy(mn, grade, amount, special, d4);
     } else if (eventType==='보물') {
       const tEntry = getTreasureEntry(d4);
       const gold = evalFormula(tEntry.gold_formula, d2, d3, d5) || (20+d2*8+d3*5+d5*3);
@@ -9032,7 +9032,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       }
     }
     els.battleHeroMeta.textContent   = `${state.heroClass} / ${setup.tactic} / ${(setup.soldierClasses||[]).join(',')||'없음'} / 병사 ${setup.soldierCount}`;
-    els.battleEnemyMeta.textContent  = `${amount}마리 · 공격 ${setup.monster.atk} / 방어 ${setup.monster.def}`;
+    els.battleEnemyMeta.textContent  = `몬스터 · 적병사 ${setup.enemySoldiers.length}명 / 공격 ${setup.monster.atk} / 방어 ${setup.monster.def}`;
     els.battleResultBox.style.display='none'; els.battleResultBox.className='';
     els.battleActions.className='modal-actions two';
 
@@ -9049,8 +9049,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     }
     bindBattleActions();
     const _initLog = _isOW
-      ? `⚠️ 압도적인 강적!\n${setup.enemy.grade} ${setup.enemy.name} ${amount}마리가 나타났습니다!\n현재 레벨로 상대하기 매우 어렵습니다.\n도전 성공 시 보상 2배 / 후퇴는 패널티 없음`
-      : `${setup.enemy.grade} ${setup.enemy.name} ${amount}마리가 나타났습니다!\n전투 시작 또는 도망을 선택하세요.`;
+      ? `⚠️ 압도적인 강적!\n${setup.enemy.grade} ${setup.enemy.name} 무리가 나타났습니다!\n현재 레벨로 상대하기 매우 어렵습니다.\n도전 성공 시 보상 2배 / 후퇴는 패널티 없음`
+      : `${setup.enemy.grade} ${setup.enemy.name} 무리가 나타났습니다!\n전투 시작 또는 도망을 선택하세요.`;
     updateBattleUI(_isOW ? '⚠️ 압도적 강적' : '전투 준비', _initLog);
     openModal(els.battleBackdrop);
   }
