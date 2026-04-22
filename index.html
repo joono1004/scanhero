@@ -4380,11 +4380,10 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         icon: SOLDIER_CLASS_DATA[row.cls]?.icon || '⚔️',
       });
       soldierInventory = data.filter(r => !r.is_deployed).map(toSol);
-      const deployed = data.filter(r => r.is_deployed);
-      const maxSlot  = deployed.reduce((mx, r) => Math.max(mx, r.deploy_slot), -1);
-      deployedSoldiers = Array(Math.max(maxSlot + 1, 0)).fill(null);
+      const deployed = data.filter(r => r.is_deployed && r.deploy_slot >= 0 && r.deploy_slot < MAX_DEPLOY_SLOTS);
+      deployedSoldiers = Array(MAX_DEPLOY_SLOTS).fill(null);
       deployed.forEach(r => {
-        if (r.deploy_slot >= 0) deployedSoldiers[r.deploy_slot] = toSol(r);
+        deployedSoldiers[r.deploy_slot] = toSol(r);
       });
     } catch(e) { console.error('[dbLoadSoldiers]', e.message); }
   }
