@@ -6243,16 +6243,16 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   // 병사 클래스 정의
   const SOLDIER_CLASS_DATA = {
-    검병:  { icon:'⚔️', img:'swordsman.png',  desc:'공격/체력/속도 특화',
+    검병:  { icon:'⚔️', img:'swordsman.png',  video:'swordsman.webm', desc:'공격/체력/속도 특화',
              stats:{ atk:10, def:3,  hp:50,  speed:6,  crit:3  },
              growth:{ atk:2.0, def:0.3, hp:10, speed:0.5, crit:0.1 } },
-    궁병:  { icon:'🏹', img:'archer.png',     desc:'공격/속도/치명 특화',
+    궁병:  { icon:'🏹', img:'archer.png',     video:'archer.webm',    desc:'공격/속도/치명 특화',
              stats:{ atk:9,  def:2,  hp:25,  speed:10, crit:10 },
              growth:{ atk:1.8, def:0.2, hp:4,  speed:0.8, crit:0.6 } },
-    방패병: { icon:'🛡️', img:'shielder.png',  desc:'방어/체력 특화',
+    방패병: { icon:'🛡️', img:'shielder.png',  video:'shielder.webm',  desc:'방어/체력 특화',
              stats:{ atk:3,  def:12, hp:80,  speed:2,  crit:2  },
              growth:{ atk:0.3, def:2.5, hp:15, speed:0.1, crit:0  } },
-    창병:  { icon:'🔱', img:'spearman.png',   desc:'공격/방어/체력 특화',
+    창병:  { icon:'🔱', img:'spearman.png',   video:'spearman.webm',  desc:'공격/방어/체력 특화',
              stats:{ atk:7,  def:8,  hp:60,  speed:3,  crit:3  },
              growth:{ atk:1.5, def:1.5, hp:12, speed:0.2, crit:0.1 } },
     기마병: { icon:'🐴', img:'cavalry.png',   desc:'공격/속도 특화 (Lv.30 해금)',
@@ -7461,10 +7461,17 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       // 스탯은 항상 현재 레벨로 재계산
       const s = sol ? calcSoldierStats(sol.cls, sol.rarity) : null;
       if (sol) {
+        const cd = SOLDIER_CLASS_DATA[sol.cls];
+        const videoFile = cd?.video;
+        const BASE_VIDEO = 'https://joono1004.github.io/scanhero/assets/video/';
+        const mediaEl = videoFile
+          ? `<video autoplay loop muted playsinline style="width:100%;height:auto;display:block;"
+               src="${BASE_VIDEO}${videoFile}"></video>`
+          : `<img class="deploy-slot-img" src="${sol.img}" style="width:100%;height:auto;" onerror="this.style.opacity=0">`;
         return `<div class="deploy-slot filled rarity-${sol.rarity}"
             data-slot-idx="${i}" draggable="true" style="cursor:grab;${posStyle}"
             onclick="openSoldierDetail(${i}, 'deployed')">
-          <img class="deploy-slot-img" src="${sol.img}" style="width:100%;height:auto;" onerror="this.style.opacity=0">
+          ${mediaEl}
           <button class="deploy-slot-remove" data-remove-slot="${i}">✕</button>
           <div class="duc-label" style="margin:1px 0 2px;">${slotDef.label}</div>
           <div style="width:100%;padding:3px 4px;background:rgba(0,0,0,0.45);border-radius:5px;">
