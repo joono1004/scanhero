@@ -2379,10 +2379,16 @@
 
         <!-- 1. 전투력 (영웅+병사 합산) + 배치 수 -->
         <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 2px 4px;">
-          <div style="display:flex;align-items:baseline;gap:5px;">
-            <span style="font-size:10px;color:#7a90be;">전투력</span>
-            <span id="solCombatPower" style="font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;">0</span>
-            <span style="font-size:10px;color:#7a90be;">CP</span>
+          <div style="display:inline-flex;align-items:baseline;gap:5px;
+            padding:4px 14px 4px 10px;border-radius:10px;
+            background:rgba(10,14,30,0.7);
+            border:1px solid rgba(200,160,60,0.45);
+            box-shadow:0 0 10px rgba(200,160,60,0.15),inset 0 0 8px rgba(0,0,0,0.3);">
+            <span style="font-size:10px;color:#c8a84a;font-weight:600;letter-spacing:0.5px;">전투력</span>
+            <span id="solCombatPower" style="font-size:22px;font-weight:800;letter-spacing:-0.5px;
+              color:#ffcf63;
+              text-shadow:0 0 12px rgba(255,207,99,0.6),0 1px 3px rgba(0,0,0,0.8);">0</span>
+            <span style="font-size:10px;color:#c8a84a;font-weight:600;">CP</span>
           </div>
           <span style="font-size:10px;color:#7a90be;">배치 <span id="deploySlotCount">0/0</span></span>
         </div>
@@ -2395,7 +2401,7 @@
           border:1px solid rgba(100,130,200,0.22); margin-bottom:2px;
         ">
           <!-- 네비게이터 (우상단 — 전투씬 포메이션 미니맵) -->
-          <div id="deployNav" style="position:absolute;top:6px;right:6px;width:76px;height:70px;
+          <div id="deployNav" style="position:absolute;top:6px;right:6px;width:76px;height:86px;
             background:rgba(0,0,0,0.55);border-radius:8px;border:1px solid rgba(100,130,200,0.3);
             pointer-events:none;z-index:10;"></div>
           <div id="deploySlots" style="position:absolute;inset:0;"></div>
@@ -7384,16 +7390,16 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // 네비게이터: 전투씬 포메이션 미니맵 (선택 슬롯 강조)
   // 실제 전투씬 포메이션: slot3(후열좌), slot0(후열우/전열상), slot1(전열중), slot2(전열하)
   const DEPLOY_NAV_POS = [
-    { left:'39px', top:'6px'  },  // slot0 전열상 (우측 상)
-    { left:'39px', top:'26px' },  // slot1 전열중 (우측 중)
-    { left:'39px', top:'46px' },  // slot2 전열하 (우측 하)
-    { left:'11px', top:'6px'  },  // slot3 후열   (좌측 상)
+    { left:'39px', top:'18px' },  // slot0 전열상 (우측 상)
+    { left:'39px', top:'40px' },  // slot1 전열중 (우측 중)
+    { left:'39px', top:'62px' },  // slot2 전열하 (우측 하)
+    { left:'11px', top:'18px' },  // slot3 후열   (좌측 상)
   ];
 
   function renderDeployNav(selectedIdx) {
     const nav = document.getElementById('deployNav');
     if (!nav) return;
-    nav.innerHTML = `<div style="position:absolute;top:2px;left:0;right:0;text-align:center;font-size:7px;color:rgba(160,180,220,0.5);">포메이션</div>` +
+    nav.innerHTML = `<div style="position:absolute;top:3px;left:0;right:0;text-align:center;font-size:7px;color:rgba(160,180,220,0.7);letter-spacing:0.5px;">전투배치</div>` +
       DEPLOY_NAV_POS.map((p, i) => {
         const sol = deployedSoldiers[i];
         const isSelected = i === selectedIdx;
