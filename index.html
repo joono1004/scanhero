@@ -2391,7 +2391,7 @@
             후열<br>중열<br>전열
           </div>
           <!-- 영웅 위치 마커 (고정) -->
-          <div id="deployHeroMarker" style="position:absolute;left:4px;bottom:24px;z-index:3;width:54px;text-align:center;pointer-events:none;">
+          <div id="deployHeroMarker" style="position:absolute;left:calc(50% - 90px);bottom:24px;z-index:3;width:54px;text-align:center;pointer-events:none;">
             <div style="font-size:30px;line-height:1;filter:drop-shadow(0 0 8px rgba(79,124,255,0.9));">⚔️</div>
             <div style="font-size:8px;color:#9fbfff;margin-top:2px;text-shadow:0 1px 3px rgba(0,0,0,0.9);">영웅</div>
           </div>
@@ -8359,10 +8359,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // 영웅병사화면 배치 슬롯 위치 (전투씬 포메이션과 동일 구조, 288px stage 기준)
   // 포메이션: [슬3][슬0] / [  ][슬1] / [영웅][슬2]
   const DEPLOY_PANEL_POS = [
-    { left:'130px', bottom:'147px' }, // slot0: 후열 우
-    { left:'130px', bottom:'76px'  }, // slot1: 중열 우
-    { left:'130px', bottom:'5px'   }, // slot2: 전열 우
-    { left:'68px',  bottom:'147px' }, // slot3: 후열 좌 (slot0 동일)
+    { left:'calc(50% + 36px)', bottom:'147px' }, // slot0: 후열 우
+    { left:'calc(50% + 36px)', bottom:'76px'  }, // slot1: 중열 우
+    { left:'calc(50% + 36px)', bottom:'5px'   }, // slot2: 전열 우
+    { left:'calc(50% - 26px)', bottom:'147px' }, // slot3: 후열 좌 (slot0 동일)
   ];
 
   const EXT_ENEMY_POS = [
