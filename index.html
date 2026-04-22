@@ -148,6 +148,57 @@
     @keyframes bgScrollFar  { from{background-position:0 0} to{background-position:-860px 0} }
     @keyframes bgScrollNear { from{background-position:0 0} to{background-position:-860px 0} }
 
+    /* Weather effects */
+    .weather-rain-drop {
+      position: absolute;
+      width: 1.5px;
+      background: linear-gradient(to bottom, transparent, rgba(174,214,255,0.7));
+      border-radius: 2px;
+      animation: rainFall linear infinite;
+    }
+    @keyframes rainFall {
+      0%   { transform: translateY(-30px); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(310px); opacity: 0; }
+    }
+    .weather-snow-flake {
+      position: absolute;
+      width: 5px; height: 5px;
+      background: rgba(255,255,255,0.85);
+      border-radius: 50%;
+      animation: snowFall linear infinite;
+    }
+    @keyframes snowFall {
+      0%   { transform: translateY(-10px) translateX(0); opacity: 0; }
+      10%  { opacity: 0.9; }
+      50%  { transform: translateY(150px) translateX(8px); }
+      90%  { opacity: 0.7; }
+      100% { transform: translateY(310px) translateX(-4px); opacity: 0; }
+    }
+    .weather-fog-layer {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(200,210,230,0.35) 0%, rgba(190,205,225,0.15) 100%);
+      animation: fogPulse 6s ease-in-out infinite;
+    }
+    @keyframes fogPulse {
+      0%,100% { opacity: 0.7; }
+      50%     { opacity: 1; }
+    }
+    .weather-cloudy-layer {
+      position: absolute; inset: 0;
+      background: rgba(60,70,90,0.22);
+    }
+    .weather-thunder-flash {
+      position: absolute; inset: 0;
+      background: rgba(255,255,200,0.0);
+      animation: thunderFlash 4s ease-in-out infinite;
+    }
+    @keyframes thunderFlash {
+      0%,88%,92%,96%,100% { background: rgba(255,255,200,0.0); }
+      89%,94%              { background: rgba(255,255,200,0.45); }
+    }
+
     /* formation-doll-overlay: hero-unit과 동일한 위치/크기/애니메이션 */
     .formation-doll-overlay {
       position: absolute;
@@ -1378,6 +1429,22 @@
     .deploy-slot.selected .deploy-slot-img { width:100%; height:60px; object-fit:contain; display:block; margin:0 auto 0; }
     .deploy-slot-img { width:100%; height:127px; object-fit:contain; display:block; margin:0 auto 0px; }
     .deploy-slot-name { font-size:9px; font-weight:700; color:#eef3ff; text-align:center; }
+    /* 병사배치화면 — 가로 유닛 카드 + 막대 그래프 */
+    .duc { background:rgba(255,255,255,0.04); border:1px solid rgba(100,130,200,0.2); border-radius:10px; padding:6px 4px 5px; cursor:pointer; transition:border-color 0.2s; }
+    .duc:active { opacity:0.8; }
+    .duc.rarity-common    { border-color:rgba(169,182,214,0.5); }
+    .duc.rarity-uncommon  { border-color:rgba(99,208,154,0.55); }
+    .duc.rarity-rare      { border-color:rgba(99,168,255,0.55); }
+    .duc.rarity-epic      { border-color:rgba(178,125,255,0.55); }
+    .duc.rarity-legendary { border-color:rgba(255,207,99,0.65); }
+    .duc-img-wrap { height:46px; display:flex; align-items:center; justify-content:center; }
+    .duc-label { font-size:8px; color:#9fbfff; text-align:center; margin:2px 0 4px; }
+    .duc-empty .duc-label { color:#3a4a6a; }
+    .duc-bar-row { display:flex; align-items:center; gap:3px; margin-bottom:2px; }
+    .duc-bar-icon { font-size:10px; width:10px; flex-shrink:0; line-height:1; color:rgba(255,255,255,0.9); }
+    .duc-bar-bg { flex:1; height:5px; background:rgba(255,255,255,0.12); border-radius:2px; overflow:hidden; }
+    .duc-bar-fill { height:100%; border-radius:2px; transition:width 0.35s ease; }
+    .duc-bar-val { font-size:9px; color:#fff; font-weight:600; min-width:22px; text-align:right; line-height:1; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
     .deploy-slot-rarity { font-size:8px; font-weight:700; }
     .deploy-slot-empty-icon { font-size:24px; opacity:0.6; color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
     .deploy-slot-empty-label { font-size:8px; color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
@@ -1970,18 +2037,27 @@
               <div class="bg-layer bg-layer-sky"  id="bgLayerSky"></div>
               <div class="bg-layer bg-layer-far"  id="bgLayerFar"></div>
               <div class="bg-layer bg-layer-near" id="bgLayerNear"></div>
+              <div id="weatherOverlay" style="position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden;"></div>
               <div id="mainBgTestPanel" style="position:absolute;bottom:6px;left:6px;z-index:20;display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
                 <select id="mainBgThemeSelect" style="font-size:10px;padding:2px 4px;border-radius:6px;border:1px solid rgba(255,207,99,0.5);background:rgba(0,0,0,0.7);color:#ffcf63;cursor:pointer;">
                   <option value="city">🏙 도시</option>
                   <option value="forest">🌲 숲</option>
                   <option value="mountain">⛰ 산</option>
                   <option value="river">🌊 강</option>
-                  <option value="lake">🏞 호수</option>
                 </select>
                 <select id="mainBgDnSelect" style="font-size:10px;padding:2px 4px;border-radius:6px;border:1px solid rgba(255,207,99,0.5);background:rgba(0,0,0,0.7);color:#ffcf63;cursor:pointer;">
                   <option value="auto">⏱ 자동</option>
                   <option value="day">☀ 낮</option>
                   <option value="night">🌙 밤</option>
+                </select>
+                <select id="mainWeatherSelect" style="font-size:10px;padding:2px 4px;border-radius:6px;border:1px solid rgba(255,207,99,0.5);background:rgba(0,0,0,0.7);color:#ffcf63;cursor:pointer;">
+                  <option value="auto">☁ 날씨자동</option>
+                  <option value="clear">☀ 맑음</option>
+                  <option value="cloudy">🌥 흐림</option>
+                  <option value="rain">🌧 비</option>
+                  <option value="snow">❄ 눈</option>
+                  <option value="fog">🌫 안개</option>
+                  <option value="thunder">⛈ 천둥</option>
                 </select>
                 <button onclick="applyMainBgTest()" style="font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid rgba(255,207,99,0.5);background:rgba(255,207,99,0.2);color:#ffcf63;cursor:pointer;">적용</button>
               </div>
@@ -2161,7 +2237,6 @@
           <option value="forest">🌲 숲</option>
           <option value="mountain">⛰ 산</option>
           <option value="river">🌊 강</option>
-          <option value="lake">🏞 호수</option>
         </select>
         <select id="extBgDnSelect"
           style="font-size:10px;padding:2px 4px;border-radius:6px;border:1px solid rgba(255,207,99,0.5);
@@ -2299,38 +2374,37 @@
       </div>
 
       <!-- ── 병사 배치 패널 ── -->
-      <div id="heroSoldierPanel" class="modal-body" style="display:none; padding:6px 12px; grid-template-columns:unset !important;">
+      <div id="heroSoldierPanel" class="modal-body" style="display:none; padding:6px 12px; grid-template-columns:unset !important; position:relative;">
 
 
-        <!-- 1. 스탯 패널 — 장비탭과 동일 -->
-        <div class="stats-panel" style="margin-bottom:2px;">
-          <div class="cp-block">
-            <div class="cp-block-label">전투력</div>
-            <div class="cp-block-value" id="solCombatPower">0</div>
-            <div class="cp-block-sub">CP</div>
+        <!-- 1. 전투력 (영웅+병사 합산) + 배치 수 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 2px 4px;">
+          <div style="display:inline-flex;align-items:baseline;gap:5px;
+            padding:4px 14px 4px 10px;border-radius:10px;
+            background:rgba(10,14,30,0.7);
+            border:1px solid rgba(200,160,60,0.45);
+            box-shadow:0 0 10px rgba(200,160,60,0.15),inset 0 0 8px rgba(0,0,0,0.3);">
+            <span style="font-size:10px;color:#c8a84a;font-weight:600;letter-spacing:0.5px;">전투력</span>
+            <span id="solCombatPower" style="font-size:22px;font-weight:800;letter-spacing:-0.5px;
+              color:#ffcf63;
+              text-shadow:0 0 12px rgba(255,207,99,0.6),0 1px 3px rgba(0,0,0,0.8);">0</span>
+            <span style="font-size:10px;color:#c8a84a;font-weight:600;">CP</span>
           </div>
-          <div class="stats-compact-row">
-            <div class="stats-compact-item"><span class="stats-compact-label">⚔️ 공격</span><span class="stats-compact-value" id="solStatsAtk">0</span></div>
-            <div class="stats-compact-item"><span class="stats-compact-label">🛡️ 방어</span><span class="stats-compact-value" id="solStatsDef">0</span></div>
-            <div class="stats-compact-item"><span class="stats-compact-label">❤️ 체력</span><span class="stats-compact-value" id="solStatsHp">0</span></div>
-            <div class="stats-compact-item"><span class="stats-compact-label">💨 속도</span><span class="stats-compact-value" id="solStatsSpeed">0</span></div>
-            <div class="stats-compact-item"><span class="stats-compact-label">✨ 치명</span><span class="stats-compact-value" id="solStatsCrit">0%</span></div>
-            <div class="stats-compact-item"><span class="stats-compact-label">🪖 배치</span><span class="stats-compact-value" id="deploySlotCount">0/0</span></div>
-          </div>
+          <span style="font-size:10px;color:#7a90be;">배치 <span id="deploySlotCount">0/0</span></span>
         </div>
-
-        <!-- 2. 배치된 병사 영역 — 도감(288px)과 동일 -->
+        <!-- 2. 가로 병사 카드 [슬롯3 후열][슬롯0 전열상][슬롯1 전열중][슬롯2 전열하] -->
         <div id="deployStage" style="
           width:100%; height:288px; border-radius:16px; overflow:hidden;
-          display:flex; flex-direction:column; justify-content:flex-end;
+          position:relative;
           background:url('https://joono1004.github.io/scanhero/assets/bg/barracks_bg.png') center/cover no-repeat,
             radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
           border:1px solid rgba(100,130,200,0.22); margin-bottom:2px;
         ">
-          <div id="deploySlots" style="
-            display:grid; grid-template-columns:repeat(3,75px); gap:4px;
-            padding:4px; flex-shrink:0; justify-content:center;
-          "></div>
+          <!-- 네비게이터 — deployStage 우상단 1px 여백 -->
+          <div id="deployNav" style="position:absolute;top:1px;right:1px;width:76px;height:86px;
+            background:rgba(0,0,0,0.65);border-radius:8px;border:1px solid rgba(100,130,200,0.35);
+            pointer-events:none;z-index:10;"></div>
+          <div id="deploySlots" style="position:absolute;inset:0;"></div>
         </div>
 
         <!-- 3. 보관 병사 — 인벤토리(150px)와 동일, 3열 카드형 -->
@@ -4665,7 +4739,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         return {
           time:         new Date(r.battled_at).toLocaleString('ko-KR'),
           title:        `${r.enemy_grade} ${r.enemy_name} 전투 — ${resultLabel}`,
-          detail:       `${r.enemy_amount}마리 / ${r.turns}턴 / 경험치 +${r.exp_gained} / 골드 +${r.gold_gained}`,
+          detail:       `적병사 4명 / ${r.turns}턴 / 경험치 +${r.exp_gained} / 골드 +${r.gold_gained}`,
           retryDecoded: canRetry ? { _dbRetry:true, enemyName:r.enemy_name, enemyGrade:r.enemy_grade, eventType:'몬스터' } : null,
           retryCount:   0,
           icon:         '⚔️',
@@ -5947,6 +6021,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   window.openSoldierDetail = function(idx, type) {
     _soldierDetailIdx  = idx;
     _soldierDetailType = type;
+    if (type === 'deployed' || type === 'empty') {
+      window._deploySelected = idx;
+      renderDeployNav(idx);
+    }
 
     const sol = type === 'inv'
       ? soldierInventory[idx]
@@ -6165,33 +6243,33 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   // 병사 클래스 정의
   const SOLDIER_CLASS_DATA = {
-    검병:  { icon:'⚔️', img:'swordsman.png',  desc:'공격/체력/속도 특화',
-             stats:{ atk:10, def:0,  hp:50,  speed:6,  crit:0  },
-             growth:{ atk:2.0, def:0,  hp:10, speed:0.5, crit:0  } },
-    궁병:  { icon:'🏹', img:'archer.png',     desc:'공격/속도/치명 특화',
-             stats:{ atk:9,  def:0,  hp:0,   speed:10, crit:10 },
-             growth:{ atk:1.8, def:0,  hp:0,  speed:0.8, crit:0.6 } },
-    방패병: { icon:'🛡️', img:'shielder.png',  desc:'방어/체력 특화',
-             stats:{ atk:0,  def:12, hp:80,  speed:0,  crit:0  },
-             growth:{ atk:0,  def:2.5, hp:15, speed:0,  crit:0  } },
-    창병:  { icon:'🔱', img:'spearman.png',   desc:'공격/방어/체력 특화',
-             stats:{ atk:7,  def:8,  hp:60,  speed:0,  crit:0  },
-             growth:{ atk:1.5, def:1.5, hp:12, speed:0,  crit:0  } },
+    검병:  { icon:'⚔️', img:'swordsman.png',  video:'swordsman.webm', desc:'공격/체력/속도 특화',
+             stats:{ atk:10, def:3,  hp:50,  speed:6,  crit:3  },
+             growth:{ atk:2.0, def:0.3, hp:10, speed:0.5, crit:0.1 } },
+    궁병:  { icon:'🏹', img:'archer.png',     video:'archer.webm',    desc:'공격/속도/치명 특화',
+             stats:{ atk:9,  def:2,  hp:25,  speed:10, crit:10 },
+             growth:{ atk:1.8, def:0.2, hp:4,  speed:0.8, crit:0.6 } },
+    방패병: { icon:'🛡️', img:'shielder.png',  video:'shielder.webm',  desc:'방어/체력 특화',
+             stats:{ atk:3,  def:12, hp:80,  speed:2,  crit:2  },
+             growth:{ atk:0.3, def:2.5, hp:15, speed:0.1, crit:0  } },
+    창병:  { icon:'🔱', img:'spearman.png',   video:'spearman.webm',  desc:'공격/방어/체력 특화',
+             stats:{ atk:7,  def:8,  hp:60,  speed:3,  crit:3  },
+             growth:{ atk:1.5, def:1.5, hp:12, speed:0.2, crit:0.1 } },
     기마병: { icon:'🐴', img:'cavalry.png',   desc:'공격/속도 특화 (Lv.30 해금)',
              stats:{ atk:14, def:5,  hp:40,  speed:12, crit:5  },
-             growth:{ atk:2.5, def:1.0, hp:8, speed:1.2, crit:0.3 } },
+             growth:{ atk:2.5, def:1.0, hp:8,  speed:1.2, crit:0.3 } },
     마법사: { icon:'🔮', img:'mage.png',      desc:'공격/치명 특화 (Lv.40 해금)',
-             stats:{ atk:18, def:0,  hp:20,  speed:5,  crit:15 },
-             growth:{ atk:3.0, def:0,  hp:5,  speed:0.3, crit:1.0 } },
+             stats:{ atk:18, def:2,  hp:20,  speed:5,  crit:15 },
+             growth:{ atk:3.0, def:0.2, hp:5,  speed:0.3, crit:1.0 } },
   };
 
   // 병사 등급 설정
   // ── 병사 배치 슬롯 정의 (클래스 고정 + 잠금 레벨) ────────────
   const DEPLOY_SLOT_DEFS = [
-    { label:'1번 병사' },
-    { label:'2번 병사' },
-    { label:'3번 병사' },
-    { label:'4번 병사' },
+    { label:'전열상' },
+    { label:'전열중' },
+    { label:'전열하' },
+    { label:'후열'   },
   ];
 
   // 병사 클래스별 해금 레벨 (레벨업으로 클래스 해금)
@@ -6316,8 +6394,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
             <span class="tavern-stat-pill">✨ ${sol.stats.crit}</span>
           </div>
           <button class="tavern-recruit-btn" data-tavern-idx="${idx}"
-            ${canAfford ? '' : 'disabled'}>
-            🪙 ${sol.recruitCost}G ${canAfford ? '모집' : '골드 부족'}
+            ${sol.soldOut || !canAfford ? 'disabled' : ''}
+            style="${sol.soldOut ? 'opacity:1;color:#63d09a;border-color:rgba(99,208,154,0.4);background:rgba(99,208,154,0.08);cursor:default;' : ''}">
+            ${sol.soldOut ? '✅ 모집완료' : `🪙 ${sol.recruitCost}G ${canAfford ? '모집' : '골드 부족'}`}
           </button>
         </div>
       </div>`;
@@ -6821,15 +6900,6 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       <rect x="600" y="54" width="8" height="61" fill="rgba(40,80,60,0.8)"/>
       <ellipse cx="604" cy="49" rx="16" ry="10" fill="rgba(30,70,40,0.7)"/>`;
     }
-    if (t === 'lake') {
-      const lc = day ? 'rgba(30,90,160,0.45)' : 'rgba(20,70,130,0.5)';
-      return `<polygon points="0,192 0,100 800,100 800,192" fill="${lc}"/>
-      <rect x="0" y="92" width="800" height="4" fill="rgba(100,180,255,0.2)"/>
-      <polygon points="60,192 60,95 100,60 140,95 140,192" fill="rgba(20,60,30,0.7)"/>
-      <polygon points="300,192 300,90 345,50 390,90 390,192" fill="rgba(20,60,30,0.7)"/>
-      <polygon points="560,192 560,95 600,58 640,95 640,192" fill="rgba(20,60,30,0.7)"/>
-      <polygon points="720,192 720,92 760,55 800,92 800,192" fill="rgba(20,60,30,0.7)"/>`;
-    }
     if (t === 'forest') {
       const fc = day ? 'rgba(20,80,25,0.7)' : 'rgba(10,40,12,0.8)';
       return `<polygon points="0,192 0,100 20,85 40,100 60,75 80,92 100,70 120,88 140,68 160,85 180,66 200,82 220,64 240,82 260,72 280,88 300,68 320,84 340,68 360,82 380,72 400,88 420,68 440,84 460,68 480,82 500,72 520,88 540,68 560,84 580,68 600,82 620,72 640,88 660,68 680,84 700,68 720,82 740,72 760,88 780,68 800,82 800,192" fill="${fc}"/>`;
@@ -6865,7 +6935,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       pts.forEach(([x1,y1,x2,y2,x3,y3],i) => {
         els += `<polygon points="${x1},${y1} ${x2},${y2} ${x3},${y3}" fill="${i%2===0?c1:c2}"/>`;
       });
-    } else if (t === 'river' || t === 'lake') {
+    } else if (t === 'river') {
       // 10개 → 3개 (1/3)
       const treeXs = [60,300,600];
       treeXs.forEach((x,i) => {
@@ -6903,13 +6973,15 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   let _bgTheme = 'city';
   let _bgDnOverride = 'auto'; // 'auto' | 'day' | 'night'
   const MAIN_BG_BASE = 'https://joono1004.github.io/scanhero/assets/bg/main';
-  const MAIN_BG_THEMES = ['city', 'forest', 'mountain']; // 이미지 제작된 테마 목록
+  const MAIN_BG_THEMES = ['city', 'forest', 'mountain', 'river']; // 이미지 제작된 테마 목록
   const MAIN_BG_SKY_THEME = 'city'; // sky 레이어는 모든 테마 공통
 
   window.applyMainBgTest = function() {
-    const themeVal = document.getElementById('mainBgThemeSelect')?.value || 'city';
-    _bgDnOverride = document.getElementById('mainBgDnSelect')?.value || 'auto';
+    const themeVal   = document.getElementById('mainBgThemeSelect')?.value || 'city';
+    _bgDnOverride    = document.getElementById('mainBgDnSelect')?.value || 'auto';
+    const weatherVal = document.getElementById('mainWeatherSelect')?.value || 'auto';
     updateFormationBg(themeVal);
+    if (weatherVal !== 'auto') applyWeatherEffect(weatherVal);
   };
 
   // 시간대 슬롯 → day/night 매핑 (0:낮 / 1:밤)
@@ -6929,14 +7001,17 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const near = document.getElementById('bgLayerNear');
 
     if (MAIN_BG_THEMES.includes(_bgTheme)) {
-      const base = `${MAIN_BG_BASE}/main_${_bgTheme}_${dn}`;
+      const base    = `${MAIN_BG_BASE}/main_${_bgTheme}_${dn}`;
+      const farBase = _bgTheme === 'river'
+        ? `${MAIN_BG_BASE}/main_mountain_${dn}`
+        : base;
       function applyImg(el, url) {
         if (!el) return;
         el.innerHTML = '';
         el.style.backgroundImage = `url(${url})`;
       }
       applyImg(sky,  `${MAIN_BG_BASE}/main_${MAIN_BG_SKY_THEME}_${dn}_sky.png`);
-      applyImg(far,  base + '_far.png');
+      applyImg(far,  farBase + '_far.png');
       applyImg(near, base + '_near.png');
     } else {
       // 이미지 없는 테마는 SVG 폴백
@@ -6966,8 +7041,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       const data = await res.json();
       const tags = data.elements?.map(e=>e.tags)||[];
       const has = (key, val) => tags.some(t => val ? t[key]===val : t[key]);
-      if (has('natural','water') || has('natural','wetland')) return 'river';
-      if (has('waterway')) return 'river';
+      if (has('natural','water') || has('natural','wetland') || has('waterway')) return 'river';
       if (has('natural','wood') || has('landuse','forest')) return 'forest';
       if (has('natural','peak')) return 'mountain';
       if (has('landuse')) return 'city';
@@ -6977,9 +7051,91 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     }
   }
 
+  // OpenWeatherMap 날씨 코드 → 이펙트 타입 매핑
+  function weatherCodeToEffect(id) {
+    if (id >= 200 && id < 300) return 'thunder'; // 천둥번개
+    if (id >= 300 && id < 600) return 'rain';    // 비/이슬비
+    if (id >= 600 && id < 700) return 'snow';    // 눈
+    if (id >= 700 && id < 800) return 'fog';     // 안개/연무
+    if (id === 800)            return 'clear';   // 맑음
+    if (id > 800)              return 'cloudy';  // 흐림
+    return 'clear';
+  }
+
+  function applyWeatherEffect(effect) {
+    const overlay = document.getElementById('weatherOverlay');
+    if (!overlay) return;
+    overlay.innerHTML = '';
+    if (effect === 'clear') return;
+
+    if (effect === 'fog') {
+      overlay.innerHTML = '<div class="weather-fog-layer"></div>';
+      return;
+    }
+    if (effect === 'cloudy') {
+      overlay.innerHTML = '<div class="weather-cloudy-layer"></div>';
+      return;
+    }
+    if (effect === 'thunder') {
+      let html = '<div class="weather-thunder-flash"></div>';
+      // thunder also has rain
+      for (let i = 0; i < 30; i++) {
+        const x = Math.random() * 100;
+        const delay = Math.random() * 2;
+        const dur   = 0.5 + Math.random() * 0.5;
+        const h     = 14 + Math.random() * 22;
+        html += `<div class="weather-rain-drop" style="left:${x}%;height:${h}px;animation-duration:${dur}s;animation-delay:${delay}s;"></div>`;
+      }
+      overlay.innerHTML = html;
+      return;
+    }
+    if (effect === 'rain') {
+      let html = '';
+      for (let i = 0; i < 40; i++) {
+        const x = Math.random() * 100;
+        const delay = Math.random() * 2;
+        const dur   = 0.4 + Math.random() * 0.5;
+        const h     = 14 + Math.random() * 22;
+        html += `<div class="weather-rain-drop" style="left:${x}%;height:${h}px;animation-duration:${dur}s;animation-delay:${delay}s;"></div>`;
+      }
+      overlay.innerHTML = html;
+      return;
+    }
+    if (effect === 'snow') {
+      let html = '';
+      for (let i = 0; i < 25; i++) {
+        const x = Math.random() * 100;
+        const delay = Math.random() * 4;
+        const dur   = 2 + Math.random() * 2;
+        const size  = 3 + Math.random() * 4;
+        html += `<div class="weather-snow-flake" style="left:${x}%;width:${size}px;height:${size}px;animation-duration:${dur}s;animation-delay:${delay}s;"></div>`;
+      }
+      overlay.innerHTML = html;
+      return;
+    }
+  }
+
+  const OWM_KEY = 'f03554dead7a2a137b4879e9092dd6df';
+  async function fetchWeatherEffect(lat, lng) {
+    try {
+      const res = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${OWM_KEY}`
+      );
+      const data = await res.json();
+      const id = data?.weather?.[0]?.id;
+      if (!id) return;
+      applyWeatherEffect(weatherCodeToEffect(id));
+    } catch(e) {
+      // 날씨 API 실패 시 무시
+    }
+  }
+
   // 위치 기반 배경 갱신
   async function refreshBgFromLocation(lat, lng) {
-    const theme = await fetchLocationTheme(lat, lng);
+    const [theme] = await Promise.all([
+      fetchLocationTheme(lat, lng),
+      fetchWeatherEffect(lat, lng),
+    ]);
     updateFormationBg(theme);
   }
 
@@ -7213,9 +7369,56 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     else closeSoldierPanel();
   }
 
-  // 배치 슬롯 렌더
+  // 레벨 기반 스탯 상한치 (전설 최강 클래스 기준)
+  function getDeployStatCeilings() {
+    const lv = state.level || 1;
+    const legendMult = SOLDIER_RARITY_DATA.legendary.mult;
+    let maxAtk=1, maxDef=1, maxHp=1, maxSpd=1, maxCrit=1;
+    for (const cd of Object.values(SOLDIER_CLASS_DATA)) {
+      maxAtk  = Math.max(maxAtk,  (cd.stats.atk   + cd.growth.atk   * lv) * legendMult);
+      maxDef  = Math.max(maxDef,  (cd.stats.def   + cd.growth.def   * lv) * legendMult);
+      maxHp   = Math.max(maxHp,   (cd.stats.hp    + cd.growth.hp    * lv) * legendMult);
+      maxSpd  = Math.max(maxSpd,  (cd.stats.speed + cd.growth.speed * lv) * legendMult);
+      maxCrit = Math.max(maxCrit, (cd.stats.crit  + cd.growth.crit  * lv) * legendMult);
+    }
+    return {
+      atk: Math.round(maxAtk), def: Math.round(maxDef), hp: Math.round(maxHp),
+      spd: Math.round(maxSpd), crit: Math.round(maxCrit),
+    };
+  }
+
+  // 네비게이터: 전투씬 포메이션 미니맵 (선택 슬롯 강조)
+  // 실제 전투씬 포메이션: slot3(후열좌), slot0(후열우/전열상), slot1(전열중), slot2(전열하)
+  const DEPLOY_NAV_POS = [
+    { left:'39px', top:'18px' },  // slot0 전열상 (우측 상)
+    { left:'39px', top:'40px' },  // slot1 전열중 (우측 중)
+    { left:'39px', top:'62px' },  // slot2 전열하 (우측 하)
+    { left:'11px', top:'18px' },  // slot3 후열   (좌측 상)
+  ];
+
+  function renderDeployNav(selectedIdx) {
+    const nav = document.getElementById('deployNav');
+    if (!nav) return;
+    nav.innerHTML = `<div style="position:absolute;top:3px;left:0;right:0;text-align:center;font-size:7px;color:rgba(160,180,220,0.7);letter-spacing:0.5px;">전투배치</div>` +
+      DEPLOY_NAV_POS.map((p, i) => {
+        const sol = deployedSoldiers[i];
+        const isSelected = i === selectedIdx;
+        const rarityColors = { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' };
+        const color = sol ? (rarityColors[sol.rarity] || '#a9b6d6') : 'rgba(80,100,140,0.4)';
+        const border = isSelected ? '2px solid #fff' : (sol ? `2px solid ${color}` : '1px dashed rgba(80,100,140,0.5)');
+        const bg = sol ? `${color}33` : 'transparent';
+        return `<div style="position:absolute;left:${p.left};top:${p.top};
+          width:20px;height:20px;border-radius:50%;border:${border};background:${bg};
+          ${isSelected ? 'box-shadow:0 0 6px rgba(255,255,255,0.7);' : ''}">
+          ${sol ? `<img src="${sol.img}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;" onerror="this.style.opacity=0">` : ''}
+        </div>`;
+      }).join('') +
+      // 영웅 마커
+      `<div style="position:absolute;left:11px;top:44px;font-size:11px;line-height:1;text-align:center;width:20px;">⚔️</div>`;
+  }
+
+  // 배치 슬롯 렌더 (가로 배치 + 막대바 + 네비게이터)
   function renderSoldierDeployPanel() {
-    const stats   = getHeroBaseStats();
     const TOTAL   = MAX_DEPLOY_SLOTS;
 
     const slotsEl    = document.getElementById('deploySlots');
@@ -7223,39 +7426,78 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const invCountEl = document.getElementById('soldierInvCount');
     if (!slotsEl) return;
 
-    // ── 스탯 패널 업데이트 ──────────────────────────────────
-    const cp = calcCombatPower(stats);
-    const setEl = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-    setEl('solCombatPower', cp.toLocaleString());
-    setEl('solStatsAtk',   stats.atk);
-    setEl('solStatsDef',   stats.def);
-    setEl('solStatsHp',    stats.hp);
-    setEl('solStatsSpeed', stats.speed);
-    const critEl2 = document.getElementById('solStatsCrit');
-    if (critEl2) critEl2.textContent = `${stats.crit}%`;
-
     // 항상 TOTAL 크기 유지
     while (deployedSoldiers.length < TOTAL) deployedSoldiers.push(null);
     deployedSoldiers = deployedSoldiers.slice(0, TOTAL);
 
+    // ── CP + 배치 수 ─────────────────────────────────────────
+    const cp = calcCombatPower(getHeroBaseStats());
+    const setEl = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+    setEl('solCombatPower', cp.toLocaleString());
     const filled = deployedSoldiers.filter(Boolean).length;
     setEl('deploySlotCount', `${filled}/${TOTAL}`);
     if (invCountEl) invCountEl.textContent = `${soldierInventory.length}명`;
 
-    // ── 배치 슬롯 렌더 (3칸 자유 선택) ──────────────────────
+    // ── 네비게이터 ────────────────────────────────────────────
+    renderDeployNav(window._deploySelected ?? null);
+
+    // ── 막대바 상한치 (현재 레벨 기준 전설 최강 클래스) ──────────
+    const ceil = getDeployStatCeilings();
+
+    function barRow(icon, val, max, color) {
+      const pct = val > 0 ? Math.min(100, Math.round(val / max * 100)) : 0;
+      return `<div class="duc-bar-row">
+        <div class="duc-bar-icon">${icon}</div>
+        <div class="duc-bar-bg"><div class="duc-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+        <div class="duc-bar-val">${val > 0 ? val : '-'}</div>
+      </div>`;
+    }
+
+    // ── 가로 배치 슬롯 렌더 [slot3][slot0][slot1][slot2] ─────
     slotsEl.innerHTML = DEPLOY_SLOT_DEFS.map((slotDef, i) => {
+      const pos = DEPLOY_PANEL_POS[i];
+      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:86px;height:195px;`;
       const sol = deployedSoldiers[i];
+      // 스탯은 항상 현재 레벨로 재계산
+      const s = sol ? calcSoldierStats(sol.cls, sol.rarity) : null;
       if (sol) {
+        const cd = SOLDIER_CLASS_DATA[sol.cls];
+        const videoFile = cd?.video;
+        const BASE_VIDEO = 'https://joono1004.github.io/scanhero/assets/video/';
+        const mediaEl = videoFile
+          ? `<video autoplay loop muted playsinline style="width:100%;height:auto;display:block;"
+               src="${BASE_VIDEO}${videoFile}"></video>`
+          : `<img class="deploy-slot-img" src="${sol.img}" style="width:100%;height:auto;" onerror="this.style.opacity=0">`;
         return `<div class="deploy-slot filled rarity-${sol.rarity}"
-            data-slot-idx="${i}" draggable="true" style="cursor:grab;"
+            data-slot-idx="${i}" draggable="true" style="cursor:grab;${posStyle}"
             onclick="openSoldierDetail(${i}, 'deployed')">
-          <img class="deploy-slot-img" src="${sol.img}" onerror="this.style.opacity=0">
+          ${mediaEl}
+          <button class="deploy-slot-remove" data-remove-slot="${i}">✕</button>
+          <div class="duc-label" style="margin:1px 0 2px;">${slotDef.label}</div>
+          <div style="width:100%;padding:3px 4px;background:rgba(0,0,0,0.45);border-radius:5px;">
+            ${barRow('⚔', s.atk||0,   ceil.atk,  '#ff7a5a')}
+            ${barRow('🛡', s.def||0,   ceil.def,  '#63a8ff')}
+            ${barRow('♥', s.hp||0,    ceil.hp,   '#63d09a')}
+            ${barRow('💨', s.speed||0, ceil.spd,  '#ffd460')}
+            ${barRow('✨', s.crit||0,  ceil.crit, '#d09aff')}
+          </div>
         </div>`;
       } else {
         return `<div class="deploy-slot empty" data-slot-idx="${i}"
-            onclick="openSoldierDetail(${i}, 'empty')">
-          <div class="deploy-slot-empty-icon">+</div>
-          <div class="deploy-slot-empty-label">${slotDef.label}</div>
+            style="${posStyle}" onclick="openSoldierDetail(${i}, 'empty')">
+          <!-- 이미지 영역과 동일한 높이 고정 플레이스홀더 -->
+          <div style="width:100%;height:126px;display:flex;align-items:center;justify-content:center;
+            opacity:0.35;">
+            <div style="font-size:32px;line-height:1;">+</div>
+          </div>
+          <div class="duc-label" style="margin:2px 0 2px;">${slotDef.label}</div>
+          <div style="width:100%;padding:3px 4px;background:rgba(0,0,0,0.2);border-radius:5px;opacity:0.4;">
+            ${barRow('⚔', 0, ceil.atk,  '#ff7a5a')}
+            ${barRow('🛡', 0, ceil.def,  '#63a8ff')}
+            ${barRow('♥', 0, ceil.hp,   '#63d09a')}
+            ${barRow('💨', 0, ceil.spd,  '#ffd460')}
+            ${barRow('✨', 0, ceil.crit, '#d09aff')}
+          </div>
         </div>`;
       }
     }).join('');
@@ -7654,8 +7896,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     if (eventType==='몬스터') {
       const entry = getMonsterEntry(d4);
       const mn = entry.name;
-      title=`${grade} ${mn} 출현`; desc=`${mn} ${amount}마리가 나타났습니다. 특수 효과: ${special}.`;
-      badges=[eventType, grade, `${amount}마리`, ...(special!=='없음'?[special]:[])]; enemy=makeEnemy(mn, grade, amount, special, d4);
+      title=`${grade} ${mn} 출현`; desc=`${mn} 무리가 나타났습니다. 특수 효과: ${special}.`;
+      badges=[eventType, grade, `적병사 4명`, ...(special!=='없음'?[special]:[])]; enemy=makeEnemy(mn, grade, amount, special, d4);
     } else if (eventType==='보물') {
       const tEntry = getTreasureEntry(d4);
       const gold = evalFormula(tEntry.gold_formula, d2, d3, d5) || (20+d2*8+d3*5+d5*3);
@@ -7960,9 +8202,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const tm             = getTacticMod(tactic);
     const activeSoldiers = (deployedSoldiers || []).filter(Boolean).slice(0, MAX_DEPLOY_SLOTS);
 
-    // 레벨 스케일: 레벨마다 15% 증가
+    // 레벨 스케일: 레벨마다 10% 증가
     const lv      = state.level || 1;
-    const lvScale = 1 + (lv - 1) * 0.15;
+    const lvScale = 1 + (lv - 1) * 0.10;
 
     // 영웅 개별 유닛
     const hero = {
@@ -7993,8 +8235,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       name: enemy.name, grade: enemy.grade,
       atk:   Math.round((enemy.atk   || 5)  * 4 * lvScale),
       def:   Math.round((enemy.def   || 3)  * 2 * lvScale),
-      hp:    Math.round((enemy.hp    || 30) * 8 * lvScale),
-      maxHp: Math.round((enemy.hp    || 30) * 8 * lvScale),
+      hp:    Math.round((enemy.hp    || 30) * 2 * lvScale),
+      maxHp: Math.round((enemy.hp    || 30) * 2 * lvScale),
       speed: enemy.speed || 5, crit: enemy.crit || 5,
       alive: true,
     };
@@ -8018,6 +8260,12 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       heroMax: hero.maxHp, heroSpeed: hero.speed, heroCrit: hero.crit,
       enemy,
     };
+  }
+
+  function calcOverwhelmRatio(setup) {
+    const monsterThreat = setup.monster.atk / Math.max(1, setup.hero.hp);
+    const heroThreat    = setup.hero.atk    / Math.max(1, setup.monster.hp);
+    return monsterThreat / Math.max(0.001, heroThreat);
   }
 
   function resetBattleAnims() {
@@ -8204,6 +8452,17 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     { slot:2, style:'left:127px;bottom:50px;'  },
     { slot:3, style:'left:43px;bottom:250px;'  },
   ];
+  // 영웅병사화면 배치 슬롯 위치 (전투씬 포메이션과 동일 구조, 288px stage 기준)
+  // 포메이션: [슬3][슬0] / [  ][슬1] / [영웅][슬2]
+  // 가로 배치: [slot3 후열][slot0 전열상][slot1 전열중][slot2 전열하]
+  // 슬롯 폭 80px → 각 25% 컬럼 중앙에서 -40px
+  const DEPLOY_PANEL_POS = [
+    { left:'calc(37.5% - 43px)', bottom:'5px' }, // slot0: 전열상 (col 1)
+    { left:'calc(62.5% - 43px)', bottom:'5px' }, // slot1: 전열중 (col 2)
+    { left:'calc(87.5% - 43px)', bottom:'5px' }, // slot2: 전열하 (col 3)
+    { left:'calc(12.5% - 43px)', bottom:'5px' }, // slot3: 후열   (col 0)
+  ];
+
   const EXT_ENEMY_POS = [
     'right:127px;bottom:250px;',
     'right:127px;bottom:150px;',
@@ -8351,8 +8610,11 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     }
 
     // 로그 초기화
-    document.getElementById('extLogTitle').textContent = '전투 시작';
-    document.getElementById('extLogText').textContent  = '공격 또는 도망을 선택하세요.';
+    const _ow = state.battle?.isOverwhelming;
+    document.getElementById('extLogTitle').textContent = _ow ? '⚠️ 압도적 강적!' : '전투 시작';
+    document.getElementById('extLogText').textContent  = _ow
+      ? '이 몬스터는 상대하기 매우 어렵습니다.\n도전 성공 시 보상 2배 / 도망 패널티 없음'
+      : '공격 또는 도망을 선택하세요.';
 
     // 버튼 이벤트
     document.getElementById('extAttackBtn').onclick  = extBattleAttack;
@@ -8680,13 +8942,16 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   async function _checkBattleEnd(b, enemy, lines, t, reason='') {
     if (b.enemyHp <= 0) {
       b.ended = true; SFX.victory();
-      const exp = getBattleExp(enemy), gold = getBattleGold(enemy);
+      let exp = getBattleExp(enemy), gold = getBattleGold(enemy);
+      const ow = b.isOverwhelming;
+      if (ow) { exp *= 2; gold *= 2; }
       const dropItem = rollMonsterDrop(enemy);
       updateExtBattleUI(t+'턴 종료', lines.join('\n'));
-      await endBattle({ title:'승리', desc:'전투 승리!<br>경험치 '+exp+', 골드 '+gold+' 획득',
+      await endBattle({ title: ow ? '🏆 압도적 강적 처치!' : '승리',
+        desc: ow ? '압도적 강적 처치!<br>경험치 '+exp+', 골드 '+gold+' 획득 🎉 (2배!)' : '전투 승리!<br>경험치 '+exp+', 골드 '+gold+' 획득',
         exp, gold, resultType:'success',
         logTitle:enemy.grade+' '+enemy.name+' 전투',
-        logDetail:enemy.grade+' '+enemy.name+' 전투 / 승리'+reason+' / 경험치 '+exp+' / 골드 '+gold, dropItem });
+        logDetail:enemy.grade+' '+enemy.name+' 전투 / '+(ow?'압도적 처치':'승리')+reason+' / 경험치 '+exp+' / 골드 '+gold, dropItem });
       closeExtBattle(); b.locked=false; return true;
     }
     if (b.heroHp <= 0) {
@@ -8883,12 +9148,26 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       }
     }
     els.battleHeroMeta.textContent   = `${state.heroClass} / ${setup.tactic} / ${(setup.soldierClasses||[]).join(',')||'없음'} / 병사 ${setup.soldierCount}`;
-    els.battleEnemyMeta.textContent  = `${amount}마리 · 공격 ${setup.monster.atk} / 방어 ${setup.monster.def}`;
+    els.battleEnemyMeta.textContent  = `몬스터 · 적병사 ${setup.enemySoldiers.length}명 / 공격 ${setup.monster.atk} / 방어 ${setup.monster.def}`;
     els.battleResultBox.style.display='none'; els.battleResultBox.className='';
     els.battleActions.className='modal-actions two';
-    els.battleActions.innerHTML='<button class="modal-primary" id="battleAttackBtn">⚔ 전투 시작</button><button class="modal-danger" id="battleRunBtn">💨 도망</button>';
+
+    const _owRatio = calcOverwhelmRatio(setup);
+    const _isOW    = _owRatio >= 2.5;
+    state.battle.isOverwhelming = _isOW;
+
+    if (_isOW) {
+      els.battleActions.innerHTML =
+        `<button class="modal-primary" id="battleAttackBtn" style="background:linear-gradient(135deg,rgba(255,150,50,0.45),rgba(220,80,0,0.3));border-color:rgba(255,150,50,0.65);">⚠️ 도전! (보상 2배)</button>` +
+        `<button class="modal-danger"  id="battleRunBtn"  style="background:rgba(99,208,154,0.12);border-color:rgba(99,208,154,0.3);color:#63d09a;">🏃 후퇴 (패널티 없음)</button>`;
+    } else {
+      els.battleActions.innerHTML='<button class="modal-primary" id="battleAttackBtn">⚔ 전투 시작</button><button class="modal-danger" id="battleRunBtn">💨 도망</button>';
+    }
     bindBattleActions();
-    updateBattleUI('전투 준비', `${setup.enemy.grade} ${setup.enemy.name} ${amount}마리가 나타났습니다!\n전투 시작 또는 도망을 선택하세요.`);
+    const _initLog = _isOW
+      ? `⚠️ 압도적인 강적!\n${setup.enemy.grade} ${setup.enemy.name} 무리가 나타났습니다!\n현재 레벨로 상대하기 매우 어렵습니다.\n도전 성공 시 보상 2배 / 후퇴는 패널티 없음`
+      : `${setup.enemy.grade} ${setup.enemy.name} 무리가 나타났습니다!\n전투 시작 또는 도망을 선택하세요.`;
+    updateBattleUI(_isOW ? '⚠️ 압도적 강적' : '전투 준비', _initLog);
     openModal(els.battleBackdrop);
   }
 
@@ -9260,6 +9539,13 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     b.locked=true; b.ended=true;
     const enemy=b.setup.enemy;
     await animRun();
+    if (b.isOverwhelming) {
+      updateBattleUI('현명한 후퇴', '압도적인 강적 앞에서 현명하게 후퇴했습니다.\n패널티 없이 귀환합니다.');
+      await endBattle({ title:'🏃 후퇴 성공', desc:'압도적 강적 앞에서 현명하게 후퇴했습니다.<br>패널티 없음', exp:0, gold:0, resultType:'fail',
+        logTitle:b.decoded?.title||`${enemy.grade} ${enemy.name} 전투`,
+        logDetail:`${b.decoded?.title||`${enemy.grade} ${enemy.name} 전투`} / 후퇴 (패널티 없음)` });
+      b.locked=false; return;
+    }
     const exp = calcPartialExp(b.totalDmg,b.enemyMax,enemy);
     let lostGold=0, lostText='다행히 골드는 지켜냈습니다.';
     if (Math.random()<0.55 && state.gold>0) {
