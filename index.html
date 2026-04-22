@@ -1449,14 +1449,15 @@
     .deploy-slot-empty-icon { font-size:24px; opacity:0.6; color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
     .deploy-slot-empty-label { font-size:8px; color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
     .deploy-slot-remove {
-      position:absolute; top:-5px; right:-5px;
-      width:16px; height:16px; border-radius:50%;
-      background:#ff4444; color:#fff; font-size:9px;
-      display:flex; align-items:center; justify-content:center;
-      cursor:pointer; opacity:0; transition:opacity 0.15s;
-      border:none; padding:0;
+      display:none;
     }
-    .deploy-slot.filled:hover .deploy-slot-remove { opacity:1; }
+    .slot-undeploy-btn {
+      width:100%; margin-top:3px; padding:2px 0;
+      font-size:9px; font-weight:700; color:#c8a8a8;
+      background:rgba(180,60,60,0.18); border:1px solid rgba(180,80,80,0.35);
+      border-radius:5px; cursor:pointer; letter-spacing:0.3px;
+    }
+    .slot-undeploy-btn:hover { background:rgba(220,60,60,0.35); color:#fff; }
 
     /* 병사 보관함 */
     .soldier-inventory-title {
@@ -7466,7 +7467,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // ── 가로 배치 슬롯 렌더 [slot3][slot0][slot1][slot2] ─────
     slotsEl.innerHTML = DEPLOY_SLOT_DEFS.map((slotDef, i) => {
       const pos = DEPLOY_PANEL_POS[i];
-      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:86px;height:170px;`;
+      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:86px;height:188px;`;
       const sol = deployedSoldiers[i];
       // 스탯은 항상 현재 레벨로 재계산
       const s = sol ? calcSoldierStats(sol.cls, sol.rarity) : null;
@@ -7478,11 +7479,11 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
           ? `<video autoplay loop muted playsinline style="width:100%;height:auto;display:block;"
                src="${BASE_VIDEO}${videoFile}"></video>`
           : `<img class="deploy-slot-img" src="${sol.img}" style="width:100%;height:auto;" onerror="this.style.opacity=0">`;
-        return `<div class="deploy-slot filled rarity-${sol.rarity}"
-            data-slot-idx="${i}" draggable="true" style="cursor:grab;${posStyle}"
-            onclick="openSoldierDetail(${i}, 'deployed')">
+        const isSelected = window._deploySelected === i;
+        return `<div class="deploy-slot filled rarity-${sol.rarity}${isSelected ? ' selected' : ''}"
+            data-slot-idx="${i}" draggable="true" style="cursor:pointer;${posStyle}"
+            onclick="selectDeploySlot(${i})">
           ${mediaEl}
-          <button class="deploy-slot-remove" data-remove-slot="${i}">✕</button>
           <div class="duc-label" style="margin:1px 0 2px;">${slotDef.label}</div>
           <div style="width:100%;padding:3px 4px;background:rgba(0,0,0,0.45);border-radius:5px;">
             ${barRow('⚔', s.atk||0,   ceil.atk,  '#ff7a5a')}
@@ -7491,6 +7492,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
             ${barRow('💨', s.speed||0, ceil.spd,  '#ffd460')}
             ${barRow('✨', s.crit||0,  ceil.crit, '#d09aff')}
           </div>
+          <button class="slot-undeploy-btn" data-undeploy-slot="${i}" onclick="event.stopPropagation();undeploySlot(${i})">해제</button>
         </div>`;
       } else {
         return `<div class="deploy-slot empty" data-slot-idx="${i}"
@@ -7608,17 +7610,23 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       });
     });
 
-    // ── 슬롯 ✕ 버튼 (배치 해제) ──────────────────────────
-    slotsEl.querySelectorAll('.deploy-slot-remove').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const slotIdx = +btn.dataset.removeSlot;
-        const sol = deployedSoldiers[slotIdx];
-        deployedSoldiers[slotIdx] = null;
-        renderSoldierDeployPanel();
-        if (sol) dbUpdateSoldierDeploy(sol.id, false, -1);
+    // ── 슬롯 선택 ──────────────────────────────────────
+    window.selectDeploySlot = function(idx) {
+      window._deploySelected = (window._deploySelected === idx) ? null : idx;
+      slotsEl.querySelectorAll('.deploy-slot.filled').forEach(el => {
+        el.classList.toggle('selected', +el.dataset.slotIdx === window._deploySelected);
       });
-    });
+      renderDeployNav(window._deploySelected);
+    };
+
+    // ── 슬롯 해제 버튼 ─────────────────────────────────
+    window.undeploySlot = function(slotIdx) {
+      const sol = deployedSoldiers[slotIdx];
+      deployedSoldiers[slotIdx] = null;
+      if (window._deploySelected === slotIdx) window._deploySelected = null;
+      renderSoldierDeployPanel();
+      if (sol) dbUpdateSoldierDeploy(sol.id, false, -1);
+    };
 
     // ── 보관 병사 렌더 ────────────────────────────────────
     if (!soldierInventory.length) {
