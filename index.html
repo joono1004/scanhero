@@ -7456,18 +7456,22 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
           <img class="deploy-slot-img" src="${sol.img}" style="height:50px;" onerror="this.style.opacity=0">
           <button class="deploy-slot-remove" data-remove-slot="${i}">✕</button>
           <div class="duc-label" style="margin:1px 0 3px;">${slotDef.label}</div>
-          ${barRow('⚔', s.atk||0, ceil.atk, '#ff7a5a')}
-          ${barRow('🛡', s.def||0, ceil.def, '#63a8ff')}
-          ${barRow('♥', s.hp||0,  ceil.hp,  '#63d09a')}
+          <div style="width:100%;padding:0 2px;">
+            ${barRow('⚔', s.atk||0, ceil.atk, '#ff7a5a')}
+            ${barRow('🛡', s.def||0, ceil.def, '#63a8ff')}
+            ${barRow('♥', s.hp||0,  ceil.hp,  '#63d09a')}
+          </div>
         </div>`;
       } else {
         return `<div class="deploy-slot empty" data-slot-idx="${i}"
             style="${posStyle}" onclick="openSoldierDetail(${i}, 'empty')">
           <div class="deploy-slot-empty-icon">+</div>
           <div class="duc-label" style="margin:4px 0 3px;">${slotDef.label}</div>
-          ${barRow('⚔', 0, ceil.atk, '#ff7a5a')}
-          ${barRow('🛡', 0, ceil.def, '#63a8ff')}
-          ${barRow('♥', 0, ceil.hp,  '#63d09a')}
+          <div style="width:100%;padding:0 2px;">
+            ${barRow('⚔', 0, ceil.atk, '#ff7a5a')}
+            ${barRow('🛡', 0, ceil.def, '#63a8ff')}
+            ${barRow('♥', 0, ceil.hp,  '#63d09a')}
+          </div>
         </div>`;
       }
     }).join('');
