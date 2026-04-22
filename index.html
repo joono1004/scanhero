@@ -4410,7 +4410,7 @@ ${bk.enemyName} 전투가 도망 처리되었습니다.
         desc: SOLDIER_CLASS_DATA[row.cls]?.desc || '',
         icon: SOLDIER_CLASS_DATA[row.cls]?.icon || '⚔️',
       });
-      soldierInventory = data.filter(r => !r.is_deployed).map(toSol);
+      soldierInventory = data.map(toSol); // 배치된 병사도 포함 — 보관함에 배치됨 표시
       const deployed = data.filter(r => r.is_deployed && r.deploy_slot >= 0 && r.deploy_slot < MAX_DEPLOY_SLOTS);
       deployedSoldiers = Array(MAX_DEPLOY_SLOTS).fill(null);
       deployed.forEach(r => {
