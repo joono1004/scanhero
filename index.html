@@ -7450,7 +7450,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // ── 가로 배치 슬롯 렌더 [slot3][slot0][slot1][slot2] ─────
     slotsEl.innerHTML = DEPLOY_SLOT_DEFS.map((slotDef, i) => {
       const pos = DEPLOY_PANEL_POS[i];
-      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:80px;height:190px;`;
+      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:86px;height:195px;`;
       const sol = deployedSoldiers[i];
       // 스탯은 항상 현재 레벨로 재계산
       const s = sol ? calcSoldierStats(sol.cls, sol.rarity) : null;
@@ -7458,7 +7458,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         return `<div class="deploy-slot filled rarity-${sol.rarity}"
             data-slot-idx="${i}" draggable="true" style="cursor:grab;${posStyle}"
             onclick="openSoldierDetail(${i}, 'deployed')">
-          <img class="deploy-slot-img" src="${sol.img}" style="height:112px;" onerror="this.style.opacity=0">
+          <img class="deploy-slot-img" src="${sol.img}" style="width:100%;height:auto;" onerror="this.style.opacity=0">
           <button class="deploy-slot-remove" data-remove-slot="${i}">✕</button>
           <div class="duc-label" style="margin:1px 0 2px;">${slotDef.label}</div>
           <div style="width:100%;padding:3px 4px;background:rgba(0,0,0,0.45);border-radius:5px;">
@@ -8440,10 +8440,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // 가로 배치: [slot3 후열][slot0 전열상][slot1 전열중][slot2 전열하]
   // 슬롯 폭 80px → 각 25% 컬럼 중앙에서 -40px
   const DEPLOY_PANEL_POS = [
-    { left:'calc(37.5% - 40px)', bottom:'5px' }, // slot0: 전열상 (col 1)
-    { left:'calc(62.5% - 40px)', bottom:'5px' }, // slot1: 전열중 (col 2)
-    { left:'calc(87.5% - 40px)', bottom:'5px' }, // slot2: 전열하 (col 3)
-    { left:'calc(12.5% - 40px)', bottom:'5px' }, // slot3: 후열   (col 0)
+    { left:'calc(37.5% - 43px)', bottom:'5px' }, // slot0: 전열상 (col 1)
+    { left:'calc(62.5% - 43px)', bottom:'5px' }, // slot1: 전열중 (col 2)
+    { left:'calc(87.5% - 43px)', bottom:'5px' }, // slot2: 전열하 (col 3)
+    { left:'calc(12.5% - 43px)', bottom:'5px' }, // slot3: 후열   (col 0)
   ];
 
   const EXT_ENEMY_POS = [
