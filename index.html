@@ -1440,11 +1440,11 @@
     .duc-img-wrap { height:46px; display:flex; align-items:center; justify-content:center; }
     .duc-label { font-size:8px; color:#9fbfff; text-align:center; margin:2px 0 4px; }
     .duc-empty .duc-label { color:#3a4a6a; }
-    .duc-bar-row { display:flex; align-items:center; gap:2px; margin-bottom:2px; }
-    .duc-bar-icon { font-size:9px; width:9px; flex-shrink:0; line-height:1; }
-    .duc-bar-bg { flex:1; height:4px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
+    .duc-bar-row { display:flex; align-items:center; gap:3px; margin-bottom:2px; }
+    .duc-bar-icon { font-size:10px; width:10px; flex-shrink:0; line-height:1; color:rgba(255,255,255,0.9); }
+    .duc-bar-bg { flex:1; height:5px; background:rgba(255,255,255,0.12); border-radius:2px; overflow:hidden; }
     .duc-bar-fill { height:100%; border-radius:2px; transition:width 0.35s ease; }
-    .duc-bar-val { font-size:8px; color:#7a90be; min-width:20px; text-align:right; line-height:1; }
+    .duc-bar-val { font-size:9px; color:#fff; font-weight:600; min-width:22px; text-align:right; line-height:1; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
     .deploy-slot-rarity { font-size:8px; font-weight:700; }
     .deploy-slot-empty-icon { font-size:24px; opacity:0.6; color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
     .deploy-slot-empty-label { font-size:8px; color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
@@ -7445,7 +7445,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // ── 가로 배치 슬롯 렌더 [slot3][slot0][slot1][slot2] ─────
     slotsEl.innerHTML = DEPLOY_SLOT_DEFS.map((slotDef, i) => {
       const pos = DEPLOY_PANEL_POS[i];
-      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:70px;height:118px;`;
+      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:70px;height:145px;`;
       const sol = deployedSoldiers[i];
       // 스탯은 항상 현재 레벨로 재계산
       const s = sol ? calcSoldierStats(sol.cls, sol.rarity) : null;
@@ -7453,10 +7453,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         return `<div class="deploy-slot filled rarity-${sol.rarity}"
             data-slot-idx="${i}" draggable="true" style="cursor:grab;${posStyle}"
             onclick="openSoldierDetail(${i}, 'deployed')">
-          <img class="deploy-slot-img" src="${sol.img}" style="height:50px;" onerror="this.style.opacity=0">
+          <img class="deploy-slot-img" src="${sol.img}" style="height:75px;" onerror="this.style.opacity=0">
           <button class="deploy-slot-remove" data-remove-slot="${i}">✕</button>
-          <div class="duc-label" style="margin:1px 0 3px;">${slotDef.label}</div>
-          <div style="width:100%;padding:0 2px;">
+          <div class="duc-label" style="margin:1px 0 2px;">${slotDef.label}</div>
+          <div style="width:100%;padding:3px 4px;background:rgba(0,0,0,0.45);border-radius:5px;">
             ${barRow('⚔', s.atk||0, ceil.atk, '#ff7a5a')}
             ${barRow('🛡', s.def||0, ceil.def, '#63a8ff')}
             ${barRow('♥', s.hp||0,  ceil.hp,  '#63d09a')}
@@ -7465,9 +7465,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       } else {
         return `<div class="deploy-slot empty" data-slot-idx="${i}"
             style="${posStyle}" onclick="openSoldierDetail(${i}, 'empty')">
-          <div class="deploy-slot-empty-icon">+</div>
-          <div class="duc-label" style="margin:4px 0 3px;">${slotDef.label}</div>
-          <div style="width:100%;padding:0 2px;">
+          <div class="deploy-slot-empty-icon" style="font-size:28px;margin-top:12px;">+</div>
+          <div class="duc-label" style="margin:2px 0 2px;">${slotDef.label}</div>
+          <div style="width:100%;padding:3px 4px;background:rgba(0,0,0,0.3);border-radius:5px;">
             ${barRow('⚔', 0, ceil.atk, '#ff7a5a')}
             ${barRow('🛡', 0, ceil.def, '#63a8ff')}
             ${barRow('♥', 0, ceil.hp,  '#63d09a')}
