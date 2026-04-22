@@ -6240,6 +6240,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const slotIdx = deployedSoldiers.findIndex(s => s?.id === sol.id);
     if (slotIdx >= 0) {
       deployedSoldiers[slotIdx] = null;
+      if (!soldierInventory.find(s => s.id === sol.id)) {
+        soldierInventory.unshift(sol);
+      }
       dbUpdateSoldierDeploy(sol.id, false, -1);
     }
     closeSoldierDetail();
@@ -7655,6 +7658,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       const sol = deployedSoldiers[slotIdx];
       deployedSoldiers[slotIdx] = null;
       if (window._deploySelected === slotIdx) window._deploySelected = null;
+      if (sol && !soldierInventory.find(s => s.id === sol.id)) {
+        soldierInventory.unshift(sol);
+      }
       renderSoldierDeployPanel();
       if (sol) dbUpdateSoldierDeploy(sol.id, false, -1);
     };
