@@ -2386,6 +2386,10 @@
             radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
           border:1px solid rgba(100,130,200,0.22); margin-bottom:2px;
         ">
+          <!-- 화면배치 편집 버튼 -->
+          <button id="deployEditModeBtn" style="position:absolute;top:6px;left:8px;z-index:20;padding:3px 8px;
+            background:rgba(255,220,0,0.15);color:#ffdc00;border:1px solid rgba(255,220,0,0.5);
+            border-radius:6px;font-size:10px;cursor:pointer;">화면배치</button>
           <!-- 포메이션 가이드 라벨 -->
           <div style="position:absolute;top:6px;right:8px;font-size:9px;color:rgba(160,180,220,0.55);pointer-events:none;line-height:1.6;">
             후열<br>중열<br>전열
@@ -7341,6 +7345,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     document.getElementById('heroEquipPanel').style.display   = 'none';
     document.getElementById('heroSoldierPanel').style.display = '';
     renderSoldierDeployPanel();
+    initDeployEditMode();
   }
 
   window.closeSoldierPanel = function closeSoldierPanel() {
@@ -8711,6 +8716,126 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         editBtn.style.color = '#ffdc00';
         editBtn.style.borderColor = 'rgba(255,220,0,0.5)';
         editBtn.style.background = 'rgba(255,220,0,0.15)';
+        disableDrag();
+        showOutput();
+      }
+    };
+  }
+
+  // ── 병사배치 화면배치 편집 모드 ─────────────────────────────
+  function initDeployEditMode() {
+    const stage = document.getElementById('deployStage');
+    const editBtn = document.getElementById('deployEditModeBtn');
+    if (!stage || !editBtn || editBtn._editInited) return;
+    editBtn._editInited = true;
+
+    // 좌표 출력 오버레이
+    const outputPanel = document.createElement('div');
+    outputPanel.id = 'deployEditOutput';
+    outputPanel.style.cssText =
+      'display:none;position:absolute;inset:0;z-index:200;border-radius:16px;' +
+      'background:rgba(0,0,0,0.93);padding:20px;overflow-y:auto;';
+    stage.appendChild(outputPanel);
+
+    let editMode = false;
+
+    function resolveToPixels(el) {
+      const sr = stage.getBoundingClientRect();
+      const er = el.getBoundingClientRect();
+      el.style.left   = Math.round(er.left - sr.left) + 'px';
+      el.style.bottom = Math.round(sr.bottom - er.bottom) + 'px';
+    }
+
+    function makeDraggable(el) {
+      resolveToPixels(el);
+      el.style.cursor     = 'grab';
+      el.style.userSelect = 'none';
+      el.style.touchAction = 'none';
+
+      let label = el.querySelector('.deploy-drag-label');
+      if (!label) {
+        label = document.createElement('div');
+        label.className = 'deploy-drag-label';
+        label.style.cssText =
+          'position:absolute;top:-18px;left:0;right:0;text-align:center;' +
+          'font-size:9px;color:#ffdc00;font-weight:700;pointer-events:none;' +
+          'text-shadow:0 0 4px #000;white-space:nowrap;z-index:99;';
+        el.appendChild(label);
+      }
+
+      function updateLabel() {
+        label.textContent = 'L:' + Math.round(parseFloat(el.style.left)||0) +
+                            ' B:' + Math.round(parseFloat(el.style.bottom)||0);
+      }
+      updateLabel();
+
+      let active=false, startX, startY, startLeft, startBottom;
+      el.addEventListener('pointerdown', e => {
+        e.preventDefault(); e.stopPropagation();
+        active = true;
+        el.setPointerCapture(e.pointerId);
+        startX = e.clientX; startY = e.clientY;
+        startLeft   = parseFloat(el.style.left)   || 0;
+        startBottom = parseFloat(el.style.bottom) || 0;
+        el.style.cursor = 'grabbing';
+        el.style.zIndex = '50';
+      });
+      el.addEventListener('pointermove', e => {
+        if (!active) return;
+        el.style.left   = Math.max(0, Math.round(startLeft   + (e.clientX - startX))) + 'px';
+        el.style.bottom = Math.max(0, Math.round(startBottom - (e.clientY - startY))) + 'px';
+        updateLabel();
+      });
+      el.addEventListener('pointerup', () => {
+        active = false;
+        el.style.cursor = 'grab';
+        el.style.zIndex = '10';
+      });
+    }
+
+    function enableDrag() {
+      document.querySelectorAll('#deploySlots .deploy-slot').forEach(makeDraggable);
+    }
+
+    function disableDrag() {
+      document.querySelectorAll('#deploySlots .deploy-slot').forEach(el => {
+        el.style.cursor = el.style.userSelect = el.style.touchAction = '';
+        const lbl = el.querySelector('.deploy-drag-label');
+        if (lbl) lbl.remove();
+      });
+    }
+
+    function showOutput() {
+      const half = Math.round(stage.offsetWidth / 2);
+      const lines = [];
+      document.querySelectorAll('#deploySlots .deploy-slot').forEach((el, i) => {
+        const l = Math.round(parseFloat(el.style.left)   || 0);
+        const b = Math.round(parseFloat(el.style.bottom) || 0);
+        const off = l - half;
+        const calc = off >= 0 ? `calc(50% + ${off}px)` : `calc(50% - ${Math.abs(off)}px)`;
+        lines.push(`슬롯${i}:  left:${l}px  bottom:${b}px\n  → ${calc}, bottom:${b}px`);
+      });
+      outputPanel.innerHTML =
+        '<div style="color:#ffcf63;font-size:15px;font-weight:700;margin-bottom:12px;">📋 현재 배치 좌표</div>' +
+        '<pre style="color:#fff;font-size:12px;line-height:2;font-family:monospace;' +
+        'background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;white-space:pre;">' +
+        lines.join('\n\n') + '</pre>' +
+        '<div style="color:#aaa;font-size:11px;margin-top:10px;">이 화면을 캡처해서 전달해 주세요</div>' +
+        '<button onclick="document.getElementById(\'deployEditOutput\').style.display=\'none\';" ' +
+        'style="margin-top:14px;padding:10px 28px;background:#4f7cff;color:#fff;border:none;' +
+        'border-radius:8px;font-size:14px;cursor:pointer;width:100%;">닫기</button>';
+      outputPanel.style.display = 'block';
+    }
+
+    editBtn.onclick = () => {
+      editMode = !editMode;
+      if (editMode) {
+        editBtn.textContent = '값 보기';
+        editBtn.style.cssText += ';color:#63d09a;border-color:rgba(99,208,154,0.6);background:rgba(99,208,154,0.15);';
+        enableDrag();
+      } else {
+        editBtn.textContent = '화면배치';
+        editBtn.style.cssText += ';color:#ffdc00;border-color:rgba(255,220,0,0.5);background:rgba(255,220,0,0.15);';
         disableDrag();
         showOutput();
       }
