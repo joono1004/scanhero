@@ -2387,9 +2387,6 @@
           <span style="font-size:10px;color:#7a90be;">배치 <span id="deploySlotCount">0/0</span></span>
         </div>
         <!-- 2. 가로 병사 카드 [슬롯3 후열][슬롯0 전열상][슬롯1 전열중][슬롯2 전열하] -->
-        <div id="deployUnitCards" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:4px;"></div>
-
-        <!-- 2. 배치된 병사 영역 — 전투씬 포메이션과 동일 배치 -->
         <div id="deployStage" style="
           width:100%; height:288px; border-radius:16px; overflow:hidden;
           position:relative;
@@ -2397,19 +2394,10 @@
             radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
           border:1px solid rgba(100,130,200,0.22); margin-bottom:2px;
         ">
-          <!-- 화면배치 편집 버튼 -->
-          <button id="deployEditModeBtn" style="position:absolute;top:6px;left:8px;z-index:20;padding:3px 8px;
-            background:rgba(255,220,0,0.15);color:#ffdc00;border:1px solid rgba(255,220,0,0.5);
-            border-radius:6px;font-size:10px;cursor:pointer;">화면배치</button>
-          <!-- 포메이션 가이드 라벨 -->
-          <div style="position:absolute;top:6px;right:8px;font-size:9px;color:rgba(160,180,220,0.55);pointer-events:none;line-height:1.6;">
-            후열<br>중열<br>전열
-          </div>
-          <!-- 영웅 위치 마커 (고정) -->
-          <div id="deployHeroMarker" style="position:absolute;left:calc(50% - 90px);bottom:24px;z-index:3;width:54px;text-align:center;pointer-events:none;">
-            <div style="font-size:30px;line-height:1;filter:drop-shadow(0 0 8px rgba(79,124,255,0.9));">⚔️</div>
-            <div style="font-size:8px;color:#9fbfff;margin-top:2px;text-shadow:0 1px 3px rgba(0,0,0,0.9);">영웅</div>
-          </div>
+          <!-- 네비게이터 (우상단 — 전투씬 포메이션 미니맵) -->
+          <div id="deployNav" style="position:absolute;top:6px;right:6px;width:76px;height:70px;
+            background:rgba(0,0,0,0.55);border-radius:8px;border:1px solid rgba(100,130,200,0.3);
+            pointer-events:none;z-index:10;"></div>
           <div id="deploySlots" style="position:absolute;inset:0;"></div>
         </div>
 
@@ -6027,6 +6015,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   window.openSoldierDetail = function(idx, type) {
     _soldierDetailIdx  = idx;
     _soldierDetailType = type;
+    if (type === 'deployed' || type === 'empty') {
+      window._deploySelected = idx;
+      renderDeployNav(idx);
+    }
 
     const sol = type === 'inv'
       ? soldierInventory[idx]
@@ -6268,10 +6260,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // 병사 등급 설정
   // ── 병사 배치 슬롯 정의 (클래스 고정 + 잠금 레벨) ────────────
   const DEPLOY_SLOT_DEFS = [
-    { label:'1번 병사' },
-    { label:'2번 병사' },
-    { label:'3번 병사' },
-    { label:'4번 병사' },
+    { label:'전열상' },
+    { label:'전열중' },
+    { label:'전열하' },
+    { label:'후열'   },
   ];
 
   // 병사 클래스별 해금 레벨 (레벨업으로 클래스 해금)
@@ -7356,7 +7348,6 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     document.getElementById('heroEquipPanel').style.display   = 'none';
     document.getElementById('heroSoldierPanel').style.display = '';
     renderSoldierDeployPanel();
-    initDeployEditMode();
   }
 
   window.closeSoldierPanel = function closeSoldierPanel() {
@@ -7385,53 +7376,41 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     return { atk: Math.round(maxAtk), def: Math.round(maxDef), hp: Math.round(maxHp) };
   }
 
-  // 가로 병사 카드 [슬롯3 후열][슬롯0 전열상][슬롯1 전열중][슬롯2 전열하]
-  function renderDeployUnitCards() {
-    const container = document.getElementById('deployUnitCards');
-    if (!container) return;
-    const ceil = getDeployStatCeilings();
-    const ORDER  = [3, 0, 1, 2];
-    const LABELS = ['후열', '전열상', '전열중', '전열하'];
+  // 네비게이터: 전투씬 포메이션 미니맵 (선택 슬롯 강조)
+  // 실제 전투씬 포메이션: slot3(후열좌), slot0(후열우/전열상), slot1(전열중), slot2(전열하)
+  const DEPLOY_NAV_POS = [
+    { left:'39px', top:'6px'  },  // slot0 전열상 (우측 상)
+    { left:'39px', top:'26px' },  // slot1 전열중 (우측 중)
+    { left:'39px', top:'46px' },  // slot2 전열하 (우측 하)
+    { left:'11px', top:'6px'  },  // slot3 후열   (좌측 상)
+  ];
 
-    function barRow(icon, val, max, color) {
-      const pct = val > 0 ? Math.min(100, Math.round(val / max * 100)) : 0;
-      return `<div class="duc-bar-row">
-        <div class="duc-bar-icon">${icon}</div>
-        <div class="duc-bar-bg"><div class="duc-bar-fill" style="width:${pct}%;background:${color};"></div></div>
-        <div class="duc-bar-val">${val > 0 ? val : '-'}</div>
-      </div>`;
-    }
-
-    container.innerHTML = ORDER.map((si, col) => {
-      const sol = deployedSoldiers[si];
-      const label = LABELS[col];
-      if (sol) {
-        const s = sol.stats || calcSoldierStats(sol.cls, sol.rarity);
-        return `<div class="duc rarity-${sol.rarity}" onclick="openSoldierDetail(${si},'deployed')">
-          <div class="duc-img-wrap"><img src="${sol.img}" style="height:44px;object-fit:contain;" onerror="this.style.opacity=0"></div>
-          <div class="duc-label">${label}</div>
-          ${barRow('⚔', s.atk||0, ceil.atk, '#ff7a5a')}
-          ${barRow('🛡', s.def||0, ceil.def, '#63a8ff')}
-          ${barRow('♥', s.hp||0,  ceil.hp,  '#63d09a')}
+  function renderDeployNav(selectedIdx) {
+    const nav = document.getElementById('deployNav');
+    if (!nav) return;
+    nav.innerHTML = `<div style="position:absolute;top:2px;left:0;right:0;text-align:center;font-size:7px;color:rgba(160,180,220,0.5);">포메이션</div>` +
+      DEPLOY_NAV_POS.map((p, i) => {
+        const sol = deployedSoldiers[i];
+        const isSelected = i === selectedIdx;
+        const rarityColors = { common:'#a9b6d6', uncommon:'#63d09a', rare:'#63a8ff', epic:'#b27dff', legendary:'#ffcf63' };
+        const color = sol ? (rarityColors[sol.rarity] || '#a9b6d6') : 'rgba(80,100,140,0.4)';
+        const border = isSelected ? '2px solid #fff' : (sol ? `2px solid ${color}` : '1px dashed rgba(80,100,140,0.5)');
+        const bg = sol ? `${color}33` : 'transparent';
+        return `<div style="position:absolute;left:${p.left};top:${p.top};
+          width:20px;height:20px;border-radius:50%;border:${border};background:${bg};
+          ${isSelected ? 'box-shadow:0 0 6px rgba(255,255,255,0.7);' : ''}">
+          ${sol ? `<img src="${sol.img}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;" onerror="this.style.opacity=0">` : ''}
         </div>`;
-      } else {
-        return `<div class="duc duc-empty" onclick="openSoldierDetail(${si},'empty')">
-          <div class="duc-img-wrap" style="color:#3a4a6a;font-size:22px;">+</div>
-          <div class="duc-label">${label}</div>
-          ${barRow('⚔', 0, ceil.atk, '#ff7a5a')}
-          ${barRow('🛡', 0, ceil.def, '#63a8ff')}
-          ${barRow('♥', 0, ceil.hp,  '#63d09a')}
-        </div>`;
-      }
-    }).join('');
+      }).join('') +
+      // 영웅 마커
+      `<div style="position:absolute;left:11px;top:44px;font-size:11px;line-height:1;text-align:center;width:20px;">⚔️</div>`;
   }
 
-  // 배치 슬롯 렌더
+  // 배치 슬롯 렌더 (가로 배치 + 막대바 + 네비게이터)
   function renderSoldierDeployPanel() {
     const TOTAL   = MAX_DEPLOY_SLOTS;
 
     const slotsEl    = document.getElementById('deploySlots');
-    const invEl      = document.getElementById('soldierInvGrid');
     const invCountEl = document.getElementById('soldierInvCount');
     if (!slotsEl) return;
 
@@ -7447,26 +7426,47 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     setEl('deploySlotCount', `${filled}/${TOTAL}`);
     if (invCountEl) invCountEl.textContent = `${soldierInventory.length}명`;
 
-    // ── 가로 유닛 카드 렌더 ────────────────────────────────────
-    renderDeployUnitCards();
+    // ── 네비게이터 ────────────────────────────────────────────
+    renderDeployNav(window._deploySelected ?? null);
 
-    // ── 배치 슬롯 렌더 (전투씬 포메이션 위치와 동일) ──────────
+    // ── 막대바 상한치 (현재 레벨 기준 전설 최강 클래스) ──────────
+    const ceil = getDeployStatCeilings();
+
+    function barRow(icon, val, max, color) {
+      const pct = val > 0 ? Math.min(100, Math.round(val / max * 100)) : 0;
+      return `<div class="duc-bar-row">
+        <div class="duc-bar-icon">${icon}</div>
+        <div class="duc-bar-bg"><div class="duc-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+        <div class="duc-bar-val">${val > 0 ? val : '-'}</div>
+      </div>`;
+    }
+
+    // ── 가로 배치 슬롯 렌더 [slot3][slot0][slot1][slot2] ─────
     slotsEl.innerHTML = DEPLOY_SLOT_DEFS.map((slotDef, i) => {
       const pos = DEPLOY_PANEL_POS[i];
-      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:54px;height:70px;`;
+      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:70px;height:118px;`;
       const sol = deployedSoldiers[i];
+      // 스탯은 항상 현재 레벨로 재계산
+      const s = sol ? calcSoldierStats(sol.cls, sol.rarity) : null;
       if (sol) {
         return `<div class="deploy-slot filled rarity-${sol.rarity}"
             data-slot-idx="${i}" draggable="true" style="cursor:grab;${posStyle}"
             onclick="openSoldierDetail(${i}, 'deployed')">
           <img class="deploy-slot-img" src="${sol.img}" style="height:50px;" onerror="this.style.opacity=0">
           <button class="deploy-slot-remove" data-remove-slot="${i}">✕</button>
+          <div class="duc-label" style="margin:1px 0 3px;">${slotDef.label}</div>
+          ${barRow('⚔', s.atk||0, ceil.atk, '#ff7a5a')}
+          ${barRow('🛡', s.def||0, ceil.def, '#63a8ff')}
+          ${barRow('♥', s.hp||0,  ceil.hp,  '#63d09a')}
         </div>`;
       } else {
         return `<div class="deploy-slot empty" data-slot-idx="${i}"
             style="${posStyle}" onclick="openSoldierDetail(${i}, 'empty')">
           <div class="deploy-slot-empty-icon">+</div>
-          <div class="deploy-slot-empty-label">${slotDef.label}</div>
+          <div class="duc-label" style="margin:4px 0 3px;">${slotDef.label}</div>
+          ${barRow('⚔', 0, ceil.atk, '#ff7a5a')}
+          ${barRow('🛡', 0, ceil.def, '#63a8ff')}
+          ${barRow('♥', 0, ceil.hp,  '#63d09a')}
         </div>`;
       }
     }).join('');
@@ -8423,11 +8423,13 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   ];
   // 영웅병사화면 배치 슬롯 위치 (전투씬 포메이션과 동일 구조, 288px stage 기준)
   // 포메이션: [슬3][슬0] / [  ][슬1] / [영웅][슬2]
+  // 가로 배치: [slot3 후열][slot0 전열상][slot1 전열중][slot2 전열하]
+  // 각 슬롯은 25% 컬럼 중앙, bottom은 통일 (막대바 포함 높이 고려)
   const DEPLOY_PANEL_POS = [
-    { left:'calc(50% - 27px)', bottom:'147px' }, // slot0: 후열 우
-    { left:'calc(50% - 27px)', bottom:'76px'  }, // slot1: 중열 우
-    { left:'calc(50% - 27px)', bottom:'5px'   }, // slot2: 전열 우
-    { left:'calc(50% - 89px)', bottom:'147px' }, // slot3: 후열 좌
+    { left:'calc(37.5% - 35px)', bottom:'5px' }, // slot0: 전열상 (col 1)
+    { left:'calc(62.5% - 35px)', bottom:'5px' }, // slot1: 전열중 (col 2)
+    { left:'calc(87.5% - 35px)', bottom:'5px' }, // slot2: 전열하 (col 3)
+    { left:'calc(12.5% - 35px)', bottom:'5px' }, // slot3: 후열   (col 0)
   ];
 
   const EXT_ENEMY_POS = [
@@ -8776,126 +8778,6 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         editBtn.style.color = '#ffdc00';
         editBtn.style.borderColor = 'rgba(255,220,0,0.5)';
         editBtn.style.background = 'rgba(255,220,0,0.15)';
-        disableDrag();
-        showOutput();
-      }
-    };
-  }
-
-  // ── 병사배치 화면배치 편집 모드 ─────────────────────────────
-  function initDeployEditMode() {
-    const stage = document.getElementById('deployStage');
-    const editBtn = document.getElementById('deployEditModeBtn');
-    if (!stage || !editBtn || editBtn._editInited) return;
-    editBtn._editInited = true;
-
-    // 좌표 출력 오버레이
-    const outputPanel = document.createElement('div');
-    outputPanel.id = 'deployEditOutput';
-    outputPanel.style.cssText =
-      'display:none;position:absolute;inset:0;z-index:200;border-radius:16px;' +
-      'background:rgba(0,0,0,0.93);padding:20px;overflow-y:auto;';
-    stage.appendChild(outputPanel);
-
-    let editMode = false;
-
-    function resolveToPixels(el) {
-      const sr = stage.getBoundingClientRect();
-      const er = el.getBoundingClientRect();
-      el.style.left   = Math.round(er.left - sr.left) + 'px';
-      el.style.bottom = Math.round(sr.bottom - er.bottom) + 'px';
-    }
-
-    function makeDraggable(el) {
-      resolveToPixels(el);
-      el.style.cursor     = 'grab';
-      el.style.userSelect = 'none';
-      el.style.touchAction = 'none';
-
-      let label = el.querySelector('.deploy-drag-label');
-      if (!label) {
-        label = document.createElement('div');
-        label.className = 'deploy-drag-label';
-        label.style.cssText =
-          'position:absolute;top:-18px;left:0;right:0;text-align:center;' +
-          'font-size:9px;color:#ffdc00;font-weight:700;pointer-events:none;' +
-          'text-shadow:0 0 4px #000;white-space:nowrap;z-index:99;';
-        el.appendChild(label);
-      }
-
-      function updateLabel() {
-        label.textContent = 'L:' + Math.round(parseFloat(el.style.left)||0) +
-                            ' B:' + Math.round(parseFloat(el.style.bottom)||0);
-      }
-      updateLabel();
-
-      let active=false, startX, startY, startLeft, startBottom;
-      el.addEventListener('pointerdown', e => {
-        e.preventDefault(); e.stopPropagation();
-        active = true;
-        el.setPointerCapture(e.pointerId);
-        startX = e.clientX; startY = e.clientY;
-        startLeft   = parseFloat(el.style.left)   || 0;
-        startBottom = parseFloat(el.style.bottom) || 0;
-        el.style.cursor = 'grabbing';
-        el.style.zIndex = '50';
-      });
-      el.addEventListener('pointermove', e => {
-        if (!active) return;
-        el.style.left   = Math.max(0, Math.round(startLeft   + (e.clientX - startX))) + 'px';
-        el.style.bottom = Math.max(0, Math.round(startBottom - (e.clientY - startY))) + 'px';
-        updateLabel();
-      });
-      el.addEventListener('pointerup', () => {
-        active = false;
-        el.style.cursor = 'grab';
-        el.style.zIndex = '10';
-      });
-    }
-
-    function enableDrag() {
-      document.querySelectorAll('#deploySlots .deploy-slot').forEach(makeDraggable);
-    }
-
-    function disableDrag() {
-      document.querySelectorAll('#deploySlots .deploy-slot').forEach(el => {
-        el.style.cursor = el.style.userSelect = el.style.touchAction = '';
-        const lbl = el.querySelector('.deploy-drag-label');
-        if (lbl) lbl.remove();
-      });
-    }
-
-    function showOutput() {
-      const half = Math.round(stage.offsetWidth / 2);
-      const lines = [];
-      document.querySelectorAll('#deploySlots .deploy-slot').forEach((el, i) => {
-        const l = Math.round(parseFloat(el.style.left)   || 0);
-        const b = Math.round(parseFloat(el.style.bottom) || 0);
-        const off = l - half;
-        const calc = off >= 0 ? `calc(50% + ${off}px)` : `calc(50% - ${Math.abs(off)}px)`;
-        lines.push(`슬롯${i}:  left:${l}px  bottom:${b}px\n  → ${calc}, bottom:${b}px`);
-      });
-      outputPanel.innerHTML =
-        '<div style="color:#ffcf63;font-size:15px;font-weight:700;margin-bottom:12px;">📋 현재 배치 좌표</div>' +
-        '<pre style="color:#fff;font-size:12px;line-height:2;font-family:monospace;' +
-        'background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;white-space:pre;">' +
-        lines.join('\n\n') + '</pre>' +
-        '<div style="color:#aaa;font-size:11px;margin-top:10px;">이 화면을 캡처해서 전달해 주세요</div>' +
-        '<button onclick="document.getElementById(\'deployEditOutput\').style.display=\'none\';" ' +
-        'style="margin-top:14px;padding:10px 28px;background:#4f7cff;color:#fff;border:none;' +
-        'border-radius:8px;font-size:14px;cursor:pointer;width:100%;">닫기</button>';
-      outputPanel.style.display = 'block';
-    }
-
-    editBtn.onclick = () => {
-      editMode = !editMode;
-      if (editMode) {
-        editBtn.textContent = '값 보기';
-        editBtn.style.cssText += ';color:#63d09a;border-color:rgba(99,208,154,0.6);background:rgba(99,208,154,0.15);';
-        enableDrag();
-      } else {
-        editBtn.textContent = '화면배치';
-        editBtn.style.cssText += ';color:#ffdc00;border-color:rgba(255,220,0,0.5);background:rgba(255,220,0,0.15);';
         disableDrag();
         showOutput();
       }
