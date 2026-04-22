@@ -7655,7 +7655,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // 장비창 스탯 수치만 갱신 (모달 열지 않음)
   function refreshEquipStats() {
     const stats = getHeroBaseStats();
-    els.heroStatsTitle.textContent   = formatHeroHeaderInfo();
+    els.heroStatsTitle.textContent   = formatHeroTopTitle(stats);
     els.heroCombatPower.textContent  = calcCombatPower(stats).toLocaleString();
     const sb = stats.solBonus || {};
     const setBonus = (el, total, bonus) => {
