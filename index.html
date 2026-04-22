@@ -1429,6 +1429,22 @@
     .deploy-slot.selected .deploy-slot-img { width:100%; height:60px; object-fit:contain; display:block; margin:0 auto 0; }
     .deploy-slot-img { width:100%; height:127px; object-fit:contain; display:block; margin:0 auto 0px; }
     .deploy-slot-name { font-size:9px; font-weight:700; color:#eef3ff; text-align:center; }
+    /* 병사배치화면 — 가로 유닛 카드 + 막대 그래프 */
+    .duc { background:rgba(255,255,255,0.04); border:1px solid rgba(100,130,200,0.2); border-radius:10px; padding:6px 4px 5px; cursor:pointer; transition:border-color 0.2s; }
+    .duc:active { opacity:0.8; }
+    .duc.rarity-common    { border-color:rgba(169,182,214,0.5); }
+    .duc.rarity-uncommon  { border-color:rgba(99,208,154,0.55); }
+    .duc.rarity-rare      { border-color:rgba(99,168,255,0.55); }
+    .duc.rarity-epic      { border-color:rgba(178,125,255,0.55); }
+    .duc.rarity-legendary { border-color:rgba(255,207,99,0.65); }
+    .duc-img-wrap { height:46px; display:flex; align-items:center; justify-content:center; }
+    .duc-label { font-size:8px; color:#9fbfff; text-align:center; margin:2px 0 4px; }
+    .duc-empty .duc-label { color:#3a4a6a; }
+    .duc-bar-row { display:flex; align-items:center; gap:2px; margin-bottom:2px; }
+    .duc-bar-icon { font-size:9px; width:9px; flex-shrink:0; line-height:1; }
+    .duc-bar-bg { flex:1; height:4px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
+    .duc-bar-fill { height:100%; border-radius:2px; transition:width 0.35s ease; }
+    .duc-bar-val { font-size:8px; color:#7a90be; min-width:20px; text-align:right; line-height:1; }
     .deploy-slot-rarity { font-size:8px; font-weight:700; }
     .deploy-slot-empty-icon { font-size:24px; opacity:0.6; color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
     .deploy-slot-empty-label { font-size:8px; color:#ffffff; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
@@ -2361,22 +2377,17 @@
       <div id="heroSoldierPanel" class="modal-body" style="display:none; padding:6px 12px; grid-template-columns:unset !important;">
 
 
-        <!-- 1. 스탯 패널 — 장비탭과 동일 -->
-        <div class="stats-panel" style="margin-bottom:2px;">
-          <div class="cp-block">
-            <div class="cp-block-label">전투력</div>
-            <div class="cp-block-value" id="solCombatPower">0</div>
-            <div class="cp-block-sub">CP</div>
+        <!-- 1. 전투력 (영웅+병사 합산) + 배치 수 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 2px 4px;">
+          <div style="display:flex;align-items:baseline;gap:5px;">
+            <span style="font-size:10px;color:#7a90be;">전투력</span>
+            <span id="solCombatPower" style="font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;">0</span>
+            <span style="font-size:10px;color:#7a90be;">CP</span>
           </div>
-          <div class="stats-compact-row">
-            <div class="stats-compact-item"><span class="stats-compact-label">⚔️ 공격</span><span class="stats-compact-value" id="solStatsAtk">0</span></div>
-            <div class="stats-compact-item"><span class="stats-compact-label">🛡️ 방어</span><span class="stats-compact-value" id="solStatsDef">0</span></div>
-            <div class="stats-compact-item"><span class="stats-compact-label">❤️ 체력</span><span class="stats-compact-value" id="solStatsHp">0</span></div>
-            <div class="stats-compact-item"><span class="stats-compact-label">💨 속도</span><span class="stats-compact-value" id="solStatsSpeed">0</span></div>
-            <div class="stats-compact-item"><span class="stats-compact-label">✨ 치명</span><span class="stats-compact-value" id="solStatsCrit">0%</span></div>
-            <div class="stats-compact-item"><span class="stats-compact-label">🪖 배치</span><span class="stats-compact-value" id="deploySlotCount">0/0</span></div>
-          </div>
+          <span style="font-size:10px;color:#7a90be;">배치 <span id="deploySlotCount">0/0</span></span>
         </div>
+        <!-- 2. 가로 병사 카드 [슬롯3 후열][슬롯0 전열상][슬롯1 전열중][슬롯2 전열하] -->
+        <div id="deployUnitCards" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:4px;"></div>
 
         <!-- 2. 배치된 병사 영역 — 전투씬 포메이션과 동일 배치 -->
         <div id="deployStage" style="
@@ -7361,9 +7372,62 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     else closeSoldierPanel();
   }
 
+  // 레벨 기반 스탯 상한치 (전설 최강 클래스 기준)
+  function getDeployStatCeilings() {
+    const lv = state.level || 1;
+    const legendMult = SOLDIER_RARITY_DATA.legendary.mult;
+    let maxAtk = 1, maxDef = 1, maxHp = 1;
+    for (const cd of Object.values(SOLDIER_CLASS_DATA)) {
+      maxAtk = Math.max(maxAtk, (cd.stats.atk + cd.growth.atk * lv) * legendMult);
+      maxDef = Math.max(maxDef, (cd.stats.def + cd.growth.def * lv) * legendMult);
+      maxHp  = Math.max(maxHp,  (cd.stats.hp  + cd.growth.hp  * lv) * legendMult);
+    }
+    return { atk: Math.round(maxAtk), def: Math.round(maxDef), hp: Math.round(maxHp) };
+  }
+
+  // 가로 병사 카드 [슬롯3 후열][슬롯0 전열상][슬롯1 전열중][슬롯2 전열하]
+  function renderDeployUnitCards() {
+    const container = document.getElementById('deployUnitCards');
+    if (!container) return;
+    const ceil = getDeployStatCeilings();
+    const ORDER  = [3, 0, 1, 2];
+    const LABELS = ['후열', '전열상', '전열중', '전열하'];
+
+    function barRow(icon, val, max, color) {
+      const pct = val > 0 ? Math.min(100, Math.round(val / max * 100)) : 0;
+      return `<div class="duc-bar-row">
+        <div class="duc-bar-icon">${icon}</div>
+        <div class="duc-bar-bg"><div class="duc-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+        <div class="duc-bar-val">${val > 0 ? val : '-'}</div>
+      </div>`;
+    }
+
+    container.innerHTML = ORDER.map((si, col) => {
+      const sol = deployedSoldiers[si];
+      const label = LABELS[col];
+      if (sol) {
+        const s = sol.stats || calcSoldierStats(sol.cls, sol.rarity);
+        return `<div class="duc rarity-${sol.rarity}" onclick="openSoldierDetail(${si},'deployed')">
+          <div class="duc-img-wrap"><img src="${sol.img}" style="height:44px;object-fit:contain;" onerror="this.style.opacity=0"></div>
+          <div class="duc-label">${label}</div>
+          ${barRow('⚔', s.atk||0, ceil.atk, '#ff7a5a')}
+          ${barRow('🛡', s.def||0, ceil.def, '#63a8ff')}
+          ${barRow('♥', s.hp||0,  ceil.hp,  '#63d09a')}
+        </div>`;
+      } else {
+        return `<div class="duc duc-empty" onclick="openSoldierDetail(${si},'empty')">
+          <div class="duc-img-wrap" style="color:#3a4a6a;font-size:22px;">+</div>
+          <div class="duc-label">${label}</div>
+          ${barRow('⚔', 0, ceil.atk, '#ff7a5a')}
+          ${barRow('🛡', 0, ceil.def, '#63a8ff')}
+          ${barRow('♥', 0, ceil.hp,  '#63d09a')}
+        </div>`;
+      }
+    }).join('');
+  }
+
   // 배치 슬롯 렌더
   function renderSoldierDeployPanel() {
-    const stats   = getHeroBaseStats();
     const TOTAL   = MAX_DEPLOY_SLOTS;
 
     const slotsEl    = document.getElementById('deploySlots');
@@ -7371,24 +7435,20 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const invCountEl = document.getElementById('soldierInvCount');
     if (!slotsEl) return;
 
-    // ── 스탯 패널 업데이트 ──────────────────────────────────
-    const cp = calcCombatPower(stats);
-    const setEl = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-    setEl('solCombatPower', cp.toLocaleString());
-    setEl('solStatsAtk',   stats.atk);
-    setEl('solStatsDef',   stats.def);
-    setEl('solStatsHp',    stats.hp);
-    setEl('solStatsSpeed', stats.speed);
-    const critEl2 = document.getElementById('solStatsCrit');
-    if (critEl2) critEl2.textContent = `${stats.crit}%`;
-
     // 항상 TOTAL 크기 유지
     while (deployedSoldiers.length < TOTAL) deployedSoldiers.push(null);
     deployedSoldiers = deployedSoldiers.slice(0, TOTAL);
 
+    // ── CP + 배치 수 ─────────────────────────────────────────
+    const cp = calcCombatPower(getHeroBaseStats());
+    const setEl = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+    setEl('solCombatPower', cp.toLocaleString());
     const filled = deployedSoldiers.filter(Boolean).length;
     setEl('deploySlotCount', `${filled}/${TOTAL}`);
     if (invCountEl) invCountEl.textContent = `${soldierInventory.length}명`;
+
+    // ── 가로 유닛 카드 렌더 ────────────────────────────────────
+    renderDeployUnitCards();
 
     // ── 배치 슬롯 렌더 (전투씬 포메이션 위치와 동일) ──────────
     slotsEl.innerHTML = DEPLOY_SLOT_DEFS.map((slotDef, i) => {
