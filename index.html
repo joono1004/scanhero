@@ -1451,13 +1451,21 @@
     .deploy-slot-remove {
       display:none;
     }
-    .slot-undeploy-btn {
-      width:100%; margin-top:3px; padding:2px 0;
-      font-size:9px; font-weight:700; color:#c8a8a8;
-      background:rgba(180,60,60,0.18); border:1px solid rgba(180,80,80,0.35);
-      border-radius:5px; cursor:pointer; letter-spacing:0.3px;
+    .deploy-slot-action {
+      display:none;
+      position:absolute; left:0; right:0;
+      bottom:38px; /* 능력치 바 위 */
+      padding:4px 6px;
+      background:#2a5fc4;
+      border-radius:6px 6px 0 0;
+      z-index:5;
     }
-    .slot-undeploy-btn:hover { background:rgba(220,60,60,0.35); color:#fff; }
+    .deploy-slot.selected .deploy-slot-action { display:flex; align-items:center; justify-content:center; }
+    .slot-undeploy-btn {
+      width:100%; padding:3px 0;
+      font-size:9px; font-weight:800; color:#fff;
+      background:none; border:none; cursor:pointer; letter-spacing:0.5px;
+    }
 
     /* 병사 보관함 */
     .soldier-inventory-title {
@@ -7467,7 +7475,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // ── 가로 배치 슬롯 렌더 [slot3][slot0][slot1][slot2] ─────
     slotsEl.innerHTML = DEPLOY_SLOT_DEFS.map((slotDef, i) => {
       const pos = DEPLOY_PANEL_POS[i];
-      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:86px;height:188px;`;
+      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:86px;height:170px;`;
       const sol = deployedSoldiers[i];
       // 스탯은 항상 현재 레벨로 재계산
       const s = sol ? calcSoldierStats(sol.cls, sol.rarity) : null;
@@ -7492,7 +7500,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
             ${barRow('💨', s.speed||0, ceil.spd,  '#ffd460')}
             ${barRow('✨', s.crit||0,  ceil.crit, '#d09aff')}
           </div>
-          <button class="slot-undeploy-btn" data-undeploy-slot="${i}" onclick="event.stopPropagation();undeploySlot(${i})">해제</button>
+          <div class="deploy-slot-action">
+            <button class="slot-undeploy-btn" onclick="event.stopPropagation();undeploySlot(${i})">해제</button>
+          </div>
         </div>`;
       } else {
         return `<div class="deploy-slot empty" data-slot-idx="${i}"
