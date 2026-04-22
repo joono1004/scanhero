@@ -1401,18 +1401,21 @@
     .deploy-slot.filled.rarity-rare      { border:2px solid rgba(99,168,255,0.7);  background:rgba(10,20,40,0.35); }
     .deploy-slot.filled.rarity-epic      { border:2px solid rgba(178,125,255,0.7); background:rgba(20,10,40,0.35); }
     .deploy-slot.filled.rarity-legendary {
-      border:3px solid rgba(255,207,99,1) !important;
+      border:2px solid rgba(255,207,99,0.7) !important;
       background:rgba(40,30,10,0.6) !important;
+    }
+    .deploy-slot.filled.rarity-legendary.selected {
+      border:3px solid rgba(255,207,99,1) !important;
       animation: slotShimmer 2s ease-in-out infinite !important;
     }
-    .deploy-slot.filled.rarity-legendary::before {
+    .deploy-slot.filled.rarity-legendary.selected::before {
       content: '✦'; position:absolute; top:-6px; right:-4px;
       font-size:11px; color:#ffe39c;
       text-shadow:0 0 6px rgba(255,207,99,0.9);
       animation:sparkle1 1.8s ease-in-out infinite;
       pointer-events:none; z-index:20;
     }
-    .deploy-slot.filled.rarity-legendary::after {
+    .deploy-slot.filled.rarity-legendary.selected::after {
       content: '✦'; position:absolute; top:-4px; left:-4px;
       font-size:8px; color:#ffd97a;
       text-shadow:0 0 5px rgba(255,207,99,0.8);
