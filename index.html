@@ -9993,7 +9993,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   });
   // soldierDeployBtn — onclick으로 처리
 
-  [els.scanModalBackdrop,els.mapBackdrop,els.mapHistoryBackdrop,els.decodeBackdrop,els.exploreLogBackdrop,els.heroStatsBackdrop,els.eventModalBackdrop,els.battleBackdrop,els.itemDetailBackdrop].forEach(bd=>{
+  [els.scanModalBackdrop,els.mapBackdrop,els.mapHistoryBackdrop,els.decodeBackdrop,els.exploreLogBackdrop,els.eventModalBackdrop,els.battleBackdrop,els.itemDetailBackdrop].forEach(bd=>{
     bd.addEventListener('click', async e=>{
       if (e.target===bd && bd!==els.eventModalBackdrop && bd!==els.battleBackdrop) {
         if (bd===els.scanModalBackdrop) await stopCameraScanner();
