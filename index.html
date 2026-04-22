@@ -2378,18 +2378,24 @@
           </div>
         </div>
 
-        <!-- 2. 배치된 병사 영역 — 도감(288px)과 동일 -->
+        <!-- 2. 배치된 병사 영역 — 전투씬 포메이션과 동일 배치 -->
         <div id="deployStage" style="
           width:100%; height:288px; border-radius:16px; overflow:hidden;
-          display:flex; flex-direction:column; justify-content:flex-end;
+          position:relative;
           background:url('https://joono1004.github.io/scanhero/assets/bg/barracks_bg.png') center/cover no-repeat,
             radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
           border:1px solid rgba(100,130,200,0.22); margin-bottom:2px;
         ">
-          <div id="deploySlots" style="
-            display:grid; grid-template-columns:repeat(3,75px); gap:4px;
-            padding:4px; flex-shrink:0; justify-content:center;
-          "></div>
+          <!-- 포메이션 가이드 라벨 -->
+          <div style="position:absolute;top:6px;right:8px;font-size:9px;color:rgba(160,180,220,0.55);pointer-events:none;line-height:1.6;">
+            후열<br>중열<br>전열
+          </div>
+          <!-- 영웅 위치 마커 (고정) -->
+          <div id="deployHeroMarker" style="position:absolute;left:4px;bottom:24px;z-index:3;width:54px;text-align:center;pointer-events:none;">
+            <div style="font-size:30px;line-height:1;filter:drop-shadow(0 0 8px rgba(79,124,255,0.9));">⚔️</div>
+            <div style="font-size:8px;color:#9fbfff;margin-top:2px;text-shadow:0 1px 3px rgba(0,0,0,0.9);">영웅</div>
+          </div>
+          <div id="deploySlots" style="position:absolute;inset:0;"></div>
         </div>
 
         <!-- 3. 보관 병사 — 인벤토리(150px)와 동일, 3열 카드형 -->
@@ -7379,18 +7385,21 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     setEl('deploySlotCount', `${filled}/${TOTAL}`);
     if (invCountEl) invCountEl.textContent = `${soldierInventory.length}명`;
 
-    // ── 배치 슬롯 렌더 (3칸 자유 선택) ──────────────────────
+    // ── 배치 슬롯 렌더 (전투씬 포메이션 위치와 동일) ──────────
     slotsEl.innerHTML = DEPLOY_SLOT_DEFS.map((slotDef, i) => {
+      const pos = DEPLOY_PANEL_POS[i];
+      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:54px;height:70px;`;
       const sol = deployedSoldiers[i];
       if (sol) {
         return `<div class="deploy-slot filled rarity-${sol.rarity}"
-            data-slot-idx="${i}" draggable="true" style="cursor:grab;"
+            data-slot-idx="${i}" draggable="true" style="cursor:grab;${posStyle}"
             onclick="openSoldierDetail(${i}, 'deployed')">
-          <img class="deploy-slot-img" src="${sol.img}" onerror="this.style.opacity=0">
+          <img class="deploy-slot-img" src="${sol.img}" style="height:50px;" onerror="this.style.opacity=0">
+          <button class="deploy-slot-remove" data-remove-slot="${i}">✕</button>
         </div>`;
       } else {
         return `<div class="deploy-slot empty" data-slot-idx="${i}"
-            onclick="openSoldierDetail(${i}, 'empty')">
+            style="${posStyle}" onclick="openSoldierDetail(${i}, 'empty')">
           <div class="deploy-slot-empty-icon">+</div>
           <div class="deploy-slot-empty-label">${slotDef.label}</div>
         </div>`;
@@ -8347,6 +8356,15 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     { slot:2, style:'left:127px;bottom:50px;'  },
     { slot:3, style:'left:43px;bottom:250px;'  },
   ];
+  // 영웅병사화면 배치 슬롯 위치 (전투씬 포메이션과 동일 구조, 288px stage 기준)
+  // 포메이션: [슬3][슬0] / [  ][슬1] / [영웅][슬2]
+  const DEPLOY_PANEL_POS = [
+    { left:'130px', bottom:'200px' }, // slot0: 후열 우
+    { left:'130px', bottom:'112px' }, // slot1: 중열 우
+    { left:'130px', bottom:'24px'  }, // slot2: 전열 우
+    { left:'68px',  bottom:'200px' }, // slot3: 후열 좌
+  ];
+
   const EXT_ENEMY_POS = [
     'right:127px;bottom:250px;',
     'right:127px;bottom:150px;',
