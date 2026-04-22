@@ -1376,6 +1376,7 @@
     @keyframes soldierBounce{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-3px);} }
     @keyframes shadowPulse { 0%,100%{transform:scale(1);opacity:.58;} 50%{transform:scale(.92);opacity:.36;} }
     @keyframes sparkleMove { 0%,100%{transform:translateY(0);opacity:.85;} 50%{transform:translateY(-4px);opacity:1;} }
+    @keyframes sparkle1    { 0%,100%{opacity:.7;transform:scale(1) rotate(0deg);} 50%{opacity:1;transform:scale(1.3) rotate(20deg);} }
 
     /* ── 병사 배치 패널 ── */
     .soldier-deploy-wrap { display:flex; flex-direction:column; gap:8px; }
@@ -1396,39 +1397,54 @@
       background:rgba(0,0,0,0.5);
       cursor:not-allowed; opacity:0.7;
     }
-    .deploy-slot.filled.rarity-common    { border:2px solid rgba(169,182,214,0.7); background:rgba(20,28,50,0.35); }
-    .deploy-slot.filled.rarity-uncommon  { border:2px solid rgba(99,208,154,0.7);  background:rgba(10,30,18,0.35); }
-    .deploy-slot.filled.rarity-rare      { border:2px solid rgba(99,168,255,0.7);  background:rgba(10,20,40,0.35); }
-    .deploy-slot.filled.rarity-epic      { border:2px solid rgba(178,125,255,0.7); background:rgba(20,10,40,0.35); }
+    /* ── 등급별 미선택 ── */
+    .deploy-slot.filled.rarity-common   { border:2px solid rgba(169,182,214,0.7); background:rgba(20,28,50,0.35); }
+    .deploy-slot.filled.rarity-uncommon { border:2px solid rgba(99,208,154,0.7);  background:rgba(10,30,18,0.35); }
+    .deploy-slot.filled.rarity-rare     { border:2px solid rgba(99,168,255,0.7);  background:rgba(10,20,40,0.35); }
+    .deploy-slot.filled.rarity-epic     { border:2px solid rgba(178,125,255,0.7); background:rgba(20,10,40,0.35); }
     .deploy-slot.filled.rarity-legendary {
       border:2px solid rgba(255,207,99,0.7) !important;
       background:rgba(40,30,10,0.6) !important;
+      animation:slotShimmer 2s ease-in-out infinite !important;
     }
-    .deploy-slot.filled.rarity-legendary.selected {
-      border:3px solid rgba(255,207,99,1) !important;
-      animation: slotShimmer 2s ease-in-out infinite !important;
+    /* 전설 스파클 — 항상 */
+    .deploy-slot.filled.rarity-legendary::before {
+      content:'✦'; position:absolute; top:-6px; right:-4px;
+      font-size:11px; color:#ffe39c; text-shadow:0 0 6px rgba(255,207,99,0.9);
+      animation:sparkle1 1.8s ease-in-out infinite; pointer-events:none; z-index:20;
     }
-    .deploy-slot.filled.rarity-legendary.selected::before {
-      content: '✦'; position:absolute; top:-6px; right:-4px;
-      font-size:11px; color:#ffe39c;
-      text-shadow:0 0 6px rgba(255,207,99,0.9);
-      animation:sparkle1 1.8s ease-in-out infinite;
-      pointer-events:none; z-index:20;
-    }
-    .deploy-slot.filled.rarity-legendary.selected::after {
-      content: '✦'; position:absolute; top:-4px; left:-4px;
-      font-size:8px; color:#ffd97a;
-      text-shadow:0 0 5px rgba(255,207,99,0.8);
-      animation:sparkle1 1.8s ease-in-out infinite 0.9s;
-      pointer-events:none; z-index:20;
+    .deploy-slot.filled.rarity-legendary::after {
+      content:'✦'; position:absolute; top:-4px; left:-4px;
+      font-size:8px; color:#ffd97a; text-shadow:0 0 5px rgba(255,207,99,0.8);
+      animation:sparkle1 1.8s ease-in-out infinite 0.9s; pointer-events:none; z-index:20;
     }
     @keyframes slotShimmer {
       0%,100% { box-shadow:0 0 6px 2px rgba(255,207,99,0.6), inset 0 0 6px rgba(255,207,99,0.1); }
       50%      { box-shadow:0 0 18px 4px rgba(255,207,99,1.0), inset 0 0 10px rgba(255,207,99,0.3); }
     }
+    /* ── 등급별 선택 — 등급색 짙게 ── */
+    .deploy-slot.selected { border-style:solid !important; }
+    .deploy-slot.filled.rarity-common.selected {
+      border:2px solid rgba(169,182,214,1) !important; background:rgba(15,22,48,0.92) !important;
+      box-shadow:0 0 8px rgba(169,182,214,0.45);
+    }
+    .deploy-slot.filled.rarity-uncommon.selected {
+      border:2px solid rgba(99,208,154,1) !important; background:rgba(5,28,16,0.92) !important;
+      box-shadow:0 0 8px rgba(99,208,154,0.45);
+    }
+    .deploy-slot.filled.rarity-rare.selected {
+      border:2px solid rgba(99,168,255,1) !important; background:rgba(5,15,52,0.92) !important;
+      box-shadow:0 0 8px rgba(99,168,255,0.45);
+    }
+    .deploy-slot.filled.rarity-epic.selected {
+      border:2px solid rgba(178,125,255,1) !important; background:rgba(18,5,46,0.92) !important;
+      box-shadow:0 0 8px rgba(178,125,255,0.45);
+    }
+    .deploy-slot.filled.rarity-legendary.selected {
+      border:3px solid rgba(255,207,99,1) !important; background:rgba(40,28,5,0.9) !important;
+    }
     .deploy-slot.filled:hover { border-color:rgba(200,220,255,0.6); }
     .deploy-slot.drag-over { border-color:#ffcf63 !important; background:rgba(255,207,99,0.15) !important; transform:scale(1.05); }
-    .deploy-slot.selected { border-color:#4f7cff !important; border-style:solid !important; box-shadow:0 0 0 2px rgba(79,124,255,0.4); background:rgba(20,35,80,0.85) !important; }
     .deploy-slot.selected .deploy-slot-img { width:100%; height:60px; object-fit:contain; display:block; margin:0 auto 0; }
     .deploy-slot-img { width:100%; height:86px; object-fit:contain; display:block; margin:0 auto 0px; }
     .deploy-slot-name { font-size:9px; font-weight:700; color:#eef3ff; text-align:center; }
