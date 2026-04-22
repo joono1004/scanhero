@@ -2392,10 +2392,6 @@
           </div>
           <span style="font-size:10px;color:#7a90be;">배치 <span id="deploySlotCount">0/0</span></span>
         </div>
-        <!-- 네비게이터 — 패널 우상단 절대 위치 (deployStage 밖) -->
-        <div id="deployNav" style="position:absolute;top:5px;right:12px;width:76px;height:86px;
-          background:rgba(0,0,0,0.65);border-radius:8px;border:1px solid rgba(100,130,200,0.35);
-          pointer-events:none;z-index:30;"></div>
         <!-- 2. 가로 병사 카드 [슬롯3 후열][슬롯0 전열상][슬롯1 전열중][슬롯2 전열하] -->
         <div id="deployStage" style="
           width:100%; height:288px; border-radius:16px; overflow:hidden;
@@ -2404,6 +2400,10 @@
             radial-gradient(ellipse at 50% 52%, rgba(50,75,150,0.5) 0%, rgba(10,15,35,0.9) 100%);
           border:1px solid rgba(100,130,200,0.22); margin-bottom:2px;
         ">
+          <!-- 네비게이터 — deployStage 우상단 1px 여백 -->
+          <div id="deployNav" style="position:absolute;top:1px;right:1px;width:76px;height:86px;
+            background:rgba(0,0,0,0.65);border-radius:8px;border:1px solid rgba(100,130,200,0.35);
+            pointer-events:none;z-index:10;"></div>
           <div id="deploySlots" style="position:absolute;inset:0;"></div>
         </div>
 
