@@ -1427,7 +1427,7 @@
     .deploy-slot.drag-over { border-color:#ffcf63 !important; background:rgba(255,207,99,0.15) !important; transform:scale(1.05); }
     .deploy-slot.selected { border-color:#4f7cff !important; border-style:solid !important; box-shadow:0 0 0 2px rgba(79,124,255,0.4); background:rgba(20,35,80,0.85) !important; }
     .deploy-slot.selected .deploy-slot-img { width:100%; height:60px; object-fit:contain; display:block; margin:0 auto 0; }
-    .deploy-slot-img { width:100%; height:127px; object-fit:contain; display:block; margin:0 auto 0px; }
+    .deploy-slot-img { width:100%; height:86px; object-fit:contain; display:block; margin:0 auto 0px; }
     .deploy-slot-name { font-size:9px; font-weight:700; color:#eef3ff; text-align:center; }
     /* 병사배치화면 — 가로 유닛 카드 + 막대 그래프 */
     .duc { background:rgba(255,255,255,0.04); border:1px solid rgba(100,130,200,0.2); border-radius:10px; padding:6px 4px 5px; cursor:pointer; transition:border-color 0.2s; }
@@ -7466,7 +7466,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // ── 가로 배치 슬롯 렌더 [slot3][slot0][slot1][slot2] ─────
     slotsEl.innerHTML = DEPLOY_SLOT_DEFS.map((slotDef, i) => {
       const pos = DEPLOY_PANEL_POS[i];
-      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:86px;height:195px;`;
+      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:86px;height:155px;`;
       const sol = deployedSoldiers[i];
       // 스탯은 항상 현재 레벨로 재계산
       const s = sol ? calcSoldierStats(sol.cls, sol.rarity) : null;
