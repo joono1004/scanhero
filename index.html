@@ -2313,8 +2313,9 @@
   <!-- 영웅 상세 -->
   <div class="modal-backdrop" id="heroStatsBackdrop">
     <div class="modal">
-      <div class="modal-head">
-        <div class="modal-title" id="heroStatsTitle" style="font-size:13px;"></div>
+      <div class="modal-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div id="heroModalPanelTitle" style="font-size:16px;font-weight:900;color:#e8eeff;white-space:nowrap;">영웅 정보</div>
+        <div id="heroStatsTitle" style="font-size:12px;text-align:right;color:#a9b6d6;"></div>
       </div>
 
       <!-- ── 장비 패널 ── -->
@@ -6814,6 +6815,12 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   function formatHeroTopTitle(stats) { return `${state.heroName} ${stats.emblem||''} ${stats.rank} Lv ${state.level}`; }
 
+  const HERO_CLASS_ICON = { '전사':'⚔️', '궁병':'🏹', '마법사':'🔮' };
+  function formatHeroHeaderInfo() {
+    const icon = HERO_CLASS_ICON[state.heroClass] || '🧙';
+    return `${state.heroName} · ${icon} ${state.heroClass} · Lv.${state.level}`;
+  }
+
 
   // ═══════════════════════════════════════════════════════
   // 영웅 정보 화면 배경 — 시간대 + 지형 테마
@@ -7352,6 +7359,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     window._deploySelected = null;
     document.getElementById('heroEquipPanel').style.display   = 'none';
     document.getElementById('heroSoldierPanel').style.display = '';
+    const t = document.getElementById('heroModalPanelTitle');
+    if (t) t.textContent = '병사 배치';
     renderSoldierDeployPanel();
   }
 
@@ -7359,6 +7368,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     window._deploySelected = null;
     document.getElementById('heroSoldierPanel').style.display = 'none';
     document.getElementById('heroEquipPanel').style.display   = '';
+    const t = document.getElementById('heroModalPanelTitle');
+    if (t) t.textContent = '영웅 정보';
     refreshEquipStats(); // 병사 배치 변경사항을 장비창 스탯에 반영
   }
 
@@ -7644,7 +7655,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // 장비창 스탯 수치만 갱신 (모달 열지 않음)
   function refreshEquipStats() {
     const stats = getHeroBaseStats();
-    els.heroStatsTitle.textContent   = formatHeroTopTitle(stats);
+    els.heroStatsTitle.textContent   = formatHeroHeaderInfo();
     els.heroCombatPower.textContent  = calcCombatPower(stats).toLocaleString();
     const sb = stats.solBonus || {};
     const setBonus = (el, total, bonus) => {
