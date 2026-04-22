@@ -1454,18 +1454,20 @@
     .deploy-slot-action {
       display:none;
       position:absolute; left:0; right:0;
-      bottom:38px; /* 능력치 바 위 */
-      padding:4px 6px;
-      background:#2a5fc4;
-      border-radius:6px 6px 0 0;
+      bottom:18px;
+      padding:0 6px;
       z-index:5;
     }
     .deploy-slot.selected .deploy-slot-action { display:flex; align-items:center; justify-content:center; }
     .slot-undeploy-btn {
-      width:100%; padding:3px 0;
-      font-size:9px; font-weight:800; color:#fff;
-      background:none; border:none; cursor:pointer; letter-spacing:0.5px;
+      width:100%; padding:5px 0;
+      font-size:10px; font-weight:800; color:#fff;
+      background:linear-gradient(135deg, #e8405a, #c42840);
+      border:none; border-radius:50px;
+      cursor:pointer; letter-spacing:0.5px;
+      box-shadow:0 2px 8px rgba(200,40,60,0.5);
     }
+    .slot-undeploy-btn:hover { background:linear-gradient(135deg, #ff5570, #e03050); }
 
     /* 병사 보관함 */
     .soldier-inventory-title {
@@ -7501,7 +7503,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
             ${barRow('✨', s.crit||0,  ceil.crit, '#d09aff')}
           </div>
           <div class="deploy-slot-action">
-            <button class="slot-undeploy-btn" onclick="event.stopPropagation();undeploySlot(${i})">해제</button>
+            <button class="slot-undeploy-btn" onclick="event.stopPropagation();undeploySlot(${i})">🔓 해제</button>
           </div>
         </div>`;
       } else {
