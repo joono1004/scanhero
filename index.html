@@ -6238,23 +6238,23 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // 병사 클래스 정의
   const SOLDIER_CLASS_DATA = {
     검병:  { icon:'⚔️', img:'swordsman.png',  desc:'공격/체력/속도 특화',
-             stats:{ atk:10, def:0,  hp:50,  speed:6,  crit:0  },
-             growth:{ atk:2.0, def:0,  hp:10, speed:0.5, crit:0  } },
+             stats:{ atk:10, def:3,  hp:50,  speed:6,  crit:3  },
+             growth:{ atk:2.0, def:0.3, hp:10, speed:0.5, crit:0.1 } },
     궁병:  { icon:'🏹', img:'archer.png',     desc:'공격/속도/치명 특화',
-             stats:{ atk:9,  def:0,  hp:0,   speed:10, crit:10 },
-             growth:{ atk:1.8, def:0,  hp:0,  speed:0.8, crit:0.6 } },
+             stats:{ atk:9,  def:2,  hp:25,  speed:10, crit:10 },
+             growth:{ atk:1.8, def:0.2, hp:4,  speed:0.8, crit:0.6 } },
     방패병: { icon:'🛡️', img:'shielder.png',  desc:'방어/체력 특화',
-             stats:{ atk:0,  def:12, hp:80,  speed:0,  crit:0  },
-             growth:{ atk:0,  def:2.5, hp:15, speed:0,  crit:0  } },
+             stats:{ atk:3,  def:12, hp:80,  speed:2,  crit:2  },
+             growth:{ atk:0.3, def:2.5, hp:15, speed:0.1, crit:0  } },
     창병:  { icon:'🔱', img:'spearman.png',   desc:'공격/방어/체력 특화',
-             stats:{ atk:7,  def:8,  hp:60,  speed:0,  crit:0  },
-             growth:{ atk:1.5, def:1.5, hp:12, speed:0,  crit:0  } },
+             stats:{ atk:7,  def:8,  hp:60,  speed:3,  crit:3  },
+             growth:{ atk:1.5, def:1.5, hp:12, speed:0.2, crit:0.1 } },
     기마병: { icon:'🐴', img:'cavalry.png',   desc:'공격/속도 특화 (Lv.30 해금)',
              stats:{ atk:14, def:5,  hp:40,  speed:12, crit:5  },
-             growth:{ atk:2.5, def:1.0, hp:8, speed:1.2, crit:0.3 } },
+             growth:{ atk:2.5, def:1.0, hp:8,  speed:1.2, crit:0.3 } },
     마법사: { icon:'🔮', img:'mage.png',      desc:'공격/치명 특화 (Lv.40 해금)',
-             stats:{ atk:18, def:0,  hp:20,  speed:5,  crit:15 },
-             growth:{ atk:3.0, def:0,  hp:5,  speed:0.3, crit:1.0 } },
+             stats:{ atk:18, def:2,  hp:20,  speed:5,  crit:15 },
+             growth:{ atk:3.0, def:0.2, hp:5,  speed:0.3, crit:1.0 } },
   };
 
   // 병사 등급 설정
@@ -7367,13 +7367,18 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   function getDeployStatCeilings() {
     const lv = state.level || 1;
     const legendMult = SOLDIER_RARITY_DATA.legendary.mult;
-    let maxAtk = 1, maxDef = 1, maxHp = 1;
+    let maxAtk=1, maxDef=1, maxHp=1, maxSpd=1, maxCrit=1;
     for (const cd of Object.values(SOLDIER_CLASS_DATA)) {
-      maxAtk = Math.max(maxAtk, (cd.stats.atk + cd.growth.atk * lv) * legendMult);
-      maxDef = Math.max(maxDef, (cd.stats.def + cd.growth.def * lv) * legendMult);
-      maxHp  = Math.max(maxHp,  (cd.stats.hp  + cd.growth.hp  * lv) * legendMult);
+      maxAtk  = Math.max(maxAtk,  (cd.stats.atk   + cd.growth.atk   * lv) * legendMult);
+      maxDef  = Math.max(maxDef,  (cd.stats.def   + cd.growth.def   * lv) * legendMult);
+      maxHp   = Math.max(maxHp,   (cd.stats.hp    + cd.growth.hp    * lv) * legendMult);
+      maxSpd  = Math.max(maxSpd,  (cd.stats.speed + cd.growth.speed * lv) * legendMult);
+      maxCrit = Math.max(maxCrit, (cd.stats.crit  + cd.growth.crit  * lv) * legendMult);
     }
-    return { atk: Math.round(maxAtk), def: Math.round(maxDef), hp: Math.round(maxHp) };
+    return {
+      atk: Math.round(maxAtk), def: Math.round(maxDef), hp: Math.round(maxHp),
+      spd: Math.round(maxSpd), crit: Math.round(maxCrit),
+    };
   }
 
   // 네비게이터: 전투씬 포메이션 미니맵 (선택 슬롯 강조)
@@ -7445,7 +7450,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // ── 가로 배치 슬롯 렌더 [slot3][slot0][slot1][slot2] ─────
     slotsEl.innerHTML = DEPLOY_SLOT_DEFS.map((slotDef, i) => {
       const pos = DEPLOY_PANEL_POS[i];
-      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:70px;height:145px;`;
+      const posStyle = `position:absolute;left:${pos.left};bottom:${pos.bottom};width:80px;height:190px;`;
       const sol = deployedSoldiers[i];
       // 스탯은 항상 현재 레벨로 재계산
       const s = sol ? calcSoldierStats(sol.cls, sol.rarity) : null;
@@ -7453,24 +7458,28 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         return `<div class="deploy-slot filled rarity-${sol.rarity}"
             data-slot-idx="${i}" draggable="true" style="cursor:grab;${posStyle}"
             onclick="openSoldierDetail(${i}, 'deployed')">
-          <img class="deploy-slot-img" src="${sol.img}" style="height:75px;" onerror="this.style.opacity=0">
+          <img class="deploy-slot-img" src="${sol.img}" style="height:112px;" onerror="this.style.opacity=0">
           <button class="deploy-slot-remove" data-remove-slot="${i}">✕</button>
           <div class="duc-label" style="margin:1px 0 2px;">${slotDef.label}</div>
           <div style="width:100%;padding:3px 4px;background:rgba(0,0,0,0.45);border-radius:5px;">
-            ${barRow('⚔', s.atk||0, ceil.atk, '#ff7a5a')}
-            ${barRow('🛡', s.def||0, ceil.def, '#63a8ff')}
-            ${barRow('♥', s.hp||0,  ceil.hp,  '#63d09a')}
+            ${barRow('⚔', s.atk||0,   ceil.atk,  '#ff7a5a')}
+            ${barRow('🛡', s.def||0,   ceil.def,  '#63a8ff')}
+            ${barRow('♥', s.hp||0,    ceil.hp,   '#63d09a')}
+            ${barRow('💨', s.speed||0, ceil.spd,  '#ffd460')}
+            ${barRow('✨', s.crit||0,  ceil.crit, '#d09aff')}
           </div>
         </div>`;
       } else {
         return `<div class="deploy-slot empty" data-slot-idx="${i}"
             style="${posStyle}" onclick="openSoldierDetail(${i}, 'empty')">
-          <div class="deploy-slot-empty-icon" style="font-size:28px;margin-top:12px;">+</div>
+          <div class="deploy-slot-empty-icon" style="font-size:28px;margin-top:24px;">+</div>
           <div class="duc-label" style="margin:2px 0 2px;">${slotDef.label}</div>
           <div style="width:100%;padding:3px 4px;background:rgba(0,0,0,0.3);border-radius:5px;">
-            ${barRow('⚔', 0, ceil.atk, '#ff7a5a')}
-            ${barRow('🛡', 0, ceil.def, '#63a8ff')}
-            ${barRow('♥', 0, ceil.hp,  '#63d09a')}
+            ${barRow('⚔', 0, ceil.atk,  '#ff7a5a')}
+            ${barRow('🛡', 0, ceil.def,  '#63a8ff')}
+            ${barRow('♥', 0, ceil.hp,   '#63d09a')}
+            ${barRow('💨', 0, ceil.spd,  '#ffd460')}
+            ${barRow('✨', 0, ceil.crit, '#d09aff')}
           </div>
         </div>`;
       }
@@ -8429,12 +8438,12 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   // 영웅병사화면 배치 슬롯 위치 (전투씬 포메이션과 동일 구조, 288px stage 기준)
   // 포메이션: [슬3][슬0] / [  ][슬1] / [영웅][슬2]
   // 가로 배치: [slot3 후열][slot0 전열상][slot1 전열중][slot2 전열하]
-  // 각 슬롯은 25% 컬럼 중앙, bottom은 통일 (막대바 포함 높이 고려)
+  // 슬롯 폭 80px → 각 25% 컬럼 중앙에서 -40px
   const DEPLOY_PANEL_POS = [
-    { left:'calc(37.5% - 35px)', bottom:'5px' }, // slot0: 전열상 (col 1)
-    { left:'calc(62.5% - 35px)', bottom:'5px' }, // slot1: 전열중 (col 2)
-    { left:'calc(87.5% - 35px)', bottom:'5px' }, // slot2: 전열하 (col 3)
-    { left:'calc(12.5% - 35px)', bottom:'5px' }, // slot3: 후열   (col 0)
+    { left:'calc(37.5% - 40px)', bottom:'5px' }, // slot0: 전열상 (col 1)
+    { left:'calc(62.5% - 40px)', bottom:'5px' }, // slot1: 전열중 (col 2)
+    { left:'calc(87.5% - 40px)', bottom:'5px' }, // slot2: 전열하 (col 3)
+    { left:'calc(12.5% - 40px)', bottom:'5px' }, // slot3: 후열   (col 0)
   ];
 
   const EXT_ENEMY_POS = [
