@@ -8370,7 +8370,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const helmBase   = stripRarity(eq.helmet?.baseName || eq.helmet?.name || '');
     const capeBase   = stripRarity(eq.cloak?.baseName  || eq.cloak?.name  || '');
     const weaponBase = stripRarity(eq.weapon?.baseName || eq.weapon?.name || '');
-    console.log('[영상매핑] 클래스:', cls, '/ 갑옷:', armorBase, '/ 투구:', helmBase, '/ 망토:', capeBase);
+    const shieldBase = stripRarity(eq.shield?.baseName || eq.shield?.name || '');
+    console.log('[영상매핑] 클래스:', cls, '/ 갑옷:', armorBase, '/ 투구:', helmBase, '/ 망토:', capeBase, '/ 방패:', shieldBase);
 
     // 무기 코드
     let weaponCode = 'sword';
@@ -8404,7 +8405,15 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     };
     const capeCode = capeMap[capeBase] || 'cape1';
 
-    return `https://joono1004.github.io/scanhero/assets/video/${clsCode}_${weaponCode}_${armorCode}_${helmCode}_${capeCode}.webm`;
+    // 방패 코드 (전사 전용)
+    const shieldMap = {
+      '나무 방패':'shield1','원형 방패':'shield2','강철 방패':'shield3',
+    };
+    const shieldSuffix = clsCode === 'warrior'
+      ? `_${shieldMap[shieldBase] || 'shield1'}`
+      : '';
+
+    return `https://joono1004.github.io/scanhero/assets/video/${clsCode}_${weaponCode}_${armorCode}_${helmCode}_${capeCode}${shieldSuffix}.webm`;
   }
 
   function renderBattleHeroSprite() {
