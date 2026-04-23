@@ -7196,7 +7196,15 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const classes = Array.isArray(soldierClassOrArr)
       ? soldierClassOrArr
       : Array(soldierCount).fill(soldierClassOrArr || '검병');
-    els.heroSpriteWrap.innerHTML = getHeroVisualHtml(heroClass);
+    const mainVideoSrc = getMainHeroVideoSrc();
+    const fallbackHtml = getHeroVisualHtml(heroClass);
+    els.heroSpriteWrap.innerHTML = `
+      <video id="mainHeroVideo" autoplay loop muted playsinline
+        style="width:155px;height:179px;object-fit:contain;display:block;"
+        src="${mainVideoSrc}"
+        onerror="this.style.display='none';document.getElementById('mainHeroFallback').style.display='block'">
+      </video>
+      <div id="mainHeroFallback" style="display:none;width:155px;height:179px;position:relative;">${fallbackHtml}</div>`;
     els.soldierFront.innerHTML = classes.map((c, i) => {
       const sprite = getSoldierSprite(c);
       // 그리드 3열 기준: 첫 행(0~2) → margin-bottom으로 아래 행과 간격
