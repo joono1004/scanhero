@@ -5914,15 +5914,28 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     궁병:  'archer.png',
     창병:  'spearman.png',
   };
+  const SOLDIER_RUN_VIDEO = {
+    검병:  'swordsman_run.webm',
+    궁병:  'archer_run.webm',
+    방패병: 'shielder_run.webm',
+    창병:  'spearman_run.webm',
+    기마병: 'cavalry_run.webm',
+    마법사: 'mage_run.webm',
+  };
   const SOLDIER_BASE = 'https://joono1004.github.io/scanhero/assets/soldier';
+  const SOLDIER_VIDEO_BASE = 'https://joono1004.github.io/scanhero/assets/video';
 
   function getSoldierSprite(soldierClass, size='normal') {
+    const runVideo = SOLDIER_RUN_VIDEO[soldierClass];
     const file = SOLDIER_FILE[soldierClass] || SOLDIER_FILE.검병;
-    const url  = `${SOLDIER_BASE}/${file}`;
+    const imgUrl = `${SOLDIER_BASE}/${file}`;
     if (size === 'battle') {
-      return `<div class="battle-soldier"><div class="rip-icon">🪦</div><div class="battle-sol-hp-wrap"><div class="battle-sol-hp-fill" style="width:100%"></div></div><img src="${url}" width="44" height="56" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
+      return `<div class="battle-soldier"><div class="rip-icon">🪦</div><div class="battle-sol-hp-wrap"><div class="battle-sol-hp-fill" style="width:100%"></div></div><img src="${imgUrl}" width="44" height="56" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
     }
-    return `<div class="soldier"><img src="${url}" width="46" height="59" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"><div class="soldier-small-shadow"></div></div>`;
+    const media = runVideo
+      ? `<video autoplay loop muted playsinline width="46" height="59" style="object-fit:contain;display:block;" src="${SOLDIER_VIDEO_BASE}/${runVideo}"></video>`
+      : `<img src="${imgUrl}" width="46" height="59" style="object-fit:contain;display:block;" onerror="this.style.opacity=0">`;
+    return `<div class="soldier">${media}<div class="soldier-small-shadow"></div></div>`;
   }
 
   function getClassBonus(heroClass) {
