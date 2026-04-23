@@ -8416,6 +8416,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     return `https://joono1004.github.io/scanhero/assets/video/${clsCode}_${weaponCode}_${armorCode}_${helmCode}_${capeCode}${shieldSuffix}.webm`;
   }
 
+  function getMainHeroVideoSrc() {
+    return getBattleVideoSrc().replace('.webm', '_run.webm');
+  }
+
   function renderBattleHeroSprite() {
     const html = getHeroVisualHtml(state.heroClass)
       .replace('width:155px;height:179px', 'width:133px;height:150px');
