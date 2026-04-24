@@ -8991,17 +8991,26 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       } catch(e) { videoPlayed = false; }
     }
 
-    // 영웅 돌진 — 실제 적 위치까지 이동
+    // 영웅 돌진 — 실제 적 위치까지 X+Y 이동
     if (heroEl && enemyEl) {
-      const aRect = heroEl.getBoundingClientRect();
+      const aRect    = heroEl.getBoundingClientRect();
       const hRect    = enemyEl.getBoundingClientRect();
-      const atkBodyX = aRect.left + 70; // 캐릭터 실제 위치 (영상 좌측 70px)
-      const dx       = (hRect.left + hRect.width / 2) - atkBodyX - 40;
-      heroEl.style.setProperty('--charge-dx', dx + 'px');
+      const atkBodyX = aRect.left + 70;
+      const atkBodyY = aRect.top  + aRect.height / 2;
+      const hitCX    = hRect.left + hRect.width  / 2;
+      const hitCY    = hRect.top  + hRect.height / 2;
+      const dx       = (hitCX - atkBodyX) - 40;
+      const dy       = hitCY - atkBodyY;
+      heroEl.animate([
+        { transform: 'translate(0px, 0px)' },
+        { transform: `translate(${dx}px, ${dy}px)`,             offset: 0.45 },
+        { transform: `translate(${dx * 0.94}px, ${dy * 0.94}px)`, offset: 0.55 },
+        { transform: `translate(${dx}px, ${dy}px)`,             offset: 0.85 },
+        { transform: 'translate(0px, 0px)' },
+      ], { duration: 900, easing: 'ease', fill: 'none' });
     }
-    heroEl.classList.add('ext-hero-charging');
 
-    // 칼 절정 프레임(39~60 중 절정)에 맞춘 타격 타이밍
+    // 칼 절정 프레임 타이밍
     await wait(580);
 
     // 타격 이펙트 위치 (몬스터 위치)
@@ -9033,10 +9042,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     enemyEl.classList.add('ext-enemy-hit');
     setTimeout(() => enemyEl.classList.remove('ext-enemy-hit'), 450);
 
-    // 영웅 복귀 대기
+    // 영웅 복귀 대기 (애니메이션 총 900ms - 580ms)
     await wait(320);
-    heroEl.classList.remove('ext-hero-charging');
-    heroEl.style.removeProperty('--charge-dx');
 
     // WebM 정지 후 첫 프레임
     if (videoPlayed && videoEl) {
@@ -9555,21 +9562,29 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         } catch(e) {}
       }
 
-      // 돌진 애니메이션 — 실제 적 위치까지 이동
-      const chargeClass = isAlly ? 'ext-hero-charging' : 'ext-enemy-charging';
+      // 돌진 애니메이션 — 실제 적 위치까지 X+Y 이동
+      const totalMs   = unit.type === 'hero' ? 900 : 750;
+      const impactMs  = unit.type === 'hero' ? 580 : 350;
       if (atkEl && hitEl) {
-        const aRect  = atkEl.getBoundingClientRect();
-        const hRect  = hitEl.getBoundingClientRect();
-        // 영웅 영상은 306px 넓이지만 캐릭터 실제 위치는 좌측 70px 부근
+        const aRect    = atkEl.getBoundingClientRect();
+        const hRect    = hitEl.getBoundingClientRect();
         const atkBodyX = unit.type === 'hero' ? aRect.left + 70 : aRect.left + aRect.width / 2;
-        const hitCX    = hRect.left + hRect.width / 2;
-        const gap      = isAlly ? -40 : 40; // 완전 겹침 방지
+        const atkBodyY = aRect.top  + aRect.height / 2;
+        const hitCX    = hRect.left + hRect.width  / 2;
+        const hitCY    = hRect.top  + hRect.height / 2;
+        const gap      = isAlly ? -40 : 40;
         const dx       = (hitCX - atkBodyX) + gap;
-        atkEl.style.setProperty('--charge-dx', dx + 'px');
+        const dy       = hitCY - atkBodyY;
+        atkEl.animate([
+          { transform: 'translate(0px, 0px)' },
+          { transform: `translate(${dx}px, ${dy}px)`,                          offset: 0.45 },
+          { transform: `translate(${dx * 0.94}px, ${dy * 0.94}px)`,            offset: 0.55 },
+          { transform: `translate(${dx}px, ${dy}px)`,                          offset: 0.85 },
+          { transform: 'translate(0px, 0px)' },
+        ], { duration: totalMs, easing: 'ease', fill: 'none' });
       }
-      if (atkEl) atkEl.classList.add(chargeClass);
 
-      await wait(unit.type === 'hero' ? 580 : 350);
+      await wait(impactMs);
 
       // 타격 이펙트 + 데미지
       showExtImpact(hitEl, dmgValue, isAlly ? '#ffcf63' : '#ff6464');
@@ -9578,8 +9593,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         setTimeout(() => hitEl.classList.remove('ext-enemy-hit'), 450);
       }
 
-      await wait(unit.type === 'hero' ? 320 : 400);
-      if (atkEl) { atkEl.classList.remove(chargeClass); atkEl.style.removeProperty('--charge-dx'); }
+      await wait(totalMs - impactMs);
 
       // WebM 정지
       if (videoEl) { try { videoEl.pause(); videoEl.currentTime = 0; } catch(e) {} }
