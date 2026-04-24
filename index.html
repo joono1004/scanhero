@@ -2295,7 +2295,7 @@
         <video id="extHeroVideo"
           style="display:none;width:306px;height:150px;object-fit:contain;pointer-events:none;
                  filter:drop-shadow(0 0 3px rgba(0,0,0,1)) drop-shadow(0 0 2px rgba(0,0,0,0.9)) drop-shadow(0 0 1px rgba(0,0,0,1));"
-          preload="auto" playsinline webkit-playsinline>
+          preload="auto" playsinline webkit-playsinline muted>
         </video>
         <div id="extHeroSprite"></div>
         <div class="ext-sh" style="width:90px;height:10px;"></div>
@@ -8610,8 +8610,12 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       tmpV.onloadedmetadata = () => {
         extHeroVideoEl.src = videoSrc;
         extHeroVideoEl.style.display = 'block';
-        extHeroVideoEl.currentTime = 0;
         extHeroSpriteEl.style.display = 'none';
+        // pre-buffer: play → 즉시 pause → 첫 프레임 표시, 공격 시 즉시 재생 가능
+        extHeroVideoEl.play().then(() => {
+          extHeroVideoEl.pause();
+          extHeroVideoEl.currentTime = 0;
+        }).catch(() => { extHeroVideoEl.currentTime = 0; });
       };
       tmpV.onerror = () => {
         extHeroVideoEl.style.display = 'none';
