@@ -1044,11 +1044,11 @@
     }
 
     @keyframes extHeroCharge {
-      0%   { transform: translateX(0)   scaleX(1); }
-      40%  { transform: translateX(160px) scaleX(1); }
-      55%  { transform: translateX(150px) scaleX(1); }
-      85%  { transform: translateX(160px) scaleX(1); }
-      100% { transform: translateX(0)   scaleX(1); }
+      0%   { transform: translateX(0); }
+      40%  { transform: translateX(var(--charge-dx, 160px)); }
+      55%  { transform: translateX(calc(var(--charge-dx, 160px) * 0.94)); }
+      85%  { transform: translateX(var(--charge-dx, 160px)); }
+      100% { transform: translateX(0); }
     }
     @keyframes extEnemyHit {
       0%,100% { transform: translateX(0); filter:drop-shadow(0 0 4px rgba(255,60,60,0.7)); }
@@ -1070,10 +1070,10 @@
     .ext-hero-charging  { animation: extHeroCharge  0.9s ease forwards; }
     .ext-enemy-hit      { animation: extEnemyHit    0.4s ease; }
     @keyframes extEnemyCharge {
-      0%   { transform: translateX(0)    scaleX(1); }
-      40%  { transform: translateX(-80px) scaleX(1); }
-      70%  { transform: translateX(-65px) scaleX(1); }
-      100% { transform: translateX(0)    scaleX(1); }
+      0%   { transform: translateX(0); }
+      40%  { transform: translateX(var(--charge-dx, -80px)); }
+      70%  { transform: translateX(calc(var(--charge-dx, -80px) * 0.81)); }
+      100% { transform: translateX(0); }
     }
     .ext-enemy-charging { animation: extEnemyCharge 0.7s ease forwards; }
     #extImpactEl {
@@ -8991,7 +8991,13 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       } catch(e) { videoPlayed = false; }
     }
 
-    // 영웅 돌진 (CSS 이동 애니메이션)
+    // 영웅 돌진 — 실제 적 위치까지 이동
+    if (heroEl && enemyEl) {
+      const aRect = heroEl.getBoundingClientRect();
+      const hRect = enemyEl.getBoundingClientRect();
+      const dx = (hRect.left + hRect.width / 2) - (aRect.left + aRect.width / 2) - 50;
+      heroEl.style.setProperty('--charge-dx', dx + 'px');
+    }
     heroEl.classList.add('ext-hero-charging');
 
     // 칼 절정 프레임(39~60 중 절정)에 맞춘 타격 타이밍
@@ -9029,6 +9035,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 영웅 복귀 대기
     await wait(320);
     heroEl.classList.remove('ext-hero-charging');
+    heroEl.style.removeProperty('--charge-dx');
 
     // WebM 정지 후 첫 프레임
     if (videoPlayed && videoEl) {
@@ -9547,8 +9554,17 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         } catch(e) {}
       }
 
-      // 돌진 애니메이션
+      // 돌진 애니메이션 — 실제 적 위치까지 이동
       const chargeClass = isAlly ? 'ext-hero-charging' : 'ext-enemy-charging';
+      if (atkEl && hitEl) {
+        const aRect = atkEl.getBoundingClientRect();
+        const hRect = hitEl.getBoundingClientRect();
+        const aCX   = aRect.left + aRect.width  / 2;
+        const hCX   = hRect.left + hRect.width  / 2;
+        const gap   = isAlly ? -50 : 50; // 완전 겹침 방지
+        const dx    = (hCX - aCX) + gap;
+        atkEl.style.setProperty('--charge-dx', dx + 'px');
+      }
       if (atkEl) atkEl.classList.add(chargeClass);
 
       await wait(unit.type === 'hero' ? 580 : 350);
@@ -9561,7 +9577,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       }
 
       await wait(unit.type === 'hero' ? 320 : 400);
-      if (atkEl) atkEl.classList.remove(chargeClass);
+      if (atkEl) { atkEl.classList.remove(chargeClass); atkEl.style.removeProperty('--charge-dx'); }
 
       // WebM 정지
       if (videoEl) { try { videoEl.pause(); videoEl.currentTime = 0; } catch(e) {} }
