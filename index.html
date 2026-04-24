@@ -5915,6 +5915,14 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     궁병:  'archer.png',
     창병:  'spearman.png',
   };
+  const SOLDIER_BATTLE_VIDEO = {
+    검병:  'swordsman_battle.webm',
+    궁병:  'archer_battle.webm',
+    방패병: 'shielder_battle.webm',
+    창병:  'spearman_battle.webm',
+    기마병: 'cavalry_battle.webm',
+    마법사: 'mage_battle.webm',
+  };
   const SOLDIER_RUN_VIDEO = {
     검병:  'swordsman_run.webm',
     궁병:  'archer_run.webm',
@@ -8668,7 +8676,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       const url  = `${SOLDIER_BASE}/${file}`;
       const rarityToGrade = { common:'일반', uncommon:'일반', rare:'챔피언', epic:'엘리트', legendary:'전설' };
       const gradeFx = 'grade-fx-' + (rarityToGrade[sol.rarity] || '일반');
-      const solVideoSrc = `${SOLDIER_BASE.replace('/soldier','/video')}/soldier_${(sol.cls||'검병')}.webm`;
+      const battleFile    = SOLDIER_BATTLE_VIDEO[sol.cls];
+      const solBattleSrc  = battleFile ? `${SOLDIER_VIDEO_BASE}/${battleFile}` : null;
       const div  = document.createElement('div');
       div.className = 'ext-char';
       div.style.cssText = `position:absolute;${pos.style}`;
@@ -8680,23 +8689,27 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
           <div class="ext-unit-hp-fill" style="height:100%;width:100%;background:#63d09a;border-radius:2px;transition:width .3s,background .3s;"></div>
         </div>
         <video id="${vidId}" style="display:none;width:66px;height:84px;object-fit:contain;pointer-events:none;
-               filter:drop-shadow(0 0 2px rgba(0,0,0,1));" preload="auto" playsinline loop></video>
+               filter:drop-shadow(0 0 2px rgba(0,0,0,1));" preload="auto" playsinline muted></video>
         <img id="${imgId}" src="${url}" width="66" height="84" style="object-fit:contain;" class="${gradeFx}"
              onerror="this.style.opacity=0">
         <div class="ext-sh" style="width:44px;height:6px;"></div>
         <div class="ext-nm">${clsData.icon||''}${sol.cls}</div>`;
       allyEl.appendChild(div);
-      // WebM 병사 감지
-      const tmpSv = document.createElement('video');
-      tmpSv.preload = 'metadata';
-      tmpSv.onloadedmetadata = () => {
-        const vEl = document.getElementById(vidId);
-        const iEl = document.getElementById(imgId);
-        if (vEl) { vEl.src = solVideoSrc; vEl.style.display='block'; vEl.play().catch(()=>{}); }
-        if (iEl) iEl.style.display = 'none';
-      };
-      tmpSv.onerror = () => {};
-      tmpSv.src = solVideoSrc;
+      // 전투 WebM 감지 → pre-buffer (영웅과 동일 방식)
+      if (solBattleSrc) {
+        const tmpSv = document.createElement('video');
+        tmpSv.preload = 'metadata';
+        tmpSv.onloadedmetadata = () => {
+          const vEl = document.getElementById(vidId);
+          const iEl = document.getElementById(imgId);
+          if (!vEl) return;
+          vEl.src = solBattleSrc;
+          vEl.style.display = 'block';
+          if (iEl) iEl.style.display = 'none';
+          vEl.play().then(() => { vEl.pause(); vEl.currentTime = 0; }).catch(() => { vEl.currentTime = 0; });
+        };
+        tmpSv.src = solBattleSrc;
+      }
     });
 
     // 적 병사 배치 (항상 3명, HP바 포함)
@@ -9556,7 +9569,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       else if (unit.type === 'monster') videoEl = document.getElementById('extEnemyVideo');
       if (videoEl && videoEl.style.display !== 'none' && videoEl.src) {
         try {
-          if (unit.type === 'hero') videoEl.playbackRate = 3.5;
+          if (unit.type === 'hero')    videoEl.playbackRate = 3.5;
+          if (unit.type === 'soldier') videoEl.playbackRate = 1.0; // 병사 영상 확인 후 조정
           videoEl.currentTime = 0;
           videoEl.play().catch(()=>{});
         } catch(e) {}
