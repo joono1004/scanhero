@@ -1067,7 +1067,7 @@
       0%   { transform:translateY(0);  opacity:1; }
       100% { transform:translateY(-50px); opacity:0; }
     }
-    .ext-hero-charging  { animation: extHeroCharge  0.7s ease forwards; }
+    .ext-hero-charging  { animation: extHeroCharge  0.9s ease forwards; }
     .ext-enemy-hit      { animation: extEnemyHit    0.4s ease; }
     @keyframes extEnemyCharge {
       0%   { transform: translateX(0)    scaleX(1); }
@@ -8984,6 +8984,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     let videoPlayed = false;
     if (videoEl && videoEl.style.display !== 'none' && videoEl.src) {
       try {
+        videoEl.playbackRate = 3.5;
         videoEl.currentTime = 0;
         await videoEl.play();
         videoPlayed = true;
@@ -8993,8 +8994,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 영웅 돌진 (CSS 이동 애니메이션)
     heroEl.classList.add('ext-hero-charging');
 
-    // 0.35초 후 몬스터 타격 이펙트
-    await wait(350);
+    // 칼 절정 프레임(39~60 중 절정)에 맞춘 타격 타이밍
+    await wait(580);
 
     // 타격 이펙트 위치 (몬스터 위치)
     const enemyRect = enemyEl.getBoundingClientRect();
@@ -9026,7 +9027,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     setTimeout(() => enemyEl.classList.remove('ext-enemy-hit'), 450);
 
     // 영웅 복귀 대기
-    await wait(400);
+    await wait(320);
     heroEl.classList.remove('ext-hero-charging');
 
     // WebM 정지 후 첫 프레임
@@ -9539,14 +9540,18 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       else if (unit.type === 'soldier') videoEl = document.getElementById(`extSolVid_${unit.slotIdx}`);
       else if (unit.type === 'monster') videoEl = document.getElementById('extEnemyVideo');
       if (videoEl && videoEl.style.display !== 'none' && videoEl.src) {
-        try { videoEl.currentTime = 0; videoEl.play().catch(()=>{}); } catch(e) {}
+        try {
+          if (unit.type === 'hero') videoEl.playbackRate = 3.5;
+          videoEl.currentTime = 0;
+          videoEl.play().catch(()=>{});
+        } catch(e) {}
       }
 
       // 돌진 애니메이션
       const chargeClass = isAlly ? 'ext-hero-charging' : 'ext-enemy-charging';
       if (atkEl) atkEl.classList.add(chargeClass);
 
-      await wait(350);
+      await wait(unit.type === 'hero' ? 580 : 350);
 
       // 타격 이펙트 + 데미지
       showExtImpact(hitEl, dmgValue, isAlly ? '#ffcf63' : '#ff6464');
@@ -9555,7 +9560,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
         setTimeout(() => hitEl.classList.remove('ext-enemy-hit'), 450);
       }
 
-      await wait(400);
+      await wait(unit.type === 'hero' ? 320 : 400);
       if (atkEl) atkEl.classList.remove(chargeClass);
 
       // WebM 정지
