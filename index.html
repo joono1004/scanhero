@@ -8994,8 +8994,9 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     // 영웅 돌진 — 실제 적 위치까지 이동
     if (heroEl && enemyEl) {
       const aRect = heroEl.getBoundingClientRect();
-      const hRect = enemyEl.getBoundingClientRect();
-      const dx = (hRect.left + hRect.width / 2) - (aRect.left + aRect.width / 2) - 50;
+      const hRect    = enemyEl.getBoundingClientRect();
+      const atkBodyX = aRect.left + 70; // 캐릭터 실제 위치 (영상 좌측 70px)
+      const dx       = (hRect.left + hRect.width / 2) - atkBodyX - 40;
       heroEl.style.setProperty('--charge-dx', dx + 'px');
     }
     heroEl.classList.add('ext-hero-charging');
@@ -9557,12 +9558,13 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       // 돌진 애니메이션 — 실제 적 위치까지 이동
       const chargeClass = isAlly ? 'ext-hero-charging' : 'ext-enemy-charging';
       if (atkEl && hitEl) {
-        const aRect = atkEl.getBoundingClientRect();
-        const hRect = hitEl.getBoundingClientRect();
-        const aCX   = aRect.left + aRect.width  / 2;
-        const hCX   = hRect.left + hRect.width  / 2;
-        const gap   = isAlly ? -50 : 50; // 완전 겹침 방지
-        const dx    = (hCX - aCX) + gap;
+        const aRect  = atkEl.getBoundingClientRect();
+        const hRect  = hitEl.getBoundingClientRect();
+        // 영웅 영상은 306px 넓이지만 캐릭터 실제 위치는 좌측 70px 부근
+        const atkBodyX = unit.type === 'hero' ? aRect.left + 70 : aRect.left + aRect.width / 2;
+        const hitCX    = hRect.left + hRect.width / 2;
+        const gap      = isAlly ? -40 : 40; // 완전 겹침 방지
+        const dx       = (hitCX - atkBodyX) + gap;
         atkEl.style.setProperty('--charge-dx', dx + 'px');
       }
       if (atkEl) atkEl.classList.add(chargeClass);
