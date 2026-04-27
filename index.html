@@ -1256,31 +1256,11 @@
     .battle-stage-ground {
       position: absolute; left: -10%; right: -10%; bottom: 0; height: 72px;
       border-radius: 50% 50% 0 0 / 30% 30% 0 0;
-      background: linear-gradient(180deg, #2a1f0e 0%, #1a1208 60%, #0e0b05 100%);
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.72) 100%);
       z-index: 2; overflow: hidden;
     }
-    .battle-stage-ground::before {
-      content: '';
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(circle at 15% 40%, rgba(80,60,20,0.6) 3px, transparent 3px),
-        radial-gradient(circle at 28% 55%, rgba(60,45,15,0.5) 2px, transparent 2px),
-        radial-gradient(circle at 42% 35%, rgba(90,70,25,0.6) 4px, transparent 4px),
-        radial-gradient(circle at 58% 50%, rgba(70,52,18,0.5) 2px, transparent 2px),
-        radial-gradient(circle at 70% 38%, rgba(85,65,22,0.6) 3px, transparent 3px),
-        radial-gradient(circle at 83% 48%, rgba(65,48,16,0.5) 2px, transparent 2px),
-        radial-gradient(circle at 22% 70%, rgba(75,55,20,0.4) 5px, transparent 5px),
-        radial-gradient(circle at 50% 65%, rgba(55,40,14,0.4) 4px, transparent 4px),
-        radial-gradient(circle at 78% 72%, rgba(80,60,20,0.4) 5px, transparent 5px);
-    }
-    .battle-stage-ground::after {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 4px;
-      background: linear-gradient(90deg,
-        rgba(120,90,30,0.8) 0%, rgba(80,60,20,0.6) 20%,
-        rgba(140,105,35,0.8) 35%, rgba(90,68,22,0.6) 55%,
-        rgba(120,90,30,0.8) 70%, rgba(100,75,25,0.7) 85%, rgba(130,98,32,0.8) 100%);
-    }
+    .battle-stage-ground::before { content: none; }
+    .battle-stage-ground::after  { content: none; }
     .battle-unit { position: absolute; top: 12px; display: flex; flex-direction: column; align-items: center; z-index: 3; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
     .battle-hero-unit { left: 12px; }
     .battle-enemy-unit { right: 12px; }
@@ -5938,12 +5918,14 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   const SOLDIER_VIDEO_BASE = 'https://joono1004.github.io/scanhero/assets/video';
 
   function getSoldierSprite(soldierClass, size='normal') {
+    if (size === 'battle') {
+      const imgFile = SOLDIER_CLASS_DATA[soldierClass]?.img || 'swordsman.png';
+      const imgUrl  = `${SOLDIER_BASE}/${imgFile}`;
+      return `<div class="battle-soldier"><div class="rip-icon">🪦</div><div class="battle-sol-hp-wrap"><div class="battle-sol-hp-fill" style="width:100%"></div></div><img src="${imgUrl}" width="44" height="56" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
+    }
     const runVideo = SOLDIER_RUN_VIDEO[soldierClass];
     const file = SOLDIER_FILE[soldierClass] || SOLDIER_FILE.검병;
     const imgUrl = `${SOLDIER_BASE}/${file}`;
-    if (size === 'battle') {
-      return `<div class="battle-soldier"><div class="rip-icon">🪦</div><div class="battle-sol-hp-wrap"><div class="battle-sol-hp-fill" style="width:100%"></div></div><img src="${imgUrl}" width="44" height="56" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
-    }
     const media = runVideo
       ? `<video autoplay loop muted playsinline width="52" height="66" style="object-fit:contain;display:block;" src="${SOLDIER_VIDEO_BASE}/${runVideo}"></video>`
       : `<img src="${imgUrl}" width="52" height="66" style="object-fit:contain;display:block;" onerror="this.style.opacity=0">`;
