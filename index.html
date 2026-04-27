@@ -218,7 +218,7 @@
     }
 
     .hero-unit {
-      position: absolute; left: 0; bottom: 0;
+      position: absolute; left: 0; bottom: 10px;
       display: flex; flex-direction: column; align-items: center; justify-content: flex-end; z-index: 2;
       animation: heroFloat 2.6s ease-in-out infinite;
     }
@@ -244,7 +244,7 @@
     /* aura-legendary::after 제거 — 스파클은 장비 슬롯으로 이동 */
 
     .hero-shadow { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 130px; height: 12px; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); border-radius: 50%; animation: shadowPulse 2.6s ease-in-out infinite; }
-    .soldier-row { position: absolute; left: 145px; right: 0; bottom: 0; display: flex; flex-direction: row; gap: 4px; justify-content: center; align-items: flex-end; z-index: 3; }
+    .soldier-row { position: absolute; left: 145px; right: 0; bottom: 10px; display: flex; flex-direction: row; gap: 4px; justify-content: center; align-items: flex-end; z-index: 3; }
     .soldier { width: 52px; height: 66px; position: relative; filter: drop-shadow(0 7px 10px rgba(0,0,0,0.32)); animation: soldierBounce 2.2s ease-in-out infinite; }
     .soldier:nth-child(2n) { animation-delay: .18s; }
     .soldier:nth-child(3n) { animation-delay: .34s; }
