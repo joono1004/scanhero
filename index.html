@@ -222,11 +222,11 @@
       display: flex; flex-direction: column; align-items: center; justify-content: flex-end; z-index: 2;
       animation: heroFloat 2.6s ease-in-out infinite;
     }
-    .hero-sprite { width: 150px; height: 173px; filter: drop-shadow(0 12px 16px rgba(0,0,0,0.35)); position: relative; }
+    .hero-sprite { width: 145px; height: 167px; filter: drop-shadow(0 12px 16px rgba(0,0,0,0.35)); position: relative; }
 
     .hero-visual-wrap {
       position: relative; display: inline-flex; align-items: center; justify-content: center;
-      min-width: 150px; min-height: 173px; image-rendering: pixelated;
+      min-width: 145px; min-height: 167px; image-rendering: pixelated;
     }
     .hero-visual-wrap svg { image-rendering: pixelated; }
     .hero-visual-wrap::before {
@@ -244,7 +244,7 @@
     /* aura-legendary::after 제거 — 스파클은 장비 슬롯으로 이동 */
 
     .hero-shadow { width: 130px; height: 12px; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 4px; border-radius: 50%; animation: shadowPulse 2.6s ease-in-out infinite; }
-    .soldier-row { position: absolute; left: 150px; right: 0; bottom: -4px; display: flex; flex-direction: row; gap: 4px; justify-content: center; align-items: flex-end; z-index: 3; }
+    .soldier-row { position: absolute; left: 145px; right: 0; bottom: -4px; display: flex; flex-direction: row; gap: 4px; justify-content: center; align-items: flex-end; z-index: 3; }
     .soldier { width: 52px; height: 66px; position: relative; filter: drop-shadow(0 7px 10px rgba(0,0,0,0.32)); animation: soldierBounce 2.2s ease-in-out infinite; }
     .soldier:nth-child(2n) { animation-delay: .18s; }
     .soldier:nth-child(3n) { animation-delay: .34s; }
@@ -5785,7 +5785,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       // 반지는 캐릭터 레이어 표시 없음 (슬롯 아이콘만 사용)
     ].join('');
 
-    return `<div class="hero-visual-wrap ${aura}" style="position:relative;width:150px;height:173px;">
+    return `<div class="hero-visual-wrap ${aura}" style="position:relative;width:145px;height:167px;">
       ${layers}
     </div>`;
   }
@@ -7224,11 +7224,11 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const fallbackHtml = getHeroVisualHtml(heroClass);
     els.heroSpriteWrap.innerHTML = `
       <video id="mainHeroVideo" autoplay loop muted playsinline
-        style="width:150px;height:173px;object-fit:contain;display:block;"
+        style="width:145px;height:167px;object-fit:contain;display:block;"
         src="${mainVideoSrc}"
         onerror="this.style.display='none';document.getElementById('mainHeroFallback').style.display='block'">
       </video>
-      <div id="mainHeroFallback" style="display:none;width:150px;height:173px;position:relative;">${fallbackHtml}</div>`;
+      <div id="mainHeroFallback" style="display:none;width:145px;height:167px;position:relative;">${fallbackHtml}</div>`;
     els.soldierFront.innerHTML = classes.map(c => getSoldierSprite(c)).join('');
     // formation 오버레이: 장비 레이어 렌더 (이미지 기반)
     const overlay = document.getElementById('formationDollOverlay');
@@ -8455,7 +8455,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
   function renderBattleHeroSprite() {
     const html = getHeroVisualHtml(state.heroClass)
-      .replace('width:150px;height:173px', 'width:133px;height:150px');
+      .replace('width:145px;height:167px', 'width:133px;height:150px');
     els.battleHeroSpriteWrap.innerHTML = `<div class="battle-hero-sprite">${html}</div>`;
     els.battleHeroSpriteWrap.style.display = '';
     // 영상은 전투씬에서만 사용 — 전투 준비 화면에서는 이미지만 표시
@@ -8603,7 +8603,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
 
     // 영웅 스프라이트 + WebM 감지
     const heroHtml = getHeroVisualHtml(state.heroClass)
-      .replace('width:150px;height:173px','width:306px;height:150px');
+      .replace('width:145px;height:167px','width:306px;height:150px');
     const extHeroSpriteEl = document.getElementById('extHeroSprite');
     const extHeroVideoEl  = document.getElementById('extHeroVideo');
     extHeroSpriteEl.innerHTML =
