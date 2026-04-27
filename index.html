@@ -1252,6 +1252,7 @@
     .battle-bg-layer { position: absolute; inset: 0; width: 200%; height: 100%; pointer-events: none; }
     .battle-bg-layer-far  { animation: bgFar  20s linear infinite; z-index: 0; }
     .battle-bg-layer-near { animation: bgNear 10s linear infinite; z-index: 1; }
+    .battle-bg-layer-static { width: 100% !important; animation: none !important; background-size: cover !important; background-repeat: no-repeat !important; }
     .battle-stage-ground {
       position: absolute; left: -10%; right: -10%; bottom: 0; height: 72px;
       border-radius: 50% 50% 0 0 / 30% 30% 0 0;
@@ -2166,8 +2167,10 @@
       <div class="modal-head"><div class="modal-title">전투 준비</div></div>
       <div class="modal-body">
         <div class="battle-stage" id="battleStage">
+          <div id="battleBgSky" style="display:none;position:absolute;inset:0;width:100%;height:100%;background-size:cover;background-repeat:no-repeat;z-index:0;pointer-events:none;"></div>
           <div class="battle-bg-layer battle-bg-layer-far"  id="battleBgFar"></div>
           <div class="battle-bg-layer battle-bg-layer-near" id="battleBgNear"></div>
+          <div id="battleBgDimOverlay" style="display:none;position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(4,8,20,0.55) 0%,rgba(4,8,20,0.22) 55%,rgba(4,8,20,0.72) 100%);"></div>
           <div id="battleTurnQueue" class="battle-turn-queue"></div>
           <div class="battle-vs">VS</div>
           <div class="battle-unit battle-hero-unit" id="battleHeroUnit">
@@ -9254,10 +9257,28 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       }));
     } catch(e) {}
     // 전투 배경 업데이트
-    const bFar = document.getElementById('battleBgFar');
+    const bSky  = document.getElementById('battleBgSky');
+    const bFar  = document.getElementById('battleBgFar');
     const bNear = document.getElementById('battleBgNear');
-    if (bFar)  bFar.innerHTML  = makeBgSVG('far',  _bgTheme, getTimeSlot());
-    if (bNear) bNear.innerHTML = makeBgSVG('near', _bgTheme, getTimeSlot());
+    const bDim  = document.getElementById('battleBgDimOverlay');
+    const slot  = getTimeSlot();
+    const resolvedTheme = (_bgTheme && _bgTheme !== 'auto') ? _bgTheme : 'city';
+    const dn = (_bgDnOverride === 'auto') ? (slot === 0 ? 'day' : 'night') : (_bgDnOverride === 'night' ? 'night' : 'day');
+    if (MAIN_BG_THEMES.includes(resolvedTheme)) {
+      const base    = `${MAIN_BG_BASE}/main_${resolvedTheme}_${dn}`;
+      const farBase = resolvedTheme === 'river' ? `${MAIN_BG_BASE}/main_mountain_${dn}` : base;
+      [bFar, bNear].forEach(el => { if (el) { el.classList.add('battle-bg-layer-static'); el.innerHTML = ''; } });
+      if (bSky)  { bSky.style.backgroundImage = `url(${MAIN_BG_BASE}/main_${MAIN_BG_SKY_THEME}_${dn}_sky.png)`; bSky.style.display = ''; }
+      if (bFar)  bFar.style.backgroundImage  = `url(${farBase}_far.png)`;
+      if (bNear) bNear.style.backgroundImage = `url(${base}_near.png)`;
+      if (bDim)  bDim.style.display = '';
+    } else {
+      [bFar, bNear].forEach(el => { if (el) { el.classList.remove('battle-bg-layer-static'); el.style.backgroundImage = ''; } });
+      if (bSky) { bSky.style.display = 'none'; bSky.style.backgroundImage = ''; }
+      if (bDim)  bDim.style.display = 'none';
+      if (bFar)  bFar.innerHTML  = makeBgSVG('far',  _bgTheme, slot);
+      if (bNear) bNear.innerHTML = makeBgSVG('near', _bgTheme, slot);
+    }
 
     const emoji = getEnemyVisual(setup.enemy.name);
     const amount = setup.enemy.amount;
