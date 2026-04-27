@@ -245,7 +245,7 @@
 
     .hero-shadow { width: 130px; height: 12px; background: radial-gradient(circle, rgba(0,0,0,0.44), rgba(0,0,0,0)); margin-top: 4px; border-radius: 50%; animation: shadowPulse 2.6s ease-in-out infinite; }
     .soldier-row { position: absolute; left: 155px; right: 0; bottom: -4px; display: flex; flex-direction: row; gap: 4px; justify-content: center; align-items: flex-end; z-index: 3; }
-    .soldier { width: 58px; height: 74px; position: relative; filter: drop-shadow(0 7px 10px rgba(0,0,0,0.32)); animation: soldierBounce 2.2s ease-in-out infinite; }
+    .soldier { width: 55px; height: 70px; position: relative; filter: drop-shadow(0 7px 10px rgba(0,0,0,0.32)); animation: soldierBounce 2.2s ease-in-out infinite; }
     .soldier:nth-child(2n) { animation-delay: .18s; }
     .soldier:nth-child(3n) { animation-delay: .34s; }
     .soldier-small-shadow { position: absolute; left: 50%; transform: translateX(-50%); bottom: -4px; width: 50px; height: 8px; background: radial-gradient(circle, rgba(0,0,0,0.32), rgba(0,0,0,0)); border-radius: 50%; }
@@ -5942,8 +5942,8 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       return `<div class="battle-soldier"><div class="rip-icon">🪦</div><div class="battle-sol-hp-wrap"><div class="battle-sol-hp-fill" style="width:100%"></div></div><img src="${imgUrl}" width="44" height="56" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
     }
     const media = runVideo
-      ? `<video autoplay loop muted playsinline width="58" height="74" style="object-fit:contain;display:block;" src="${SOLDIER_VIDEO_BASE}/${runVideo}"></video>`
-      : `<img src="${imgUrl}" width="58" height="74" style="object-fit:contain;display:block;" onerror="this.style.opacity=0">`;
+      ? `<video autoplay loop muted playsinline width="55" height="70" style="object-fit:contain;display:block;" src="${SOLDIER_VIDEO_BASE}/${runVideo}"></video>`
+      : `<img src="${imgUrl}" width="55" height="70" style="object-fit:contain;display:block;" onerror="this.style.opacity=0">`;
     return `<div class="soldier">${media}<div class="soldier-small-shadow"></div></div>`;
   }
 
