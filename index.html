@@ -1282,10 +1282,10 @@
       0%,100% { filter: drop-shadow(0 0 10px rgba(255,207,99,0.9)) drop-shadow(0 0 22px rgba(255,100,50,0.5)) brightness(1.15) saturate(1.2); }
       50%      { filter: drop-shadow(0 0 20px rgba(255,207,99,1.0)) drop-shadow(0 0 40px rgba(255,80,30,0.8)) brightness(1.3) saturate(1.5); }
     }
-    .battle-soldier-group { position: absolute; left: 20px; bottom: 10px; display: grid; grid-template-columns: repeat(2, auto); column-gap: 4px; row-gap: 28px; z-index: 4; align-items: flex-end; }
-    .battle-enemy-group { position: absolute; right: 20px; bottom: 10px; display: grid; grid-template-columns: repeat(2, auto); column-gap: 4px; row-gap: 28px; z-index: 4; align-items: flex-end; }
-    .battle-enemy-mob { width: 44px; display: flex; flex-direction: column; align-items: center; position: relative; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
-    .battle-soldier { width: 44px; display: flex; flex-direction: column; align-items: center; position: relative; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; filter: drop-shadow(0 0 2.5px rgba(255,255,255,0.75)) drop-shadow(0 0 5px rgba(255,255,255,0.35)); }
+    .battle-soldier-group { position: absolute; left: 20px; bottom: -40px; display: grid; grid-template-columns: repeat(2, auto); column-gap: 4px; row-gap: 28px; z-index: 4; align-items: flex-end; }
+    .battle-enemy-group { position: absolute; right: 20px; bottom: -40px; display: grid; grid-template-columns: repeat(2, auto); column-gap: 4px; row-gap: 28px; z-index: 4; align-items: flex-end; }
+    .battle-enemy-mob { width: 44px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
+    .battle-soldier { width: 44px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; filter: drop-shadow(0 0 2.5px rgba(255,255,255,0.75)) drop-shadow(0 0 5px rgba(255,255,255,0.35)); }
     .battle-sol-hp-wrap { width: 40px; height: 4px; background: rgba(0,0,0,0.55); border-radius: 2px; margin-bottom: 2px; overflow: hidden; flex-shrink: 0; }
     .battle-sol-hp-fill { height: 100%; background: #63d09a; border-radius: 2px; transition: width 0.3s, background 0.3s; }
     .sol-defeated { opacity: 0.28 !important; filter: grayscale(100%) !important; pointer-events: none; }
@@ -8465,7 +8465,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const mobUrl       = getMonsterGroupUrl(setup.enemy.name);
     const mobGradeClass = `grade-fx-${setup.enemy.grade || '일반'}`;
     els.battleEnemyGroup.innerHTML = setup.enemySoldiers.map(() =>
-      `<div class="battle-enemy-mob ${mobGradeClass}"><img src="${mobUrl}" width="44" height="56" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`
+      `<div class="battle-enemy-mob"><img src="${mobUrl}" width="44" height="56" style="object-fit:contain;display:block;" class="${mobGradeClass}" onerror="this.style.opacity=0"></div>`
     ).join('');
   }
 
