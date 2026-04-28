@@ -5924,7 +5924,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       return `<div class="battle-soldier"><div class="rip-icon">🪦</div><div class="battle-sol-hp-wrap"><div class="battle-sol-hp-fill" style="width:100%"></div></div><img src="${imgUrl}" width="44" height="56" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
     }
     const runVideo = SOLDIER_RUN_VIDEO[soldierClass];
-    const file = SOLDIER_FILE[soldierClass] || SOLDIER_FILE.검병;
+    const file = SOLDIER_CLASS_DATA[soldierClass]?.img || 'swordsman.png';
     const imgUrl = `${SOLDIER_BASE}/${file}`;
     const media = runVideo
       ? `<video autoplay loop muted playsinline width="52" height="66" style="object-fit:contain;display:block;" src="${SOLDIER_VIDEO_BASE}/${runVideo}"></video>`
@@ -8657,7 +8657,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       const sol = deployed[i];
       if (!sol) return;
       const clsData = SOLDIER_CLASS_DATA[sol.cls] || {};
-      const file = SOLDIER_FILE[sol.cls] || SOLDIER_FILE['검병'];
+      const file = clsData.img || 'swordsman.png';
       const url  = `${SOLDIER_BASE}/${file}`;
       const rarityToGrade = { common:'일반', uncommon:'일반', rare:'챔피언', epic:'엘리트', legendary:'전설' };
       const gradeFx = 'grade-fx-' + (rarityToGrade[sol.rarity] || '일반');
