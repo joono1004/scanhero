@@ -1282,10 +1282,10 @@
       0%,100% { filter: drop-shadow(0 0 10px rgba(255,207,99,0.9)) drop-shadow(0 0 22px rgba(255,100,50,0.5)) brightness(1.15) saturate(1.2); }
       50%      { filter: drop-shadow(0 0 20px rgba(255,207,99,1.0)) drop-shadow(0 0 40px rgba(255,80,30,0.8)) brightness(1.3) saturate(1.5); }
     }
-    .battle-soldier-group { position: absolute; left: 20px; bottom: -40px; display: grid; grid-template-columns: repeat(2, auto); column-gap: 4px; row-gap: 28px; z-index: 4; align-items: flex-end; }
-    .battle-enemy-group { position: absolute; right: 20px; bottom: -40px; display: grid; grid-template-columns: repeat(2, auto); column-gap: 4px; row-gap: 28px; z-index: 4; align-items: flex-end; }
-    .battle-enemy-mob { width: 44px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
-    .battle-soldier { width: 44px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; filter: drop-shadow(0 0 2.5px rgba(255,255,255,0.75)) drop-shadow(0 0 5px rgba(255,255,255,0.35)); }
+    .battle-soldier-group { position: absolute; left: 20px; bottom: 0; width: 96px; height: 160px; z-index: 4; }
+    .battle-enemy-group   { position: absolute; right: 20px; bottom: 0; width: 96px; height: 160px; z-index: 4; }
+    .battle-enemy-mob { width: 44px; height: 56px; position: absolute; display: flex; align-items: center; justify-content: center; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; }
+    .battle-soldier   { width: 44px; height: 56px; position: absolute; display: flex; align-items: center; justify-content: center; transition: transform 0.28s ease, filter 0.28s ease, opacity 0.28s ease; filter: drop-shadow(0 0 2.5px rgba(255,255,255,0.75)) drop-shadow(0 0 5px rgba(255,255,255,0.35)); }
     .battle-sol-hp-wrap { width: 40px; height: 4px; background: rgba(0,0,0,0.55); border-radius: 2px; margin-bottom: 2px; overflow: hidden; flex-shrink: 0; }
     .battle-sol-hp-fill { height: 100%; background: #63d09a; border-radius: 2px; transition: width 0.3s, background 0.3s; }
     .sol-defeated { opacity: 0.28 !important; filter: grayscale(100%) !important; pointer-events: none; }
@@ -8447,15 +8447,27 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const video = document.getElementById('battleHeroVideo');
     if (video) { video.style.display = 'none'; video.src = ''; }
   }
+  // 아군 슬롯 위치: [슬롯3][슬롯1] 윗줄 / [슬롯2][슬롯0] 아랫줄
+  const BATTLE_ALLY_POS = [
+    'left:48px;bottom:10px;',  // slot 0: 아랫줄 우
+    'left:48px;bottom:44px;',  // slot 1: 윗줄 우
+    'left:0px;bottom:10px;',   // slot 2: 아랫줄 좌
+    'left:0px;bottom:44px;',   // slot 3: 윗줄 좌
+  ];
+  const BATTLE_ENEMY_POS = [
+    'left:0px;bottom:10px;',   // enemy 0: 아랫줄 좌(중앙쪽)
+    'left:0px;bottom:44px;',   // enemy 1: 윗줄 좌
+    'left:48px;bottom:10px;',  // enemy 2: 아랫줄 우
+    'left:48px;bottom:44px;',  // enemy 3: 윗줄 우
+  ];
   function renderBattleSoldiers() {
     const setup = state.battle?.setup;
     const soldiers = setup?.soldiers || [];
-    const SLOT_ORDER = [3, 1, 2, 0];
-    els.battleSoldierGroup.innerHTML = SLOT_ORDER.map(idx => {
-      const sol = soldiers[idx];
-      return sol
-        ? getSoldierSprite(sol.cls, 'battle')
-        : `<div style="width:44px;height:56px;visibility:hidden;"></div>`;
+    els.battleSoldierGroup.innerHTML = soldiers.map((sol, i) => {
+      const pos = BATTLE_ALLY_POS[i] || 'left:0px;bottom:10px;';
+      const imgFile = SOLDIER_CLASS_DATA[sol.cls]?.img || 'swordsman.png';
+      const imgUrl  = `${SOLDIER_BASE}/${imgFile}`;
+      return `<div class="battle-soldier" style="${pos}"><img src="${imgUrl}" width="44" height="56" style="object-fit:contain;display:block;" onerror="this.style.opacity=0"></div>`;
     }).join('');
   }
 
@@ -8464,9 +8476,10 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     if (!els.battleEnemyGroup || !setup?.enemySoldiers) return;
     const mobUrl       = getMonsterGroupUrl(setup.enemy.name);
     const mobGradeClass = `grade-fx-${setup.enemy.grade || '일반'}`;
-    els.battleEnemyGroup.innerHTML = setup.enemySoldiers.map(() =>
-      `<div class="battle-enemy-mob"><img src="${mobUrl}" width="44" height="56" style="object-fit:contain;display:block;" class="${mobGradeClass}" onerror="this.style.opacity=0"></div>`
-    ).join('');
+    els.battleEnemyGroup.innerHTML = setup.enemySoldiers.map((_, i) => {
+      const pos = BATTLE_ENEMY_POS[i] || 'left:0px;bottom:10px;';
+      return `<div class="battle-enemy-mob" style="${pos}"><img src="${mobUrl}" width="44" height="56" style="object-fit:contain;display:block;" class="${mobGradeClass}" onerror="this.style.opacity=0"></div>`;
+    }).join('');
   }
 
   // ── 확장 전투씬 배경 이미지 ──────────────────────────────────────
