@@ -8268,14 +8268,18 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
   }
   function closeEventModal() { state.pendingDecoded=null; closeModal(els.eventModalBackdrop); }
 
-  function calcEnemySoldierStats(enemy, lvScale) {
-    const ls = lvScale || 1;
+  // 레벨당 몬스터 성장치 — 영웅(atk+2/lv)보다 낮게 설정해 전투 난이도 완화
+  const MONSTER_GROWTH    = { atk:0.5, def:0.3, hp:3.0, speed:0.15, crit:0.1 };
+  // 적 병사는 몬스터 스탯의 비율로 산출
+  const ENEMY_SOL_RATIO   = { atk:0.35, def:0.40, hp:0.45, speed:0.60, crit:0.50 };
+
+  function calcEnemySoldierStats(monsterStats) {
     return {
-      atk:   Math.max(1, Math.round((enemy.atk   || 5)  * 0.45 * ls * 3)),
-      def:   Math.max(0, Math.round((enemy.def   || 3)  * 0.40 * ls * 2)),
-      hp:    Math.max(5, Math.round((enemy.hp    || 30) * 0.35 * ls * 5)),
-      speed: Math.max(1, Math.round((enemy.speed || 5)  * 0.75)),
-      crit:  Math.max(0, Math.round((enemy.crit  || 3)  * 0.50)),
+      atk:   Math.max(1, Math.round(monsterStats.atk   * ENEMY_SOL_RATIO.atk)),
+      def:   Math.max(0, Math.round(monsterStats.def   * ENEMY_SOL_RATIO.def)),
+      hp:    Math.max(5, Math.round(monsterStats.hp    * ENEMY_SOL_RATIO.hp)),
+      speed: Math.max(1, Math.round(monsterStats.speed * ENEMY_SOL_RATIO.speed)),
+      crit:  Math.max(0, Math.round(monsterStats.crit  * ENEMY_SOL_RATIO.crit)),
     };
   }
 
@@ -8285,9 +8289,7 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
     const tm             = getTacticMod(tactic);
     const activeSoldiers = (deployedSoldiers || []).filter(Boolean).slice(0, MAX_DEPLOY_SLOTS);
 
-    // 레벨 스케일: 레벨마다 10% 증가
-    const lv      = state.level || 1;
-    const lvScale = 1 + (lv - 1) * 0.10;
+    const lv = state.level || 1;
 
     // 영웅 개별 유닛
     const hero = {
@@ -8312,20 +8314,22 @@ ${evSnap.enemyName || '몬스터'} 전투가 도망 처리되었습니다.
       };
     });
 
-    // 몬스터 개별 유닛 (후열) — 레벨 스케일 적용
+    // 몬스터: base(등급보정 완료) + MONSTER_GROWTH×lv — 5개 스탯 모두 균일 적용
+    const mAtk   = Math.round((enemy.atk   || 5)  + MONSTER_GROWTH.atk   * lv);
+    const mDef   = Math.round((enemy.def   || 3)  + MONSTER_GROWTH.def   * lv);
+    const mHp    = Math.round((enemy.hp    || 30) + MONSTER_GROWTH.hp    * lv);
+    const mSpd   = Math.round((enemy.speed || 5)  + MONSTER_GROWTH.speed * lv);
+    const mCrit  = Math.round((enemy.crit  || 5)  + MONSTER_GROWTH.crit  * lv);
     const monster = {
       id:'monster', type:'monster',
       name: enemy.name, grade: enemy.grade,
-      atk:   Math.round((enemy.atk   || 5)  * 4 * lvScale),
-      def:   Math.round((enemy.def   || 3)  * 2 * lvScale),
-      hp:    Math.round((enemy.hp    || 30) * 2 * lvScale),
-      maxHp: Math.round((enemy.hp    || 30) * 2 * lvScale),
-      speed: enemy.speed || 5, crit: enemy.crit || 5,
+      atk: mAtk, def: mDef, hp: mHp, maxHp: mHp,
+      speed: mSpd, crit: mCrit,
       alive: true,
     };
 
-    // 적 병사 항상 4명 (전열) — 레벨 스케일 적용
-    const eStats = calcEnemySoldierStats(enemy, lvScale);
+    // 적 병사 항상 4명 — 몬스터 스탯의 비율로 산출
+    const eStats = calcEnemySoldierStats(monster);
     const enemySoldiers = Array.from({length: 4}, (_, i) => ({
       id:`esol_${i}`, type:'enemySoldier', slotIdx:i,
       atk: eStats.atk, def: eStats.def,
